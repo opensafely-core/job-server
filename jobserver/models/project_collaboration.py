@@ -17,18 +17,16 @@ class ProjectCollaboration(models.Model):
 
     is_lead = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(default=timezone.now, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "User",
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="created_project_collaborations",
     )
-    updated_at = models.DateTimeField(default=timezone.now, null=True)
+    updated_at = models.DateTimeField(default=timezone.now)
     updated_by = models.ForeignKey(
         "User",
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="updated_project_collaborations",
     )
 
