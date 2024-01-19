@@ -14,8 +14,9 @@ from applications.models import Application
 from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
+from jobserver.commands import projects
 from jobserver.hash_utils import unhash, unhash_or_404
-from jobserver.models import Org, Project, ProjectCollaboration, User
+from jobserver.models import Org, Project, User
 
 from ..forms import ApplicationApproveForm
 
@@ -49,23 +50,11 @@ class ApplicationApprove(FormView):
 
     @transaction.atomic()
     def form_valid(self, form):
-        org = form.cleaned_data["org"]
-        project_name = form.cleaned_data["project_name"]
-        project_number = form.cleaned_data["project_number"]
-
-        # create Project with the chosen org
-        project = Project.objects.create(
-            name=project_name,
-            number=project_number,
-            created_by=self.request.user,
-            updated_by=self.request.user,
-        )
-        ProjectCollaboration.objects.create(
-            org=org,
-            project=project,
-            is_lead=True,
-            created_by=self.request.user,
-            updated_by=self.request.user,
+        project = projects.add(
+            name=form.cleaned_data["project_name"],
+            number=form.cleaned_data["project_number"],
+            orgs=[form.cleaned_data["org"]],
+            by=self.request.user,
         )
 
         self.application.approved_at = timezone.now()
