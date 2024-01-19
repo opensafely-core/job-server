@@ -3,7 +3,13 @@ import userEvent from "@testing-library/user-event";
 import React, { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import FileList from "../../../components/FileList/FileList";
-import { csvFile, fileList, pngFile } from "../../helpers/files";
+import {
+  csvFile,
+  fileList,
+  htmlFile,
+  pngFile,
+  txtFile,
+} from "../../helpers/files";
 import props from "../../helpers/props";
 import { render, screen, waitFor, history } from "../../test-utils";
 
@@ -70,7 +76,7 @@ describe("<FileList />", () => {
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
   });
 
-  it("doesn't update if the click file is already showing", async () => {
+  it("doesn't update if the clicked file is already showing", async () => {
     const user = userEvent.setup();
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     history.replace("/");
@@ -93,5 +99,41 @@ describe("<FileList />", () => {
     await user.click(screen.getByText(csvFile.shortName));
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
     expect(history.index).toBe(2);
+  });
+
+  it("sorts the files by date or file name order", async () => {
+    const user = userEvent.setup();
+    fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
+    history.replace("/");
+    render(<FileListWrapper />);
+
+    await waitFor(() => {
+      expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
+      expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
+        fileList[0].shortName,
+      );
+    });
+
+    userEvent.selectOptions(screen.getByRole("combobox"), "Created date");
+
+    await waitFor(() => {
+      expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
+        htmlFile.shortName,
+      );
+      expect(screen.queryAllByRole("listitem")[3].textContent).toBe(
+        csvFile.shortName,
+      );
+    });
+
+    userEvent.selectOptions(screen.getByRole("combobox"), "File name");
+
+    await waitFor(() => {
+      expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
+        csvFile.shortName,
+      );
+      expect(screen.queryAllByRole("listitem")[3].textContent).toBe(
+        htmlFile.shortName,
+      );
+    });
   });
 });
