@@ -55,14 +55,6 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
 
     const itemName = `/${item.name}`;
 
-    // Don't push a state change if clicking on a new file
-    if (
-      itemName === location.pathname ||
-      itemName === location?.location?.pathname
-    ) {
-      return null;
-    }
-
     navigate(itemName);
     return setSelectedFile(item);
   };
