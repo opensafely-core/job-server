@@ -543,9 +543,11 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_develop
     UserFactory(roles=[ProjectDeveloper])
     user = UserFactory()
 
+    actor = UserFactory(roles=[ProjectDeveloper])
+
     # set up projects so the creator can have roles
-    project1 = ProjectFactory(created_by=UserFactory(roles=[ProjectDeveloper]))
-    project2 = ProjectFactory(created_by=UserFactory(roles=[ProjectDeveloper]))
+    project1 = ProjectFactory(created_by=actor, updated_by=actor)
+    project2 = ProjectFactory(created_by=actor, updated_by=actor)
 
     user_with_project = UserFactory()
     ProjectMembershipFactory(

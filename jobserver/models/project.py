@@ -75,7 +75,6 @@ class Project(models.Model):
         "User",
         on_delete=models.PROTECT,
         related_name="projects_updated",
-        null=True,
     )
 
     class Meta:
@@ -88,6 +87,15 @@ class Project(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        updated_at__isnull=False,
+                        updated_by__isnull=False,
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
             # only consider uniqueness of number when it's not null
             models.UniqueConstraint(
