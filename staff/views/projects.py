@@ -185,30 +185,7 @@ class ProjectEdit(UpdateView):
 
     @transaction.atomic()
     def form_valid(self, form):
-        # look up the original object from the database because the form will
-        # mutation self.object under us
-        old = self.get_object()
-
-        new = form.save(commit=False)
-        new.updated_by = self.request.user
-        new.save()
-        new.orgs.set(
-            form.cleaned_data["orgs"],
-            through_defaults={
-                "created_by": self.request.user,
-                "updated_by": self.request.user,
-            },
-        )
-
-        # check changed_data here instead of comparing self.object.project to
-        # new.project because self.object is mutated when ModelForm._post_clean
-        # updates the instance it was passed.  This is because form.instance is
-        # set from the passed in self.object.
-        if "slug" in form.changed_data:
-            new.redirects.create(
-                created_by=self.request.user,
-                old_url=old.get_absolute_url(),
-            )
+        new = projects.edit(old=self.object, form=form, by=self.request.user)
 
         return redirect(new.get_staff_url())
 

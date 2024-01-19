@@ -1,5 +1,12 @@
 from jobserver.commands import projects
-from tests.factories import OrgFactory, UserFactory
+from jobserver.utils import set_from_qs
+from staff.forms import ProjectEditForm
+from tests.factories import (
+    OrgFactory,
+    ProjectCollaborationFactory,
+    ProjectFactory,
+    UserFactory,
+)
 
 
 def test_add_interactive_project():
@@ -76,3 +83,35 @@ def test_add_standard_project():
     assert collaboration2.created_by == actor
     assert collaboration2.updated_at
     assert collaboration2.updated_by == actor
+
+
+def test_edit():
+    org1 = OrgFactory()
+    org2 = OrgFactory()
+    org3 = OrgFactory()
+
+    project = ProjectFactory(slug="old")
+    ProjectCollaborationFactory(project=project, org=org1, is_lead=True)
+    ProjectCollaborationFactory(project=project, org=org2)
+
+    actor = UserFactory()
+
+    form = ProjectEditForm(
+        instance=project,
+        data={
+            "name": project.name,
+            "slug": "new",
+            "status": project.status,
+            "orgs": [
+                org1.pk,
+                org2.pk,
+                org3.pk,
+            ],
+        },
+    )
+    assert form.is_valid(), form.errors
+
+    new = projects.edit(old=project, form=form, by=actor)
+
+    assert new.slug == "new"
+    assert set_from_qs(new.orgs) == {org1.pk, org2.pk, org3.pk}

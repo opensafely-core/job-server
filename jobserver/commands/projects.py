@@ -32,3 +32,27 @@ def add(*, by, name, number, orgs, application_url="", copilot=None):
         )
 
     return project
+
+
+@transaction.atomic()
+def edit(*, old, form, by):
+    # TODO: switch to Form to decouple ModelForm usage here
+    new = form.save(commit=False)
+    new.updated_by = by
+    new.save()
+
+    new.orgs.set(
+        form.cleaned_data["orgs"], through_defaults={"created_by": by, "updated_by": by}
+    )
+
+    # check changed_data here instead of comparing self.object.project to
+    # new.project because self.object is mutated when ModelForm._post_clean
+    # updates the instance it was passed.  This is because form.instance is
+    # set from the passed in self.object.
+    if "slug" in form.changed_data:
+        new.redirects.create(
+            created_by=by,
+            old_url=old.get_absolute_url(),
+        )
+
+    return new
