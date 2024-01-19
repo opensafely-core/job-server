@@ -6,22 +6,14 @@ function Filter({ files, listRef, setFiles }) {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    if (filter) {
-      const timer = setTimeout(
-        () =>
-          setFiles(
-            files.filter((state) =>
-              state.name.toLowerCase().includes(filter.toLowerCase()),
-            ),
-          ),
-        350,
-      );
+    const filteredFiles = [...files].map((file) => ({
+      ...file,
+      visible: file.shortName.toLowerCase().includes(filter.toLowerCase()),
+    }));
 
-      return () => clearTimeout(timer);
-    }
-
-    return setFiles(files);
-  }, [files, filter, setFiles]);
+    setFiles(filteredFiles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
   function filterOnChange(e) {
     listRef?.current?.scrollToItem(0);
