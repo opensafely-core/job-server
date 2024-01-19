@@ -7,12 +7,12 @@ class ProjectCollaboration(models.Model):
     org = models.ForeignKey(
         "Org",
         on_delete=models.PROTECT,
-        related_name="project_orgs",
+        related_name="collaborations",
     )
     project = models.ForeignKey(
         "Project",
         on_delete=models.PROTECT,
-        related_name="project_orgs",
+        related_name="collaborations",
     )
 
     is_lead = models.BooleanField(default=False)
