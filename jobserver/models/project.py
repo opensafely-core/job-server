@@ -66,8 +66,7 @@ class Project(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "User",
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="created_projects",
     )
 
@@ -81,6 +80,15 @@ class Project(models.Model):
 
     class Meta:
         constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=False,
+                        created_by__isnull=False,
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
             # only consider uniqueness of number when it's not null
             models.UniqueConstraint(
                 fields=["number"],

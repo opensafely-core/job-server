@@ -39,11 +39,9 @@
 
     {% #card title="Project information" %}
       {% #description_list %}
-        {% if project.created_by %}
         {% #description_item title="Created by" %}
           {% link href=project.created_by.get_staff_url text=project.created_by.name %}
         {% /description_item %}
-        {% endif %}
 
         {% #description_item title="Created at" %}
           {% #time datetime=project.created_at|date:"Y-m-d H:i:sO" %}
