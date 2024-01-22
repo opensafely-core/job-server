@@ -20,6 +20,7 @@ from interactive.commands import create_repo, create_workspace
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
+from jobserver.commands import projects
 from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import Org, Project, ProjectMembership, User
 
@@ -95,13 +96,7 @@ class ProjectCreate(CreateView):
         # wrap the transaction in a try so it can rollback when that fires
         try:
             with transaction.atomic():
-                orgs = form.cleaned_data.pop("orgs")
-                project = Project.objects.create(
-                    **form.cleaned_data,
-                    created_by=self.request.user,
-                    updated_by=self.request.user,
-                )
-                project.orgs.set(orgs)
+                project = projects.add(**form.cleaned_data, by=self.request.user)
 
                 # make sure the relevant interactive repo exists on GitHub
                 repo_url = create_repo(
@@ -190,24 +185,7 @@ class ProjectEdit(UpdateView):
 
     @transaction.atomic()
     def form_valid(self, form):
-        # look up the original object from the database because the form will
-        # mutation self.object under us
-        old = self.get_object()
-
-        new = form.save(commit=False)
-        new.updated_by = self.request.user
-        new.save()
-        new.orgs.set(form.cleaned_data["orgs"])
-
-        # check changed_data here instead of comparing self.object.project to
-        # new.project because self.object is mutated when ModelForm._post_clean
-        # updates the instance it was passed.  This is because form.instance is
-        # set from the passed in self.object.
-        if "slug" in form.changed_data:
-            new.redirects.create(
-                created_by=self.request.user,
-                old_url=old.get_absolute_url(),
-            )
+        new = projects.edit(old=self.object, form=form, by=self.request.user)
 
         return redirect(new.get_staff_url())
 
