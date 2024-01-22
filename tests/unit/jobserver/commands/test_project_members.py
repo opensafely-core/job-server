@@ -2,7 +2,7 @@ from jobserver.authorization import ProjectDeveloper
 from jobserver.commands import project_members as members
 from jobserver.models import AuditableEvent
 from jobserver.utils import set_from_list, set_from_qs
-from tests.factories import ProjectFactory, ProjectMembershipFactory, UserFactory
+from tests.factories import ProjectFactory, UserFactory
 
 
 def test_add():
@@ -71,12 +71,12 @@ def test_add_with_roles():
         assert updated_roles.created_at
 
 
-def test_update_roles():
+def test_update_roles(project_membership):
     updator = UserFactory()
     project = ProjectFactory()
     user = UserFactory()
 
-    membership = ProjectMembershipFactory(project=project, user=user, roles=[])
+    membership = project_membership(project=project, user=user, roles=[])
 
     assert membership.roles == []
 
@@ -99,12 +99,12 @@ def test_update_roles():
     assert event.created_by == updator.username
 
 
-def test_remove():
+def test_remove(project_membership):
     deletor = UserFactory()
     project = ProjectFactory()
     user = UserFactory()
 
-    membership = ProjectMembershipFactory(project=project, user=user)
+    membership = project_membership(project=project, user=user)
     membership_pk = str(membership.pk)
 
     members.remove(membership=membership, by=deletor)

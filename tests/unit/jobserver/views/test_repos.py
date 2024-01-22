@@ -12,7 +12,6 @@ from jobserver.views.repos import RepoHandler, SignOffRepo
 from ....factories import (
     OrgFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     RepoFactory,
     UserFactory,
     WorkspaceFactory,
@@ -90,13 +89,13 @@ def test_repohandler_with_unknown_repo(rf):
     assert response.status_code == 200
 
 
-def test_signoffrepo_get_success_with_multiple_projects(rf):
+def test_signoffrepo_get_success_with_multiple_projects(rf, project_membership):
     user = UserFactory()
     project1 = ProjectFactory()
     project2 = ProjectFactory()
     repo = RepoFactory(url="http://example.com/owner/name")
 
-    ProjectMembershipFactory(project=project1, user=user)
+    project_membership(project=project1, user=user)
 
     workspaces1 = WorkspaceFactory.create_batch(5, project=project1, repo=repo)
     workspaces2 = WorkspaceFactory.create_batch(5, project=project2, repo=repo)
@@ -122,12 +121,12 @@ def test_signoffrepo_get_success_with_multiple_projects(rf):
     assert response.context_data["repo"]["url"] == repo.url
 
 
-def test_signoffrepo_get_success_with_one_project(rf):
+def test_signoffrepo_get_success_with_one_project(rf, project_membership):
     user = UserFactory()
     project = ProjectFactory()
     repo = RepoFactory(url="http://example.com/owner/name")
 
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     workspaces = WorkspaceFactory.create_batch(5, project=project, repo=repo)
     WorkspaceFactory.create_batch(5, project=project)
@@ -154,12 +153,12 @@ def test_signoffrepo_get_success_with_one_project(rf):
     assert response.context_data["repo"]["url"] == repo.url
 
 
-def test_signoffrepo_get_success_with_broken_github(rf):
+def test_signoffrepo_get_success_with_broken_github(rf, project_membership):
     user = UserFactory()
     project = ProjectFactory()
     repo = RepoFactory(url="http://example.com/owner/name")
 
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     workspaces = WorkspaceFactory.create_batch(5, project=project, repo=repo)
     WorkspaceFactory.create_batch(5, project=project)
@@ -192,13 +191,13 @@ def test_signoffrepo_get_success_with_broken_github(rf):
     assert response.context_data["repo"]["url"] == repo.url
 
 
-def test_signoffrepo_member_with_no_workspaces(rf):
+def test_signoffrepo_member_with_no_workspaces(rf, project_membership):
     user = UserFactory()
     project = ProjectFactory()
     repo = RepoFactory()
     WorkspaceFactory.create_batch(5)
 
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     request = rf.get("/")
     request.user = user
@@ -233,13 +232,13 @@ def test_signoffrepo_not_a_project_member(rf):
         )
 
 
-def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
+def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf, project_membership):
     now = timezone.now()
 
     user = UserFactory()
 
     project = ProjectFactory()
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     repo = RepoFactory()
     WorkspaceFactory(project=project, repo=repo, signed_off_at=now, signed_off_by=user)
@@ -265,11 +264,11 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
 
 
 def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_with_github_outputs(
-    rf, mailoutbox, slack_messages
+    rf, mailoutbox, slack_messages, project_membership
 ):
     user = UserFactory()
     project = ProjectFactory()
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     repo = RepoFactory(
         researcher_signed_off_at=None,
@@ -303,12 +302,12 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_with_github_outp
 
 
 def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_outputs(
-    rf, mailoutbox, slack_messages
+    rf, mailoutbox, slack_messages, project_membership
 ):
     user = UserFactory()
     copilot = UserFactory()
     project = ProjectFactory(copilot=copilot)
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     repo = RepoFactory(
         researcher_signed_off_at=None,
@@ -344,10 +343,10 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_o
     assert channel == "co-pilot-support"
 
 
-def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
+def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf, project_membership):
     user = UserFactory()
     project = ProjectFactory()
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     repo = RepoFactory()
     WorkspaceFactory(project=project, repo=repo)
@@ -374,13 +373,15 @@ def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
     )
 
 
-def test_signoffrepo_post_partially_signed_off_workspaces_and_name(rf):
+def test_signoffrepo_post_partially_signed_off_workspaces_and_name(
+    rf, project_membership
+):
     user = UserFactory()
     project = ProjectFactory()
     repo = RepoFactory()
     workspace = WorkspaceFactory(project=project, repo=repo)
 
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     request = rf.post("/", {"name": workspace.name})
     request.user = user
@@ -396,13 +397,15 @@ def test_signoffrepo_post_partially_signed_off_workspaces_and_name(rf):
     assert workspace.signed_off_at
 
 
-def test_signoffrepo_post_partially_signed_off_workspaces_and_no_name(rf):
+def test_signoffrepo_post_partially_signed_off_workspaces_and_no_name(
+    rf, project_membership
+):
     user = UserFactory()
     project = ProjectFactory()
     repo = RepoFactory(url="https://github.com/opensafely-testing/github-api-testing")
     WorkspaceFactory(project=project, repo=repo)
 
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     request = rf.post("/")
     request.user = user

@@ -16,7 +16,6 @@ from jobserver.models import (
     OrgMembership,
     Project,
     ProjectCollaboration,
-    ProjectMembership,
     Repo,
     Stats,
     User,
@@ -132,14 +131,6 @@ class ProjectCollaborationFactory(factory.django.DjangoModelFactory):
     org = factory.SubFactory("tests.factories.OrgFactory")
     project = factory.SubFactory("tests.factories.ProjectFactory")
     updated_by = factory.SubFactory("tests.factories.UserFactory")
-
-
-class ProjectMembershipFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ProjectMembership
-
-    project = factory.SubFactory("tests.factories.ProjectFactory")
-    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class RepoFactory(factory.django.DjangoModelFactory):

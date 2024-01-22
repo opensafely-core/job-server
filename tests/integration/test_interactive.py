@@ -20,7 +20,6 @@ from ..factories import (
     JobFactory,
     JobRequestFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     RepoFactory,
     ReportFactory,
     UserFactory,
@@ -68,7 +67,9 @@ def assert_edit_and_publish_pages_are_locked(analysis, client):
 
 
 @pytest.mark.slow_test
-def test_interactive_submission_success(rf, local_repo, enable_network):
+def test_interactive_submission_success(
+    rf, local_repo, enable_network, project_membership
+):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     repo = RepoFactory(url=local_repo)
@@ -80,7 +81,7 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
     assert project.interactive_workspace
 
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     # hit the submission view with form data
     data = {
@@ -127,14 +128,16 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
     assert "{{" not in analysis_request.job_request.project_definition
 
 
-def test_interactive_publishing_report_success(client, release, slack_messages):
+def test_interactive_publishing_report_success(
+    client, project_membership, release, slack_messages
+):
     # set up the project…
     project = ProjectFactory()
     workspace = WorkspaceFactory(project=project, name=project.interactive_slug)
 
     # … and the user
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
     client.force_login(user)
 
     # "run" the job

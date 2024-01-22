@@ -8,7 +8,6 @@ from ....factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
 )
 
@@ -42,11 +41,11 @@ def test_get_org_roles_for_user_without_roles():
     assert roles == []
 
 
-def test_get_project_roles_for_user_with_roles():
+def test_get_project_roles_for_user_with_roles(project_membership):
     project = ProjectFactory()
     user = UserFactory(roles=[CoreDeveloper])
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+    project_membership(project=project, user=user, roles=[ProjectCollaborator])
 
     roles = get_project_roles_for_user(project, user)
 
@@ -60,11 +59,11 @@ def test_get_project_roles_for_user_unknown_membership():
     assert get_project_roles_for_user(project, user) == []
 
 
-def test_get_project_roles_for_user_without_roles():
+def test_get_project_roles_for_user_without_roles(project_membership):
     project = ProjectFactory()
     user = UserFactory(roles=[CoreDeveloper])
 
-    ProjectMembershipFactory(project=project, user=user, roles=[])
+    project_membership(project=project, user=user, roles=[])
     roles = get_project_roles_for_user(project, user)
 
     assert roles == []

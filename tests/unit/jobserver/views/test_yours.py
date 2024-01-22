@@ -14,7 +14,6 @@ from ....factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -78,14 +77,14 @@ def test_orglist_unauthorized(rf):
     assert response.url == f"{settings.LOGIN_URL}?next={settings.LOGIN_REDIRECT_URL}"
 
 
-def test_projectlist_success(rf):
+def test_projectlist_success(rf, project_membership):
     user = UserFactory()
 
     ProjectFactory.create_batch(3, created_by=user)
     ProjectFactory.create_batch(3)
 
-    m1 = ProjectMembershipFactory(user=user)
-    m2 = ProjectMembershipFactory(user=user)
+    m1 = project_membership(user=user)
+    m2 = project_membership(user=user)
 
     request = rf.get("/")
     request.user = user
@@ -110,18 +109,18 @@ def test_projectlist_unauthorized(rf):
     assert response.url == f"{settings.LOGIN_URL}?next={settings.LOGIN_REDIRECT_URL}"
 
 
-def test_workspacelist_success(rf):
+def test_workspacelist_success(rf, project_membership):
     user = UserFactory()
 
     project1 = ProjectFactory(created_by=user)
     WorkspaceFactory(project=project1, created_by=user)
 
     project2 = ProjectFactory()
-    ProjectMembershipFactory(project=project2, user=user)
+    project_membership(project=project2, user=user)
     w2 = WorkspaceFactory(project=project2)
 
     project3 = ProjectFactory()
-    ProjectMembershipFactory(project=project3, user=user)
+    project_membership(project=project3, user=user)
     w3 = WorkspaceFactory(project=project3)
 
     request = rf.get("/")

@@ -13,16 +13,15 @@ from ....factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
-    ProjectMembershipFactory,
     UserFactory,
 )
 
 
-def test_jobcancel_already_cancelled(rf, user):
+def test_jobcancel_already_cancelled(rf, user, project_membership):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
     job = JobFactory(job_request=job_request, action="test")
 
-    ProjectMembershipFactory(
+    project_membership(
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
@@ -38,11 +37,11 @@ def test_jobcancel_already_cancelled(rf, user):
     assert job_request.cancelled_actions == ["another-action", "test"]
 
 
-def test_jobcancel_already_completed(rf, user):
+def test_jobcancel_already_completed(rf, user, project_membership):
     job_request = JobRequestFactory(cancelled_actions=["another-action"])
     job = JobFactory(job_request=job_request, action="test", status="succeeded")
 
-    ProjectMembershipFactory(
+    project_membership(
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
@@ -58,12 +57,12 @@ def test_jobcancel_already_completed(rf, user):
     assert job_request.cancelled_actions == ["another-action"]
 
 
-def test_jobcancel_success(rf):
+def test_jobcancel_success(rf, project_membership):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test")
     user = UserFactory()
 
-    ProjectMembershipFactory(
+    project_membership(
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
@@ -149,11 +148,11 @@ def test_jobdetail_with_anonymous_user(rf):
     assert "Honeycomb" not in response.rendered_content
 
 
-def test_jobdetail_with_permission(rf):
+def test_jobdetail_with_permission(rf, project_membership):
     job = JobFactory()
     user = UserFactory()
 
-    ProjectMembershipFactory(
+    project_membership(
         project=job.job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 

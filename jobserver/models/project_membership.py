@@ -9,6 +9,18 @@ from ..authorization.fields import RolesArrayField
 logger = structlog.get_logger(__name__)
 
 
+class ProjectMembershipManager(models.Manager):
+    def create(self, *args, override=False, **kwargs):
+        if override:
+            return super().create(*args, **kwargs)
+
+        msg = (
+            "Direct creation of ProjectMemberships via this method is disabled, "
+            "please use commands.project_members.add"
+        )
+        raise TypeError(msg)
+
+
 class ProjectMembership(models.Model):
     """
     Membership of a Project for a User
@@ -37,6 +49,8 @@ class ProjectMembership(models.Model):
     roles = RolesArrayField()
 
     created_at = models.DateTimeField(default=timezone.now)
+
+    objects = ProjectMembershipManager()
 
     class Meta:
         unique_together = ["project", "user"]

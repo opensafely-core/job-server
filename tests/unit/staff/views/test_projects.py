@@ -25,7 +25,6 @@ from ....factories import (
     ApplicationFactory,
     OrgFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
 )
 from ....fakes import FakeGitHubAPI
@@ -597,13 +596,15 @@ def test_projectlist_unauthorized(rf):
 
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
-def test_projectmembershipedit_success(rf, core_developer, next_url):
+def test_projectmembershipedit_success(
+    rf, core_developer, next_url, project_membership
+):
     project = ProjectFactory()
     user = UserFactory()
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+    project_membership(project=project, user=user, roles=[ProjectCollaborator])
 
-    membership = ProjectMembershipFactory(project=project, user=UserFactory())
+    membership = project_membership(project=project, user=UserFactory())
 
     suffix = f"?next={next_url}" if next_url else ""
     request = rf.post(f"/{suffix}", {"roles": [dotted_path(ProjectDeveloper)]})
@@ -622,10 +623,12 @@ def test_projectmembershipedit_success(rf, core_developer, next_url):
     assert membership.roles == [ProjectDeveloper]
 
 
-def test_projectmembershipedit_unknown_membership(rf, core_developer):
+def test_projectmembershipedit_unknown_membership(
+    rf, core_developer, project_membership
+):
     project = ProjectFactory()
 
-    ProjectMembershipFactory(project=project, user=UserFactory())
+    project_membership(project=project, user=UserFactory())
 
     request = rf.get("/")
     request.user = core_developer
@@ -643,11 +646,13 @@ def test_projectmembershipedit_unauthorized(rf):
 
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
-def test_projectmembershipremove_success(rf, core_developer, next_url):
+def test_projectmembershipremove_success(
+    rf, core_developer, next_url, project_membership
+):
     project = ProjectFactory()
     user = UserFactory()
 
-    membership = ProjectMembershipFactory(project=project, user=user)
+    membership = project_membership(project=project, user=user)
 
     suffix = f"?next={next_url}" if next_url else ""
     request = rf.post(f"/{suffix}")
@@ -676,8 +681,8 @@ def test_projectmembershipremove_success(rf, core_developer, next_url):
     assert str(messages[0]) == f"Removed {user.username} from {project.title}"
 
 
-def test_projectmembershipremove_unauthorized(rf):
-    membership = ProjectMembershipFactory()
+def test_projectmembershipremove_unauthorized(rf, project_membership):
+    membership = project_membership()
 
     request = rf.post("/")
     request.user = UserFactory()

@@ -13,7 +13,7 @@ from jobserver.authorization import (
 )
 from jobserver.models import ProjectMembership
 
-from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
+from ....factories import ProjectFactory, UserFactory
 
 
 def test_has_permission_failure():
@@ -58,11 +58,11 @@ def test_has_role_unauthenticated():
     assert not has_role(user, ProjectCollaborator)
 
 
-def test_has_role_with_context_failure():
+def test_has_role_with_context_failure(project_membership):
     project = ProjectFactory()
     user = UserFactory()
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+    project_membership(project=project, user=user, roles=[ProjectCollaborator])
 
     # key must be a known key
     with pytest.raises(
@@ -77,11 +77,11 @@ def test_has_role_with_context_failure():
         has_role(user, ProjectCollaborator, project=user)
 
 
-def test_has_role_with_context_success():
+def test_has_role_with_context_success(project_membership):
     project = ProjectFactory()
     user = UserFactory()
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+    project_membership(project=project, user=user, roles=[ProjectCollaborator])
     assert has_role(user, ProjectCollaborator, project=project)
 
 

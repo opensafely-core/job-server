@@ -29,7 +29,6 @@ from ....factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
     UserSocialAuthFactory,
     WorkspaceFactory,
@@ -220,12 +219,16 @@ def test_usercreate_unauthorized(rf):
         UserCreate.as_view()(request)
 
 
-def test_userdetail_with_email_user_invokes_userdetailwithemail(rf, core_developer):
+def test_userdetail_with_email_user_invokes_userdetailwithemail(
+    rf, core_developer, project_membership
+):
+    org = OrgFactory()
     project = ProjectFactory()
     user = UserFactory()
 
-    # link the user to a project
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    # link the user to an org and a project
+    OrgMembershipFactory(org=org, user=user)
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
     request.user = core_developer
@@ -235,14 +238,18 @@ def test_userdetail_with_email_user_invokes_userdetailwithemail(rf, core_develop
     assert response.status_code == 200
 
 
-def test_userdetail_with_oauth_user_invokes_userdetailwithoauth(rf, core_developer):
+def test_userdetail_with_oauth_user_invokes_userdetailwithoauth(
+    rf, core_developer, project_membership
+):
+    org = OrgFactory()
     project = ProjectFactory()
     user = UserFactory()
     UserSocialAuthFactory(user=user)
 
     # link the user to a backend, and project
     BackendMembershipFactory(user=user)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    OrgMembershipFactory(org=org, user=user)
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
     request.user = core_developer
@@ -268,13 +275,13 @@ def test_userdetail_without_core_dev_role(rf):
         UserDetail.as_view()(request, username="test")
 
 
-def test_userdetailwithemail_get_success(rf, core_developer):
+def test_userdetailwithemail_get_success(rf, core_developer, project_membership):
     user = UserFactory()
 
     # add a couple of memberships so the orgs and projects comprehensions in
     # get_context_data fire
     OrgMembershipFactory(user=user)
-    ProjectMembershipFactory(user=user)
+    project_membership(user=user)
 
     request = rf.get("/")
     request.user = core_developer
@@ -305,15 +312,17 @@ def test_userdetailwithemail_post_success(rf, core_developer):
 
 
 def test_userdetailwithemail_with_oauth_user_invokes_userdetailwithoauth(
-    rf, core_developer
+    rf, core_developer, project_membership
 ):
+    org = OrgFactory()
     project = ProjectFactory()
     user = UserFactory()
     UserSocialAuthFactory(user=user)
 
     # link the user to some a backend, and project
     BackendMembershipFactory(user=user)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    OrgMembershipFactory(org=org, user=user)
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
     request.user = core_developer
@@ -339,7 +348,7 @@ def test_userdetailwithemail_without_core_dev_role(rf, core_developer):
         UserDetailWithEmail.as_view()(request, username="test")
 
 
-def test_userdetailwithoauth_get_success(rf, core_developer):
+def test_userdetailwithoauth_get_success(rf, core_developer, project_membership):
     org = OrgFactory()
     project1 = ProjectFactory()
     project2 = ProjectFactory()
@@ -354,8 +363,8 @@ def test_userdetailwithoauth_get_success(rf, core_developer):
     OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
-    ProjectMembershipFactory(project=project1, user=user)
-    ProjectMembershipFactory(project=project2, user=user)
+    project_membership(project=project1, user=user)
+    project_membership(project=project2, user=user)
 
     request = rf.get("/")
     request.user = core_developer
@@ -366,7 +375,7 @@ def test_userdetailwithoauth_get_success(rf, core_developer):
     assert response.context_data["user"] == user
 
 
-def test_userdetailwithoauth_post_success(rf, core_developer):
+def test_userdetailwithoauth_post_success(rf, core_developer, project_membership):
     backend = BackendFactory()
 
     project1 = ProjectFactory()
@@ -379,8 +388,8 @@ def test_userdetailwithoauth_post_success(rf, core_developer):
     BackendMembershipFactory(user=user)
 
     # link the user to the Projects
-    ProjectMembershipFactory(project=project1, user=user)
-    ProjectMembershipFactory(project=project2, user=user)
+    project_membership(project=project1, user=user)
+    project_membership(project=project2, user=user)
 
     request = rf.post("/", {"backends": [backend.slug]})
     request.user = core_developer
@@ -394,7 +403,9 @@ def test_userdetailwithoauth_post_success(rf, core_developer):
     assert set_from_qs(user.backends.all()) == {backend.pk}
 
 
-def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
+def test_userdetailwithoauth_post_with_unknown_backend(
+    rf, core_developer, project_membership
+):
     project1 = ProjectFactory()
     project2 = ProjectFactory()
     user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
@@ -405,8 +416,8 @@ def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
     BackendMembershipFactory(user=user)
 
     # link the user to the Projects
-    ProjectMembershipFactory(project=project1, user=user)
-    ProjectMembershipFactory(project=project2, user=user)
+    project_membership(project=project1, user=user)
+    project_membership(project=project2, user=user)
 
     request = rf.post("/", {"backends": ["not-a-real-backend"]})
     request.user = core_developer
@@ -432,13 +443,15 @@ def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
 
 
 def test_userdetailwithoauth_with_email_only_user_invokes_userdetailwithemail(
-    rf, core_developer
+    rf, core_developer, project_membership
 ):
+    org = OrgFactory()
     project = ProjectFactory()
     user = UserFactory()
 
     # link the user to the Org&Project
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    OrgMembershipFactory(org=org, user=user)
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     request = rf.get("/")
     request.user = core_developer
@@ -573,11 +586,13 @@ def test_userlist_filter_by_any_roles_yes_includes_global_roles(rf, core_develop
     }
 
 
-def test_userlist_filter_by_any_roles_yes_includes_project(rf, core_developer):
+def test_userlist_filter_by_any_roles_yes_includes_project(
+    rf, core_developer, project_membership
+):
     UserFactory()
 
     user_with_project = UserFactory()
-    ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
+    project_membership(user=user_with_project, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=yes")
     request.user = core_developer
@@ -590,11 +605,13 @@ def test_userlist_filter_by_any_roles_yes_includes_project(rf, core_developer):
     }
 
 
-def test_userlist_filter_by_any_roles_yes_includes_org(rf, core_developer):
+def test_userlist_filter_by_any_roles_yes_includes_org(
+    rf, core_developer, project_membership
+):
     UserFactory()
 
     user_with_project = UserFactory()
-    ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
+    project_membership(user=user_with_project, roles=[ProjectDeveloper])
 
     user_with_org = UserFactory()
     OrgMembershipFactory(user=user_with_org, roles=[ProjectDeveloper])
@@ -624,9 +641,9 @@ def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_develope
     assert set_from_qs(response.context_data["object_list"]) == {user.pk}
 
 
-def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_developer):
-    UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[ProjectDeveloper])
+def test_userlist_filter_by_any_roles_no_excludes_project_roles(
+    rf, core_developer, project_membership
+):
     user = UserFactory()
 
     actor = UserFactory(roles=[ProjectDeveloper])
@@ -636,19 +653,25 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_develop
     project2 = ProjectFactory(created_by=actor, updated_by=actor)
 
     user_with_project = UserFactory()
-    ProjectMembershipFactory(
-        project=project1, user=user_with_project, roles=[ProjectDeveloper]
+    project_membership(
+        project=project1,
+        user=user_with_project,
+        roles=[ProjectDeveloper],
+        by=actor,
     )
 
     user_with_project_and_no_roles = UserFactory()
-    ProjectMembershipFactory(project=project1, user=user_with_project_and_no_roles)
+    project_membership(project=project1, user=user_with_project_and_no_roles, by=actor)
 
     user_with_mixture_of_project_roles = UserFactory()
-    ProjectMembershipFactory(project=project1, user=user_with_mixture_of_project_roles)
-    ProjectMembershipFactory(
+    project_membership(
+        project=project1, user=user_with_mixture_of_project_roles, by=actor
+    )
+    project_membership(
         project=project2,
         user=user_with_mixture_of_project_roles,
         roles=[ProjectDeveloper],
+        by=actor,
     )
 
     request = rf.get("/?any_roles=no")
