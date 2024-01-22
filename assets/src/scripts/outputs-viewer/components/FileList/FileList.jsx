@@ -9,24 +9,30 @@ import Filter from "./Filter";
 
 function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
   const [files, setFiles] = useState([]);
-  const [fileIndex, setFileIndex] = useState(null);
+  const [fileSort, setFileSort] = useState("nameOrder");
 
-  const { data, isError, isLoading } = useFileList({ authToken, filesUrl });
+  const { data, isError, isLoading, isSuccess } = useFileList({
+    authToken,
+    filesUrl,
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
   const listRef = createRef();
 
   useEffect(() => {
-    const selectedItem = files.findIndex(
+    const selectedItem = data?.find(
       (file) => `/${file.name}` === location.pathname,
     );
 
-    if (files[selectedItem]) {
-      setFileIndex(selectedItem);
-      setSelectedFile(files[selectedItem]);
+    setSelectedFile(selectedItem);
+
+    if (data) {
+      setFiles(data);
     }
-  }, [data, files, location, setSelectedFile]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess]);
 
   if (isLoading) {
     return (
@@ -49,47 +55,68 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
 
     const itemName = `/${item.name}`;
 
-    // Don't push a state change if clicking on a new file
-    if (
-      itemName === location.pathname ||
-      itemName === location?.location?.pathname
-    ) {
-      return null;
-    }
-
     navigate(itemName);
     return setSelectedFile(item);
   };
 
   return (
     <div className={listVisible ? "block md:sticky md:top-2" : "hidden"}>
+      <div className="flex flex-row items-center gap-2 mb-1">
+        <label
+          className="inline-block font-semibold text-sm text-slate-900 cursor-pointer flex-shrink-0"
+          htmlFor="fileSort"
+        >
+          Sort files by
+        </label>
+        <select
+          className="
+            block w-full border-slate-300 text-slate-900 shadow-sm
+            focus:border-oxford-500 focus:ring-oxford-500
+            sm:text-sm
+          "
+          id="fileSort"
+          name="file-sort"
+          onChange={(e) => setFileSort(e.target.value)}
+          value={fileSort}
+        >
+          <option value="nameOrder">File name</option>
+          <option value="dateOrder">Created date</option>
+        </select>
+      </div>
       <Filter files={data} listRef={listRef} setFiles={setFiles} />
       <Card
         className="py-2 md:max-h-screen md:h-full overflow-x-auto md:overflow-y-auto"
         container={false}
       >
         <ul className="text-sm text-oxford-600 flex flex-col gap-y-1 items-start">
-          {files.map((file, index) => (
-            <li
-              key={file.name}
-              className={`leading-tight px-4 ${
-                fileIndex === index ? "font-bold text-oxford-800" : ""
-              }`}
-            >
-              {fileIndex === index ? (
-                <span>{file.shortName}</span>
-              ) : (
-                <a
-                  disabled={`/${file.name}` === location.pathname}
-                  href={file.url}
-                  onClick={(e) => selectFile({ e, item: file })}
-                  title={`File size: ${prettyFileSize(file.size)}`}
-                >
-                  {file.shortName}
-                </a>
-              )}
-            </li>
-          ))}
+          {files
+            .sort((a, b) => a[fileSort] - b[fileSort])
+            .map((file) => (
+              <React.Fragment key={file.id}>
+                {file.visible && (
+                  <li
+                    className={`leading-tight px-4 ${
+                      `/${file.name}` === location.pathname
+                        ? "font-bold text-oxford-800"
+                        : ""
+                    }`}
+                  >
+                    {`/${file.name}` === location.pathname ? (
+                      <span>{file.shortName}</span>
+                    ) : (
+                      <a
+                        disabled={`/${file.name}` === location.pathname}
+                        href={file.url}
+                        onClick={(e) => selectFile({ e, item: file })}
+                        title={`File size: ${prettyFileSize(file.size)}`}
+                      >
+                        {file.shortName}
+                      </a>
+                    )}
+                  </li>
+                )}
+              </React.Fragment>
+            ))}
         </ul>
       </Card>
     </div>

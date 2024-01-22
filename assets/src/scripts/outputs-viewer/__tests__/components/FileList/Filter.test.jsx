@@ -2,7 +2,13 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import Filter from "../../../components/FileList/Filter";
-import { fileList, htmlFile } from "../../helpers/files";
+import {
+  csvFile,
+  fileList,
+  htmlFile,
+  pngFile,
+  txtFile,
+} from "../../helpers/files";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<Filter />", () => {
@@ -25,7 +31,14 @@ describe("<Filter />", () => {
     expect(searchbox).toBeVisible();
     await user.type(searchbox, "html");
 
-    await waitFor(() => expect(setFiles).toHaveBeenLastCalledWith([htmlFile]));
+    await waitFor(() =>
+      expect(setFiles).toHaveBeenLastCalledWith([
+        { ...csvFile, visible: false },
+        { ...pngFile, visible: false },
+        { ...txtFile, visible: false },
+        { ...htmlFile, visible: true },
+      ]),
+    );
   });
 
   it("clears filter on clearing of input", async () => {
@@ -36,7 +49,14 @@ describe("<Filter />", () => {
     expect(searchbox).toBeVisible();
     await user.type(searchbox, "html");
 
-    await waitFor(() => expect(setFiles).toHaveBeenLastCalledWith([htmlFile]));
+    await waitFor(() =>
+      expect(setFiles).toHaveBeenLastCalledWith([
+        { ...csvFile, visible: false },
+        { ...pngFile, visible: false },
+        { ...txtFile, visible: false },
+        { ...htmlFile, visible: true },
+      ]),
+    );
 
     await user.clear(searchbox);
 

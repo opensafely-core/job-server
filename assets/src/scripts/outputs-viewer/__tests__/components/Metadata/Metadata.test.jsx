@@ -34,12 +34,12 @@ describe("<Metadata />", () => {
     );
 
     // Absolute date
-    expect(screen.getByText("01/01/2021, 10:11").getAttribute("datetime")).toBe(
-      "2021-01-01T10:11:12.131Z",
+    expect(screen.getByText("02/01/2021, 10:11").getAttribute("datetime")).toBe(
+      "2021-01-02T10:11:12.131Z",
     );
 
     // Date
-    expect(screen.getByText("01/01/2021, 10:11")).toBeVisible();
+    expect(screen.getByText("02/01/2021, 10:11")).toBeVisible();
 
     // File size
     expect(screen.getByText("1.23 kB")).toBeVisible();
@@ -64,12 +64,12 @@ describe("<Metadata />", () => {
     );
 
     // Absolute date
-    expect(screen.getByText("01/01/2021, 10:11").getAttribute("datetime")).toBe(
-      "2021-01-01T10:11:12.131Z",
+    expect(screen.getByText("02/01/2021, 10:11").getAttribute("datetime")).toBe(
+      "2021-01-02T10:11:12.131Z",
     );
 
     // Date
-    expect(screen.getByText("01/01/2021, 10:11")).toBeVisible();
+    expect(screen.getByText("02/01/2021, 10:11")).toBeVisible();
 
     // File size
     expect(screen.getByText("unknown")).toBeVisible();

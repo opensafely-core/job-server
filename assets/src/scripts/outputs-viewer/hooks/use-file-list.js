@@ -26,9 +26,16 @@ function longestSubStr(files) {
 
 export function sortedFiles(files) {
   const enCollator = new Intl.Collator("en");
-  const filesSorted = [...files].sort((a, b) =>
-    enCollator.compare(a.name.toUpperCase(), b.name.toUpperCase()),
-  );
+  const filesSorted = [...files]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map((item, i) => ({
+      dateOrder: i,
+      ...item,
+    }))
+    .sort((a, b) =>
+      enCollator.compare(a.name.toUpperCase(), b.name.toUpperCase()),
+    )
+    .map((item, i) => ({ nameOrder: i, ...item }));
 
   if (filesSorted.length < 2) {
     return filesSorted.map((file) => ({
@@ -42,6 +49,7 @@ export function sortedFiles(files) {
   return filesSorted.map((file) => ({
     ...file,
     shortName: file.name.replace(`${prefix}/`, ""),
+    visible: true,
   }));
 }
 
@@ -55,7 +63,7 @@ function useFileList({ authToken, filesUrl }) {
         },
       });
 
-      if (!response.ok) throw new Error();
+      if (!response.ok) throw new Error("File list not found");
 
       return response.json();
     },

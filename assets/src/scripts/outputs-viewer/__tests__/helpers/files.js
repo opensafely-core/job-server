@@ -8,6 +8,7 @@ export const csvFile = {
   sha256: "sha1",
   size: 1231,
   is_deleted: false,
+  visible: true,
 };
 
 export const pngFile = {
@@ -16,10 +17,11 @@ export const pngFile = {
   id: "abc2",
   url: "/api/v2/releases/file/abc2",
   user: "exampleuser",
-  date: "2021-01-01T10:11:12.131415+00:00",
+  date: "2021-01-02T10:11:12.131415+00:00",
   sha256: "sha2",
   size: 1232,
   is_deleted: false,
+  visible: true,
 };
 
 export const txtFile = {
@@ -28,10 +30,11 @@ export const txtFile = {
   id: "abc3",
   url: "/api/v2/releases/file/abc3",
   user: "exampleuser",
-  date: "2021-01-01T10:11:12.131415+00:00",
+  date: "2021-01-03T10:11:12.131415+00:00",
   sha256: "sha3",
   size: 1233,
   is_deleted: false,
+  visible: true,
 };
 
 export const htmlFile = {
@@ -40,10 +43,11 @@ export const htmlFile = {
   id: "abc4",
   url: "/api/v2/releases/file/abc4",
   user: "exampleuser",
-  date: "2021-01-01T10:11:12.131415+00:00",
+  date: "2021-01-04T10:11:12.131415+00:00",
   sha256: "sha4",
   size: 1234,
   is_deleted: false,
+  visible: true,
 };
 
 export const jsFile = {
@@ -52,10 +56,11 @@ export const jsFile = {
   id: "abc5",
   url: "/api/v2/releases/file/abc5",
   user: "exampleuser",
-  date: "2021-01-01T10:11:12.131415+00:00",
+  date: "2021-01-05T10:11:12.131415+00:00",
   sha256: "sha5",
   size: 1235,
   is_deleted: false,
+  visible: true,
 };
 
 export const jsonFile = {
@@ -64,10 +69,11 @@ export const jsonFile = {
   id: "abc6",
   url: "/api/v2/releases/file/abc6",
   user: "exampleuser",
-  date: "2021-01-01T10:11:12.131415+00:00",
+  date: "2021-01-06T10:11:12.131415+00:00",
   sha256: "sha6",
   size: 1236,
   is_deleted: false,
+  visible: true,
 };
 
 export const fileList = [csvFile, pngFile, txtFile, htmlFile];
