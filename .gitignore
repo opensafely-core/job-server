@@ -11,6 +11,7 @@ __pycache__
 /assets/src/scripts/outputs-viewer/coverage
 /coverage
 /docker/staticfiles/*
+/docker/assetsout/*
 /htmlcov
 /jobserver.dump
 /jobserver.sqlite.zip
