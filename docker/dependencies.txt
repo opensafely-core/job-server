@@ -4,3 +4,4 @@ postgresql-client
 python3.12
 python3.12-venv
 tzdata
+acl
