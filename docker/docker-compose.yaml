@@ -69,8 +69,8 @@ services:
       target: job-server-dev
       args:
         # user developer uid:gid in dev
-        - USERID=${DEV_USERID:-1000}
-        - GROUPID=${DEV_GROUPID:-1000}
+        - USERID=3000
+        - GROUPID=3000
     # paths relative to docker-compose.yaml file
     env_file:
       - ../.env
@@ -79,6 +79,7 @@ services:
       - ..:/app
       # provides a persistant inspectable cache for staticfiles
       - ./staticfiles:/opt/staticfiles
+      - ./assetsout:/opt/assetsout
 
   dev:
     extends:
