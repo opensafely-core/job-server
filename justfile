@@ -122,7 +122,7 @@ run-telemetry: devenv
 manage command *args:
     $BIN/python manage.py {{command}} {{args}}
 
-test-ci *args: assets
+test-ci *args:
     #!/bin/bash
     export COVERAGE_PROCESS_START="pyproject.toml"
     export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*"
@@ -136,7 +136,7 @@ test-verification *args: devenv
     ./scripts/test-coverage.sh -m "verification" {{ args }}
 
 
-test *args: assets
+test *args:
     $BIN/pytest -n auto -m "not verification and not slow_test" {{ args }}
 
 
