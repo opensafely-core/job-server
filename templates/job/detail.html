@@ -188,6 +188,50 @@
       </dl>
     {% /card %}
 
+    {% if request.user.all_roles %}
+    {% #card title="Job metrics" subtitle="Computed for the time spent running on the backend" %}
+      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+        {% #description_item title="Mean CPU usage" %}
+          {% if job.metrics %}
+          <span class="relative group cursor-pointer">
+          {{ job.metrics.cpu_mean|floatformat:"0" }}%
+          {% tooltip content="Values are reported across all CPU cores" %}
+          </span>
+          {% else %}
+          -
+          {% endif %}
+        {% /description_item %}
+
+        {% #description_item title="Peak CPU usage" %}
+          {% if job.metrics %}
+          <span class="relative group cursor-pointer">
+          {{ job.metrics.cpu_peak|floatformat:"0" }}%
+          {% tooltip content="Values are reported across all CPU cores" %}
+          </span>
+          {% else %}
+          -
+          {% endif %}
+        {% /description_item %}
+
+        {% #description_item title="Mean memory usage" %}
+          {% if job.metrics %}
+          {{ job.metrics.mem_mb_mean|floatformat:"0g" }} MB
+          {% else %}
+          -
+          {% endif %}
+        {% /description_item %}
+
+        {% #description_item title="Peak memory usage" %}
+          {% if job.metrics %}
+          {{ job.metrics.mem_mb_peak|floatformat:"0g" }} MB
+          {% else %}
+          -
+          {% endif %}
+        {% /description_item %}
+      </dl>
+    {% /card %}
+    {% endif %}
+
     {% if honeycomb_links %}
       {% #card title="Monitoring" subtitle="Honeycomb login required" container %}
         <ul class="flex flex-col gap-y-1.5 list-disc text-sm">
