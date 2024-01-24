@@ -209,10 +209,7 @@ Vite integrates into the Django project using the [django-vite](https://github.c
 
 Vite works by compiling JavaScript files, and outputs a manifest file, the JavaScript files, and any included assets such as stylesheets or images.
 
-Vite adds all JavaScript files to the page using [ES6 Module syntax](https://caniuse.com/es6-module).
-For legacy browsers, this project is utilising the [Vite Legacy Plugin](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy) to provide a fallback using the [module/nomodule pattern](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/).
-
-For styling this project uses [Scss](https://www.npmjs.com/package/sass) to compile the stylesheets, and then [PostCSS](https://github.com/postcss/postcss) for post-processing.
+For styling this project uses [Tailwind CSS](https://tailwindcss.com/), and then [PostCSS](https://github.com/postcss/postcss) for post-processing.
 
 ### Running the local asset server
 
@@ -223,7 +220,7 @@ To run the development server:
 1. Update the `.env` file to `ASSETS_DEV_MODE=True`
 2. Run `just assets-run`
 
-This will start the Vite dev server at [localhost:3000](http://localhost:3000/) and inject the relevant scripts into the Django templates.
+This will start the Vite dev server at [localhost:5173](http://localhost:5173/) and inject the relevant scripts into the Django templates.
 
 ### Compiling assets
 
@@ -234,7 +231,7 @@ To view the compiled assets:
 
 Vite builds the assets and outputs them to the `assets/dist` folder.
 
-[Django Staticfiles app](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/) then collects the files and places them in the `staticfiles/assets` folder, with the manifest file located at `staticfiles/manifest.json`.
+[Django Staticfiles app](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/) then collects the files and places them in the `staticfiles/assets` folder, with the manifest file located at `assets/dist/.vite/manifest.json`.
 
 ### Data Setup
 Sometimes it's useful to have a fresh local installation or you may not have authorization to download a production backup.
