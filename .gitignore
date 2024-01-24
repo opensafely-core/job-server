@@ -10,6 +10,7 @@ __pycache__
 /assets/stats.html
 /coverage
 /docker/staticfiles/*
+/docker/assetsout/*
 /htmlcov
 /jobserver.dump
 /jobserver.sqlite.zip
