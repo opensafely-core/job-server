@@ -238,7 +238,8 @@ def test_jobrequestlist_search_using_fullname(rf, core_developer):
 
 
 def test_jobrequestlist_search_using_identifier(rf, core_developer):
-    JobRequestFactory.create_batch(5)
+    for i in range(5):
+        JobRequestFactory.create(identifier=f"{i:016}")
 
     job_request = JobRequestFactory(identifier="1234abcd")
 
@@ -260,7 +261,8 @@ def test_jobrequestlist_search_using_identifier(rf, core_developer):
 
 
 def test_jobrequestlist_search_using_job_identifier(rf, core_developer):
-    JobRequestFactory.create_batch(5)
+    for i in range(5):
+        JobRequestFactory.create(identifier=f"{i:016}")
 
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, identifier="1234abcd")
@@ -325,7 +327,8 @@ def test_jobrequestlist_search_using_project(rf, core_developer):
 
 
 def test_jobrequestlist_search_using_username(rf, core_developer):
-    JobRequestFactory.create_batch(5)
+    for i in range(5):
+        JobRequestFactory.create(identifier=f"{i:016}")
 
     user = UserFactory(username="beng")
     job_request = JobRequestFactory(created_by=user)
