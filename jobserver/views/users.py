@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -21,10 +21,7 @@ from zen_queries import TemplateResponse as zTemplateResponse
 from zen_queries import fetch
 
 from jobserver.authorization import InteractiveReporter
-from jobserver.emails import (
-    send_token_login_generated_email,
-    send_token_login_used_email,
-)
+from jobserver.commands import users
 
 from ..emails import send_github_login_email, send_login_email
 from ..forms import EmailLoginForm, RequireNameForm, SettingsForm, TokenLoginForm
@@ -181,16 +178,10 @@ class LoginWithToken(View):
         user_value = form.cleaned_data["user"]
 
         try:
-            # username or email
-            user = User.objects.get(Q(email=user_value) | Q(username=user_value))
-
-            user.validate_login_token(form.cleaned_data["token"])
-
+            user = users.validate_login_token(user_value, form.cleaned_data["token"])
         except (
             User.DoesNotExist,
-            User.InvalidTokenUser,
-            User.BadLoginToken,
-            User.ExpiredLoginToken,
+            users.TokenLoginException,
         ) as e:
             logger.info(f"Login with token failed for user {user_value}: {e}")
             trace.get_current_span().record_exception(e)
@@ -198,7 +189,6 @@ class LoginWithToken(View):
 
         login(self.request, user, "django.contrib.auth.backends.ModelBackend")
         logger.info(f"User {user} logged in with login token")
-        send_token_login_used_email(user)
         messages.success(
             self.request,
             "You have been logged in using a single use token. That token is now invalid.",
@@ -268,8 +258,8 @@ class Settings(View):
         # generate token form
         elif "token" in request.POST:
             try:
-                request.user.validate_token_login_allowed()
-            except User.InvalidTokenUser as e:
+                users.validate_token_login_allowed(request.user)
+            except users.InvalidTokenUser as e:
                 logger.exception(
                     f"Refusing to generate login token for invalid user {request.user}"
                 )
@@ -279,9 +269,8 @@ class Settings(View):
                 )
                 return self.render_to_response()
 
-            token = request.user.generate_login_token()
+            token = users.generate_login_token(request.user)
             logger.info(f"User {request.user} generated a login token")
-            send_token_login_generated_email(request.user)
             return self.render_to_response(token=token)
 
         else:  # pragma: no cover
@@ -298,9 +287,9 @@ class Settings(View):
             )
 
         try:
-            self.request.user.validate_token_login_allowed()
+            users.validate_token_login_allowed(self.request.user)
             show_token_form = True
-        except User.InvalidTokenUser:
+        except users.InvalidTokenUser:
             show_token_form = False
 
         context = {

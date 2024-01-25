@@ -3,7 +3,6 @@ import secrets
 from datetime import date, timedelta
 
 import structlog
-from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -14,7 +13,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
-from xkcdpass import xkcd_password
 from zen_queries import queries_dangerously_enabled
 
 from ..authorization import InteractiveReporter
@@ -23,13 +21,6 @@ from ..hash_utils import hash_user_pat
 
 
 logger = structlog.get_logger(__name__)
-
-WORDLIST = xkcd_password.generate_wordlist("eff-long")
-
-
-def human_memorable_token(size=8):
-    """Generate a 3 short english words from the eff-long list of words."""
-    return xkcd_password.generate_xkcdpassword(WORDLIST, numwords=3)
 
 
 class UserQuerySet(models.QuerySet):
@@ -333,51 +324,3 @@ class User(AbstractBaseUser):
         instance here.
         """
         return self.social_auth.exists()
-
-    class BadLoginToken(Exception):
-        pass
-
-    class ExpiredLoginToken(Exception):
-        pass
-
-    class InvalidTokenUser(Exception):
-        pass
-
-    def _strip_token(self, token):
-        return token.strip().replace(" ", "")
-
-    def validate_token_login_allowed(self):
-        # only github users can log in with token
-        if not self.social_auth.exists():
-            raise self.InvalidTokenUser(f"User {self.username} is not a github user")
-
-        # need at least 1 backend
-        if not self.backends.exists():
-            raise self.InvalidTokenUser(
-                f"User {self.username} does not have access to any backends"
-            )
-
-    def generate_login_token(self):
-        """Generate, set and return single use login token and expiry"""
-        self.validate_token_login_allowed()
-        token = human_memorable_token()
-        self.login_token = make_password(self._strip_token(token))
-        self.login_token_expires_at = timezone.now() + timedelta(hours=1)
-        self.save(update_fields=["login_token_expires_at", "login_token"])
-        return token
-
-    def validate_login_token(self, token):
-        self.validate_token_login_allowed()
-
-        if not (self.login_token and self.login_token_expires_at):
-            raise self.BadLoginToken(f"No login token set for {self.username}")
-
-        if timezone.now() > self.login_token_expires_at:
-            raise self.ExpiredLoginToken(f"Token for {self.username} has expired")
-
-        if not check_password(self._strip_token(token), self.login_token):
-            raise self.BadLoginToken(f"Token for {self.username} was invalid")
-
-        # all good - consume this token
-        self.login_token = self.login_token_expires_at = None
-        self.save(update_fields=["login_token_expires_at", "login_token"])

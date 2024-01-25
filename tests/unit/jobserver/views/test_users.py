@@ -9,8 +9,8 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 
-import jobserver.models.user
 from jobserver.authorization import InteractiveReporter
+from jobserver.commands import users
 from jobserver.utils import set_from_list
 from jobserver.views.users import (
     Login,
@@ -460,9 +460,7 @@ def test_settings_user_post_invalid(rf_messages):
 
 
 def test_settings_token_post_success(rf, monkeypatch, token_login_user, mailoutbox):
-    monkeypatch.setattr(
-        jobserver.models.user, "human_memorable_token", lambda: "foo bar baz"
-    )
+    monkeypatch.setattr(users, "human_memorable_token", lambda: "foo bar baz")
 
     request = rf.post("/settings", {"token": ""})  # button name
     request.user = token_login_user
@@ -473,7 +471,7 @@ def test_settings_token_post_success(rf, monkeypatch, token_login_user, mailoutb
     # temporarily disable for initial deploy
     assert "foo bar baz" in response.rendered_content
 
-    token_login_user.validate_login_token("foo bar baz")
+    users.validate_login_token(token_login_user.username, "foo bar baz")
 
     assert "new login token" in mailoutbox[0].body
 
@@ -481,7 +479,7 @@ def test_settings_token_post_success(rf, monkeypatch, token_login_user, mailoutb
 def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
     # this shouldn't be used, but set it anyway so we can detect if it is used
     monkeypatch.setattr(
-        jobserver.models.user,
+        users,
         "human_memorable_token",
         lambda: "foo bar baz",  # pragma: no cover
     )
@@ -510,7 +508,7 @@ def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
 
 @pytest.mark.parametrize("attr", ["username", "email", "email"])
 def test_loginwittoken_success(attr, rf_messages, token_login_user, mailoutbox):
-    token = token_login_user.generate_login_token()
+    token = users.generate_login_token(token_login_user)
 
     data = {"user": getattr(token_login_user, attr), "token": token}
     request = rf_messages.post("/login-with-token", data)
@@ -526,7 +524,7 @@ def test_loginwittoken_success(attr, rf_messages, token_login_user, mailoutbox):
         == "You have been logged in using a single use token. That token is now invalid."
     )
 
-    assert "login token was used" in mailoutbox[0].body
+    assert "login token was used" in mailoutbox[1].body
 
 
 def test_loginwittoken_not_from_backend(rf_messages):
@@ -619,7 +617,7 @@ def test_loginwittoken_bad_token(rf_messages, token_login_user):
 
 
 def test_loginwittoken_expired_token(rf_messages, token_login_user):
-    token = token_login_user.generate_login_token()
+    token = users.generate_login_token(token_login_user)
     token_login_user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
     token_login_user.save()
 
