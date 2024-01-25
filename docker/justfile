@@ -4,8 +4,12 @@ set dotenv-load := true
 export DEV_USERID := `id -u`
 export DEV_GROUPID := `id -g`
 
+# an alias to allow us to use this recipe from the justfile in the parent directory
+_dotenv:
+    {{ just_executable() }} --justfile {{ justfile_directory() }}/../justfile _dotenv
 
-build env="dev":
+
+build env="dev": _dotenv
     #!/usr/bin/env bash
     test -z "${SKIP_BUILD:-}" || { echo "SKIP_BUILD set"; exit 0; }
 
@@ -18,31 +22,31 @@ build env="dev":
 
 
 # run tests in dev container
-test *pytest_args="": build
+test *pytest_args="": _dotenv build
     #!/bin/bash
     # Note, we do *not* run coverage in docker, as we want to use xdist, and coverage does not seem to work reliably.
     docker-compose run --rm test pytest {{ pytest_args }}
 
 
 # run server in dev|prod container
-serve env="dev" *args="":
+serve env="dev" *args="": _dotenv
     {{ just_executable() }} build {{ env }}
     docker-compose up {{ args }} {{ env }}
 
 # run command in dev|prod container
-run env="dev" *args="":
+run env="dev" *args="": _dotenv
     {{ just_executable() }} build {{ env }}
     docker-compose run --rm {{ env }} {{ args }}
 
 
 # exec command in existing dev|prod container
-exec env="dev" *args="bash":
+exec env="dev" *args="bash": _dotenv
     {{ just_executable() }} build {{ env }}
     docker-compose exec {{ env }} {{ args }}
 
 
 # run a basic functional smoke test against a running job-server
-smoke-test host="http://localhost:8000":
+smoke-test host="http://localhost:8000": _dotenv
     #!/bin/bash
     set -eu
     curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors
