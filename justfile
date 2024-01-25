@@ -33,11 +33,15 @@ virtualenv: _env
     test -e $BIN/pip-compile || $PIP install pip-tools
 
 
-_env:
+# create a default .env file
+_dotenv:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    test -f .env || cp dotenv-sample .env
+    if [[ ! -f .env ]]; then
+      echo "No '.env' file found; creating a default '.env' from 'dotenv-sample'"
+      cp dotenv-sample .env
+    fi
 
 
 _compile src dst *args: virtualenv
