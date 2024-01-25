@@ -19,7 +19,7 @@ clean:
 
 
 # ensure valid virtualenv
-virtualenv: _env
+virtualenv: _dotenv
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -256,33 +256,34 @@ release-hatch:
 dump-co-pilot-reporting-data:
     ./scripts/dump-co-pilot-reporting-data.sh
 
-# note these are just aliases for the docker/justfile commands. We add them just for autocompletion from the root dir
+# The docker-* commands are simply aliases for the docker/justfile commands.
+# We add them for autocompletion from the root dir.
 
 # build docker image env=dev|prod
-docker-build env="dev": _env
+docker-build env="dev":
     {{ just_executable() }} docker/build {{ env }}
 
 
 # run tests in the dev docker container
-docker-test *args="": _env
+docker-test *args="":
     {{ just_executable() }} docker/test {{ args }}
 
 
 # run server in dev or prod docker container
-docker-serve env="dev" *args="": _env
+docker-serve env="dev" *args="":
     {{ just_executable() }} docker/serve {{ env }} {{ args }}
 
 
 # run cmd in dev or prod docker container
-docker-run env="dev" *args="": _env
+docker-run env="dev" *args="":
     {{ just_executable() }} docker/run {{ env }} {{ args }}
 
 
 # exec command in an existing dev docker container
-docker-exec env="dev" *args="bash": _env
+docker-exec env="dev" *args="bash":
     {{ just_executable() }} docker/exec {{ env }} {{ args }}
 
 
 # run basic smoke test against a running job-server
-docker-smoke-test host="http://localhost:8000": _env
+docker-smoke-test host="http://localhost:8000":
     {{ just_executable() }} docker/smoke-test {{ host }}
