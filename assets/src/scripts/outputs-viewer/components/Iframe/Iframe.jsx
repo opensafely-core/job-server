@@ -9,20 +9,14 @@ function Iframe({ data, fileName, fileUrl }) {
   const id = encodeURIComponent(fileUrl).replace(/\W/g, "");
 
   useLayoutEffect(() => {
-    if (document.getElementById(id)) {
-      if (window.innerWidth > 991) {
-        setFrameHeight(
-          Math.round(
-            window.innerHeight -
-              document.getElementById(id).getBoundingClientRect().top -
-              17 - // Magic number for scroll bar height
-              40, // 2rem
-          ),
-        );
-      } else {
-        setFrameHeight(1000);
-      }
+    const minHeight = 1000;
+    if (document.getElementById(id) && window.innerWidth > 991) {
+      const spaHeight = Math.round(
+        document?.getElementById("outputsSPA")?.offsetHeight,
+      );
+      if (!spaHeight || spaHeight < minHeight) return setFrameHeight(minHeight);
     }
+    return setFrameHeight(minHeight);
   }, [windowSize, id]);
 
   return (

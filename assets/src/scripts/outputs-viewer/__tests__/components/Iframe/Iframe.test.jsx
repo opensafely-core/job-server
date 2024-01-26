@@ -47,6 +47,6 @@ describe("<Iframe />", () => {
     );
     const iframe = container.querySelector("iframe");
 
-    expect(iframe.getAttribute("height")).toBe(`${1200 - 17 - 40}`);
+    expect(iframe.getAttribute("height")).toBe("1000");
   });
 });
