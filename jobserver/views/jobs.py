@@ -98,9 +98,9 @@ class JobDetail(View):
             ).first()
 
             honeycomb_links["Job Request"] = honeycomb.jobrequest_link(job_request)
-            honeycomb_links[
-                "Previous runs of this action"
-            ] = honeycomb.previous_actions_link(job)
+            honeycomb_links["Previous runs of this action"] = (
+                honeycomb.previous_actions_link(job)
+            )
 
         context = {
             "cancellation_requested": job.action in job.job_request.cancelled_actions,

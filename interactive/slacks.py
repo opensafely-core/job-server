@@ -4,6 +4,7 @@ Functions for specific slack messages jobserver sends.
 These functions should always take a `channel` argument, so that we can test
 them on a different channel.
 """
+
 from jobserver.utils import strip_whitespace
 from services import slack
 

@@ -272,8 +272,7 @@ def test_get_codelists_no_branch():
         def get_branch(self, *args):
             return None
 
-        def get_file(self, *args, **kwargs):
-            ...
+        def get_file(self, *args, **kwargs): ...
 
     with pytest.raises(Exception, match="Missing branch.*"):
         get_codelists_status(
