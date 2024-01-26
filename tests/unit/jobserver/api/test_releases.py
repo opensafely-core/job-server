@@ -16,17 +16,20 @@ from jobserver.api.releases import (
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
+    TokenAuthenticationAPI,
     WorkspaceStatusAPI,
     is_interactive_report,
     validate_release_access,
     validate_upload_access,
 )
 from jobserver.authorization import (
+    CoreDeveloper,
     OutputChecker,
     OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
 )
+from jobserver.commands.users import generate_login_token
 from jobserver.models import (
     PublishRequest,
     Release,
@@ -45,6 +48,7 @@ from tests.factories import (
     ReleaseFileFactory,
     SnapshotFactory,
     UserFactory,
+    UserSocialAuthFactory,
     WorkspaceFactory,
 )
 from tests.fakes import FakeGitHubAPI
@@ -1527,3 +1531,119 @@ def test_workspacestatusapi_success(api_rf):
     response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace2.name)
     assert response.status_code == 200
     assert not response.data["uses_new_release_flow"]
+
+
+def test_tokenauthenticationapi_success(api_rf, token_login_user):
+    # give user correct permissions on this project
+    project1 = ProjectFactory()
+    workspace1 = WorkspaceFactory(project=project1)
+    workspace2 = WorkspaceFactory(project=project1)
+    ProjectMembershipFactory(
+        user=token_login_user, project=project1, roles=[ProjectDeveloper]
+    )
+
+    # another project, where user does *not* have permissions
+    project2 = ProjectFactory()
+    WorkspaceFactory(project=project2)
+    ProjectMembershipFactory(
+        user=token_login_user,
+        project=project2,
+    )
+
+    token = generate_login_token(token_login_user)
+    token_data = {"user": token_login_user.username, "token": token}
+    request = api_rf.post("/", data=token_data, format="json")
+
+    # request originates from known backend IP
+    request.backend = token_login_user.backends.first()
+
+    response = TokenAuthenticationAPI.as_view()(request)
+    assert response.status_code == 200
+    assert response.data == {
+        "username": token_login_user.username,
+        "fullname": token_login_user.fullname,
+        "workspaces": [
+            workspace1.name,
+            workspace2.name,
+        ],  # should not include workspace3
+        "output_checker": False,
+        "staff": False,
+    }
+
+
+def test_tokenauthenticationapi_success_privileged(api_rf, token_login_user):
+    # enable privileges for user
+    token_login_user.roles.append(OutputChecker)
+    token_login_user.roles.append(CoreDeveloper)
+    token_login_user.is_staff = True
+    token_login_user.save()
+
+    project = ProjectFactory()
+    ProjectMembershipFactory(
+        user=token_login_user,
+        project=project,
+        roles=[ProjectDeveloper],
+    )
+    workspace1 = WorkspaceFactory(project=project)
+    workspace2 = WorkspaceFactory(project=project)
+
+    token = generate_login_token(token_login_user)
+    token_data = {"user": token_login_user.username, "token": token}
+    request = api_rf.post("/", data=token_data, format="json")
+
+    # request originates from known backend IP
+    request.backend = token_login_user.backends.first()
+
+    response = TokenAuthenticationAPI.as_view()(request)
+    assert response.status_code == 200
+    assert response.data == {
+        "username": token_login_user.username,
+        "fullname": token_login_user.fullname,
+        "workspaces": [workspace1.name, workspace2.name],
+        "output_checker": True,
+        "staff": True,
+    }
+
+
+def test_tokenauthenticationapi_fails_not_backend(api_rf, token_login_user):
+    project = ProjectFactory()
+    ProjectMembershipFactory(
+        user=token_login_user, project=project, roles=[ProjectDeveloper]
+    )
+
+    token = generate_login_token(token_login_user)
+    token_data = {"user": token_login_user.username, "token": token}
+    request = api_rf.post("/", data=token_data, format="json")
+
+    # do not set request backend!
+    response = TokenAuthenticationAPI.as_view()(request)
+    assert response.status_code == 403
+
+
+def invalid_users():
+    # non-github user
+    yield UserFactory
+
+    def social_user():
+        # github user but no backends
+        social_user = UserFactory()
+        UserSocialAuthFactory(user=social_user)
+        return social_user
+
+    yield social_user
+
+
+@pytest.mark.parametrize("user_function", invalid_users())
+def test_tokenauthenticationapi_fails_invalid_user(api_rf, user_function):
+    user = user_function()
+    project = ProjectFactory()
+    ProjectMembershipFactory(user=user, project=project, roles=[ProjectDeveloper])
+
+    token_data = {"user": user.username, "token": "doesn't matter"}
+    request = api_rf.post("/", data=token_data, format="json")
+
+    # request *does* come from a Backend
+    request.backend = BackendFactory()
+
+    response = TokenAuthenticationAPI.as_view()(request)
+    assert response.status_code == 403
