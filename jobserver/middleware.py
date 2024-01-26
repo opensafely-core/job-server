@@ -1,4 +1,5 @@
 from django.conf import settings
+from first import first
 
 from jobserver.models import Backend
 
@@ -34,7 +35,13 @@ class TemplateNameMiddleware:
             # simplifying this check.
             return response
 
-        response.context_data["template_name"] = response.template_name
+        template_name = response.template_name
+
+        # flatten template_name to a string
+        if isinstance(template_name, list):
+            template_name = first(template_name)
+
+        response.context_data["template_name"] = template_name
         return response
 
 
