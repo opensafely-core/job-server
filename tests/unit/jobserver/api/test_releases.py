@@ -1542,22 +1542,19 @@ def test_workspacestatusapi_success(api_rf):
     assert not response.data["uses_new_release_flow"]
 
 
-def test_tokenauthenticationapi_success(api_rf, token_login_user):
+def test_tokenauthenticationapi_success(api_rf, project_membership, token_login_user):
     # give user correct permissions on this project
     project1 = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project1)
     workspace2 = WorkspaceFactory(project=project1)
-    ProjectMembershipFactory(
+    project_membership(
         user=token_login_user, project=project1, roles=[ProjectDeveloper]
     )
 
     # another project, where user does *not* have permissions
     project2 = ProjectFactory()
     WorkspaceFactory(project=project2)
-    ProjectMembershipFactory(
-        user=token_login_user,
-        project=project2,
-    )
+    project_membership(user=token_login_user, project=project2)
 
     token = generate_login_token(token_login_user)
     token_data = {"user": token_login_user.username, "token": token}
@@ -1580,7 +1577,9 @@ def test_tokenauthenticationapi_success(api_rf, token_login_user):
     }
 
 
-def test_tokenauthenticationapi_success_privileged(api_rf, token_login_user):
+def test_tokenauthenticationapi_success_privileged(
+    api_rf, project_membership, token_login_user
+):
     # enable privileges for user
     token_login_user.roles.append(OutputChecker)
     token_login_user.roles.append(CoreDeveloper)
@@ -1588,7 +1587,7 @@ def test_tokenauthenticationapi_success_privileged(api_rf, token_login_user):
     token_login_user.save()
 
     project = ProjectFactory()
-    ProjectMembershipFactory(
+    project_membership(
         user=token_login_user,
         project=project,
         roles=[ProjectDeveloper],
@@ -1614,11 +1613,11 @@ def test_tokenauthenticationapi_success_privileged(api_rf, token_login_user):
     }
 
 
-def test_tokenauthenticationapi_fails_not_backend(api_rf, token_login_user):
+def test_tokenauthenticationapi_fails_not_backend(
+    api_rf, project_membership, token_login_user
+):
     project = ProjectFactory()
-    ProjectMembershipFactory(
-        user=token_login_user, project=project, roles=[ProjectDeveloper]
-    )
+    project_membership(user=token_login_user, project=project, roles=[ProjectDeveloper])
 
     token = generate_login_token(token_login_user)
     token_data = {"user": token_login_user.username, "token": token}
@@ -1643,10 +1642,12 @@ def invalid_users():
 
 
 @pytest.mark.parametrize("user_function", invalid_users())
-def test_tokenauthenticationapi_fails_invalid_user(api_rf, user_function):
+def test_tokenauthenticationapi_fails_invalid_user(
+    api_rf, project_membership, user_function
+):
     user = user_function()
     project = ProjectFactory()
-    ProjectMembershipFactory(user=user, project=project, roles=[ProjectDeveloper])
+    project_membership(user=user, project=project, roles=[ProjectDeveloper])
 
     token_data = {"user": user.username, "token": "doesn't matter"}
     request = api_rf.post("/", data=token_data, format="json")
