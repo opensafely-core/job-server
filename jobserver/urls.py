@@ -23,6 +23,7 @@ from jobserver.api.releases import (
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
+    TokenAuthenticationAPI,
     WorkspaceStatusAPI,
 )
 
@@ -133,6 +134,11 @@ api_urls = [
         "releases/file/<file_id>",
         ReleaseFileAPI.as_view(),
         name="release-file",
+    ),
+    path(
+        "releases/auth",
+        TokenAuthenticationAPI.as_view(),
+        name="token-auth",
     ),
 ]
 

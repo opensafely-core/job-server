@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import Value
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from opentelemetry import trace
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import (
@@ -27,7 +28,8 @@ from interactive.models import AnalysisRequest
 from interactive.slacks import notify_report_uploaded
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
-from jobserver.authorization import has_permission
+from jobserver.authorization import OutputChecker, has_permission, has_role
+from jobserver.commands import users
 from jobserver.models import (
     PublishRequest,
     Release,
@@ -556,3 +558,71 @@ class WorkspaceStatusAPI(RetrieveAPIView):
 
     class serializer_class(serializers.Serializer):
         uses_new_release_flow = serializers.BooleanField()
+
+
+class TokenAuthenticationAPI(APIView):
+    authentication_classes = []
+
+    class serializer_class(serializers.Serializer):
+        user = serializers.CharField()
+        token = serializers.CharField()
+
+    class Level4AuthenticatedUser(serializers.Serializer):
+        username = serializers.CharField()
+        fullname = serializers.CharField()
+        workspaces = serializers.ListField(
+            child=serializers.CharField(),
+            default=[],
+        )
+        output_checker = serializers.BooleanField()
+        staff = serializers.BooleanField()
+
+    def post(self, request):
+        if getattr(request, "backend", None) is None:
+            logger.info("API Login with token failed because request not from backend")
+            raise NotAuthenticated()
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+
+        try:
+            # user can be username or email
+            user = users.validate_login_token(data["user"], data["token"])
+        except (
+            User.DoesNotExist,
+            users.TokenLoginException,
+        ) as exc:
+            logger.info(f"API Login with token failed for user {data['user']}: {exc}")
+            trace.get_current_span().record_exception(exc)
+            raise NotAuthenticated()
+
+        logger.info(f"User {user} logged in with login token via API")
+
+        workspaces = []
+        # this is 1 or 2 queries per project, not ideal, but we permissions are not stored in the db
+        for project in user.projects.all():
+            if has_permission(user, "unreleased_outputs_view", project=project):
+                workspaces.extend(
+                    w["name"] for w in project.workspaces.all().values("name")
+                )
+
+        # using a DRF serializer for now, so we've *some* schema definition
+        user = self.Level4AuthenticatedUser(
+            data=dict(
+                username=user.username,
+                fullname=user.fullname,
+                workspaces=workspaces,
+                # note, we use a generic role check here rather than a permissions
+                # as its currently a global role. In future, if output checking
+                # permissions applies to different projects/orgs, we'll need to
+                # list the explicit workspaces that the user has this permission
+                # for.
+                output_checker=has_role(user, OutputChecker),
+                staff=user.is_staff,
+            )
+        )
+        # we must validate this or DRF will refuse to serializer it.
+        user.is_valid()
+
+        return Response(user.data)
