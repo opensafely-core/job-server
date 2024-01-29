@@ -5,11 +5,13 @@ from django.http import Http404
 
 from applications.models import Application
 from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
+from jobserver.commands import project_members
 from jobserver.github import RepoAlreadyExists
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
 from staff.views.projects import (
     ProjectAddMember,
+    ProjectAuditLog,
     ProjectCreate,
     ProjectDetail,
     ProjectEdit,
@@ -23,7 +25,6 @@ from ....factories import (
     ApplicationFactory,
     OrgFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
 )
 from ....fakes import FakeGitHubAPI
@@ -79,6 +80,80 @@ def test_projectaddmember_unknown_project(rf, core_developer):
 
     with pytest.raises(Http404):
         ProjectAddMember.as_view()(request, slug="test")
+
+
+def test_projectauditlog_filter_by_type(rf, core_developer, project_membership):
+    actor = UserFactory()
+    project = ProjectFactory()
+    user = UserFactory()
+
+    project_membership(
+        project=project,
+        user=user,
+        roles=[ProjectCollaborator],
+        by=actor,
+    )
+    project_members.update_roles(
+        member=project.memberships.first(),
+        by=actor,
+        roles=[ProjectCollaborator, ProjectDeveloper],
+    )
+
+    request = rf.get("/?types=project_member_added")
+    request.user = core_developer
+
+    response = ProjectAuditLog.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+    assert len(response.context_data["events"]) == 1
+    assert response.context_data["events"][0].context["actor"].display_value == str(
+        actor
+    )
+
+
+def test_projectauditlog_success(rf, core_developer, project_membership):
+    actor = UserFactory()
+    project = ProjectFactory()
+    user = UserFactory()
+
+    project_membership(
+        project=project,
+        user=user,
+        roles=[ProjectCollaborator],
+        by=actor,
+    )
+    project_members.update_roles(
+        member=project.memberships.first(),
+        by=actor,
+        roles=[ProjectCollaborator, ProjectDeveloper],
+    )
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ProjectAuditLog.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+    assert len(response.context_data["events"]) == 3
+    assert response.context_data["project"] == project
+
+
+def test_projectauditlog_unauthorized(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ProjectAuditLog.as_view()(request, slug=project.slug)
+
+
+def test_projectauditlog_unknown_project(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ProjectAuditLog.as_view()(request, slug="")
 
 
 def test_projectcreate_get_success(rf, core_developer):
@@ -521,13 +596,15 @@ def test_projectlist_unauthorized(rf):
 
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
-def test_projectmembershipedit_success(rf, core_developer, next_url):
+def test_projectmembershipedit_success(
+    rf, core_developer, next_url, project_membership
+):
     project = ProjectFactory()
     user = UserFactory()
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+    project_membership(project=project, user=user, roles=[ProjectCollaborator])
 
-    membership = ProjectMembershipFactory(project=project, user=UserFactory())
+    membership = project_membership(project=project, user=UserFactory())
 
     suffix = f"?next={next_url}" if next_url else ""
     request = rf.post(f"/{suffix}", {"roles": [dotted_path(ProjectDeveloper)]})
@@ -546,10 +623,12 @@ def test_projectmembershipedit_success(rf, core_developer, next_url):
     assert membership.roles == [ProjectDeveloper]
 
 
-def test_projectmembershipedit_unknown_membership(rf, core_developer):
+def test_projectmembershipedit_unknown_membership(
+    rf, core_developer, project_membership
+):
     project = ProjectFactory()
 
-    ProjectMembershipFactory(project=project, user=UserFactory())
+    project_membership(project=project, user=UserFactory())
 
     request = rf.get("/")
     request.user = core_developer
@@ -567,11 +646,13 @@ def test_projectmembershipedit_unauthorized(rf):
 
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
-def test_projectmembershipremove_success(rf, core_developer, next_url):
+def test_projectmembershipremove_success(
+    rf, core_developer, next_url, project_membership
+):
     project = ProjectFactory()
     user = UserFactory()
 
-    membership = ProjectMembershipFactory(project=project, user=user)
+    membership = project_membership(project=project, user=user)
 
     suffix = f"?next={next_url}" if next_url else ""
     request = rf.post(f"/{suffix}")
@@ -600,8 +681,8 @@ def test_projectmembershipremove_success(rf, core_developer, next_url):
     assert str(messages[0]) == f"Removed {user.username} from {project.title}"
 
 
-def test_projectmembershipremove_unauthorized(rf):
-    membership = ProjectMembershipFactory()
+def test_projectmembershipremove_unauthorized(rf, project_membership):
+    membership = project_membership()
 
     request = rf.post("/")
     request.user = UserFactory()

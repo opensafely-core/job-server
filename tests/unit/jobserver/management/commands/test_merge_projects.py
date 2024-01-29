@@ -4,10 +4,10 @@ from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.management.commands.merge_projects import MergeException, merge_projects
 from jobserver.models import Project
 from jobserver.utils import set_from_qs
-from tests.factories import ProjectFactory, ProjectMembershipFactory, UserFactory
+from tests.factories import ProjectFactory, UserFactory
 
 
-def test_merge_projects_success():
+def test_merge_projects_success(project_membership):
     both = [ProjectDeveloper, ProjectCollaborator]
 
     operator = UserFactory()
@@ -19,20 +19,20 @@ def test_merge_projects_success():
     user5 = UserFactory()
 
     primary = ProjectFactory()
-    ProjectMembershipFactory(user=user1, project=primary, roles=[ProjectDeveloper])
-    ProjectMembershipFactory(user=user4, project=primary, roles=[ProjectDeveloper])
+    project_membership(user=user1, project=primary, roles=[ProjectDeveloper])
+    project_membership(user=user4, project=primary, roles=[ProjectDeveloper])
 
     project1 = ProjectFactory()
-    ProjectMembershipFactory(project=project1, user=user1, roles=both)
-    ProjectMembershipFactory(project=project1, user=user2, roles=both)
+    project_membership(project=project1, user=user1, roles=both)
+    project_membership(project=project1, user=user2, roles=both)
 
     project2 = ProjectFactory()
-    ProjectMembershipFactory(project=project2, user=user2, roles=both)
-    ProjectMembershipFactory(project=project2, user=user3, roles=both)
+    project_membership(project=project2, user=user2, roles=both)
+    project_membership(project=project2, user=user3, roles=both)
 
     project3 = ProjectFactory()
-    ProjectMembershipFactory(project=project3, user=user4, roles=both)
-    ProjectMembershipFactory(project=project3, user=user5, roles=both)
+    project_membership(project=project3, user=user4, roles=both)
+    project_membership(project=project3, user=user5, roles=both)
 
     merge_projects(
         operator.username, primary.slug, [project1.slug, project2.slug, project3.slug]

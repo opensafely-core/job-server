@@ -6,13 +6,14 @@ from ....factories import (
     AnalysisRequestFactory,
     JobRequestFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
     WorkspaceFactory,
 )
 
 
-def test_index_authenticated(rf, complete_application):
+def test_index_authenticated(
+    rf, complete_application, project_membership, project_memberships
+):
     user = UserFactory()
 
     complete_application.created_by = user
@@ -21,7 +22,7 @@ def test_index_authenticated(rf, complete_application):
     AnalysisRequestFactory(created_by=user)
 
     project1 = ProjectFactory()
-    ProjectMembershipFactory(project=project1, user=user)
+    project_membership(project=project1, user=user)
     workspace1 = WorkspaceFactory(project=project1)
     JobRequestFactory(workspace=workspace1, created_by=user)
     JobRequestFactory(workspace=workspace1, created_by=user)
@@ -31,12 +32,12 @@ def test_index_authenticated(rf, complete_application):
     WorkspaceFactory(project=project1)
 
     project2 = ProjectFactory()
-    ProjectMembershipFactory(project=project2, user=user)
+    project_membership(project=project2, user=user)
 
     # create a lot of objects the user has access to so we can check our limits
     # are working as expected
     JobRequestFactory.create_batch(10, workspace=workspace1)
-    ProjectMembershipFactory.create_batch(10, user=user)
+    project_memberships(10, user=user)
     WorkspaceFactory.create_batch(10, project=project2)
 
     request = rf.get("/")

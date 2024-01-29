@@ -1,0 +1,78 @@
+{% extends "staff/base.html" %}
+
+{% load django_vite %}
+{% load querystring_tools %}
+{% load selected_filter %}
+
+{% block metatitle %}Audit log for {{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:project-list" as staff_project_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Projects" url=staff_project_list_url %}
+  {% breadcrumb title=project.title url=project.get_staff_url %}
+  {% breadcrumb title="Audit log" active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% staff_hero title="Audit log: "|add:project.title %}
+{% endblock hero %}
+
+{% block content %}
+<div class="grid lg:grid-cols-3 gap-8">
+  <form class="flex flex-col gap-y-6">
+    <div class="flex flex-row gap-2">
+      {% #button variant="success" type="submit" %}
+        Apply filters
+      {% /button %}
+      {% if request.GET %}
+        {% #button variant="secondary-outline" type="link" href=project.get_staff_audit_url %}
+          Clear filters
+        {% /button %}
+      {% endif %}
+    </div>
+
+    {% #card title="Filter by event type" container=True %}
+      {% #multiselect custom_field=True name="types" placeholder="Select a type" %}
+        {% for type in types %}
+          {% is_filter_selected key="types" value=type.value as is_type_active %}
+          {% multiselect_option value=type.value name=type.label is_active=is_type_active%}
+        {% endfor %}
+      {% /multiselect %}
+    {% /card %}
+  </form>
+
+  <div class="flex flex-col gap-y-6 lg:col-span-2">
+    {% #card title="Events" %}
+      {% if events %}
+        {% #list_group small=True %}
+          {% for event in events %}
+            {% #log_item created_at=event.context.created_at %}
+              {% include event.template_name with event=event.context %}
+            {% /log_item %}
+          {% endfor %}
+        {% /list_group %}
+
+        {% if page_obj.has_previous or page_obj.has_next %}
+          {% if page_obj.has_next %}
+            {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+          {% endif %}
+          {% if page_obj.has_previous %}
+            {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+          {% endif %}
+          {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+        {% endif %}
+      {% else %}
+        {% list_group_empty icon=True title="No logs found" %}
+      {% endif %}
+    {% /card %}
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}

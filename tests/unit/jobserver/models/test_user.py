@@ -20,19 +20,18 @@ from ....factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
     UserSocialAuthFactory,
 )
 
 
-def test_user_all_roles():
+def test_user_all_roles(project_membership):
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[OutputChecker])
 
     OrgMembershipFactory(org=org, user=user, roles=[OutputChecker])
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+    project_membership(project=project, user=user, roles=[ProjectCollaborator])
 
     expected = {OutputChecker, ProjectCollaborator}
 
@@ -60,11 +59,11 @@ def test_user_constraints_missing_pat_token_or_pat_expires_at():
         UserFactory(pat_token="test", pat_expires_at=None)
 
 
-def test_user_clear_all_roles():
+def test_user_clear_all_roles(project_membership):
     user = UserFactory(roles=[CoreDeveloper])
 
     OrgMembershipFactory(user=user, roles=[InteractiveReporter])
-    ProjectMembershipFactory(user=user, roles=[ProjectCollaborator, ProjectDeveloper])
+    project_membership(user=user, roles=[ProjectCollaborator, ProjectDeveloper])
 
     user.clear_all_roles()
 
@@ -83,13 +82,13 @@ def test_user_get_absolute_url():
     assert url == reverse("user-detail", kwargs={"username": user.username})
 
 
-def test_user_get_all_permissions():
+def test_user_get_all_permissions(project_membership):
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[CoreDeveloper])
 
     OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     output = user.get_all_permissions()
     expected = {
@@ -132,11 +131,11 @@ def test_user_get_all_permissions_empty():
     assert output == expected
 
 
-def test_user_get_all_roles():
+def test_user_get_all_roles(project_membership):
     project = ProjectFactory()
     user = UserFactory(roles=[OutputChecker])
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+    project_membership(project=project, user=user, roles=[ProjectCollaborator])
 
     output = user.get_all_roles()
     expected = {
@@ -164,6 +163,19 @@ def test_user_get_all_roles_empty():
         "orgs": [],
     }
     assert output == expected
+
+
+def test_user_get_staff_audit_url():
+    user = UserFactory()
+
+    url = user.get_staff_audit_url()
+
+    assert url == reverse(
+        "staff:user-audit-log",
+        kwargs={
+            "username": user.username,
+        },
+    )
 
 
 def test_user_get_staff_clear_roles_url():
@@ -239,12 +251,12 @@ def test_user_name():
     assert UserFactory(username="username").name == "username"
 
 
-def test_user_is_interactive_only():
+def test_user_is_interactive_only(project_membership):
     # user ONLY has the InteractiveReporter role
     assert UserFactory(roles=[InteractiveReporter]).is_interactive_only
 
     user = UserFactory()
-    ProjectMembershipFactory(user=user, roles=[InteractiveReporter])
+    project_membership(user=user, roles=[InteractiveReporter])
     assert user.is_interactive_only
 
     # user has the InteractiveReporter along with others
@@ -253,9 +265,7 @@ def test_user_is_interactive_only():
     ).is_interactive_only
 
     user = UserFactory()
-    ProjectMembershipFactory(
-        user=user, roles=[InteractiveReporter, ProjectCollaborator]
-    )
+    project_membership(user=user, roles=[InteractiveReporter, ProjectCollaborator])
     assert not user.is_interactive_only
 
     # user has no roles

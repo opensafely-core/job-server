@@ -22,12 +22,14 @@ from structlog.testing import LogCapture
 import services.slack
 from applications.form_specs import form_specs
 from jobserver.authorization.roles import CoreDeveloper
+from jobserver.commands import project_members
 
 from .factories import (
     BackendFactory,
     BackendMembershipFactory,
     OrgFactory,
     OrgMembershipFactory,
+    ProjectFactory,
     PublishRequestFactory,
     ReleaseFactory,
     ReleaseFileFactory,
@@ -293,3 +295,41 @@ def publish_request_with_report():
     report = ReportFactory(release_file=rfile)
 
     return PublishRequestFactory(report=report, snapshot=snapshot)
+
+
+@pytest.fixture
+def project_membership():
+    """
+    A fixture to build a ProjectMembership
+
+    We require that the creation of ProjectMemberships is done by the
+    commands.project_members.add function, this wraps that function as a
+    convenience helper for tests.
+    """
+
+    def func(project=None, user=None, roles=None, by=None):
+        if not project:
+            project = ProjectFactory()
+
+        if not user:
+            user = UserFactory()
+
+        if not roles:
+            roles = []
+
+        if not by:
+            by = UserFactory()
+
+        return project_members.add(project=project, user=user, roles=roles, by=by)
+
+    return func
+
+
+@pytest.fixture
+def project_memberships(project_membership):
+    """A fixture to build multiple ProjectMemberhips"""
+
+    def func(count, **kwargs):
+        return [project_membership(**kwargs) for i in range(count)]
+
+    return func

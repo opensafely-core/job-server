@@ -3,7 +3,6 @@ from staff.views.index import Index
 from ....factories import (
     BackendFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -19,7 +18,7 @@ def test_index_without_search(rf, core_developer):
     assert response.context_data["results"] == []
 
 
-def test_index_search(rf, core_developer):
+def test_index_search(rf, core_developer, project_membership):
     backend = BackendFactory(name="GHickman's Research Thing")
     BackendFactory.create_batch(2)
 
@@ -30,10 +29,10 @@ def test_index_search(rf, core_developer):
     WorkspaceFactory.create_batch(10)
 
     project1 = ProjectFactory(name="GHickman's First Project")
-    ProjectMembershipFactory(project=project1, user=user)
+    project_membership(project=project1, user=user)
 
     project2 = ProjectFactory(name="Ghickman's Second Project")
-    ProjectMembershipFactory(project=project2, user=user)
+    project_membership(project=project2, user=user)
 
     request = rf.get("/?q=ghickman")
     request.user = core_developer

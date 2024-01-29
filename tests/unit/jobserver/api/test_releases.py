@@ -39,7 +39,6 @@ from tests.factories import (
     BackendMembershipFactory,
     JobRequestFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     PublishRequestFactory,
     ReleaseFactory,
     ReleaseFileFactory,
@@ -94,11 +93,13 @@ def test_releaseapi_get_with_anonymous_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_get_with_permission(api_rf, build_release_with_files):
+def test_releaseapi_get_with_permission(
+    api_rf, build_release_with_files, project_membership
+):
     release = build_release_with_files(["file.txt"])
     rfile = release.files.first()
 
-    ProjectMembershipFactory(
+    project_membership(
         user=release.created_by,
         project=release.workspace.project,
         roles=[ProjectCollaborator],
@@ -582,12 +583,14 @@ def test_releaseworkspaceapi_get_with_anonymous_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseworkspaceapi_get_with_permission(api_rf, build_release_with_files):
+def test_releaseworkspaceapi_get_with_permission(
+    api_rf, build_release_with_files, project_membership
+):
     workspace = WorkspaceFactory()
     backend1 = BackendFactory(slug="backend1")
     backend2 = BackendFactory(slug="backend2")
     user = UserFactory()
-    ProjectMembershipFactory(
+    project_membership(
         user=user, project=workspace.project, roles=[ProjectCollaborator]
     )
 
@@ -654,10 +657,12 @@ def test_releaseworkspaceapi_get_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
+def test_releaseworkspaceapi_post_create_release(
+    api_rf, slack_messages, project_membership
+):
     user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
-    ProjectMembershipFactory(user=user, project=workspace.project)
+    project_membership(user=user, project=workspace.project)
 
     backend = BackendFactory(auth_token="test", name="test-backend")
     BackendMembershipFactory(backend=backend, user=user)
@@ -712,10 +717,12 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
     assert backend.name in text
 
 
-def test_releaseworkspaceapi_post_create_release_with_oversized_file(api_rf):
+def test_releaseworkspaceapi_post_create_release_with_oversized_file(
+    api_rf, project_membership
+):
     user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
-    ProjectMembershipFactory(user=user, project=workspace.project)
+    project_membership(user=user, project=workspace.project)
 
     backend = BackendFactory(auth_token="test", name="test-backend")
     BackendMembershipFactory(backend=backend, user=user)
@@ -753,7 +760,7 @@ def test_releaseworkspaceapi_post_create_release_with_oversized_file(api_rf):
     assert response.data["files"][0]["size"][0].startswith("File size should be <16Mb.")
 
 
-def test_releaseworkspaceapi_post_release_already_exists(api_rf):
+def test_releaseworkspaceapi_post_release_already_exists(api_rf, project_membership):
     user = UserFactory(roles=[OutputChecker])
 
     release = ReleaseFactory()
@@ -765,7 +772,7 @@ def test_releaseworkspaceapi_post_release_already_exists(api_rf):
     )
 
     BackendMembershipFactory(backend=release.backend, user=user)
-    ProjectMembershipFactory(project=release.workspace.project, user=user)
+    project_membership(project=release.workspace.project, user=user)
 
     data = {
         "files": [
@@ -824,10 +831,10 @@ def test_releaseworkspaceapi_post_with_bad_backend_token(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseworkspaceapi_post_with_bad_json(api_rf):
+def test_releaseworkspaceapi_post_with_bad_json(api_rf, project_membership):
     user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
-    ProjectMembershipFactory(user=user, project=workspace.project)
+    project_membership(user=user, project=workspace.project)
 
     backend = BackendFactory(auth_token="test")
     BackendMembershipFactory(backend=backend, user=user)
@@ -912,11 +919,11 @@ def test_releasefileapi_with_anonymous_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releasefileapi_with_deleted_file(api_rf):
+def test_releasefileapi_with_deleted_file(api_rf, project_membership):
     rfile = ReleaseFileFactory(deleted_at=timezone.now(), deleted_by=UserFactory())
     user = UserFactory()
 
-    ProjectMembershipFactory(
+    project_membership(
         user=user,
         project=rfile.release.workspace.project,
         roles=[ProjectCollaborator],
@@ -930,7 +937,7 @@ def test_releasefileapi_with_deleted_file(api_rf):
     assert response.status_code == 404, response.data
 
 
-def test_releasefileapi_with_no_file_on_disk(api_rf, build_release):
+def test_releasefileapi_with_no_file_on_disk(api_rf, build_release, project_membership):
     release = build_release(["file1.txt"])
     rfile = ReleaseFileFactory(
         release=release,
@@ -940,7 +947,7 @@ def test_releasefileapi_with_no_file_on_disk(api_rf, build_release):
     )
     user = UserFactory()
 
-    ProjectMembershipFactory(
+    project_membership(
         user=user,
         project=release.workspace.project,
         roles=[ProjectCollaborator],
@@ -955,13 +962,15 @@ def test_releasefileapi_with_no_file_on_disk(api_rf, build_release):
     assert response.data == "File not yet uploaded"
 
 
-def test_releasefileapi_with_nginx_redirect(api_rf, build_release_with_files):
+def test_releasefileapi_with_nginx_redirect(
+    api_rf, build_release_with_files, project_membership
+):
     release = build_release_with_files(["file.txt"])
     rfile = release.files.first()
     user = UserFactory()
 
     # test nginx configuration
-    ProjectMembershipFactory(
+    project_membership(
         user=user,
         project=release.workspace.project,
         roles=[ProjectCollaborator],
@@ -979,13 +988,15 @@ def test_releasefileapi_with_nginx_redirect(api_rf, build_release_with_files):
     )
 
 
-def test_releasefileapi_with_permission(api_rf, build_release_with_files):
+def test_releasefileapi_with_permission(
+    api_rf, build_release_with_files, project_membership
+):
     release = build_release_with_files(["file1.txt"])
     rfile = release.files.first()
     user = UserFactory()
 
     # logged in, with permission
-    ProjectMembershipFactory(
+    project_membership(
         user=user,
         project=release.workspace.project,
         roles=[ProjectCollaborator],
@@ -1242,12 +1253,10 @@ def test_snapshotapi_unpublished_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_snapshotcreate_unknown_files(api_rf):
+def test_snapshotcreate_unknown_files(api_rf, project_membership):
     workspace = WorkspaceFactory()
     user = UserFactory()
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
+    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
 
     request = api_rf.post("/", data={"file_ids": ["test"]})
     request.user = user
@@ -1258,7 +1267,9 @@ def test_snapshotcreate_unknown_files(api_rf):
     assert "Unknown file IDs" in response.data["detail"], response.data
 
 
-def test_snapshotcreate_with_existing_snapshot(api_rf, build_release_with_files):
+def test_snapshotcreate_with_existing_snapshot(
+    api_rf, build_release_with_files, project_membership
+):
     workspace = WorkspaceFactory()
     release = build_release_with_files(["file1.txt"], workspace=workspace)
     release.files.update(workspace=workspace)
@@ -1266,9 +1277,7 @@ def test_snapshotcreate_with_existing_snapshot(api_rf, build_release_with_files)
     snapshot.files.set(release.files.all())
 
     user = UserFactory()
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
+    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
 
     request = api_rf.post("/", data={"file_ids": [release.files.first().pk]})
     request.user = user
@@ -1279,7 +1288,9 @@ def test_snapshotcreate_with_existing_snapshot(api_rf, build_release_with_files)
     assert response.data["url"] == snapshot.get_absolute_url()
 
 
-def test_snapshotcreate_with_permission(api_rf, build_release_with_files):
+def test_snapshotcreate_with_permission(
+    api_rf, build_release_with_files, project_membership
+):
     workspace = WorkspaceFactory()
     release = build_release_with_files(
         [
@@ -1293,9 +1304,7 @@ def test_snapshotcreate_with_permission(api_rf, build_release_with_files):
     )
 
     user = UserFactory()
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
+    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
 
     data = {
         "file_ids": [

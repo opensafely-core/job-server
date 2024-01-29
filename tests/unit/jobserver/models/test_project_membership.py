@@ -1,11 +1,19 @@
+import pytest
 from django.urls import reverse
 
-from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
+from jobserver.models import ProjectMembership
+
+from ....factories import ProjectFactory, UserFactory
 
 
-def test_projectmembership_get_staff_edit_url():
+def test_projectmembership_direct_use_of_create():
+    with pytest.raises(TypeError):
+        ProjectMembership.objects.create()
+
+
+def test_projectmembership_get_staff_edit_url(project_membership):
     project = ProjectFactory()
-    membership = ProjectMembershipFactory(project=project)
+    membership = project_membership(project=project)
 
     url = membership.get_staff_edit_url()
 
@@ -18,9 +26,9 @@ def test_projectmembership_get_staff_edit_url():
     )
 
 
-def test_projectmembership_get_staff_remove_url():
+def test_projectmembership_get_staff_remove_url(project_membership):
     project = ProjectFactory()
-    membership = ProjectMembershipFactory(project=project)
+    membership = project_membership(project=project)
 
     url = membership.get_staff_remove_url()
 
@@ -33,10 +41,10 @@ def test_projectmembership_get_staff_remove_url():
     )
 
 
-def test_projectmembership_str():
+def test_projectmembership_str(project_membership):
     project = ProjectFactory(name="DataLab")
     user = UserFactory(username="ben")
 
-    membership = ProjectMembershipFactory(project=project, user=user)
+    membership = project_membership(project=project, user=user)
 
     assert str(membership) == "ben | DataLab"

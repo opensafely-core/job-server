@@ -19,7 +19,6 @@ from ....factories import (
     JobFactory,
     JobRequestFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     PublishRequestFactory,
     RepoFactory,
     ReportFactory,
@@ -65,10 +64,10 @@ def test_projectdetail_success(rf, user):
     assert "Edit" not in response.context_data
 
 
-def test_projectdetail_for_interactive_button(rf, user):
+def test_projectdetail_for_interactive_button(rf, user, project_membership):
     project = ProjectFactory()
     user = UserFactory(roles=[InteractiveReporter])
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     request = rf.get("/")
     request.user = user
@@ -81,7 +80,7 @@ def test_projectdetail_for_interactive_button(rf, user):
     assert "Run interactive analysis" in response.rendered_content
 
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     request = rf.get("/")
     request.user = user
@@ -231,11 +230,11 @@ def test_projectdetail_unknown_project(rf):
         ProjectDetail.as_view()(request, project_slug="test")
 
 
-def test_projectedit_get_success(rf):
+def test_projectedit_get_success(rf, project_membership):
     project = ProjectFactory()
 
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     request = rf.get("/")
     request.user = user
@@ -245,11 +244,11 @@ def test_projectedit_get_success(rf):
     assert response.status_code == 200
 
 
-def test_projectedit_post_success(rf):
+def test_projectedit_post_success(rf, project_membership):
     project = ProjectFactory(status=Project.Statuses.POSTPONED)
 
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     data = {
         "status": Project.Statuses.ONGOING,
@@ -268,11 +267,11 @@ def test_projectedit_post_success(rf):
     assert project.status_description == "test"
 
 
-def test_projectedit_post_success_with_next(rf):
+def test_projectedit_post_success_with_next(rf, project_membership):
     project = ProjectFactory(status=Project.Statuses.POSTPONED)
 
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     data = {
         "status": Project.Statuses.ONGOING,
@@ -339,7 +338,7 @@ def test_projecteventlog_unknown_project(rf):
         ProjectEventLog.as_view()(request, project_slug="")
 
 
-def test_projectreportlist_success(rf, release):
+def test_projectreportlist_success(rf, project_membership, release):
     project = ProjectFactory()
     user = UserFactory()
 
@@ -365,7 +364,7 @@ def test_projectreportlist_success(rf, release):
     assert set_from_qs(response.context_data["object_list"]) == {report2.pk}
 
     # test the page again now the user has permissions to view drafts
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     request = rf.get("/")
     request.user = user

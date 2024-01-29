@@ -3,7 +3,6 @@ from django.core.management import CommandError, call_command
 
 from tests.factories import (
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -32,10 +31,10 @@ def test_delete_project_doesnt_exist(capsys):
     assert exc_info.value.args[0] == "Project does not exist"
 
 
-def test_delete_project_with_members(capsys):
+def test_delete_project_with_members(capsys, project_membership):
     project = ProjectFactory(name="test-project")
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user)
+    project_membership(project=project, user=user)
 
     with pytest.raises(SystemExit) as exc_info:
         call_command("delete_project", "test-project")

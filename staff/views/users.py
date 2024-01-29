@@ -10,14 +10,24 @@ from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
 from django.views.generic.detail import SingleObjectMixin
 from social_django.models import UserSocialAuth
+from zen_queries import TemplateResponse as zTemplateResponse
+from zen_queries import fetch
 
 from interactive.commands import create_user
 from interactive.emails import send_welcome_email
+from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.forms import RolesForm
 from jobserver.authorization.utils import roles_for, strings_to_roles
-from jobserver.models import Backend, Job, Org, Project, User
+from jobserver.models import (
+    AuditableEvent,
+    Backend,
+    Job,
+    Org,
+    Project,
+    User,
+)
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserCreateForm, UserForm, UserOrgsForm
@@ -26,6 +36,54 @@ from .qwargs_tools import qwargs
 
 
 logger = structlog.get_logger(__name__)
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
+class UserAuditLog(ListView):
+    paginate_by = 25
+    template_name = "staff/user/audit_log.html"
+    response_class = zTemplateResponse
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, username=self.kwargs["username"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        events = self.get_queryset()
+        presentable_events = [get_presenter(e)(event=e) for e in events]
+
+        types = AuditableEvent.get_types(prefix="project_member")
+
+        # Note: we're passing in presentable_events here to override the use of
+        # self.object_list which is an iterable of AuditableEvents, but we're
+        # going to be using presentable_events in the template so we want to
+        # paginate on those instead.
+        return super().get_context_data(object_list=presentable_events, **kwargs) | {
+            "events": presentable_events,
+            "user": self.user,
+            "types": types,
+        }
+
+    def get_queryset(self):
+        project_pks = [
+            str(pk) for pk in self.user.projects.values_list("pk", flat=True)
+        ]
+        is_member = Q(
+            target_model=Project._meta.label,
+            target_id__in=project_pks,
+        )
+
+        qs = AuditableEvent.objects.filter(
+            Q(created_by=self.user.username)
+            | Q(target_user=self.user.username)
+            | is_member
+        ).order_by("-created_at", "-pk")
+
+        if types := self.request.GET.getlist("types"):
+            qs = qs.filter(type__in=types)
+
+        return fetch(qs.distinct())
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")

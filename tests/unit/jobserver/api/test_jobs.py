@@ -23,7 +23,6 @@ from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     StatsFactory,
     UserFactory,
     WorkspaceFactory,
@@ -879,14 +878,14 @@ def test_jobrequestapilist_success(api_rf):
     ]
 
 
-def test_userapidetail_success(api_rf):
+def test_userapidetail_success(api_rf, project_membership):
     backend = BackendFactory()
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[CoreDeveloper])
 
     OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = api_rf.get("/", headers={"authorization": backend.auth_token})
     response = UserAPIDetail.as_view()(request, username=user.username)

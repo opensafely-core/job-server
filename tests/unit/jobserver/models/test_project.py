@@ -124,6 +124,14 @@ def test_project_get_staff_url():
     assert url == reverse("staff:project-detail", kwargs={"slug": project.slug})
 
 
+def test_project_staff_audit_url():
+    project = ProjectFactory()
+
+    url = project.get_staff_audit_url()
+
+    assert url == reverse("staff:project-audit-log", kwargs={"slug": project.slug})
+
+
 def test_project_get_staff_edit_url():
     project = ProjectFactory()
 

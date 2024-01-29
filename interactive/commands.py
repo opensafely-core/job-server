@@ -4,8 +4,9 @@ from django.conf import settings
 from django.db import transaction
 
 from jobserver.authorization import InteractiveReporter
+from jobserver.commands import project_members as members
 from jobserver.github import _get_github_api
-from jobserver.models import OrgMembership, ProjectMembership, Repo, Report, User
+from jobserver.models import OrgMembership, Repo, Report, User
 
 
 def create_repo(*, name, get_github_api=_get_github_api):
@@ -76,11 +77,11 @@ def create_user(*, creator, email, name, project):
         for org in project.orgs.all()
     )
 
-    ProjectMembership.objects.create(
-        created_by=creator,
+    members.add(
         project=project,
         user=user,
         roles=[InteractiveReporter],
+        by=creator,
     )
 
     return user

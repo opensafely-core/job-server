@@ -29,7 +29,6 @@ from ....factories import (
     JobRequestFactory,
     PartialFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     UserFactory,
     UserSocialAuthFactory,
     WorkspaceFactory,
@@ -202,10 +201,10 @@ def test_loginwithurl_bad_token(rf_messages):
     assert str(messages[0]).startswith("Invalid token, please try again")
 
 
-def test_loginwithurl_success_with_one_project(rf):
+def test_loginwithurl_success_with_one_project(rf, project_membership):
     project = ProjectFactory()
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
     WorkspaceFactory(project=project, name=project.interactive_slug)
 
     signed_token = TimestampSigner(salt="login").sign("test")
@@ -220,15 +219,15 @@ def test_loginwithurl_success_with_one_project(rf):
     assert response.url == project.get_interactive_url()
 
 
-def test_loginwithurl_success_with_two_projects(rf):
+def test_loginwithurl_success_with_two_projects(rf, project_membership):
     user = UserFactory()
 
     project1 = ProjectFactory()
-    ProjectMembershipFactory(project=project1, user=user, roles=[InteractiveReporter])
+    project_membership(project=project1, user=user, roles=[InteractiveReporter])
     WorkspaceFactory(project=project1, name=project1.interactive_slug)
 
     project2 = ProjectFactory()
-    ProjectMembershipFactory(project=project2, user=user, roles=[InteractiveReporter])
+    project_membership(project=project2, user=user, roles=[InteractiveReporter])
     WorkspaceFactory(project=project2, name=project2.interactive_slug)
 
     signed_token = TimestampSigner(salt="login").sign("test")

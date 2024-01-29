@@ -11,7 +11,6 @@ from jobserver.views.reports import PublishRequestCreate
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
-    ProjectMembershipFactory,
     PublishRequestFactory,
     ReleaseFileFactory,
     ReportFactory,
@@ -37,10 +36,10 @@ def test_publishrequestcreate_get_success(rf):
     assert response.status_code == 200
 
 
-def test_publishrequestcreate_locked_with_approved_decision(rf):
+def test_publishrequestcreate_locked_with_approved_decision(rf, project_membership):
     project = ProjectFactory()
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     rfile = ReleaseFileFactory()
     snapshot = SnapshotFactory()
@@ -72,10 +71,10 @@ def test_publishrequestcreate_locked_with_approved_decision(rf):
     assert response.template_name == "interactive/publish_request_create_locked.html"
 
 
-def test_publishrequestcreate_locked_with_pending_decision(rf):
+def test_publishrequestcreate_locked_with_pending_decision(rf, project_membership):
     project = ProjectFactory()
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     rfile = ReleaseFileFactory()
     snapshot = SnapshotFactory()
@@ -98,10 +97,10 @@ def test_publishrequestcreate_locked_with_pending_decision(rf):
     assert response.template_name == "interactive/publish_request_create_locked.html"
 
 
-def test_reportedit_unlocked_with_rejected_decision(rf):
+def test_reportedit_unlocked_with_rejected_decision(rf, project_membership):
     project = ProjectFactory()
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     rfile = ReleaseFileFactory()
     snapshot = SnapshotFactory()

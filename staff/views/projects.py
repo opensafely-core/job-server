@@ -14,15 +14,19 @@ from django.views.generic import (
 )
 from django_htmx.http import HttpResponseClientRedirect
 from furl import furl
+from zen_queries import TemplateResponse as zTemplateResponse
+from zen_queries import fetch
 
 from applications.models import Application
 from interactive.commands import create_repo, create_workspace
+from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
+from jobserver.commands import project_members as members
 from jobserver.commands import projects
 from jobserver.github import GitHubError, _get_github_api
-from jobserver.models import Org, Project, ProjectMembership, User
+from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, User
 
 from ..forms import (
     ProjectAddMemberForm,
@@ -46,17 +50,15 @@ class ProjectAddMember(FormView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    @transaction.atomic()
     def form_valid(self, form):
-        roles = form.cleaned_data["roles"]
-        users = form.cleaned_data["users"]
-
-        with transaction.atomic():
-            for user in users:
-                self.project.memberships.create(
-                    user=user,
-                    created_by=self.request.user,
-                    roles=roles,
-                )
+        for user in form.cleaned_data["users"]:
+            members.add(
+                project=self.project,
+                user=user,
+                roles=form.cleaned_data["roles"],
+                by=self.request.user,
+            )
 
         return redirect(self.project.get_staff_url())
 
@@ -85,6 +87,44 @@ class ProjectAddMember(FormView):
         return super().get_initial() | {
             "users": self.project.members.values_list("pk", flat=True),
         }
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ProjectAuditLog(ListView):
+    paginate_by = 25
+    template_name = "staff/project/audit_log.html"
+    response_class = zTemplateResponse
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(Project, slug=self.kwargs["slug"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        events = self.get_queryset()
+        presentable_events = [get_presenter(e)(event=e) for e in events]
+
+        types = AuditableEvent.get_types(prefix="project_member")
+
+        # Note: we're passing in presentable_events here to override the use of
+        # self.object_list which is an iterable of AuditableEvents, but we're
+        # going to be using presentable_events in the template so we want to
+        # paginate on those instead.
+        return super().get_context_data(object_list=presentable_events, **kwargs) | {
+            "events": presentable_events,
+            "project": self.project,
+            "types": types,
+        }
+
+    def get_queryset(self):
+        qs = AuditableEvent.objects.filter(
+            parent_model=Project._meta.label, parent_id=str(self.project.pk)
+        ).order_by("-created_at", "-pk")
+
+        if types := self.request.GET.getlist("types"):
+            qs = qs.filter(type__in=types)
+
+        return fetch(qs.distinct())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -268,8 +308,11 @@ class ProjectMembershipEdit(UpdateView):
     template_name = "staff/project/membership_edit.html"
 
     def form_valid(self, form):
-        self.object.roles = form.cleaned_data["roles"]
-        self.object.save()
+        members.update_roles(
+            member=self.object,
+            by=self.request.user,
+            roles=form.cleaned_data["roles"],
+        )
 
         return redirect(
             get_next_url(self.request.GET, self.object.project.get_staff_url())
@@ -305,7 +348,8 @@ class ProjectMembershipRemove(View):
             ProjectMembership, project__slug=self.kwargs["slug"], pk=self.kwargs["pk"]
         )
 
-        membership.delete()
+        members.remove(membership=membership, by=self.request.user)
+
         messages.success(
             request,
             f"Removed {membership.user.username} from {membership.project.title}",

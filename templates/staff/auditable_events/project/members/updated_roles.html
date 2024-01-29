@@ -1,0 +1,32 @@
+{% if event.actor.link %}
+{% link href=event.actor.link text=event.actor %}
+{% else %}
+{{ event.actor }}
+{% endif %}
+
+changed roles for
+
+{% if event.user.link %}
+{% link href=event.user.link text=event.user %}
+{% else %}
+{{ event.user }}
+{% endif %}
+
+on
+
+{% if event.project.link %}
+{% link href=event.project.link text=event.project %}
+{% else %}
+{{ event.project }}
+{% endif %}
+
+<dl class="flex flex-col gap-0.5 mt-2 pl-2 border-l-2">
+  <div class="flex flex-row gap-1">
+    <dt class="font-semibold">From:</dt>
+    <dd>{{ event.before }}</dd>
+  </div>
+  <div class="flex flex-row gap-1">
+    <dt class="font-semibold">To: </dt>
+    <dd>{{ event.after }}</dd>
+  </div>
+</dl>

@@ -1,0 +1,21 @@
+{% if event.actor.link %}
+{% link href=event.actor.link text=event.actor %}
+{% else %}
+{{ event.actor }}
+{% endif %}
+
+added
+
+{% if event.user.link %}
+{% link href=event.user.link text=event.user %}
+{% else %}
+{{ event.user }}
+{% endif %}
+
+to
+
+{% if event.project.link %}
+{% link href=event.project.link text=event.project %}
+{% else %}
+{{ event.project }}
+{% endif %}

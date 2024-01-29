@@ -28,6 +28,7 @@ components:
   list_group_empty: "_components/list-group/list-group-empty.html"
   list_group_item: "_components/list-group/list-group-item.html"
   list_group_rich_item: "_components/list-group/list-group-rich-item.html"
+  log_item: "_components/log-item.html"
   modal: "_components/modal/modal.html"
   multiselect: "_components/multiselect/multiselect.html"
   multiselect_option: "_components/multiselect/multiselect-option.html"

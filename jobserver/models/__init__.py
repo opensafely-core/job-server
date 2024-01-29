@@ -1,3 +1,4 @@
+from .auditable_event import AuditableEvent
 from .backend import Backend
 from .backend_membership import BackendMembership
 from .job import Job
@@ -20,6 +21,7 @@ from .workspace import Workspace
 
 
 __all__ = [
+    "AuditableEvent",
     "Backend",
     "BackendMembership",
     "Job",

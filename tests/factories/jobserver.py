@@ -7,6 +7,7 @@ from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapProp
 from social_django.models import Partial, UserSocialAuth
 
 from jobserver.models import (
+    AuditableEvent,
     Backend,
     BackendMembership,
     Job,
@@ -15,7 +16,6 @@ from jobserver.models import (
     OrgMembership,
     Project,
     ProjectCollaboration,
-    ProjectMembership,
     Repo,
     Stats,
     User,
@@ -33,6 +33,11 @@ def generate_traceparent():
         TraceContextTextMapPropagator().inject(ctx)
 
     return ctx
+
+
+class AuditableEventFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = AuditableEvent
 
 
 class BackendFactory(factory.django.DjangoModelFactory):
@@ -126,14 +131,6 @@ class ProjectCollaborationFactory(factory.django.DjangoModelFactory):
     org = factory.SubFactory("tests.factories.OrgFactory")
     project = factory.SubFactory("tests.factories.ProjectFactory")
     updated_by = factory.SubFactory("tests.factories.UserFactory")
-
-
-class ProjectMembershipFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ProjectMembership
-
-    project = factory.SubFactory("tests.factories.ProjectFactory")
-    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class RepoFactory(factory.django.DjangoModelFactory):

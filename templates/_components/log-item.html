@@ -1,0 +1,13 @@
+{% load humanize %}
+
+<li class="p-2 sm:px-4">
+  <div class="flex flex-row gap-2">
+    <div class="mr-auto">
+      {{ children }}
+    </div>
+
+    {% #time datetime=created_at.isoformat tooltip=created_at|date:"Y-m-d H:i:sO" class="flex-shrink-0" %}
+      {{ created_at|naturalday:"d M Y"|capfirst }}
+    {% /time %}
+  </div>
+</li>
