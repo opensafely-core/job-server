@@ -38,7 +38,7 @@ from .factories import (
     UserFactory,
     UserSocialAuthFactory,
 )
-from .factories import applications as application_factories
+from .factories import application as application_factories
 
 
 # set up tracing for tests
