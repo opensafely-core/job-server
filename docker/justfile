@@ -27,21 +27,19 @@ test *pytest_args="": _dotenv build
     # Note, we do *not* run coverage in docker, as we want to use xdist, and coverage does not seem to work reliably.
     docker-compose run --rm test pytest {{ pytest_args }}
 
-
-# run server in dev|prod container
+# run as service in dev|prod container
 serve env="dev" *args="": _dotenv
     {{ just_executable() }} build {{ env }}
     docker-compose up {{ args }} {{ env }}
 
-# run command in dev|prod container
-run env="dev" *args="": _dotenv
-    {{ just_executable() }} build {{ env }}
-    docker-compose run --rm {{ env }} {{ args }}
+
+# run command in dev|prod container, runserver by default
+run env="dev" *args="": (build env)
+    docker-compose run --service-ports --rm {{ env }} {{ args }}
 
 
 # exec command in existing dev|prod container
-exec env="dev" *args="bash": _dotenv
-    {{ just_executable() }} build {{ env }}
+exec env="dev" *args="bash": (build env)
     docker-compose exec {{ env }} {{ args }}
 
 
