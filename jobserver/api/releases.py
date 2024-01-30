@@ -578,9 +578,9 @@ class TokenAuthenticationAPI(APIView):
         staff = serializers.BooleanField()
 
     def post(self, request):
-        if getattr(request, "backend", None) is None:
-            logger.info("API Login with token failed because request not from backend")
-            raise NotAuthenticated()
+        # Only allow requests from backend (this function raises the appropriate
+        # exceptions)
+        get_backend_from_token(request.headers.get("Authorization"))
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)

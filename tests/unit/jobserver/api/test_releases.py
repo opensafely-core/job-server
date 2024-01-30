@@ -1557,11 +1557,14 @@ def test_tokenauthenticationapi_success(api_rf, project_membership, token_login_
     project_membership(user=token_login_user, project=project2)
 
     token = generate_login_token(token_login_user)
+    backend = token_login_user.backends.first()
     token_data = {"user": token_login_user.username, "token": token}
-    request = api_rf.post("/", data=token_data, format="json")
-
-    # request originates from known backend IP
-    request.backend = token_login_user.backends.first()
+    request = api_rf.post(
+        "/",
+        data=token_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
 
     response = TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 200
@@ -1596,11 +1599,14 @@ def test_tokenauthenticationapi_success_privileged(
     workspace2 = WorkspaceFactory(project=project)
 
     token = generate_login_token(token_login_user)
+    backend = token_login_user.backends.first()
     token_data = {"user": token_login_user.username, "token": token}
-    request = api_rf.post("/", data=token_data, format="json")
-
-    # request originates from known backend IP
-    request.backend = token_login_user.backends.first()
+    request = api_rf.post(
+        "/",
+        data=token_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
 
     response = TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 200
@@ -1621,9 +1627,9 @@ def test_tokenauthenticationapi_fails_not_backend(
 
     token = generate_login_token(token_login_user)
     token_data = {"user": token_login_user.username, "token": token}
+    # do not set authorization header
     request = api_rf.post("/", data=token_data, format="json")
 
-    # do not set request backend!
     response = TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 403
 
@@ -1649,11 +1655,14 @@ def test_tokenauthenticationapi_fails_invalid_user(
     project = ProjectFactory()
     project_membership(user=user, project=project, roles=[ProjectDeveloper])
 
+    backend = BackendFactory()
     token_data = {"user": user.username, "token": "doesn't matter"}
-    request = api_rf.post("/", data=token_data, format="json")
-
-    # request *does* come from a Backend
-    request.backend = BackendFactory()
+    request = api_rf.post(
+        "/",
+        data=token_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
 
     response = TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 403
