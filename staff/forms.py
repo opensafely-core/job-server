@@ -234,7 +234,7 @@ class UserCreateForm(forms.Form):
     project = forms.ModelChoiceField(
         queryset=Project.objects.filter(workspaces__name__endswith="interactive")
         .distinct()
-        .order_by(Lower("org__name"), Lower("name"))
+        .order_by("-number", Lower("name"))
     )
     name = forms.CharField()
     email = forms.EmailField()
