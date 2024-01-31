@@ -493,6 +493,28 @@ def test_workspacedetail_authorized_view_outputs(rf):
 def test_workspacedetail_authorized_run_jobs(rf, project_membership):
     workspace = WorkspaceFactory()
     user = UserFactory()
+    backend = BackendFactory()
+
+    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
+    assert response.context_data["user_has_backends"]
+
+
+def test_workspacedetail_authorized_run_jobs_no_backends(rf, project_membership):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
 
     project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
 
@@ -507,6 +529,7 @@ def test_workspacedetail_authorized_run_jobs(rf, project_membership):
 
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
+    assert not response.context_data["user_has_backends"]
 
 
 def test_workspacedetail_authorized_honeycomb(rf):

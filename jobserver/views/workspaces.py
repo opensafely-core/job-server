@@ -298,6 +298,7 @@ class WorkspaceDetail(View):
         can_toggle_notifications = has_permission(
             request.user, "workspace_toggle_notifications", project=workspace.project
         )
+        has_backends = request.user.is_authenticated and request.user.backends.exists()
 
         # should we show the admin section in the UI?
         show_admin = (
@@ -337,6 +338,7 @@ class WorkspaceDetail(View):
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
             "user_can_toggle_notifications": can_toggle_notifications,
+            "user_has_backends": has_backends,
             "workspace": workspace,
         }
         return TemplateResponse(
