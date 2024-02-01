@@ -3,7 +3,7 @@ import sys
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from jobserver.models import Project, User
+from jobserver.models import Org, Project, ProjectCollaboration, User
 
 
 class MergeException(Exception):
@@ -29,6 +29,16 @@ def merge_projects(username, primary_slug, other_slugs):
 
     other_names = list(others.values_list("name", flat=True))
 
+    # preserve any orgs not already on the primary
+    orgs = Org.objects.filter(projects__in=others).exclude(projects=primary).distinct()
+    for org in orgs:
+        ProjectCollaboration.objects.create(
+            project=primary,
+            org=org,
+            created_by=operator,
+            updated_by=operator,
+        )
+
     for project in others:
         # set up redirect
         primary.redirects.create(
@@ -43,6 +53,8 @@ def merge_projects(username, primary_slug, other_slugs):
         project.memberships.exclude(
             user__username__in=primary.members.values_list("username")
         ).update(project=primary)
+
+        project.collaborations.all().delete()
 
     others.delete()
 
