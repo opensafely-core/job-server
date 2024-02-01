@@ -80,18 +80,26 @@
           {% /button %}
         {% endif %}
 
-        {% if user_can_run_jobs %}
-          {% if workspace.is_archived %}
-            {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" %}
-              Run jobs
-              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
-          {% else %}
-            {% #button href=workspace.get_jobs_url type="link" variant="success" %}
-              Run jobs
-              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
-          {% endif %}
+        {% if workspace.is_archived %}
+          {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" %}
+            Run jobs
+            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
+        {% elif not user_can_run_jobs %}
+          {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on this workspace" %}
+            Run jobs
+            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
+        {% elif not user_has_backends %}
+          {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on any OpenSAFELY backends" %}
+            Run jobs
+            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
+        {% else %}
+          {% #button href=workspace.get_jobs_url type="link" variant="success" %}
+            Run jobs
+            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
         {% endif %}
 
         {% if show_interactive_button %}
