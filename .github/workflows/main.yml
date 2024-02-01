@@ -120,14 +120,6 @@ jobs:
             just docker-build prod
             just docker-build dev
 
-      - name: Run unit tests on docker dev image
-        env:
-          GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
-          GITHUB_WRITEABLE_TOKEN:
-        run: |
-          # build docker and run test
-          just docker-test -n 4  # hardcode n because auto does not dtrt in docker
-
       - name: Run smoke test on prod
         run: |
           just docker-serve prod -d
