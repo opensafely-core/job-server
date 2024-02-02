@@ -29,6 +29,15 @@
 
 {% block content %}
 <div class="flex flex-col gap-4">
+  {% #card title="User information" %}
+    {% #description_list %}
+      {% #description_item title="Joined" %}
+        {% #time datetime=user.date_joined|date:"Y-m-d H:i:sO" %}
+          {{ user.date_joined|date:"d F Y" }} at {{ user.date_joined|date:"H:i" }}
+        {% /time %}
+      {% /description_item %}
+    {% /description_list %}
+  {% /card %}
   <form method="POST" class="flex flex-col gap-4">
     {% csrf_token %}
 
