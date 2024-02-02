@@ -33,8 +33,8 @@
 
 {% block content %}
   <div class="flex flex-col gap-4">
-    {% if not orgs or not user.backends.exists %}
-      {% #alert variant="warning" title="No projects" %}
+    {% if not orgs or not user.backends.exists or not projects %}
+      {% #alert variant="warning" title="Missing information" %}
         <p>
           A user <strong>requires</strong> access to certain resources to be able to use the Jobs site. The following are missing for this user:
         </p>
@@ -45,14 +45,11 @@
           {% if not orgs %}
             <li>Orgs</li>
           {% endif %}
+          {% if not projects %}
+            <li>Projects</li>
+          {% endif %}
         </ul>
         <p>If you think this is incorrect, please speak to the IG Team.</p>
-      {% /alert %}
-    {% endif %}
-
-    {% if not projects %}
-      {% #alert variant="warning" title="No projects" %}
-        A user would ideally have access to one or more Projects.
       {% /alert %}
     {% endif %}
 
