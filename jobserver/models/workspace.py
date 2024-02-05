@@ -21,7 +21,6 @@ class Workspace(models.Model):
         "Repo",
         on_delete=models.PROTECT,
         related_name="workspaces",
-        null=True,
     )
 
     name = models.TextField(unique=True)
