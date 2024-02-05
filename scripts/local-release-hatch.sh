@@ -16,18 +16,7 @@ fi
 # set VIRTUAL_ENV explicitly so we don't use job-server's venv
 env -C "$RELEASE_HATCH_REPO" VIRTUAL_ENV=".venv" just devenv
 
-JOB_SERVER_TOKEN="$("$VIRTUAL_ENV/bin/python" manage.py shell << EOF
-from jobserver.models.backends import Backend
-
-backend, created = Backend.objects.get_or_create(
-    slug="local-dev",
-    name="Local Dev"
-)
-backend.level_4_url = "$RELEASE_HATCH_URL"
-backend.save()
-print(backend.auth_token)
-EOF
-)"
+JOB_SERVER_TOKEN="$("$VIRTUAL_ENV/bin/python" manage.py create_backend local-dev --name 'Local Dev' --url "$RELEASE_HATCH_URL" --quiet)"
 
 JOB_SERVER="$("$VIRTUAL_ENV/bin/python" manage.py shell -c 'from django.conf import settings; print(settings.BASE_URL)')"
 
