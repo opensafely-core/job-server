@@ -1,11 +1,19 @@
 import csv
 from io import StringIO
 
+import pytest
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 
 from jobserver.models import Workspace
 
-from .....factories import ProjectFactory, RepoFactory, WorkspaceFactory
+from .....factories import (
+    BackendFactory,
+    ProjectFactory,
+    RepoFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 def assert_expected_output(stdout, expected_files, workspace):
@@ -81,3 +89,59 @@ def test_release_command_with_new_workspace(tmp_path):
 
     assert not err.getvalue()
     assert_expected_output(out, expected_files, workspace)
+
+
+def test_release_command_fails_with_missing_user(tmp_path):
+    release_dir = tmp_path / "test_release_command_fails_with_missing_user"
+    release_dir.mkdir()
+
+    out = StringIO()
+    err = StringIO()
+    with pytest.raises(ObjectDoesNotExist):
+        call_command(
+            "release",
+            release_dir,
+            stdout=out,
+            stderr=err,
+        )
+
+
+def test_release_command_fails_with_missing_workspace(tmp_path):
+    release_dir = tmp_path / "test_release_command_fails_with_missing_workspace"
+    release_dir.mkdir()
+
+    user = UserFactory()
+
+    out = StringIO()
+    err = StringIO()
+    with pytest.raises(ObjectDoesNotExist):
+        call_command(
+            "release",
+            release_dir,
+            "-u",
+            user.username,
+            stdout=out,
+            stderr=err,
+        )
+
+
+def test_release_command_fails_with_missing_backend(tmp_path):
+    release_dir = tmp_path / "test_release_command_fails_with_missing_backend"
+    release_dir.mkdir()
+
+    user = UserFactory()
+    backend = BackendFactory()
+
+    out = StringIO()
+    err = StringIO()
+    with pytest.raises(ObjectDoesNotExist):
+        call_command(
+            "release",
+            release_dir,
+            "-u",
+            user.username,
+            "-b",
+            backend.slug,
+            stdout=out,
+            stderr=err,
+        )
