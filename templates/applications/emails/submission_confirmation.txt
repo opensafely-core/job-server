@@ -1,11 +1,18 @@
 {% extends "emails/base.txt" %}
 
 {% block content %}
-Thank you for applying to use the OpenSAFELY platform.
+Dear {{ applicant }},
 
-You can view your submitted application here:
+Thank you for submitting your project application (ref: {{ reference }}) to OpenSAFELY.
+You can now view your submitted application here:
 
 {{ url }}
 
-We are a very committed, but still small and busy team, so feel free to email us at team@opensafely.org if you haven't had any response after three weeks from the date of application submission.
+We are working with NHS England to agree a date to reopen OpenSAFELY to new research projects. As a result we cannot guarantee when your project will be assessed, but we will keep you updated about our timescales on a regular basis.
+
+We will be in touch if we have any questions regarding your application.
+
+In the meantime, please know that we appreciate your patience and understanding during this transition period.
+
+If you have any questions or require further assistance, please don't hesitate to reach out to us at applications@opensafely.org and quote your project application reference (shown above) in the subject of the email.
 {% endblock content %}

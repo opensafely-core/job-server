@@ -9,12 +9,14 @@ def send_submitted_application_email(email, application):
 
     context = {
         "url": f.url,
+        "applicant": application.submitted_by.name,
+        "reference": application.pk_hash,
     }
 
     send(
         to=email,
         sender="notifications@jobs.opensafely.org",
-        subject="Thank you for applying to use OpenSAFELY",
+        subject="Acknowledgement of New COVID-19 Project Application",
         template_name="applications/emails/submission_confirmation.txt",
         html_template_name="applications/emails/submission_confirmation.html",
         context=context,
