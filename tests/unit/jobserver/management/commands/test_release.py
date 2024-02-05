@@ -42,7 +42,7 @@ def test_release_command(tmp_path):
 
     release_files = release.files.order_by("name")
 
-    assert release_files.count() == 2
+    assert release_files.count() == len(expected_files)
 
     for rf, ef in zip(release_files, expected_files):
         assert rf.path.endswith(ef.name)
