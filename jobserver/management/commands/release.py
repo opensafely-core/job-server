@@ -117,8 +117,8 @@ class Command(BaseCommand):
         release = releases.create_release(workspace, backend, user, files)
         for f in files:
             name = f["name"]
-            handle = (directory / name).open("rb")
-            releases.handle_file_upload(release, backend, user, handle, name)
+            with (directory / name).open("rb") as handle:
+                releases.handle_file_upload(release, backend, user, handle, name)
 
         self.stdout.write("Release created:")
         f = furl(settings.BASE_URL)
