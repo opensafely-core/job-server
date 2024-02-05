@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from furl import furl
 
 from jobserver import releases
-from jobserver.models import Backend, Org, Project, User, Workspace
+from jobserver.models import Backend, Project, Repo, User, Workspace
 
 
 def get_or_maybe_create(create, model, lookup, **kwargs):
@@ -83,31 +83,36 @@ class Command(BaseCommand):
                     "metadata": "",
                 }
             )
+        user = get_or_maybe_create(create, User, {"username": username})
 
         try:
             workspace = Workspace.objects.get(name=workspace_name)
         except Workspace.DoesNotExist:
             if create:
-                org = get_or_maybe_create(
-                    create, Org, {"name": "test-org"}, slug="test-org"
-                )
                 project = get_or_maybe_create(
                     create,
                     Project,
                     {"name": "test-project"},
                     slug="test-project",
-                    org=org,
+                    created_by=user,
+                    updated_by=user,
                 )
+
+                repo = Repo.objects.create(
+                    url="https://github.com/opensafely/test-repo"
+                )
+
                 workspace = Workspace.objects.create(
                     name=workspace_name,
                     project=project,
-                    repo="https://github.com/opensafely/test-repo",
+                    repo=repo,
+                    created_by=user,
+                    updated_by=user,
                 )
             else:
                 raise
 
         backend = get_or_maybe_create(create, Backend, {"slug": backend_name})
-        user = get_or_maybe_create(create, User, {"username": username})
 
         release = releases.create_release(workspace, backend, user, files)
         for f in files:
@@ -115,9 +120,9 @@ class Command(BaseCommand):
             handle = (directory / name).open("rb")
             releases.handle_file_upload(release, backend, user, handle, name)
 
-        print("Release created:")
+        self.stdout.write("Release created:")
         f = furl(settings.BASE_URL)
         f.path = release.get_absolute_url()
-        print(f.url)
+        self.stdout.write(f.url)
         f.path = workspace.get_absolute_url()
-        print(f.url)
+        self.stdout.write(f.url)
