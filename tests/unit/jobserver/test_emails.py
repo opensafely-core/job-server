@@ -10,6 +10,7 @@ from jobserver.emails import (
     send_login_email,
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
+    send_report_published_email,
 )
 
 from ...factories import (
@@ -39,19 +40,27 @@ def test_send_finished_notification(mailoutbox):
     send_finished_notification("test@example.com", job)
 
     m = mailoutbox[0]
+    text_content = m.body
+    html_content = m.alternatives[0][0]
 
     assert job.action in m.subject
     assert job.status in m.subject
     assert workspace.name in m.subject
 
-    assert job.action in m.body
-    assert job.status in m.body
-    assert job.status_message in m.body
-    assert str(job.runtime.total_seconds) in m.body
-    assert job.get_absolute_url() in m.body
-    assert settings.BASE_URL in m.body
-
     assert list(m.to) == ["test@example.com"]
+
+    assert job.action in text_content
+    assert job.action in html_content
+    assert job.status in text_content
+    assert job.status in html_content
+    assert job.status_message in text_content
+    assert job.status_message in html_content
+    assert str(job.runtime.total_seconds) in text_content
+    assert str(job.runtime.total_seconds) in html_content
+    assert job.get_absolute_url() in text_content
+    assert job.get_absolute_url() in html_content
+    assert settings.BASE_URL in text_content
+    assert settings.BASE_URL in html_content
 
 
 def test_github_login_email(mailoutbox):
@@ -60,8 +69,11 @@ def test_github_login_email(mailoutbox):
     send_github_login_email(user)
 
     m = mailoutbox[0]
+    text_content = m.body
+    html_content = m.alternatives[0][0]
 
-    assert reverse("login") in m.body
+    assert reverse("login") in text_content
+    assert reverse("login") in html_content
 
     assert list(m.to) == [user.email]
 
@@ -72,10 +84,14 @@ def test_login_email(mailoutbox):
     send_login_email(user, "login-url", timeout_minutes=5)
 
     m = mailoutbox[0]
+    text_content = m.body
+    html_content = m.alternatives[0][0]
 
     assert list(m.to) == [user.email]
-    assert "login-url" in m.body
-    assert "5 minutes" in m.body
+    assert "login-url" in text_content
+    assert "login-url" in html_content
+    assert "5 minutes" in text_content
+    assert "5 minutes" in html_content
 
 
 def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
@@ -94,9 +110,16 @@ def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
     send_repo_signed_off_notification_to_researchers(repo)
 
     m = mailoutbox[0]
+    text_content = m.body
+    html_content = m.alternatives[0][0]
 
     assert list(m.to) == ["notifications@jobs.opensafely.org"]
     assert set(m.bcc) == {user1.email, user2.email, user3.email}
+
+    assert repo.name in text_content
+    assert repo.name in html_content
+    assert repo.researcher_signed_off_by.name in text_content
+    assert repo.researcher_signed_off_by.name in html_content
 
 
 def test_send_repo_signed_off_notification_to_staff(mailoutbox):
@@ -112,6 +135,28 @@ def test_send_repo_signed_off_notification_to_staff(mailoutbox):
     send_repo_signed_off_notification_to_staff(repo)
 
     m = mailoutbox[0]
+    text_content = m.body
+    html_content = m.alternatives[0][0]
 
     assert list(m.to) == ["publications@opensafely.org"]
     assert "7,42" in m.subject
+
+    assert repo.name in text_content
+    assert repo.name in html_content
+    assert repo.researcher_signed_off_by.name in text_content
+    assert repo.researcher_signed_off_by.name in html_content
+    assert repo.get_staff_url() in text_content
+    assert repo.get_staff_url() in html_content
+
+
+def test_send_report_published_email(publish_request_with_report, mailoutbox):
+    send_report_published_email(publish_request_with_report)
+
+    report = publish_request_with_report.report
+    m = mailoutbox[0]
+    text_content = m.body
+    html_content = m.alternatives[0][0]
+
+    assert m.subject == "Your report has been published"
+    assert report.get_absolute_url() in text_content
+    assert report.get_absolute_url() in html_content
