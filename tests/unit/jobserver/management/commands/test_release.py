@@ -6,8 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 
 from jobserver.models import Workspace
-
-from .....factories import (
+from tests.factories import (
     BackendFactory,
     ProjectFactory,
     RepoFactory,
