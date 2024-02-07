@@ -49,6 +49,34 @@ class UserManager(DjangoUserManager.from_queryset(UserQuerySet)):
     use_in_migrations = True
 
 
+def get_or_create_user(username, email, fullname, update_fields=None):
+    """Extend the special User.objects.create_user constructor to have the
+    usual get_or_create semantics.
+
+    By default, it will not update an existing user with the supplied email or
+    fullname, but the caller can specify to do so independently for each. This
+    enables a better implementation for the create_user function.
+    """
+    # We cannot use get_or_create here because the create_user factory function
+    # is special, and does additional work when creating users.
+    created = False
+    try:
+        user = User.objects.get(username=username)
+        if update_fields:
+            if "email" in update_fields:
+                user.email = email
+            if "fullname" in update_fields:
+                user.fullname = fullname
+            user.save()
+    except User.DoesNotExist:
+        user = User.objects.create_user(
+            username=username, email=email, fullname=fullname
+        )
+        created = True
+
+    return user, created
+
+
 class User(AbstractBaseUser):
     """
     A custom User model used throughout the codebase

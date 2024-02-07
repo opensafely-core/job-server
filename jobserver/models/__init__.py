@@ -16,7 +16,7 @@ from .repo import Repo
 from .report import Report
 from .snapshot import Snapshot
 from .stats import Stats
-from .user import User
+from .user import User, get_or_create_user
 from .workspace import Workspace
 
 
@@ -41,4 +41,5 @@ __all__ = [
     "Stats",
     "User",
     "Workspace",
+    "get_or_create_user",
 ]
