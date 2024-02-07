@@ -55,6 +55,11 @@
               {{ job_request.created_at|date:"d F Y" }} at {{ job_request.created_at|date:"H:i" }}
             {% /time %}
           {% /description_item %}
+
+	  {% #description_item title="Git commit hash" %}
+	    {% link href=job_request.get_repo_url text=job_request.sha|slice:7|default:"-" %}
+	  {% /description_item %}
+
         {% /description_list %}
       {% /card %}
 
