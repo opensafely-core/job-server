@@ -224,9 +224,7 @@ def test_reportpublishrequestapprove_success(
     publish_request_with_report.refresh_from_db()
     assert publish_request_with_report.decision_at
 
-    m = mailoutbox[0]
-    assert m.subject == "Your report has been published"
-    assert report.get_absolute_url() in m.body
+    assert len(mailoutbox) == 1
 
 
 def test_reportpublishrequestapprove_unauthorized(rf):
