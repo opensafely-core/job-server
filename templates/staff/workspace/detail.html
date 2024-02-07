@@ -94,7 +94,7 @@
             {% fragment as title %}
               {{ job_request.pk }} by {{ job_request.created_by.name }}
             {% endfragment %}
-            {% #list_group_rich_item status_text=job_request.status title=title type="Job" url=job.get_absolute_url %}
+            {% #list_group_rich_item status_text=job_request.status title=title type="Job" url=job_request.get_staff_url %}
               Created: {{ job_request.created_at|date:"d F Y" }}
             {% /list_group_rich_item %}
           {% endfor %}
