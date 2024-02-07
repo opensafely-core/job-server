@@ -47,7 +47,7 @@ class Command(BaseCommand):
             fullname=options["name"] or username,
             update_fields=update_fields,
         )
-        print(f"User {username} {'created' if created else 'updated'}")
+        self.stdout.write(f"User {username} {'created' if created else 'updated'}")
 
         roles = []
         if options["output_checker"]:
@@ -59,10 +59,14 @@ class Command(BaseCommand):
         for role in roles:
             if role not in user.roles:
                 updated = True
-                print(f"Added {role.__name__} global role to user {user.username}")
+                self.stdout.write(
+                    f"Added {role.__name__} global role to user {user.username}"
+                )
                 user.roles.append(role)
             else:
-                print(f"User {user.username} already has role {role.__name__}")
+                self.stdout.write(
+                    f"User {user.username} already has role {role.__name__}"
+                )
 
         if updated:
             user.save()

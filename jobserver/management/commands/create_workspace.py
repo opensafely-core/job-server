@@ -52,7 +52,9 @@ class Command(BaseCommand):
             slug=project_slug, defaults=project_values
         )
 
-        print(f"{'Created' if created else 'Updated'} project {project.slug}")
+        self.stdout.write(
+            f"{'Created' if created else 'Updated'} project {project.slug}"
+        )
 
         repo, _ = Repo.objects.get_or_create(
             url=options["repo"] or f"/org/{options['workspace']}"
@@ -69,7 +71,9 @@ class Command(BaseCommand):
         workspace, created = Workspace.objects.update_or_create(
             name=options["workspace"], defaults=workspace_values
         )
-        print(f"{'Created' if created else 'Updated'} workspace {workspace.name}")
+        self.stdout.write(
+            f"{'Created' if created else 'Updated'} workspace {workspace.name}"
+        )
 
         if user not in project.members.all():
             project_members.add(
@@ -78,6 +82,6 @@ class Command(BaseCommand):
                 roles=[ProjectDeveloper, ProjectCollaborator],
                 by=user,
             )
-            print(
+            self.stdout.write(
                 f"Added {user.username} to workspace {workspace.name} as ProjectDeveloper and ProjectCollaborator"
             )
