@@ -13,6 +13,7 @@ from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
+from jobserver.models.user import User, get_or_create_user
 
 from ....factories import (
     OrgFactory,
@@ -326,3 +327,45 @@ def test_user_valid_pat_with_invalid_token():
     user.rotate_token()
 
     assert not user.has_valid_pat("invalid")
+
+
+def test_get_or_create_user_not_exists():
+    user1, created = get_or_create_user("username", "email", "fullname")
+    assert created
+    assert User.objects.get(username="username") == user1
+    user2, created = get_or_create_user("username", "email", "fullname")
+    assert not created
+    assert User.objects.get(username="username") == user2
+
+
+@pytest.mark.parametrize(
+    "update_fields",
+    [
+        {"email": "updated@example.com"},
+        {"fullname": "updated"},
+        {
+            "email": "updated@example.com",
+            "fullname": "updated",
+        },
+    ],
+)
+def test_get_or_create_user_update_fields(update_fields):
+    user = UserFactory(
+        username="username", email="original@example.com", fullname="original"
+    )
+
+    kwargs = {
+        "username": "username",
+        "email": user.email,
+        "fullname": user.fullname,
+        "update_fields": list(update_fields),
+    }
+    kwargs.update(**update_fields)
+
+    expected_email = "updated" if "email" in update_fields else "original"
+    expected_fullname = "updated" if "fullname" in update_fields else "original"
+
+    user, created = get_or_create_user(**kwargs)
+    assert not created
+    assert user.email == expected_email + "@example.com"
+    assert user.fullname == expected_fullname

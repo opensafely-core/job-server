@@ -15,10 +15,32 @@ def strategy():
     return DjangoStrategy(storage=DjangoStorage())
 
 
-def test_pipeline_with_existing_user(strategy):
+def test_pipeline_with_existing_social_user(strategy):
     backend = GithubOAuth2(strategy=strategy)
     user = UserFactory(username="dummy-user")
     UserSocialAuthFactory(user=user, uid="1234")
+
+    response = {
+        "id": "1234",
+        "login": "dummy-user",
+        "name": "Test User",
+        "email": "test@example.com",
+        "access_token": "sekret",
+        "token_type": "bearer",
+    }
+    output = pipeline(
+        backend=backend,
+        pipeline_index=0,
+        strategy=strategy,
+        response=response,
+    )
+
+    assert output["user"].username == "dummy-user"
+
+
+def test_pipeline_with_existing_non_social_user(slack_messages, strategy):
+    backend = GithubOAuth2(strategy=strategy)
+    UserFactory(username="dummy-user")
 
     response = {
         "id": "1234",

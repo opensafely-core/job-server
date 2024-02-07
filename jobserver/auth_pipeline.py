@@ -7,7 +7,7 @@ from social_core.pipeline.partial import partial
 from social_core.storage import UserMixin
 from social_django.models import UserSocialAuth
 
-from jobserver.models import User
+from jobserver.models import get_or_create_user
 from jobserver.slacks import notify_new_user
 
 
@@ -50,10 +50,11 @@ def pipeline(response, strategy, *args, **kwargs):
     username = UserMixin.clean_username(response["login"])
 
     with transaction.atomic():
-        user = User.objects.create_user(
-            username=username,
+        user, _ = get_or_create_user(
+            username,
             email=response["email"],
             fullname=name,
+            update_fields=["email", "fullname"],
         )
 
         # store some raw data from the response
