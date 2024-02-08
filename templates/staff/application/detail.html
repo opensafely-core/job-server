@@ -30,6 +30,20 @@
       </div>
     </div>
     <div>
+      {% if application.submitted_by %}
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Submitted by:</dt>
+        <dd>{% link href=application.submitted_by.get_staff_url text=application.submitted_by.name %}</dd>
+      </div>
+      {% endif %}
+      {% if application.submitted_at %}
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Submitted at:</dt>
+        <dd>{{ application.submitted_at|date:"d F Y" }} at {{ application.submitted_at|date:"H:i" }}</dd>
+      </div>
+      {% endif %}
+    </div>
+    <div>
       {% if application.deleted_by %}
       <div class="flex flex-row flex-wrap gap-1">
         <dt class="font-semibold">Deleted by:</dt>
