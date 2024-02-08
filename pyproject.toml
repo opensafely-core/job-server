@@ -126,6 +126,9 @@ exclude = [
   "uploads",
   "venv",
 ]
+
+[tool.ruff.lint]
+isort.lines-after-imports = 2
 extend-select = [
   "A",  # flake8-builtins
   "I",  # isort
@@ -139,10 +142,7 @@ extend-ignore = [
   "E731",
 ]
 
-[tool.ruff.isort]
-lines-after-imports = 2
-
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "gunicorn.conf.py" = ["INP001"]
 "manage.py" = ["INP001"]
 "sitecustomize.py" = ["INP001"]

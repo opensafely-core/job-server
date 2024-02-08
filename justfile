@@ -151,7 +151,7 @@ django-upgrade *args="$(find applications interactive jobserver redirects servic
     $BIN/django-upgrade --target-version=4.1 {{ args }}
 
 ruff *args=".": devenv
-    $BIN/ruff check {{ args }}
+    $BIN/ruff check --output-format=full {{ args }}
 
 
 # run the various dev checks but does not change any files
