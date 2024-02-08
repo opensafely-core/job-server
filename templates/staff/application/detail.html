@@ -17,8 +17,8 @@
 {% block hero %}
 {% #staff_hero title="Application "|add:application.pk_hash %}
   <dl class="flex flex-col gap-2 mt-1">
-    {% if application.created_by %}
     <div>
+      {% if application.created_by %}
       <div class="flex flex-row flex-wrap gap-1">
         <dt class="font-semibold">Created by:</dt>
         <dd>{% link href=application.created_by.get_staff_url text=application.created_by.name %}</dd>
