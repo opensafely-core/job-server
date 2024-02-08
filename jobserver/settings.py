@@ -69,7 +69,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "redirects.middleware.RedirectsMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
+    "jobserver.middleware.BrowserReloadMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django_permissions_policy.PermissionsPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",

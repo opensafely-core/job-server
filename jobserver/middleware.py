@@ -1,3 +1,4 @@
+import django_browser_reload.middleware
 from django.conf import settings
 from first import first
 
@@ -98,3 +99,13 @@ class ClientAddressIdentification:
                 return ip
 
         return ip
+
+
+class BrowserReloadMiddleware(django_browser_reload.middleware.BrowserReloadMiddleware):
+
+    def __call__(self, request):
+        # Reloading should only be enabled for GET requests
+        if request.method == "GET":
+            return super().__call__(request)
+        else:
+            return self.get_response(request)
