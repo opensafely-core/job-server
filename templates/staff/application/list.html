@@ -105,7 +105,7 @@
               {% #list_group_rich_item type="Application" title=title url=application.get_staff_url status_text=application.status %}
                 <dl class="text-sm -mt-2">
                   <div class="flex flex-row gap-1">
-                    <dt class="font-semibold">Submitted:</dt>
+                    <dt class="font-semibold">Created:</dt>
                     <dd>{{ application.created_at|date:"d F Y" }}</dd>
                   </div>
                 </dl>
@@ -114,8 +114,8 @@
               {% #list_group_rich_item type="Deleted application" title=title class="cursor-not-allowed bg-bn-ribbon-100/25 opacity-80" status_text="deleted" %}
                 <dl class="text-sm -mt-2">
                   <div class="flex flex-row gap-1">
-                    <dt class="font-semibold">Submitted:</dt>
-                    <dd>{{ application.created_at|date:"d F Y" }}</dd>
+                    <dt class="font-semibold">Deleted:</dt>
+                    <dd>{{ application.deleted_at|date:"d F Y" }}</dd>
                   </div>
                   <div class="flex flex-row gap-1 mt-2">
                     <form method="POST" action="{{ application.get_staff_restore_url }}">
