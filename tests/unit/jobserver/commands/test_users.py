@@ -3,6 +3,7 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
+from jobserver.authorization import ProjectDeveloper
 from jobserver.commands import users
 
 from ....factories import (
@@ -77,3 +78,15 @@ def test_user_validate_login_token_wrong(token_login_user):
 
     with pytest.raises(users.BadLoginToken):
         users.validate_login_token(token_login_user.username, "bad token")
+
+
+def test_update_roles():
+    updator = UserFactory()
+    user = UserFactory()
+
+    assert user.roles == []
+
+    users.update_roles(user=user, by=updator, roles=[ProjectDeveloper])
+
+    user.refresh_from_db()
+    assert user.roles == [ProjectDeveloper]

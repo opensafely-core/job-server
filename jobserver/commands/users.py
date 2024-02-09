@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.hashers import check_password, make_password
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from xkcdpass import xkcd_password
@@ -89,3 +90,9 @@ def validate_login_token(username, token):
     send_token_login_used_email(user)
 
     return user
+
+
+@transaction.atomic()
+def update_roles(*, user, by, roles):
+    user.roles = roles
+    user.save(update_fields=["roles"])
