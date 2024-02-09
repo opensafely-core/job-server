@@ -20,6 +20,13 @@ class ProjectMembershipManager(models.Manager):
         )
         raise TypeError(msg)
 
+    def update(self, *args, **kwargs):
+        msg = (
+            "Direct update of ProjectMemberships via this method is disabled, "
+            "please use commands.project_memberships.update_roles"
+        )
+        raise TypeError(msg)
+
 
 class ProjectMembership(models.Model):
     """
