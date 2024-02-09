@@ -6,7 +6,7 @@ import structlog
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db import models, transaction
+from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Lower, NullIf
 from django.urls import reverse
@@ -192,14 +192,6 @@ class User(AbstractBaseUser):
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
-
-    @transaction.atomic()
-    def clear_all_roles(self):
-        self.org_memberships.update(roles=[])
-        self.project_memberships.update(roles=[])
-
-        self.roles = []
-        self.save(update_fields=["roles"])
 
     @property
     def initials(self):

@@ -20,6 +20,7 @@ from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.forms import RolesForm
 from jobserver.authorization.utils import roles_for, strings_to_roles
+from jobserver.commands import users
 from jobserver.models import (
     AuditableEvent,
     Backend,
@@ -91,7 +92,7 @@ class UserClearRoles(View):
     def post(self, request, *args, **kwargs):
         user = get_object_or_404(User, username=self.kwargs["username"])
 
-        user.clear_all_roles()
+        users.clear_all_roles(user=user, by=request.user)
 
         return redirect(get_next_url(request.GET, user.get_staff_roles_url()))
 
