@@ -14,7 +14,7 @@ else
 fi
 
 # set VIRTUAL_ENV explicitly so we don't use job-server's venv
-env -C "$RELEASE_HATCH_REPO" VIRTUAL_ENV=".venv" just devenv
+(cd "$RELEASE_HATCH_REPO"; env VIRTUAL_ENV=".venv" just devenv)
 
 JOB_SERVER_TOKEN="$("$VIRTUAL_ENV/bin/python" manage.py create_backend local-dev --name 'Local Dev' --url "$RELEASE_HATCH_URL" --quiet)"
 
@@ -31,4 +31,4 @@ EOF
 cat "$RELEASE_HATCH_REPO/.env"
 
 # set VIRTUAL_ENV explicitly so we don't use job-server's venv
-env -C "$RELEASE_HATCH_REPO" VIRTUAL_ENV=".venv" just run
+(cd "$RELEASE_HATCH_REPO"; env VIRTUAL_ENV=".venv" just devenv)
