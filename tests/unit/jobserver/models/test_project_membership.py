@@ -11,6 +11,11 @@ def test_projectmembership_direct_use_of_create():
         ProjectMembership.objects.create()
 
 
+def test_projectmembership_direct_use_of_update():
+    with pytest.raises(TypeError):
+        ProjectMembership.objects.update()
+
+
 def test_projectmembership_get_staff_edit_url(project_membership):
     project = ProjectFactory()
     membership = project_membership(project=project)

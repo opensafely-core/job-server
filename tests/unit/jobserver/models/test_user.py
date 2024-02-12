@@ -57,21 +57,6 @@ def test_user_constraints_missing_pat_token_or_pat_expires_at():
         UserFactory(pat_token="test", pat_expires_at=None)
 
 
-def test_user_clear_all_roles(project_membership):
-    user = UserFactory(roles=[CoreDeveloper])
-
-    OrgMembershipFactory(user=user, roles=[InteractiveReporter])
-    project_membership(user=user, roles=[ProjectCollaborator, ProjectDeveloper])
-
-    user.clear_all_roles()
-
-    user.refresh_from_db()
-
-    assert user.roles == []
-    assert not set(*user.org_memberships.values_list("roles", flat=True))
-    assert not set(*user.project_memberships.values_list("roles", flat=True))
-
-
 def test_user_get_absolute_url():
     user = UserFactory()
 

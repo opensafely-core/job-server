@@ -1,10 +1,12 @@
 from datetime import timedelta
 
 from django.contrib.auth.hashers import check_password, make_password
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from xkcdpass import xkcd_password
 
+from jobserver.commands import org_members, project_members
 from jobserver.emails import (
     send_token_login_generated_email,
     send_token_login_used_email,
@@ -89,3 +91,20 @@ def validate_login_token(username, token):
     send_token_login_used_email(user)
 
     return user
+
+
+@transaction.atomic()
+def update_roles(*, user, by, roles):
+    user.roles = roles
+    user.save(update_fields=["roles"])
+
+
+@transaction.atomic()
+def clear_all_roles(*, user, by):
+    update_roles(user=user, by=by, roles=[])
+
+    for org_membership in user.org_memberships.all():
+        org_members.update_roles(member=org_membership, by=by, roles=[])
+
+    for project_membership in user.project_memberships.all():
+        project_members.update_roles(member=project_membership, by=by, roles=[])
