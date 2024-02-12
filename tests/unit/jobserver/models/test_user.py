@@ -354,3 +354,12 @@ def test_get_or_create_user_update_fields(update_fields):
     assert not created
     assert user.email == expected_email + "@example.com"
     assert user.fullname == expected_fullname
+
+
+def test_create_superuser():
+    su = User.objects.create_superuser(email="test@test.test", password="hunter2")
+    assert su.username == "test@test.test"
+    assert su.email == "test@test.test"
+    assert su.is_staff
+    assert su.is_superuser
+    assert CoreDeveloper in su.roles
