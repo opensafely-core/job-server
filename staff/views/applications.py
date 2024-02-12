@@ -102,7 +102,7 @@ class ApplicationDetail(View):
     def dispatch(self, request, *args, **kwargs):
         self.application = get_object_or_404(
             Application.objects.select_related(
-                "approved_by", "created_by", "deleted_by", "project"
+                "approved_by", "created_by", "deleted_by", "project", "submitted_by"
             ),
             pk=unhash_or_404(self.kwargs["pk_hash"]),
         )
