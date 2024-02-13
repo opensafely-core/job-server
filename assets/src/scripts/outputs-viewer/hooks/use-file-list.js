@@ -41,6 +41,7 @@ export function sortedFiles(files) {
     return filesSorted.map((file) => ({
       ...file,
       shortName: file.name,
+      visible: true,
     }));
   }
 
