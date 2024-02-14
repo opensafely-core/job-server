@@ -47,7 +47,7 @@ function FindCodelists() {
             codelistA: null,
             codelistB: null,
           });
-          return navigate("build-query");
+          return navigate("/build-query");
         });
       }}
       validateOnMount
