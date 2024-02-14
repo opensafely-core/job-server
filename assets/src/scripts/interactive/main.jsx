@@ -52,28 +52,17 @@ root.render(
             medications={dataset.medications}
           >
             <Switch>
-              <Route path="/">
-                <Glossary />
-              </Route>
-              <Route path="find-codelists">
-                <FindCodelists />
-              </Route>
-              <Route path="build-query">
-                <QueryBuilder />
-              </Route>
-              <Route path="preview-request">
-                <PreviewRequest />
-              </Route>
-              <Route path="filter-request">
-                <FilterRequest />
-              </Route>
-              <Route path="analysis-information">
-                <AnalysisInformation />
-              </Route>
-              <Route path="review-request">
-                <ReviewRequest />
-              </Route>
-              <Route>
+              <Route component={Glossary} path="/" />
+              <Route component={FindCodelists} path="/find-codelists" />
+              <Route component={QueryBuilder} path="/build-query" />
+              <Route component={PreviewRequest} path="/preview-request" />
+              <Route component={FilterRequest} path="/filter-request" />
+              <Route
+                component={AnalysisInformation}
+                path="/analysis-information"
+              />
+              <Route component={ReviewRequest} path="/review-request" />
+              <Route path="*">
                 <div className="prose">
                   <h2>An error occurred</h2>
                   <p className="lead">You request was not submitted.</p>
