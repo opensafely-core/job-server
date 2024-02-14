@@ -81,7 +81,7 @@ function BuildQuery() {
               timeValue: null,
               ...otherValues,
             });
-            return navigate("preview-request");
+            return navigate("/preview-request");
           }
 
           setFormData({
@@ -89,7 +89,7 @@ function BuildQuery() {
             timeEver: null,
             ...values,
           });
-          return navigate("preview-request");
+          return navigate("/preview-request");
         })
       }
       validateOnBlur

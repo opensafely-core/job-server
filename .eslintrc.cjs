@@ -42,6 +42,9 @@ module.exports = {
         inputComponents: ["Field"],
       },
     ],
+    // workaround for
+    // https://github.com/import-js/eslint-plugin-import/issues/1810:
+    "import/no-unresolved": ["error", { ignore: ["wouter"] }],
   },
   env: {
     browser: true,

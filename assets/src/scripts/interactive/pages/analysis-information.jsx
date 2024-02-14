@@ -45,7 +45,7 @@ function AnalysisInformation() {
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           setFormData({ ...formData, ...values });
-          navigate("review-request");
+          navigate("/review-request");
         });
       }}
       validateOnMount

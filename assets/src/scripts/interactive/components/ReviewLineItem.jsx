@@ -12,7 +12,7 @@ function ReviewLineItem({ title, children, page }) {
         <span className="ml-4 flex-shrink-0">
           <button
             className="rounded-md bg-white font-medium text-oxford-600 hover:text-oxford-500 focus:outline-none focus:ring-2 focus:ring-oxford-500 focus:ring-offset-2"
-            onClick={() => navigate(page)}
+            onClick={() => navigate(`/${page}`)}
             type="button"
           >
             Edit
