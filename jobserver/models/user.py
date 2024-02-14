@@ -15,7 +15,7 @@ from django.utils.functional import cached_property
 from sentry_sdk import capture_message
 from zen_queries import queries_dangerously_enabled
 
-from ..authorization import InteractiveReporter
+from ..authorization import CoreDeveloper, InteractiveReporter
 from ..authorization.fields import RolesArrayField
 from ..hash_utils import hash_user_pat
 
@@ -47,6 +47,12 @@ class UserQuerySet(models.QuerySet):
 
 class UserManager(DjangoUserManager.from_queryset(UserQuerySet)):
     use_in_migrations = True
+
+    def create_superuser(self, email, password, **extra_fields):
+        username = email
+        return super().create_superuser(
+            username, email, password, roles=[CoreDeveloper]
+        )
 
 
 def get_or_create_user(username, email, fullname, update_fields=None):
