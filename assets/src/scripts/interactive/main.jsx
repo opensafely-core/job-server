@@ -43,7 +43,7 @@ root.render(
   <React.StrictMode>
     <AppData.Provider value={getAppData({ dataset })}>
       <FormDataProvider>
-        <Router base={dataset.basePath}>
+        <Router base={dataset.basePath.slice(0, -1)}>
           <ScrollToTop />
           <App
             basePath={dataset.basePath}
