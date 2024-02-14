@@ -1,10 +1,8 @@
 import React from "react";
-import { useLocation } from "wouter";
+import { Link } from "wouter";
 import Button from "../components/Button";
 
 function Glossary() {
-  const [, navigate] = useLocation();
-
   return (
     <>
       <div className="prose prose-blue">
@@ -105,7 +103,9 @@ function Glossary() {
       </div>
 
       <div className="flex flex-row w-full gap-2 mt-10">
-        <Button onClick={() => navigate("find-codelists")}>Next</Button>
+        <Link asChild to="/find-codelists">
+          <Button>Next</Button>
+        </Link>
       </div>
     </>
   );

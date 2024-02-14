@@ -1,4 +1,4 @@
-import { Redirect, useLocation } from "wouter";
+import { Link, Redirect } from "wouter";
 import { AlertPage } from "../components/Alert";
 import Button from "../components/Button";
 import EventsBefore from "../components/Diagrams/EventsBefore";
@@ -6,7 +6,6 @@ import { useFormData } from "../context";
 import { useRequiredFields } from "../utils";
 
 function PreviewRequest() {
-  const [, navigate] = useLocation();
   const { formData } = useFormData();
 
   if (useRequiredFields(["codelistA", "codelistB", "timeOption"])) {
@@ -39,7 +38,9 @@ function PreviewRequest() {
       </div>
 
       <div className="flex flex-row w-full gap-2 mt-16">
-        <Button onClick={() => navigate("filter-request")}>Next</Button>
+        <Link asChild to="/filter-request">
+          <Button>Next</Button>
+        </Link>
       </div>
     </>
   );
