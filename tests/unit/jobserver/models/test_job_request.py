@@ -8,6 +8,7 @@ from django.utils import timezone
 from jobserver.models import JobRequest
 
 from ....factories import (
+    BackendFactory,
     JobFactory,
     JobRequestFactory,
     ProjectFactory,
@@ -172,6 +173,33 @@ def test_jobrequest_num_completed_success():
     job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
     assert job_request.num_completed == 2
+
+
+def test_jobrequest_previous_exists():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    a = JobRequestFactory(workspace=workspace, backend=backend)
+    b = JobRequestFactory(workspace=workspace, backend=backend)
+    JobRequestFactory(workspace=workspace, backend=backend)
+    previous = JobRequest.objects.previous(b)
+    assert previous == a
+
+
+def test_jobrequest_previous_nonexistent():
+    job_request = JobRequestFactory()
+    previous = JobRequest.objects.previous(job_request)
+    assert previous is None
+
+
+def test_jobrequest_previous_url():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    a = JobRequestFactory(workspace=workspace, backend=backend, sha="abc1234")
+    b = JobRequestFactory(workspace=workspace, backend=backend, sha="def5678")
+    comp_url = workspace.repo.get_compare_url(b.sha, a.sha)
+    assert comp_url.endswith("def5678..abc1234")
 
 
 def test_jobrequest_request_cancellation():
