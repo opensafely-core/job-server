@@ -26,6 +26,7 @@ from jobserver.api.releases import (
 )
 from jobserver.utils import dotted_path
 from jobserver.views import (
+    health_check,
     index,
     job_requests,
     jobs,
@@ -95,6 +96,7 @@ def test_url_redirects(client, url, redirect):
         ("/applications/42/researchers/42/edit/", applications.ResearcherEdit),
         ("/enter-your-name/", users.RequireName),
         ("/event-log/", job_requests.JobRequestList),
+        ("/health-check/", health_check.HealthCheck),
         ("/staff/applications/", staff_applications.ApplicationList),
         ("/staff/applications/42/", staff_applications.ApplicationDetail),
         ("/staff/applications/42/approve/", staff_applications.ApplicationApprove),
