@@ -9,6 +9,7 @@ from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import ListView, UpdateView, View
+from markdown import markdown
 from opentelemetry import context as otel_context
 from opentelemetry import trace
 from zen_queries import TemplateResponse as zTemplateResponse
@@ -33,6 +34,7 @@ class ProjectDetail(View):
 
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
+        project.status_description = markdown(project.status_description)
 
         can_create_workspaces = has_permission(
             request.user, "workspace_create", project=project
