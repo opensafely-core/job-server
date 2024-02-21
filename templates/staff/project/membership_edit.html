@@ -26,7 +26,10 @@
 
 {% block hero %}
   {% #staff_hero title="Edit member: "|add:membership.user.name %}
-    <p><strong>GitHub Username:</strong> {{ membership.user.username }}</p>
+    {% if membership.user.social_auth.exists %}
+      <p><strong>GitHub Username:</strong> {{ membership.user.username }}</p>
+    {% endif %}
+    <p><strong>Email address:</strong> {{ membership.user.email }}</p>
   {% /staff_hero %}
 {% endblock hero %}
 
