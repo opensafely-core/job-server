@@ -2,6 +2,7 @@ import concurrent
 import itertools
 import operator
 
+import nh3
 import requests
 from django.core.exceptions import PermissionDenied
 from django.db.models import Min, OuterRef, Subquery
@@ -34,7 +35,7 @@ class ProjectDetail(View):
 
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
-        project.status_description = markdown(project.status_description)
+        project.status_description = nh3.clean(markdown(project.status_description))
 
         can_create_workspaces = has_permission(
             request.user, "workspace_create", project=project
