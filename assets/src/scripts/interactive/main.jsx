@@ -65,7 +65,7 @@ root.render(
               <Route path="*">
                 <div className="prose">
                   <h2>An error occurred</h2>
-                  <p className="lead">You request was not submitted.</p>
+                  <p className="lead">Your request was not submitted.</p>
                   <p>
                     Please try again, or{" "}
                     <a href="mailto:team@opensafely.org">
