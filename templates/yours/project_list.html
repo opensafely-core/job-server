@@ -19,7 +19,7 @@
         {% fragment as project_status_pill %}
           {% pill_project_status status=project.status text=project.get_status_display %}
         {% endfragment %}
-        {% #list_group_rich_item title=project.name type="Project" url=project.get_absolute_url custom_status=project_status_pill %}
+        {% #list_group_rich_item title=project.title type="Project" url=project.get_absolute_url custom_status=project_status_pill %}
           <dl class="flex flex-col gap-0.5">
             <div class="flex flex-row flex-wrap gap-1">
               <dt class="font-bold">Organisation:</dt>
