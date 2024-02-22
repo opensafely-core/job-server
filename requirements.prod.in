@@ -23,6 +23,7 @@ interactive_templates@https://github.com/opensafely-core/interactive-templates/a
 itsdangerous
 lxml
 markdown
+nh3
 psycopg[binary]
 pydantic
 pygments
