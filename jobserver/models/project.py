@@ -2,9 +2,10 @@ import structlog
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import functional, timezone
 from django.utils.text import slugify
 from furl import furl
+from zen_queries import queries_dangerously_enabled
 
 
 logger = structlog.get_logger(__name__)
@@ -197,3 +198,14 @@ class Project(models.Model):
             return self.name
 
         return f"{self.number} - {self.name}"
+
+    @functional.cached_property
+    def org(self):
+        # zen-queries wants to stop Django's ORM executing queries "dangerously"; that
+        # is, executing one query for a set of elements, and then one extra query for
+        # each element. However, it's hard to hook properties into prefetch_related and,
+        # hence, to avoid making queries dangerously. We feel the costs of executing
+        # queries dangerously for this property are less than those of hooking this
+        # property into prefetch_related, so we ignore zen-queries for this property.
+        with queries_dangerously_enabled():
+            return self.orgs.filter(collaborations__is_lead=True).first()
