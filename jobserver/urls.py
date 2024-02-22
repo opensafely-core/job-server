@@ -26,6 +26,7 @@ from jobserver.api.releases import (
     TokenAuthenticationAPI,
     WorkspaceStatusAPI,
 )
+from jobserver.views.health_check import HealthCheck
 
 from .views import yours
 from .views.components import components
@@ -306,6 +307,7 @@ urlpatterns = [
     path("enter-your-name/", RequireName.as_view(), name="require-name"),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
     path("event-list/", RedirectView.as_view(url="/event-log/")),
+    path("health-check/", HealthCheck.as_view(), name="health-check"),
     path("jobs/", RedirectView.as_view(query_string=True, pattern_name="job-list")),
     path(
         "job-requests/<pk>/",
