@@ -23,12 +23,27 @@
 <form method="POST" class="max-w-3xl flex flex-col gap-y-6">
   {% csrf_token %}
 
-  {% if form.non_field_errors %}
-    {% for error in form.non_field_errors %}
-      {% #alert variant="danger" class="mb-6" %}
-        {{ error }}
-      {% /alert %}
-    {% endfor %}
+  {% if form.non_field_errors or form.errors %}
+    {% #alert variant="danger" %}
+      <ul>
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+
+        {% for field in form %}
+          {% if field.errors %}
+            <li>
+              <strong>{{ field.label }}:</strong>
+              <ul>
+                {% for error in field.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% /alert %}
   {% endif %}
 
   {% #card title="Project info" container=True %}
