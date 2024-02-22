@@ -77,7 +77,7 @@
     {% #form_fieldset class="w-full items-stretch gap-y-6" %}
       {% form_legend text="Status" class="sr-only" %}
 
-      {% form_select field=form.fields.status choices=form.fields.status.choices selected=form.copilot.value id="id_status" name="status" label="Project status" %}
+      {% form_select field=form.status choices=form.fields.status.choices selected=form.status.value %}
       {% form_textarea field=form.status_description label="Status description" %}
     {% /form_fieldset %}
   {% /card %}
