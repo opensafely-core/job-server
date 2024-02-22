@@ -58,7 +58,7 @@
   {% #card title="Organisations" container=True %}
     {% #form_fieldset class="w-full items-stretch gap-y-6" %}
       {% form_legend text="Organisations" class="sr-only" %}
-      {% multiselect field=form.orgs placeholder="Select one or more orgs" %}
+      {% form_select field=form.fields.orgs choices=form.fields.orgs.choices selected=form.orgs.value id="id_orgs" name="orgs" label="Select an organisation" required %}
     {% /form_fieldset %}
   {% /card %}
 
