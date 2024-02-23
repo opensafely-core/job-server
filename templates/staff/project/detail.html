@@ -65,10 +65,10 @@
 
         {% #description_item title="Status" %}
           {% pill_project_status status=project.status text=project.get_status_display %}
-          {% if project.status_description %}
-            <p class="mt-2">
-              {{ project.status_description }}
-            </p>
+          {% if status_description_html %}
+            <div class="prose prose-sm prose-oxford mt-4">
+              {{ status_description_html|safe }}
+            </div>
           {% endif %}
         {% /description_item %}
       {% /description_list %}

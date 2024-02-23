@@ -1,3 +1,4 @@
+import nh3
 from django.contrib import messages
 from django.db import transaction
 from django.db.models.functions import Lower
@@ -14,6 +15,7 @@ from django.views.generic import (
 )
 from django_htmx.http import HttpResponseClientRedirect
 from furl import furl
+from markdown import markdown
 from zen_queries import TemplateResponse as zTemplateResponse
 from zen_queries import fetch
 
@@ -213,6 +215,9 @@ class ProjectDetail(DetailView):
             ),
             "orgs": self.object.orgs.order_by(Lower("name")),
             "redirects": self.object.redirects.order_by("old_url"),
+            "status_description_html": nh3.clean(
+                markdown(self.object.status_description)
+            ),
             "workspaces": self.object.workspaces.order_by("name"),
         }
 
