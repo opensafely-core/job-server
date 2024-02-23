@@ -25,7 +25,7 @@
 
       {% #card title="Edit "|add:project.name class="w-full" container_class="flex flex-col gap-y-4 items-start" container=True %}
         {% form_select class="min-w-[50%]" field=form.status choices=form.fields.status.choices selected=form.status.value %}
-        {% form_textarea class="w-full max-w-[65ch]" field=form.status_description resize=False rows="8" %}
+        {% form_textarea class="w-full max-w-[65ch]" custom_field errors=form.status_description.errors hint_text="You can format the status description text using Markdown" id="id_status_description" label="Status description" name="status_description" resize rows="12" value=form.status_description.value  %}
         {% #button class="mt-2" type="submit" variant="primary" %}
           Submit
         {% /button %}
