@@ -82,7 +82,7 @@
     {% #form_fieldset class="w-full items-stretch gap-y-6" %}
       {% form_legend text="Internal co-pilot details" class="sr-only" %}
 
-      {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a co-pilot" %}
+      {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value label="Select a co-pilot" %}
       {% form_input custom_field=True id="id_copilot_support_ends_at" name="copilot_support_ends_at" value=form.copilot_support_ends_at.value|date:"Y-m-d" errors=form.copilot_support_ends_at.errors type="date" label="Co-pilot support ends at" %}
       {% form_textarea field=form.copilot_notes label="Co-pilot notes" %}
     {% /form_fieldset %}
