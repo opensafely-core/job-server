@@ -49,8 +49,8 @@
   {% #card title="Project info" container=True %}
     {% #form_fieldset class="w-full items-stretch gap-y-6" %}
       {% form_legend text="Project info" class="sr-only" %}
-      {% form_input field=form.name label="Project name" %}
-      {% form_input field=form.slug label="URL slug" %}
+      {% form_input field=form.name label="Project name" required %}
+      {% form_input field=form.slug label="URL slug" required %}
       {% form_input field=form.number label="Project number" inputmode="numeric" %}
     {% /form_fieldset %}
   {% /card %}
@@ -92,7 +92,7 @@
     {% #form_fieldset class="w-full items-stretch gap-y-6" %}
       {% form_legend text="Status" class="sr-only" %}
 
-      {% form_select field=form.status choices=form.fields.status.choices selected=form.status.value %}
+      {% form_select field=form.status choices=form.fields.status.choices selected=form.status.value label="Project status" required %}
       {% form_textarea field=form.status_description label="Status description" %}
     {% /form_fieldset %}
   {% /card %}
