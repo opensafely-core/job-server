@@ -244,6 +244,17 @@ class JobRequestDetail(View):
             else None
         )
 
+        previous_suceeded_jobrequest = JobRequest.objects.previous(
+            job_request, succeeded=True
+        )
+        code_compare_succeeded_url = (
+            job_request.workspace.repo.get_compare_url(
+                previous_suceeded_jobrequest.sha, job_request.sha
+            )
+            if previous_suceeded_jobrequest
+            else None
+        )
+
         context = {
             "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_links": {},
@@ -253,6 +264,7 @@ class JobRequestDetail(View):
             "jobs": jobs,
             "project_yaml": self.get_project_yaml(job_request),
             "code_compare_url": code_compare_url,
+            "code_compare_succeeded_url": code_compare_succeeded_url,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
         }

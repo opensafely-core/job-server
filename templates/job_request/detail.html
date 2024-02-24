@@ -304,6 +304,11 @@
             {% #list_group_item href=code_compare_url %}
               Compare to the previous Job Request
             {% /list_group_item %}
+            {% if code_compare_succeeded_url %}
+              {% #list_group_item href=code_compare_succeeded_url %}
+                Compare to previous successful Job Request
+              {% /list_group_item %}
+            {% endif %}
           {% else %}
             {% #list_group_item disabled=True small=True %}
               No previous job requests available for comparison
