@@ -192,6 +192,24 @@ def test_jobrequest_previous_nonexistent():
     assert previous is None
 
 
+def test_jobrequest_previous_succeeded():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    job_request1 = JobRequestFactory(workspace=workspace, backend=backend)
+    job_request1.jobs.add(JobFactory(status="succeeded"))
+    job_request1.jobs.add(JobFactory(status="succeeded"))
+
+    job_request2 = JobRequestFactory(workspace=workspace, backend=backend)
+    job_request2.jobs.add(JobFactory(status="succeeded"))
+    job_request2.jobs.add(JobFactory(status="failed"))
+
+    job_request3 = JobRequestFactory(workspace=workspace, backend=backend)
+
+    previous = JobRequest.objects.previous(job_request3, succeeded=True)
+    assert previous == job_request1
+
+
 def test_jobrequest_previous_url():
     workspace = WorkspaceFactory()
     backend = BackendFactory()
