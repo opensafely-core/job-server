@@ -115,6 +115,21 @@ def test_jobrequest_previous_different_action_does_not_exist():
     assert Job.objects.previous(second_job) != first_job
 
 
+def test_jobrequest_previous_suceeded():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    job_request_1 = JobRequestFactory(workspace=workspace, backend=backend)
+    job_request_2 = JobRequestFactory(workspace=workspace, backend=backend)
+    job_request_3 = JobRequestFactory(workspace=workspace, backend=backend)
+
+    job_1 = JobFactory(job_request=job_request_1, action="test", status="succeeded")
+    JobFactory(job_request=job_request_2, action="test", status="failed")
+    job_3 = JobFactory(job_request=job_request_3, action="test")
+
+    assert Job.objects.previous(job_3, succeeded=True) == job_1
+
+
 def test_job_runtime():
     duration = timedelta(hours=1, minutes=2, seconds=3)
     started_at = timezone.now() - duration
