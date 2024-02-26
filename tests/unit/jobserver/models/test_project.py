@@ -5,7 +5,12 @@ from django.utils import timezone
 
 from jobserver.models import Project
 
-from ....factories import ProjectFactory, UserFactory
+from ....factories import (
+    OrgFactory,
+    ProjectCollaborationFactory,
+    ProjectFactory,
+    UserFactory,
+)
 
 
 def test_project_constraints_created_at_and_created_by_both_set():
@@ -158,3 +163,11 @@ def test_project_title():
 
     project = ProjectFactory(name="test", number=123)
     assert project.title == "123 - test"
+
+
+def test_project_org():
+    project = ProjectFactory()
+    ProjectCollaborationFactory(org=OrgFactory(), project=project, is_lead=False)
+    lead_org = OrgFactory()
+    ProjectCollaborationFactory(org=lead_org, project=project, is_lead=True)
+    assert project.org == lead_org
