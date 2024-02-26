@@ -13,12 +13,34 @@ from ..runtime import Runtime
 logger = structlog.get_logger(__name__)
 
 
+class JobManager(models.Manager):
+    use_in_migrations = True
+
+    def previous(self, job):
+        workspace = job.job_request.workspace
+        backend = job.job_request.backend
+        action = job.action
+        return (
+            super()
+            .filter(
+                job_request__workspace=workspace,
+                job_request__backend=backend,
+                action=action,
+                id__lt=job.id,
+            )
+            .order_by("created_at")
+            .last()
+        )
+
+
 class Job(models.Model):
     """
     The execution of an action on a Backend
 
     We expect this model to only be written to, via the API, by a job-runner.
     """
+
+    objects = JobManager()
 
     job_request = models.ForeignKey(
         "JobRequest",
