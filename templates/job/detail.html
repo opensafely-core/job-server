@@ -23,6 +23,8 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+{% var backendName=job.job_request.backend|stringformat:"s"|upper %}
+
 {% if job.is_missing_updates %}
   {% #alert variant="warning" title="Attention needed" class="mb-4" %}
     This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
@@ -104,7 +106,7 @@
     </ul>
     {% #card_footer %}
       <p class="text-sm font-medium text-slate-600">
-        These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} backend.
+        These timestamps are generated and stored using the UTC timezone on the {{ backendName }} backend.
       </p>
     {% /card_footer %}
   {% /card %}
@@ -169,7 +171,7 @@
         {% /description_item %}
 
         {% #description_item title="Backend" %}
-          {{ job.job_request.backend|upper }}
+          {{ backendName }}
         {% /description_item %}
 
         {% #description_item title="Action" %}
@@ -185,6 +187,23 @@
           -
           {% endif %}
         {% /description_item %}
+
+        {% #description_item title="Git commit hash" %}
+          {% link href=job.job_request.get_repo_url text=job.job_request.sha|slice:7|default:"-" %}
+        {% /description_item %}
+
+        {% #description_item title="Code comparison" %}
+          {% if code_compare_url %}
+            <ul class="list-disc ml-4 space-y-1">
+              <li>
+                {% link href=code_compare_url text="Compare workspace code to this action's previous run on "|add:backendName %}
+              </li>
+            </ul>
+          {% else %}
+            No previous action runs on this backend available for comparison
+          {% endif %}
+        {% /description_item %}
+
       </dl>
     {% /card %}
 
