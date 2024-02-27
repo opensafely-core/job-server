@@ -198,6 +198,11 @@
               <li>
                 {% link href=code_compare_url text="Compare workspace code to this action's previous run on "|add:backendName %}
               </li>
+              {% if code_compare_succeeded_url %}
+                <li>
+                  {% link href=code_compare_succeeded_url text="Compare workspace code to this action's previous successful run on "|add:backendName %}
+                </li>
+              {% endif %}
             </ul>
           {% else %}
             No previous action runs on this backend available for comparison
