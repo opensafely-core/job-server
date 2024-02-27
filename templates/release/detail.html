@@ -4,47 +4,82 @@
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
-    {% url 'home' as home_url %}
+    {% url "home" as home_url %}
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb location="Project" title=release.workspace.project.name url=release.workspace.project.get_absolute_url %}
     {% breadcrumb location="Workspace" title=release.workspace.name url=release.workspace.get_absolute_url %}
     {% breadcrumb title="Releases" url=release.workspace.get_releases_url %}
-    {% breadcrumb title=release.id active=True %}
+    {% fragment as current_release %}{{ release.created_at|date:"j M Y" }} at {{ release.created_at|date:"H:i" }}{% endfragment %}
+    {% breadcrumb title=current_release active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block full_width_content %}
-  <div class="bg-bn-sun-300 py-8">
+  <div class="bg-bn-roman-100 pt-4">
     <div class="container xl:max-w-screen-xl">
-      <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
-        Released outputs from {{ release.workspace.name }}
-      </h1>
-      <div class="text-slate-800 flex flex-col items-start gap-y-3 max-w-prose">
-        <p class="mt-1">
-          Released by
-          <strong>{{ release.created_by.name }}</strong>
-          on
-          <strong>{{ release.created_at|date:"j M Y" }} at {{ release.created_at|date:"H:i" }}</strong>
-        </p>
-        <p>You can see these outputs because you have been assigned the ProjectCollaborator role.</p>
-        {% #button variant="primary" type="link" href=release.get_download_url %}
-          Download all
-        {% /button %}
-      </div>
+      {% #grid_three_cols gap="8" %}
+        {% #grid_col_lg_span_2 %}
+          <h1 class="text-3xl break-words pt-2 mb-4 md:pt-0 md:text-4xl font-bold text-slate-900">
+            Files released from {{ release.workspace.name }}
+          </h1>
+          <div class="space-y-4 mb-6 max-w-prose">
+            <p class="text-lg">This page contains one or more files released from a secure research backend to the website.</p>
+            <h2 class="text-xl font-bold text-slate-900">Who can see these files?</h2>
+            <ul class="list-disc ml-6 space-y-1">
+              <li>These files are visible to you because they have been released from a secure research backend.</li>
+              <li>You can see this because you are a member of the <strong>{{ release.workspace.project }}</strong> project.</li>
+              <li>Other members of the <strong>{{ release.workspace.project }}</strong> project can visit this page, and view or download the outputs.</li>
+              <li>Members of the public <strong>CANNOT</strong> see this page or the contents of the files listed below.</li>
+            </ul>
+            <h2 class="text-xl font-bold text-slate-900">Sharing</h2>
+            <ul class="list-disc ml-6 space-y-1">
+              <li>This output can be shared <strong>IN CONFIDENCE</strong> and <strong>ONLY</strong> with key members of the wider research team / research collaborators for the purpose of seeking feedback and contribution to inform the final paper or report.</p>
+              <li>You must follow the {% link href="https://www.opensafely.org/policies-for-researchers/#datasets-used" new_tab=True text="OpenSAFELY policy on sharing of results" append_after="." new_tab=True %}</li>
+            </ul>
+          </div>
+        {% /grid_col_lg_span_2 %}
 
-      {% if release.metadata %}
-        {% #card title="Review details" class="mt-4 max-w-lg" %}
-          <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-            {% for k, v in release.metadata.items %}
-              {% #description_item title=k %}
-                {{ v }}
+        {% #grid_col_span_1 %}
+          {% #card title="Release information" header_class="!px-4" %}
+            <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+              {% #description_item class="!py-2 !px-4" title="Released by" stacked %}
+                {{ release.created_by.name }}
               {% /description_item %}
-            {% endfor %}
-          </dl>
-        {% /card %}
-      {% endif %}
-
+              {% #description_item class="!py-2 !px-4" title="Released on" stacked %}
+                {% #time datetime=release.created_at %}
+                  {{ release.created_at|date:"j M Y" }} at {{ release.created_at|date:"H:i" }}
+                {% /time %}
+              {% /description_item %}
+              {% #description_item class="!py-2 !px-4" title="Released from" stacked %}
+                {{ release.backend.name }}
+              {% /description_item %}
+              {% #description_item class="!py-2 !px-4" title="Project" stacked %}
+                {{ release.workspace.project.name }}
+              {% /description_item %}
+              {% #description_item class="!py-2 !px-4" title="Workspace" stacked %}
+                {{ release.workspace.name }}
+              {% /description_item %}
+              {% #description_item class="!py-2 !px-4" title="Release ID" stacked %}
+                {{ release.id }}
+              {% /description_item %}
+              {% if release.metadata %}
+                {% for k, v in release.metadata.items %}
+                  {% #description_item class="!py-2 !px-4" title=k|title stacked %}
+                    {{ v }}
+                  {% /description_item %}
+                {% endfor %}
+              {% endif %}
+            </dl>
+          {% /card %}
+        {% /grid_col_span_1 %}
+      {% /grid_three_cols %}
     </div>
+  </div>
+
+  <div class="px-6">
+    {% #button variant="primary" type="link" href=release.get_download_url class="mt-3" %}
+      Download all files in this release
+    {% /button %}
   </div>
 
   {% include "_includes/outputs-spa.html" %}
