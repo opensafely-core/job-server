@@ -18,7 +18,11 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% staff_hero title="Audit log: "|add:user.name %}
+  {% fragment as hero_text %}
+    <p>The audit log shows changes to project membership involving {{ user.name }} from <date>12th Feb 2024</date>. It includes project members added, removed and any change to roles.</p>
+    <p>It's only visible to staff members and is used for internal record keeping purposes only.</p>
+  {% endfragment %}
+  {% staff_hero title="Audit log: "|add:user.name text=hero_text %}
 {% endblock hero %}
 
 {% block content %}
