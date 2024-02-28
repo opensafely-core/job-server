@@ -4,7 +4,7 @@ import secrets
 import structlog
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Min, Q, prefetch_related_objects
+from django.db.models import Max, Min, Q, prefetch_related_objects
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -51,8 +51,8 @@ class JobRequestManager(models.Manager.from_queryset(JobRequestQuerySet)):
         )
         if succeeded:
             workspace_backend_job_requests = workspace_backend_job_requests.annotate(
-                min_status=Min("jobs__status")
-            ).filter(min_status="succeeded")
+                min_status=Min("jobs__status"), max_status=Max("jobs__status")
+            ).filter(min_status="succeeded", max_status="succeeded")
         return workspace_backend_job_requests.order_by("created_at").last()
 
 

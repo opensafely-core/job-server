@@ -200,6 +200,7 @@ def test_jobrequest_previous_succeeded():
     job_request2 = JobRequestFactory(workspace=workspace, backend=backend)
     job_request2.jobs.add(JobFactory(status="succeeded"))
     job_request2.jobs.add(JobFactory(status="failed"))
+    job_request2.jobs.add(JobFactory(status="zzzinvalidstatus"))
 
     job_request3 = JobRequestFactory(workspace=workspace, backend=backend)
 
