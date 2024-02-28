@@ -43,13 +43,13 @@ class JobRequestQuerySet(models.QuerySet):
 class JobRequestManager(models.Manager.from_queryset(JobRequestQuerySet)):
     use_in_migrations = True
 
-    def previous(self, job_request, succeeded=None):
+    def previous(self, job_request, filter_succeeded=None):
         workspace_backend_job_requests = super().filter(
             workspace=job_request.workspace,
             backend=job_request.backend,
             id__lt=job_request.id,
         )
-        if succeeded:
+        if filter_succeeded:
             workspace_backend_job_requests = workspace_backend_job_requests.annotate(
                 min_status=Min("jobs__status"), max_status=Max("jobs__status")
             ).filter(min_status="succeeded", max_status="succeeded")

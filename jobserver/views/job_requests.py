@@ -245,7 +245,7 @@ class JobRequestDetail(View):
         )
 
         previous_suceeded_jobrequest = JobRequest.objects.previous(
-            job_request, succeeded=True
+            job_request, filter_succeeded=True
         )
         code_compare_succeeded_url = (
             job_request.workspace.repo.get_compare_url(

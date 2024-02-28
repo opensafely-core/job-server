@@ -111,7 +111,7 @@ class JobDetail(View):
             else None
         )
 
-        previous_suceeded_job = Job.objects.previous(job, succeeded=True)
+        previous_suceeded_job = Job.objects.previous(job, filter_succeeded=True)
         code_compare_succeeded_url = (
             job.job_request.workspace.repo.get_compare_url(
                 previous_suceeded_job.job_request.sha, job.job_request.sha

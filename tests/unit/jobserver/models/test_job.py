@@ -127,7 +127,7 @@ def test_jobrequest_previous_suceeded():
     JobFactory(job_request=job_request_2, action="test", status="failed")
     job_3 = JobFactory(job_request=job_request_3, action="test")
 
-    assert Job.objects.previous(job_3, succeeded=True) == job_1
+    assert Job.objects.previous(job_3, filter_succeeded=True) == job_1
 
 
 def test_job_runtime():

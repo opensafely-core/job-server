@@ -16,14 +16,14 @@ logger = structlog.get_logger(__name__)
 class JobManager(models.Manager):
     use_in_migrations = True
 
-    def previous(self, job, succeeded=None):
+    def previous(self, job, filter_succeeded=False):
         workspace_backend_action_jobs = super().filter(
             job_request__workspace=job.job_request.workspace,
             job_request__backend=job.job_request.backend,
             action=job.action,
             id__lt=job.id,
         )
-        if succeeded:
+        if filter_succeeded:
             workspace_backend_action_jobs = workspace_backend_action_jobs.filter(
                 status="succeeded"
             )

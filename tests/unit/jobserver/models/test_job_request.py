@@ -204,7 +204,7 @@ def test_jobrequest_previous_succeeded():
 
     job_request3 = JobRequestFactory(workspace=workspace, backend=backend)
 
-    previous = JobRequest.objects.previous(job_request3, succeeded=True)
+    previous = JobRequest.objects.previous(job_request3, filter_succeeded=True)
     assert previous == job_request1
 
 
