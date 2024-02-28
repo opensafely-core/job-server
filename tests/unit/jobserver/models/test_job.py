@@ -76,13 +76,13 @@ def test_job_is_missing_updates_completed():
     assert not JobFactory(status="failed").is_missing_updates
 
 
-def test_jobrequest_previous_exists():
+def test_job_previous_exists():
     workspace = WorkspaceFactory()
     backend = BackendFactory()
 
-    job_request_1 = JobRequestFactory(workspace=workspace, backend=backend)
-    job_request_2 = JobRequestFactory(workspace=workspace, backend=backend)
-    job_request_3 = JobRequestFactory(workspace=workspace, backend=backend)
+    job_request_1, job_request_2, job_request_3 = JobRequestFactory.create_batch(
+        3, workspace=workspace, backend=backend
+    )
 
     first_job = JobFactory(job_request=job_request_1, action="test")
     second_job = JobFactory(job_request=job_request_2, action="test")
@@ -91,7 +91,7 @@ def test_jobrequest_previous_exists():
     assert Job.objects.previous(second_job) == first_job
 
 
-def test_jobrequest_previous_does_not_exist():
+def test_job_previous_does_not_exist():
     workspace = WorkspaceFactory()
     backend = BackendFactory()
 
@@ -102,26 +102,27 @@ def test_jobrequest_previous_does_not_exist():
     assert Job.objects.previous(job) is None
 
 
-def test_jobrequest_previous_different_action_does_not_exist():
+def test_job_previous_different_action_does_not_exist():
     workspace = WorkspaceFactory()
     backend = BackendFactory()
 
-    first_job_request = JobRequestFactory(workspace=workspace, backend=backend)
-    second_job_request = JobRequestFactory(workspace=workspace, backend=backend)
+    job_request_1, job_request_2 = JobRequestFactory.create_batch(
+        2, workspace=workspace, backend=backend
+    )
 
-    JobFactory(job_request=first_job_request, action="test")
-    second_job = JobFactory(job_request=second_job_request, action="test123")
+    JobFactory(job_request=job_request_1, action="test")
+    second_job = JobFactory(job_request=job_request_2, action="test123")
 
     assert Job.objects.previous(second_job) is None
 
 
-def test_jobrequest_previous_suceeded():
+def test_job_previous_suceeded():
     workspace = WorkspaceFactory()
     backend = BackendFactory()
 
-    job_request_1 = JobRequestFactory(workspace=workspace, backend=backend)
-    job_request_2 = JobRequestFactory(workspace=workspace, backend=backend)
-    job_request_3 = JobRequestFactory(workspace=workspace, backend=backend)
+    job_request_1, job_request_2, job_request_3 = JobRequestFactory.create_batch(
+        3, workspace=workspace, backend=backend
+    )
 
     job_1 = JobFactory(job_request=job_request_1, action="test", status="succeeded")
     JobFactory(job_request=job_request_2, action="test", status="failed")
