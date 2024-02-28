@@ -178,10 +178,7 @@ def test_jobrequest_num_completed_success():
 def test_jobrequest_previous_exists():
     workspace = WorkspaceFactory()
     backend = BackendFactory()
-
-    a = JobRequestFactory(workspace=workspace, backend=backend)
-    b = JobRequestFactory(workspace=workspace, backend=backend)
-    JobRequestFactory(workspace=workspace, backend=backend)
+    a, b, _ = JobRequestFactory.create_batch(3, workspace=workspace, backend=backend)
     previous = JobRequest.objects.previous(b)
     assert previous == a
 
