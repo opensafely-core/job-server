@@ -8,7 +8,7 @@ import jobserver.models.job
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("jobserver", "0026_alter_jobrequest_managers"),
+        ("jobserver", "0026_add_custom_manager_to_JobRequest"),
     ]
 
     operations = [
