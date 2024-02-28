@@ -109,10 +109,10 @@ def test_jobrequest_previous_different_action_does_not_exist():
     first_job_request = JobRequestFactory(workspace=workspace, backend=backend)
     second_job_request = JobRequestFactory(workspace=workspace, backend=backend)
 
-    first_job = JobFactory(job_request=first_job_request, action="test")
+    JobFactory(job_request=first_job_request, action="test")
     second_job = JobFactory(job_request=second_job_request, action="test123")
 
-    assert Job.objects.previous(second_job) != first_job
+    assert Job.objects.previous(second_job) is None
 
 
 def test_jobrequest_previous_suceeded():
