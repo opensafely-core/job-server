@@ -67,6 +67,11 @@ class Repo(models.Model):
     def __str__(self):
         return self.url
 
+    def get_compare_url(self, sha1, sha2):
+        f = furl(self.url)
+        f.path.segments += ["compare", f"{sha1}..{sha2}"]
+        return f.url
+
     def get_handler_url(self):
         return reverse("repo-handler", kwargs={"repo_url": self.quoted_url})
 

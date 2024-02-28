@@ -922,7 +922,7 @@ def test_jobrequestdetail_with_permission(
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(8):
+    with django_assert_num_queries(10):
         response = JobRequestDetail.as_view()(
             request,
             project_slug=job_request.workspace.project.slug,

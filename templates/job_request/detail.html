@@ -298,6 +298,25 @@
         </dl>
       {% /card %}
 
+      {% #card title="Code comparison" subtitle="Compare the code used in this Job Request" %}
+        {% #list_group small=True %}
+          {% if code_compare_url %}
+            {% #list_group_item href=code_compare_url %}
+              Compare to the previous Job Request
+            {% /list_group_item %}
+            {% if code_compare_succeeded_url %}
+              {% #list_group_item href=code_compare_succeeded_url %}
+                Compare to the previous successful Job Request
+              {% /list_group_item %}
+            {% endif %}
+          {% else %}
+            {% #list_group_item disabled=True small=True %}
+              No previous Job Request available for comparison
+            {% /list_group_item %}
+          {% endif %}
+        {% /list_group %}
+      {% /card %}
+
       {% if honeycomb_can_view_links %}
         {% #card title="Monitoring" subtitle="Honeycomb login required" %}
           {% #list_group small=True %}

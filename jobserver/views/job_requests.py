@@ -235,6 +235,26 @@ class JobRequestDetail(View):
 
         is_missing_updates = incomplete and over_30_minutes_ago
 
+        previous_jobrequest = JobRequest.objects.previous(job_request)
+        code_compare_url = (
+            job_request.workspace.repo.get_compare_url(
+                previous_jobrequest.sha, job_request.sha
+            )
+            if previous_jobrequest
+            else None
+        )
+
+        previous_suceeded_jobrequest = JobRequest.objects.previous(
+            job_request, filter_succeeded=True
+        )
+        code_compare_succeeded_url = (
+            job_request.workspace.repo.get_compare_url(
+                previous_suceeded_jobrequest.sha, job_request.sha
+            )
+            if previous_suceeded_jobrequest
+            else None
+        )
+
         context = {
             "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_links": {},
@@ -243,6 +263,8 @@ class JobRequestDetail(View):
             "job_request": job_request,
             "jobs": jobs,
             "project_yaml": self.get_project_yaml(job_request),
+            "code_compare_url": code_compare_url,
+            "code_compare_succeeded_url": code_compare_succeeded_url,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
         }

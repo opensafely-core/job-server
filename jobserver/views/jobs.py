@@ -102,6 +102,24 @@ class JobDetail(View):
                 honeycomb.previous_actions_link(job)
             )
 
+        previous_job = Job.objects.previous(job)
+        code_compare_url = (
+            job.job_request.workspace.repo.get_compare_url(
+                previous_job.job_request.sha, job.job_request.sha
+            )
+            if previous_job
+            else None
+        )
+
+        previous_suceeded_job = Job.objects.previous(job, filter_succeeded=True)
+        code_compare_succeeded_url = (
+            job.job_request.workspace.repo.get_compare_url(
+                previous_suceeded_job.job_request.sha, job.job_request.sha
+            )
+            if previous_suceeded_job
+            else None
+        )
+
         context = {
             "cancellation_requested": job.action in job.job_request.cancelled_actions,
             "job": job,
@@ -111,6 +129,8 @@ class JobDetail(View):
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
             "honeycomb_links": honeycomb_links,
+            "code_compare_url": code_compare_url,
+            "code_compare_succeeded_url": code_compare_succeeded_url,
         }
 
         return TemplateResponse(request, "job/detail.html", context=context)

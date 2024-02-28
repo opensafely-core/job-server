@@ -3,7 +3,14 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils import timezone
 
-from ....factories import JobFactory
+from jobserver.models import Job
+
+from ....factories import (
+    BackendFactory,
+    JobFactory,
+    JobRequestFactory,
+    WorkspaceFactory,
+)
 from ....utils import minutes_ago
 
 
@@ -67,6 +74,61 @@ def test_job_is_missing_updates_missing_updated_at():
 
 def test_job_is_missing_updates_completed():
     assert not JobFactory(status="failed").is_missing_updates
+
+
+def test_job_previous_exists():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    job_request_1, job_request_2, job_request_3 = JobRequestFactory.create_batch(
+        3, workspace=workspace, backend=backend
+    )
+
+    first_job = JobFactory(job_request=job_request_1, action="test")
+    second_job = JobFactory(job_request=job_request_2, action="test")
+    JobFactory(job_request=job_request_3, action="test")
+
+    assert Job.objects.previous(second_job) == first_job
+
+
+def test_job_previous_does_not_exist():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    job_request = JobRequestFactory(workspace=workspace, backend=backend)
+
+    job = JobFactory(job_request=job_request, action="test")
+
+    assert Job.objects.previous(job) is None
+
+
+def test_job_previous_different_action_does_not_exist():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    job_request_1, job_request_2 = JobRequestFactory.create_batch(
+        2, workspace=workspace, backend=backend
+    )
+
+    JobFactory(job_request=job_request_1, action="test")
+    second_job = JobFactory(job_request=job_request_2, action="test123")
+
+    assert Job.objects.previous(second_job) is None
+
+
+def test_job_previous_suceeded():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+
+    job_request_1, job_request_2, job_request_3 = JobRequestFactory.create_batch(
+        3, workspace=workspace, backend=backend
+    )
+
+    job_1 = JobFactory(job_request=job_request_1, action="test", status="succeeded")
+    JobFactory(job_request=job_request_2, action="test", status="failed")
+    job_3 = JobFactory(job_request=job_request_3, action="test")
+
+    assert Job.objects.previous(job_3, filter_succeeded=True) == job_1
 
 
 def test_job_runtime():

@@ -4,7 +4,7 @@ import secrets
 import structlog
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Min, Q, prefetch_related_objects
+from django.db.models import Max, Min, Q, prefetch_related_objects
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -40,6 +40,22 @@ class JobRequestQuerySet(models.QuerySet):
         )
 
 
+class JobRequestManager(models.Manager.from_queryset(JobRequestQuerySet)):
+    use_in_migrations = True
+
+    def previous(self, job_request, filter_succeeded=None):
+        workspace_backend_job_requests = super().filter(
+            workspace=job_request.workspace,
+            backend=job_request.backend,
+            id__lt=job_request.id,
+        )
+        if filter_succeeded:
+            workspace_backend_job_requests = workspace_backend_job_requests.annotate(
+                min_status=Min("jobs__status"), max_status=Max("jobs__status")
+            ).filter(min_status="succeeded", max_status="succeeded")
+        return workspace_backend_job_requests.order_by("created_at").last()
+
+
 class JobRequest(models.Model):
     """
     A request to run a Job
@@ -72,7 +88,7 @@ class JobRequest(models.Model):
         related_name="job_requests",
     )
 
-    objects = JobRequestQuerySet.as_manager()
+    objects = JobRequestManager()
 
     class Meta:
         constraints = [
