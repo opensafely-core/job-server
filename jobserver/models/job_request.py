@@ -50,6 +50,11 @@ class JobRequestManager(models.Manager.from_queryset(JobRequestQuerySet)):
             id__lt=job_request.id,
         )
         if filter_succeeded:
+            # "succeeded" is the last in an alphabetical sort of the statuses, so
+            # if the minimum of the related Job's statuses is "succeeded" then they
+            # all must be. There are no constraints on this field, however, so
+            # checking the maximum as well ensure this is robust to new statuses
+            # which would sort later than "succeeded"
             workspace_backend_job_requests = workspace_backend_job_requests.annotate(
                 min_status=Min("jobs__status"), max_status=Max("jobs__status")
             ).filter(min_status="succeeded", max_status="succeeded")
