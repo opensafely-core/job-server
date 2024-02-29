@@ -416,3 +416,31 @@ def test_workspace_is_interactive():
 def test_workspace_str():
     workspace = WorkspaceFactory(name="corellian-engineering-corporation")
     assert str(workspace) == "corellian-engineering-corporation"
+
+
+def test_workspace_with_most_recent_activity_at_jobrequest():
+    workspace = WorkspaceFactory()
+    JobRequestFactory(workspace=workspace)
+
+    w = Workspace.objects.with_most_recent_activity_at().get(pk=workspace.pk)
+
+    assert w.most_recent_activity_at == w.last_jobrequest_created_at
+
+
+def test_workspace_with_most_recent_activity_at_no_jobrequest():
+    workspace = WorkspaceFactory()
+
+    w = Workspace.objects.with_most_recent_activity_at().get(pk=workspace.pk)
+
+    assert w.most_recent_activity_at == w.updated_at
+
+
+def test_workspace_with_most_recent_activity_at_updated_and_jobrequest():
+    workspace = WorkspaceFactory()
+    JobRequestFactory(workspace=workspace)
+    workspace.purpose = "update the workspace"
+    workspace.save()
+
+    w = Workspace.objects.with_most_recent_activity_at().get(pk=workspace.pk)
+
+    assert w.most_recent_activity_at == w.updated_at

@@ -49,7 +49,8 @@ class Index(View):
                 is_archived=False, project__in=self.request.user.projects.all()
             )
             .select_related("project")
-            .order_by("-created_at")
+            .with_most_recent_activity_at()
+            .order_by("-most_recent_activity_at")
         )
 
         counts = {
