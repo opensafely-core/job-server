@@ -332,6 +332,14 @@
       <h3>Checkbox</h3>
       <ul>
         <li><code>checked</code>: [boolean] - if true, checkbox is checked</li>
+        <li><code>field</code>: a Django form field
+          <ul>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
+          </ul>
+        </li>
         <li><code>custom_field</code>: [boolean] - set to true if field does not directly map to a Django Form field</li>
         <li><code>id</code>: [string] - set the HTML id for the input element</li>
         <li><code>label_class</code>: [string] - add HTML classes to the label tag</li>
@@ -370,7 +378,7 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input#autocorrect"><code>autocorrect</code></a></li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>errors</code>: [object] - object for Django to map over for individual errors</li>
-        <li><code>field</code> - passed from Django
+        <li><code>field</code>: a Django form field
           <ul>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
@@ -394,7 +402,7 @@
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col gap-y-4 items-start max-w-xl w-full mx-auto">
-          {% form_input type="email" label="Email address" required=True field=example_form_email hint_text="Must be an opensafely.org account" %}
+          {% form_input type="email" label="Email address" required=True field=example_form.example_email hint_text="Must be an opensafely.org account" %}
           {% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
           {% form_input type="search" label="Search the site"%}
         </div>
@@ -447,13 +455,11 @@
       </div>
 
       <h3>Radio list</h3>
-      <p>Pass Django radio fields in to a list of radios</p>
-
-      <h3>Select</h3>
+      <p>Pass Django choice fields in to a list of radios</p>
       <ul>
         <li><code>choices</code>: [dict] - dict of [value, label] for the options</li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
-        <li><code>field</code>
+        <li><code>field</code>: a Django form field
           <ul>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
@@ -470,8 +476,33 @@
         <li><code>selected</code>: [string] - matches value of choice for preselected option</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
-        {% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form_select choices=example_form_select.choices selected=example_form_select.value %}
-        <pre><code class="language-django">{% verbatim %}{% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form_select choices=example_form_select.choices selected=example_form_select.value %}{% endverbatim %}</code></pre>
+        {% form_radios class="w-full max-w-lg mx-auto" label="Choose a language" required=True field=example_form.example_radios choices=example_form.example_radios.field.choices selected=example_form.example_radios.value %}
+        <pre><code class="language-django">{% verbatim %}{% form_radios class="w-full max-w-lg mx-auto" label="Choose a language" required=True field=example_form.example_radios choices=example_form.example_radios.field.choices selected=example_form.example_radios.value %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Select</h3>
+      <ul>
+        <li><code>choices</code>: [dict] - dict of [value, label] for the options</li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>field</code>: a Django form field
+          <ul>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
+          </ul>
+        </li>
+        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the select</li>
+        <li><code>id</code>: [string] - set the HTML id for the select element</li>
+        <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><code>name</code>: [string] - set the HTML name for the select element</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+        <li><code>selected</code>: [string] - matches value of choice for preselected option</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        {% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form.example_select choices=example_form.example_select.field.choices selected=example_form.example_select.value %}
+        <pre><code class="language-django">{% verbatim %}{% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form.example_select choices=example_form.example_select.field.choices selected=example_form.example_select.value %}{% endverbatim %}</code></pre>
       </div>
 
       <h3>Textarea</h3>
@@ -481,7 +512,7 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input#autocorrect"><code>autocorrect</code></a></li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>errors</code>: [object] - object for Django to map over for individual errors</li>
-        <li><code>field</code>
+        <li><code>field</code>: a Django form field
           <ul>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
@@ -504,8 +535,8 @@
         <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
-        {% form_textarea class="max-w-lg w-full mx-auto" field=example_form_textarea label="Enter a short description of the project" resize=True rows=8 %}
-        <pre><code class="language-django">{% verbatim %}{% form_textarea class="max-w-lg w-full mx-auto" field=example_form_textarea label="Enter a short description of the project" resize=True rows=8 %}{% endverbatim %}</code></pre>
+        {% form_textarea class="max-w-lg w-full mx-auto" field=example_form.example_textarea label="Enter a short description of the project" resize=True rows=8 %}
+        <pre><code class="language-django">{% verbatim %}{% form_textarea class="max-w-lg w-full mx-auto" field=example_form.example_textarea label="Enter a short description of the project" resize=True rows=8 %}{% endverbatim %}</code></pre>
       </div>
     </section>
 
