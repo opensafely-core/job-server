@@ -477,7 +477,7 @@
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         {% form_radios class="w-full max-w-lg mx-auto" label="Choose a language" required=True field=example_form.example_radios choices=example_form.example_radios.field.choices selected=example_form.example_radios.value %}
-        <pre><code class="language-django">{% form_radios class="w-full max-w-lg mx-auto" label="Choose a language" required=True field=example_form.example_radios choices=example_form.example_radios.field.choices selected=example_form.example_radios.value %}{% endverbatim %}</code></pre>
+        <pre><code class="language-django">{% verbatim %}{% form_radios class="w-full max-w-lg mx-auto" label="Choose a language" required=True field=example_form.example_radios choices=example_form.example_radios.field.choices selected=example_form.example_radios.value %}{% endverbatim %}</code></pre>
       </div>
 
       <h3>Select</h3>
