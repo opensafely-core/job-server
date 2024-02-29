@@ -22,6 +22,18 @@ class ExampleForm(forms.Form):
 
     example_textarea = forms.Textarea()
 
+    example_radios = forms.ChoiceField(
+        choices=[
+            ["english", "English"],
+            ["french", "French"],
+            ["german", "German"],
+            ["spanish", "Spanish"],
+        ],
+        label="Language select",
+        initial="french",
+        widget=forms.RadioSelect,
+    )
+
     def clean_example_email(self):
         self.add_error(
             "example_email", "This email is registered to a different account"

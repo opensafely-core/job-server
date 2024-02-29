@@ -39,7 +39,10 @@ class JobRequestCreateForm(forms.ModelForm):
 
         # bulid the backends field based on the backends passed in
         self.fields["backend"] = forms.ChoiceField(
-            choices=backends, initial=initial, widget=forms.RadioSelect
+            choices=backends,
+            initial=initial,
+            widget=forms.RadioSelect,
+            label="Select a backend",
         )
 
     def clean(self):

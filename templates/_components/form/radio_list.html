@@ -1,3 +1,42 @@
+{% if id %}
+  {% var label_for=id %}
+  {% var radios_id=id %}
+  {% var radios_name=name %}
+{% else %}
+  {% var label_for=field.id_for_label %}
+  {% var radios_id=field.auto_id %}
+  {% var radios_name=field.html_name %}
+{% endif %}
+
+{% if label %}
+  {% var radios_label=label %}
+{% elif field.label %}
+  {% var radios_label=label %}
+{% else  %}
+  {% var radios_label="" %}
+{% endif %}
+
+<div {% attrs class %}>
+  {% if radios_label %}
+    <label
+        class="inline-block font-semibold text-lg text-slate-900 cursor-pointer"
+        for="{{ label_for }}"
+      >
+        {{ radios_label }}
+
+        {% if required %}
+          <span
+            aria-hidden="true"
+            class="text-bn-ribbon-700 font-bold"
+          >*</span>
+        {% endif %}
+      </label>
+  {% endif %}
+
+  {% if hint_text %}
+    <p class="mb-2 text-sm text-gray-700">{{ hint_text }}</p>
+  {% endif %}
+
 {% for value, label in field.field.choices %}
 
   {% if field.value == value %}
@@ -7,7 +46,8 @@
   {% endif %}
 
   {% with id=forloop.counter|stringformat:"s" %}
-  {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=checked %}
+  {% form_radio id="id_"|add:radios_name|add:id name=radios_name value=value label=label checked=checked %}
   {% endwith %}
 
 {% endfor %}
+</div>
