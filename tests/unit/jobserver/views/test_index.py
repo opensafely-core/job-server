@@ -23,7 +23,9 @@ def test_index_authenticated(
 
     project1 = ProjectFactory()
     project_membership(project=project1, user=user)
-    workspace1 = WorkspaceFactory(project=project1)
+    workspace1, workspace2, workspace3, workspace4, workspace5 = (
+        WorkspaceFactory.create_batch(5, project=project1)
+    )
     JobRequestFactory(workspace=workspace1, created_by=user)
     JobRequestFactory(workspace=workspace1, created_by=user)
 
@@ -36,9 +38,10 @@ def test_index_authenticated(
 
     # create a lot of objects the user has access to so we can check our limits
     # are working as expected
-    JobRequestFactory.create_batch(10, workspace=workspace1)
+    for w in [workspace1, workspace2, workspace3, workspace4, workspace5]:
+        JobRequestFactory.create_batch(10, workspace=w)
     project_memberships(10, user=user)
-    WorkspaceFactory.create_batch(10, project=project2)
+    WorkspaceFactory.create_batch(6, project=project2)
 
     request = rf.get("/")
     request.user = user

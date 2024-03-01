@@ -1,12 +1,29 @@
 import structlog
 from django.db import connection, models
-from django.db.models import Q
+from django.db.models import Max, Q
+from django.db.models.functions import Greatest
 from django.urls import reverse
 from django.utils import timezone
 from furl import furl
 
 
 logger = structlog.get_logger(__name__)
+
+
+class WorkspaceQuerySet(models.QuerySet):
+    def with_most_recent_activity_at(self):
+        return (
+            self.prefetch_related("job_requests")
+            .annotate(
+                last_jobrequest_created_at=Max("job_requests__created_at"),
+                max_updated_at=Max("updated_at"),
+            )
+            .annotate(
+                most_recent_activity_at=Greatest(
+                    "last_jobrequest_created_at", "max_updated_at"
+                )
+            )
+        )
 
 
 class Workspace(models.Model):
@@ -54,6 +71,8 @@ class Workspace(models.Model):
         on_delete=models.PROTECT,
         related_name="workspaces_updated",
     )
+
+    objects = WorkspaceQuerySet.as_manager()
 
     class Meta:
         constraints = [
