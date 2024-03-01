@@ -5,8 +5,8 @@ import structlog
 from csp.decorators import csp_exempt
 from django.conf import settings
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Count, Min, Value
-from django.db.models.functions import Least, Lower
+from django.db.models import Count, Max, Min, Value
+from django.db.models.functions import Greatest, Least, Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
@@ -105,6 +105,12 @@ class Copiloting(TemplateView):
                         "workspaces__job_requests__jobs__created_at",
                     )
                 ),
+                date_last_run=Max(
+                    Greatest(
+                        "workspaces__job_requests__jobs__started_at",
+                        "workspaces__job_requests__jobs__created_at",
+                    )
+                ),
                 repo_ids=ArrayAgg(
                     "workspaces__repo_id", default=Value([]), distinct=True
                 ),
@@ -152,6 +158,7 @@ class Copiloting(TemplateView):
                 yield {
                     "copilot": project.copilot,
                     "date_first_run": project.date_first_run,
+                    "date_last_run": project.date_last_run,
                     "files_released_count": files_released_count,
                     "get_staff_url": project.get_staff_url(),
                     "job_request_count": project.job_request_count,
