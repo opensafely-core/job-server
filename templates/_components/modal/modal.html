@@ -14,8 +14,8 @@
 
 <script type="module" nonce="{{ request.csp_nonce }}">
   const container = document.getElementById("{{ id }}-modal-container");
-  const modal= container.querySelector("dialog");
-  const triggerBtn = container.querySelector('[data-modal={{ id }}]');
+  const modal = container.querySelector("dialog");
+  const triggerBtn = container.querySelector("[data-modal={{ id }}]");
   const cancelBtn = container.querySelector('[type="cancel"]');
 
   triggerBtn?.addEventListener("click", (e) => {
