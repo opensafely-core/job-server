@@ -2,7 +2,7 @@
   {% if custom_button %}
     {{ custom_button }}
   {% else %}
-  {% #button class="flex-shrink-0" variant="{{ button_variant|default:'primary' }}" data-modal=id %}
+    {% #button class="flex-shrink-0" variant=button_variant|default:"primary" data-modal=id %}
       {{ button_text }}
     {% /button %}
   {% endif %}
