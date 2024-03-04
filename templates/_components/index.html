@@ -706,8 +706,7 @@
             {% /card %}
           {% /modal %}
         </div>
-        <pre><code class="language-django">{% verbatim %}
-{% #modal id="addGitHubOrg" button_text="Add a Github Organisation" button_variant="primary-outline" request=request %}
+        <pre><code class="language-django">{% verbatim %}{% #modal id="addGitHubOrg" button_text="Add a Github Organisation" button_variant="primary-outline" request=request %}
     {% #card container=True title="Add a GitHub Organisation" %}{% endverbatim %}
         {% filter force_escape %}<div class="flex flex-row flex-wrap gap-2">{% endfilter %}
         {% verbatim %}{% #button variant="success" type="submit" %}Add org{% /button %}
