@@ -1,4 +1,4 @@
-<div {% attrs class %} id="{{ id }}-modal-container">
+<div class="{{ modal_container_class }}" id="{{ id }}-modal-container">
   {% if custom_button %}
     {{ custom_button }}
   {% else %}
@@ -7,10 +7,9 @@
     {% /button %}
   {% endif %}
 
-  <dialog class="max-w-lg w-full backdrop:bg-slate-900/25 backdrop:backdrop-blur {{ class }}" id="{{ id }}">
+  <dialog class="max-w-lg w-full backdrop:bg-slate-900/25 backdrop:backdrop-blur {{ modal_class }}" id="{{ id }}">
     {{ children }}
   </dialog>
-
 </div>
 
 <script type="module" nonce="{{ request.csp_nonce }}">
@@ -28,5 +27,4 @@
     e.preventDefault();
     modal.close();
   });
-
 </script>
