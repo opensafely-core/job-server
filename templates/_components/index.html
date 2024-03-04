@@ -687,16 +687,18 @@
     <section>
       <h2>Modal</h2>
       <ul>
-        <li><code>children</code>: [html] - display the children components</li>
-        <li><code>class</code>: [string] - add HTML classes to element</li>
-        <li><code>id</code>: [string] - HTML element ID</li>
+        <li><code>button_text</code>: [string] - the text to display on the button to open the dialog</li>
+        <li><code>button_variant</code>: [string] - the butten variant (default: primary)</li>
+        <li><code>children</code>: [html] - display the children components. You could include one button with <code>type="cancel"</code>, which will close the modal window.</li>
+        <li><code>custom_button</code>: [string] - add a fragment for a custom button. This button should have the attribute <code>data-modal=id`</code> in order to trigger opening the dialog modal.</li>
+        <li><code>id</code>: [string] - HTML element ID for dialog element</li>
+        <li><code>modal_class</code>: [string] - add HTML classes to the dialog HTML component</li>
+        <li><code>modal_container_class</code>: [string] - add HTML classes to the container wrapping the children and modal</li>
+        <li><code>request</code>: [Request] - pass the current request into the component. It does not have access by default, and needs access to <code>request.csp_nonce</code> for inline scripting.</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
-          {% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
-            Add a GitHub Organisation
-          {% /button %}
-          {% #modal id="addGitHubOrg" %}
+          {% #modal id="addGitHubOrg" button_text="Add a Github Organisation" button_variant="primary-outline" request=request %}
             {% #card container=True title="Add a GitHub Organisation" %}
               <div class="flex flex-row flex-wrap gap-2">
                 {% #button variant="success" type="submit" %}Add org{% /button %}
@@ -705,16 +707,13 @@
             {% /card %}
           {% /modal %}
         </div>
-        <pre><code class="language-django">{% verbatim %}{% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
-  Add a GitHub Organisation
-{% /button %}
-{% #modal id="addGitHubOrg" %}
-  {% #card container=True title="Add a GitHub Organisation" %}{% endverbatim %}
-    {% filter force_escape %}<div class="flex flex-row flex-wrap gap-2">{% endfilter %}
-      {% verbatim %}{% #button variant="success" type="submit" %}Add org{% /button %}
-      {% #button variant="danger" type="cancel" %}Cancel{% /button %}{% endverbatim %}
-    {% filter force_escape %}</div>{% endfilter %}
-  {% verbatim %}{% /card %}
+        <pre><code class="language-django">{% verbatim %}{% #modal id="addGitHubOrg" button_text="Add a Github Organisation" button_variant="primary-outline" request=request %}
+    {% #card container=True title="Add a GitHub Organisation" %}{% endverbatim %}
+        {% filter force_escape %}<div class="flex flex-row flex-wrap gap-2">{% endfilter %}
+        {% verbatim %}{% #button variant="success" type="submit" %}Add org{% /button %}
+        {% #button variant="danger" type="cancel" %}Cancel{% /button %}{% endverbatim %}
+        {% filter force_escape %}</div>{% endfilter %}
+    {% verbatim %}{% /card %}
 {% /modal %}{% endverbatim %}</code></pre>
       </div>
     </section>
@@ -1184,6 +1183,5 @@
 
 {% block extra_js %}
   {% vite_asset "assets/src/scripts/components.js" %}
-  {% vite_asset "templates/_components/modal/modal.js" %}
   {% vite_asset "templates/_components/multiselect/multiselect.js" %}
 {% endblock %}
