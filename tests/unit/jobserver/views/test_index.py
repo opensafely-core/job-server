@@ -12,7 +12,11 @@ from ....factories import (
 
 
 def test_index_authenticated(
-    rf, complete_application, project_membership, project_memberships
+    rf,
+    django_assert_num_queries,
+    complete_application,
+    project_membership,
+    project_memberships,
 ):
     user = UserFactory()
 
@@ -46,28 +50,49 @@ def test_index_authenticated(
     request = rf.get("/")
     request.user = user
 
-    response = Index.as_view()(request)
+    with django_assert_num_queries(15):
+        response = Index.as_view()(request)
 
-    assert len(response.context_data["all_job_requests"]) == 10
-    assert len(response.context_data["analysis_requests"]) == 1
-    assert len(response.context_data["applications"]) == 1
-    assert len(response.context_data["job_requests"]) == 2
-    assert len(response.context_data["projects"]) == 5
-    assert len(response.context_data["workspaces"]) == 5
+        assert len(response.context_data["all_job_requests"]) == 10
+        assert len(response.context_data["analysis_requests"]) == 1
+        assert len(response.context_data["applications"]) == 1
+        assert len(response.context_data["job_requests"]) == 2
+        assert len(response.context_data["projects"]) == 5
+        assert len(response.context_data["workspaces"]) == 5
 
-    counts = response.context_data["counts"]
-    assert counts["applications"] == 1
-    assert counts["job_requests"] == 2
-    assert counts["projects"] == 12
-    assert counts["workspaces"] == 12
+        counts = response.context_data["counts"]
+        assert counts["applications"] == 1
+        assert counts["job_requests"] == 2
+        assert counts["projects"] == 12
+        assert counts["workspaces"] == 12
 
 
-def test_index_unauthenticated(rf):
+def test_index_authenticated_client(client, django_assert_num_queries):
+    user = UserFactory()
+    JobRequestFactory.create_batch(10)
+
+    with django_assert_num_queries(43):
+        client.force_login(user)
+        response = client.get("/")
+        assert response.status_code == 200
+        assert "OpenSAFELY Jobs" in response.rendered_content
+
+
+def test_index_unauthenticated(rf, django_assert_num_queries):
     JobRequestFactory.create_batch(10)
 
     request = rf.get("/")
     request.user = AnonymousUser()
 
-    response = Index.as_view()(request)
+    with django_assert_num_queries(3):
+        response = Index.as_view()(request)
+        assert len(response.context_data["all_job_requests"]) == 10
 
-    assert len(response.context_data["all_job_requests"]) == 10
+
+def test_index_unauthenticated_client(client, django_assert_num_queries):
+    JobRequestFactory.create_batch(10)
+
+    with django_assert_num_queries(14):
+        response = client.get("/")
+        assert response.status_code == 200
+        assert "OpenSAFELY Jobs" in response.rendered_content
