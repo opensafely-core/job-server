@@ -21,7 +21,6 @@ const config = {
         components: "./assets/src/scripts/components.js",
         interactive: "assets/src/scripts/interactive/main.jsx",
         job_request_create: "./assets/src/scripts/job_request_create.js",
-        modal: "./templates/_components/modal/modal.js",
         multiselect: "./templates/_components/multiselect/multiselect.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
       },
