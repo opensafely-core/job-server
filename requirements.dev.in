@@ -8,6 +8,7 @@ black
 coverage[toml]
 coverage-enable-subprocess
 django-upgrade
+djhtml
 factory_boy
 pip-tools
 pre-commit

@@ -156,7 +156,7 @@ ruff *args=".": devenv
 
 # run the various dev checks but does not change any files
 check: black django-upgrade ruff
-
+    $BIN/djhtml --tabwidth 2 --check templates
 
 check-migrations: devenv
     $BIN/python manage.py makemigrations --dry-run --check \
@@ -167,6 +167,7 @@ check-migrations: devenv
 fix: devenv
     $BIN/black .
     $BIN/ruff --fix .
+    $BIN/djhtml --tabwidth 2 templates
 
 
 load-dev-data: devenv

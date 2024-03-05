@@ -216,6 +216,9 @@ django-upgrade==1.16.0 \
     --hash=sha256:605708b130368ee6dd304df00253f184a7c2f00d1c2dd5d4dac41a31307a2a14 \
     --hash=sha256:7e473e8ecf234a531448d4a0c1c772746fa831fc762eae3d7578f13f6d847370
     # via -r requirements.dev.in
+djhtml==3.0.6 \
+    --hash=sha256:abfc4d7b4730432ca6a98322fbdf8ae9d6ba254ea57ba3759a10ecb293bc57de
+    # via -r requirements.dev.in
 execnet==2.0.2 \
     --hash=sha256:88256416ae766bc9e8895c76a87928c0012183da3cc4fc18016e6f050e025f41 \
     --hash=sha256:cc59bc4423742fd71ad227122eb0dd44db51efb3dc4095b45ac9a08c770096af
