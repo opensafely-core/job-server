@@ -37,13 +37,13 @@
     <input
       {% attrs autocapitalize autocomplete autocorrect inputmode name=input_name placeholder required value=input_value %}
       class="
-        mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
-        {% if show_placeholder %}placeholder:text-slate-400{% else %}placeholder:text-white{% endif %}
-        focus:border-oxford-500 focus:ring-oxford-500
-        sm:text-sm
-        [&:not(:placeholder-shown):not(:focus)]:invalid:border-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-1
-        {{ input_class }}
-      "
+             mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
+             {% if show_placeholder %}placeholder:text-slate-400{% else %}placeholder:text-white{% endif %}
+             focus:border-oxford-500 focus:ring-oxford-500
+             sm:text-sm
+             [&:not(:placeholder-shown):not(:focus)]:invalid:border-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-1
+             {{ input_class }}
+            "
       id="{{ input_id }}"
       type="{% if type %}{{ type }}{% else %}text{% endif %}"
     >

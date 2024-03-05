@@ -12,16 +12,16 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<section class="flex flex-col max-w-2xl gap-y-4">
-  {% #card title="Enter your name" subtitle="Please enter your name so we can continue the login process" container=True class="md:col-span-2" %}
-    <form action="{% url "social:complete" backend=partial.backend_name %}" class="gap-2 flex-wrap md:flex-nowrap" method="POST">
-      {% csrf_token %}
+  <section class="flex flex-col max-w-2xl gap-y-4">
+    {% #card title="Enter your name" subtitle="Please enter your name so we can continue the login process" container=True class="md:col-span-2" %}
+      <form action="{% url "social:complete" backend=partial.backend_name %}" class="gap-2 flex-wrap md:flex-nowrap" method="POST">
+        {% csrf_token %}
 
-      {% form_input field=form.name label="Name" required=True class="mb-3" placeholder="Your name" input_class="max-w-md" %}
+        {% form_input field=form.name label="Name" required=True class="mb-3" placeholder="Your name" input_class="max-w-md" %}
 
-      {% #button type="submit" variant="primary" %}Save{% /button %}
-    </form>
-  {% /card %}
+        {% #button type="submit" variant="primary" %}Save{% /button %}
+      </form>
+    {% /card %}
 
-</section>
+  </section>
 {% endblock content %}

@@ -4,16 +4,16 @@
 {% load static %}
 
 {% block extra_meta %}
-<meta property="og:title" content="{{ job_request.requested_actions|length }} Action{{ job_request.requested_actions|pluralize }} Requested" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="{{ request.build_absolute_uri }}" />
-<meta property="og:description" content="Workspace: {{ job_request.workspace.name }}" />
+  <meta property="og:title" content="{{ job_request.requested_actions|length }} Action{{ job_request.requested_actions|pluralize }} Requested" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+  <meta property="og:description" content="Workspace: {{ job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
 {% block metatitle %}Job request: {{ job_request.pk }} - {{ job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_styles %}
-<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+  <link rel="stylesheet" href="{% static 'highlighting.css' %}">
 {% endblock extra_styles %}
 
 {% block breadcrumbs %}
@@ -141,14 +141,14 @@
                   <div class="flex gap-x-2">
                     <dt class="sr-only">Action:</dt>
                     <dd class="
-                      text-base font-semibold text-oxford-600 transition-colors truncate
-                      group-hover:text-oxford-900
-                      group-focus:text-oxford-900
-                    ">
+                               text-base font-semibold text-oxford-600 transition-colors truncate
+                               group-hover:text-oxford-900
+                               group-focus:text-oxford-900
+                              ">
                       <a
                         class="
-                          focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
-                          before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+                               focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                               before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
                         href="{{ job.get_absolute_url }}"
                       >
                         {{ job.action }}
@@ -185,9 +185,9 @@
         {% #card title="Pipeline" container=True %}
           <details
             class="
-              group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
-              open:bg-white
-            "
+                   group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
+                   open:bg-white
+                  "
           >
             <summary class="cursor-pointer list-none p-4 py-2 transition-colors hover:bg-oxford-100 hover:text-oxford-900">
               <span class="text-lg font-semibold text-oxford">
@@ -223,9 +223,9 @@
           {% endif %}
 
           {% if job_request.completed_at %}
-          {% #timeline_item background="green" title="Finished:" time=job_request.completed_at %}
-            {% icon_check_outline class="h-5 w-5" %}
-          {% /timeline_item %}
+            {% #timeline_item background="green" title="Finished:" time=job_request.completed_at %}
+              {% icon_check_outline class="h-5 w-5" %}
+            {% /timeline_item %}
           {% endif %}
 
           {% #timeline_item background="stone" title="Runtime:" content=job_request.runtime no_padding_bottom=True last=True %}
@@ -245,17 +245,17 @@
             <div class="flex flex-col gap-y-2">
               <span
                 class="
-                  inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 font-semibold
-                  {% if job_request.status == "pending" %}
-                    bg-bn-flamenco-200 text-bn-flamenco-900
-                  {% elif job_request.status == "running" %}
-                    bg-blue-200 text-blue-900
-                  {% elif job_request.status == "failed" %}
-                    bg-red-200 text-red-900
-                  {% elif job_request.status == "succeeded" %}
-                    bg-green-200 text-green-900
-                  {% endif %}
-                ">
+                       inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 font-semibold
+                       {% if job_request.status == "pending" %}
+                         bg-bn-flamenco-200 text-bn-flamenco-900
+                       {% elif job_request.status == "running" %}
+                         bg-blue-200 text-blue-900
+                       {% elif job_request.status == "failed" %}
+                         bg-red-200 text-red-900
+                       {% elif job_request.status == "succeeded" %}
+                         bg-green-200 text-green-900
+                       {% endif %}
+                      ">
                 {{ job_request.status|capfirst }}
               </span>
               {% if is_invalid %}
@@ -271,7 +271,7 @@
           {% /description_item %}
           {% #description_item title="Requested by" stacked=True %}
             {{ job_request.created_by.name }}
-            {% /description_item %}
+          {% /description_item %}
           {% #description_item title="Branch" stacked=True %}
             {{ job_request.workspace.branch }}
           {% /description_item %}
@@ -284,9 +284,9 @@
           {% #description_item title="Requested actions" stacked=True %}
             <ul
               class="
-                text-sm list-disc flex flex-col gap-y-1 ml-4 py-2
-                md:ml-3 md:py-0
-              "
+                     text-sm list-disc flex flex-col gap-y-1 ml-4 py-2
+                     md:ml-3 md:py-0
+                    "
             >
               {% for action in job_request.requested_actions %}
                 <li class="break-words">

@@ -5,68 +5,68 @@
 {% block metatitle %}Approve application: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% url "staff:application-list" as staff_application_list_url %}
-  {% breadcrumb title="Staff area" url=staff_url %}
-  {% breadcrumb title="Applications" url=staff_application_list_url %}
-  {% breadcrumb title="Application "|add:application.pk_hash url=application.get_staff_url %}
-  {% breadcrumb title="Approve" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:application-list" as staff_application_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Applications" url=staff_application_list_url %}
+    {% breadcrumb title="Application "|add:application.pk_hash url=application.get_staff_url %}
+    {% breadcrumb title="Approve" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% staff_hero title="Approve: Application "|add:application.pk_hash text="Approve Application for "|add:application.studyinformationpage.study_name %}
+  {% staff_hero title="Approve: Application "|add:application.pk_hash text="Approve Application for "|add:application.studyinformationpage.study_name %}
 {% endblock hero %}
 
 {% block content %}
-<form method="POST">
-  {% csrf_token %}
+  <form method="POST">
+    {% csrf_token %}
 
-  {% #card class="max-w-3xl" container=True title="Approve an application" subtitle="Approving an application will create a Project under the selected Organisation, locking the application from further changes." %}
-    {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
-        {% #alert variant="danger" class="mb-6" %}
-          {{ error }}
-        {% /alert %}
-      {% endfor %}
-    {% endif %}
+    {% #card class="max-w-3xl" container=True title="Approve an application" subtitle="Approving an application will create a Project under the selected Organisation, locking the application from further changes." %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
 
-    <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
-      {% fragment as select_hint_text %}
-        If the org doesn't exist, you can
-        {% url "staff:org-create" as staff_org_create_url %}
-        {% var new_org_url=staff_org_create_url|add:"?next="|add:request.path %}
-        {% link href=new_org_url text="add a new org" append_after="." hx-get=new_org_url hx-target="dialog#addNewOrg" hx-trigger="click" %}
-      {% endfragment %}
-      {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" hint_text=select_hint_text %}
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+        {% fragment as select_hint_text %}
+          If the org doesn't exist, you can
+          {% url "staff:org-create" as staff_org_create_url %}
+          {% var new_org_url=staff_org_create_url|add:"?next="|add:request.path %}
+          {% link href=new_org_url text="add a new org" append_after="." hx-get=new_org_url hx-target="dialog#addNewOrg" hx-trigger="click" %}
+        {% endfragment %}
+        {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" hint_text=select_hint_text %}
 
-      {% form_input field=form.project_name label="Set the project name" %}
-      {% form_input field=form.project_number label="Set the project number" %}
-    </div>
+        {% form_input field=form.project_name label="Set the project name" %}
+        {% form_input field=form.project_number label="Set the project number" %}
+      </div>
 
-    {% #button variant="success" type="submit" %}
-      Approve application
-    {% /button %}
-  {% /card %}
-</form>
+      {% #button variant="success" type="submit" %}
+        Approve application
+      {% /button %}
+    {% /card %}
+  </form>
 
-<dialog class="max-w-lg w-full" id="addNewOrg"></dialog>
+  <dialog class="max-w-lg w-full" id="addNewOrg"></dialog>
 {% endblock %}
 
 {% block extra_js %}
-<script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
-<script nonce="{{ request.csp_nonce }}">
-  htmx.on("htmx:afterSwap", (e) => {
-    const modal = e.target;
-    modal.showModal();
+  <script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
+  <script nonce="{{ request.csp_nonce }}">
+    htmx.on("htmx:afterSwap", (e) => {
+      const modal = e.target;
+      modal.showModal();
 
-    const closeModalBtn = document.getElementById("closeModal");
-    if (closeModalBtn) {
-      closeModalBtn.addEventListener("click", () => {
-        closeModalBtn.closest("dialog").close();
-      });
-    }
-  });
-</script>
+      const closeModalBtn = document.getElementById("closeModal");
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", () => {
+          closeModalBtn.closest("dialog").close();
+        });
+      }
+    });
+  </script>
 {% endblock %}

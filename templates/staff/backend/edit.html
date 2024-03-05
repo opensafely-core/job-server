@@ -3,41 +3,41 @@
 {% block metatitle %}Edit {{ backend.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% url "staff:backend-list" as staff_backend_list_url %}
-  {% breadcrumb title="Staff area" url=staff_url %}
-  {% breadcrumb title="Backends" url=staff_backend_list_url %}
-  {% breadcrumb title=backend.name url=backend.get_staff_url %}
-  {% breadcrumb title="Edit" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:backend-list" as staff_backend_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Backends" url=staff_backend_list_url %}
+    {% breadcrumb title=backend.name url=backend.get_staff_url %}
+    {% breadcrumb title="Edit" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% staff_hero title="Edit backend: "|add:backend.name %}
+  {% staff_hero title="Edit backend: "|add:backend.name %}
 {% endblock hero %}
 
 {% block content %}
-<form method="POST">
-  {% csrf_token %}
+  <form method="POST">
+    {% csrf_token %}
 
-  {% #card class="max-w-3xl" container=True %}
-    {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
-        {% #alert variant="danger" class="mb-6" %}
-          {{ error }}
-        {% /alert %}
-      {% endfor %}
-    {% endif %}
+    {% #card class="max-w-3xl" container=True %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
 
-    <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
-      {% form_input field=form.level_4_url label="Level 4 URL" %}
-      {% form_checkbox field=form.is_active label="Is this backend active?" checked=form.is_active.value %}
-    </div>
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+        {% form_input field=form.level_4_url label="Level 4 URL" %}
+        {% form_checkbox field=form.is_active label="Is this backend active?" checked=form.is_active.value %}
+      </div>
 
-    {% #button variant="success" type="submit" %}
-      Save
-    {% /button %}
-  {% /card %}
-</form>
+      {% #button variant="success" type="submit" %}
+        Save
+      {% /button %}
+    {% /card %}
+  </form>
 {% endblock content %}

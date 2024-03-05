@@ -3,17 +3,17 @@
 {% block metatitle %}Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% breadcrumb title="Staff area" active=True class="-ml-1 lg:-ml-2" %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% breadcrumb title="Staff area" active=True class="-ml-1 lg:-ml-2" %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% fragment as hero_text %}
-<p>The staff area is a tailored, staff-only interface.</p>
-<p>It requires authentication but assumes all users are both equal and have full rights.</p>
-{% endfragment %}
-{% staff_hero title="Staff area" text=hero_text %}
+  {% fragment as hero_text %}
+    <p>The staff area is a tailored, staff-only interface.</p>
+    <p>It requires authentication but assumes all users are both equal and have full rights.</p>
+  {% endfragment %}
+  {% staff_hero title="Staff area" text=hero_text %}
 {% endblock hero %}
 
 {% block content %}

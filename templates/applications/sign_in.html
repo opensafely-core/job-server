@@ -4,28 +4,28 @@
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
-{% url "applications:start" as applications_start_url %}
+  {% url "applications:start" as applications_start_url %}
 
-{% #breadcrumbs %}
-  {% breadcrumb title="Home" url=home_url %}
-  {% breadcrumb title="Apply" url=applications_start_url %}
-  {% breadcrumb title="Sign in to GitHub" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Apply" url=applications_start_url %}
+    {% breadcrumb title="Sign in to GitHub" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
-{% article_header title="Sign in to GitHub" text="If your application is approved, you will be able to submit study code to run on OpenSAFELY via GitHub." %}
+  {% article_header title="Sign in to GitHub" text="If your application is approved, you will be able to submit study code to run on OpenSAFELY via GitHub." %}
 
-{% #card container=True class="max-w-3xl mt-6" %}
-  <div class="prose prose-oxford mb-3">
-    <p>
-      By signing in to your GitHub account here, your OpenSAFELY access
-      request is associated with your GitHub user account.
-    </p>
-  </div>
-  <form method="POST" action="{% url "auth-login" "github" %}">
-    <input type="hidden" name="next" value="{% url 'applications:terms' %}" />
-    {% #button type="submit" variant="success" %}Sign in to GitHub{% /button %}
-  </form>
-{% /card %}
+  {% #card container=True class="max-w-3xl mt-6" %}
+    <div class="prose prose-oxford mb-3">
+      <p>
+        By signing in to your GitHub account here, your OpenSAFELY access
+        request is associated with your GitHub user account.
+      </p>
+    </div>
+    <form method="POST" action="{% url "auth-login" "github" %}">
+      <input type="hidden" name="next" value="{% url 'applications:terms' %}" />
+      {% #button type="submit" variant="success" %}Sign in to GitHub{% /button %}
+    </form>
+  {% /card %}
 {% endblock %}

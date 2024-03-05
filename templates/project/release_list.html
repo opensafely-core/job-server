@@ -15,102 +15,102 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="flex flex-col gap-4">
-  <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
-    Releases for the {{ project.name }} project
-  </h1>
-  <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose">
-    <p>
-      Each release listed below contains one or more files released from a
-      secure research backend to the Jobs site. Some releases have been
-      redacted for privacy reasons.
-    </p>
-    <p>
-      The buttons below are disabled if a release has been redacted or if you
-      do not have permission to view them.
-    </p>
-  </div>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+      Releases for the {{ project.name }} project
+    </h1>
+    <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose">
+      <p>
+        Each release listed below contains one or more files released from a
+        secure research backend to the Jobs site. Some releases have been
+        redacted for privacy reasons.
+      </p>
+      <p>
+        The buttons below are disabled if a release has been redacted or if you
+        do not have permission to view them.
+      </p>
+    </div>
 
-  {% #card title="Releases" %}
-    {% #list_group %}
-      {% for release in releases %}
-        <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6" data-expander-list="release-{{ release.id }}">
-          <div class="flex flex-col md:flex-row gap-2 items-start justify-between">
-            <span class="mr-auto">
-              Files released by {{ release.created_by.name }}
-              <ul>
-                <li><strong>Workspace:</strong> {% link href=release.workspace.get_absolute_url text=release.workspace.name %}</li>
-                <li><strong>Backend:</strong> {{ release.backend.name }}</li>
-                <li>
-                  <strong>Created:</strong>
-                  <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ release.created_at|date:"Y-m-d H:i:sO" }}">
-                    {{ release.created_at|naturaltime }}
-                    {% tooltip class="font-mono" position="-bottom-4" content=release.created_at|date:"d M Y H:i:s e" %}
-                  </time>
-                </li>
-              </ul>
-            </span>
-            {% if release.can_view_files %}
-            <div class="flex-shrink-0 flex flex-col gap-2 sm:gap-0 sm:flex-row sm:ml-auto">
-              {% #button class="min-w-[8ch] sm:rounded-r-none" variant="success-outline" type="link" href=release.view_url %}
-                View
-              {% /button %}
-              {% #button class="min-w-[12ch] sm:rounded-none sm:border-x-0" variant="primary-outline" type="link" href=release.download_url %}
-                Download all
-              {% /button %}
-              {% #button class="min-w-[16ch] sm:rounded-l-none" variant="secondary-outline" data-expander-button="release-"|add:release.id  %}
-                List
-                {% if release.can_view_files %}
-                ({{ release.files | length }} file{{ release.files | length | pluralize }})
-                {% endif %}
-              {% /button %}
+    {% #card title="Releases" %}
+      {% #list_group %}
+        {% for release in releases %}
+          <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6" data-expander-list="release-{{ release.id }}">
+            <div class="flex flex-col md:flex-row gap-2 items-start justify-between">
+              <span class="mr-auto">
+                Files released by {{ release.created_by.name }}
+                <ul>
+                  <li><strong>Workspace:</strong> {% link href=release.workspace.get_absolute_url text=release.workspace.name %}</li>
+                  <li><strong>Backend:</strong> {{ release.backend.name }}</li>
+                  <li>
+                    <strong>Created:</strong>
+                    <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ release.created_at|date:"Y-m-d H:i:sO" }}">
+                      {{ release.created_at|naturaltime }}
+                      {% tooltip class="font-mono" position="-bottom-4" content=release.created_at|date:"d M Y H:i:s e" %}
+                    </time>
+                  </li>
+                </ul>
+              </span>
+              {% if release.can_view_files %}
+                <div class="flex-shrink-0 flex flex-col gap-2 sm:gap-0 sm:flex-row sm:ml-auto">
+                  {% #button class="min-w-[8ch] sm:rounded-r-none" variant="success-outline" type="link" href=release.view_url %}
+                    View
+                  {% /button %}
+                  {% #button class="min-w-[12ch] sm:rounded-none sm:border-x-0" variant="primary-outline" type="link" href=release.download_url %}
+                    Download all
+                  {% /button %}
+                  {% #button class="min-w-[16ch] sm:rounded-l-none" variant="secondary-outline" data-expander-button="release-"|add:release.id  %}
+                    List
+                    {% if release.can_view_files %}
+                      ({{ release.files | length }} file{{ release.files | length | pluralize }})
+                    {% endif %}
+                  {% /button %}
+                </div>
+              {% endif %}
             </div>
+            {% if release.can_view_files %}
+              <div
+                aria-expanded="false"
+                class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
+                data-expander-list="release-{{ release.id }}"
+              >
+                {% #list_group small %}
+                  {% for file in release.files %}
+                    {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+                      <code class="truncate">{{ file.name }}</code>
+
+                      {% if file.is_deleted %}
+                        <span class="text-xs text-slate-600 font-normal mr-auto">
+                          (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                        </span>
+                      {% endif %}
+
+                      {% if file.not_uploaded %}
+                        <span class="text-xs text-slate-600 font-normal mr-auto">
+                          (Not yet uploaded)
+                        </span>
+                      {% endif %}
+
+                      {% if user_can_delete_files and not file.disable_deletion %}
+                        <form
+                          action="{{ file.get_delete_url }}"
+                          class="ml-auto"
+                          method="POST"
+                        >
+                          {% csrf_token %}
+
+                          {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
+                            Delete file
+                          {% /button %}
+                        </form>
+                      {% endif %}
+                    {% /list_group_item %}
+                  {% endfor %}
+                {% /list_group %}
+              </div>
             {% endif %}
-          </div>
-          {% if release.can_view_files %}
-          <div
-            aria-expanded="false"
-            class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
-            data-expander-list="release-{{ release.id }}"
-          >
-            {% #list_group small %}
-              {% for file in release.files %}
-                {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
-                  <code class="truncate">{{ file.name }}</code>
-
-                  {% if file.is_deleted %}
-                  <span class="text-xs text-slate-600 font-normal mr-auto">
-                    (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
-                  </span>
-                  {% endif %}
-
-                  {% if file.not_uploaded %}
-                  <span class="text-xs text-slate-600 font-normal mr-auto">
-                    (Not yet uploaded)
-                  </span>
-                  {% endif %}
-
-                  {% if user_can_delete_files and not file.disable_deletion %}
-                  <form
-                    action="{{ file.get_delete_url }}"
-                    class="ml-auto"
-                    method="POST"
-                  >
-                    {% csrf_token %}
-
-                    {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
-                      Delete file
-                    {% /button %}
-                  </form>
-                  {% endif %}
-                {% /list_group_item %}
-              {% endfor %}
-            {% /list_group %}
-          </div>
-          {% endif %}
-        </li>
-      {% endfor %}
-    {% /list_group %}
-  {% /card %}
-</div>
+          </li>
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
 {% endblock %}

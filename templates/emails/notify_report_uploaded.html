@@ -1,11 +1,11 @@
 {% extends "emails/base.html" %}
 
 {% block content %}
-<p>Hi {{ name }},</p>
+  <p>Hi {{ name }},</p>
 
-<p>Your report titled "{{ title }}" using OpenSAFELY Interactive is now available to view.</p>
+  <p>Your report titled "{{ title }}" using OpenSAFELY Interactive is now available to view.</p>
 
-<p><a href="{{ url }}">View the report</a></p>
+  <p><a href="{{ url }}">View the report</a></p>
 
-<p>This report has not yet been approved for publication and is only viewable when logged into your OpenSAFELY Interactive account. You can request publication of this report, which must be approved by NHS England, from the link above. Prior to publication, the report may be shared in confidence with key members of your team, but this must be done in line with the <a href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets">OpenSAFELY policy</a> on sharing of results.</p>
+  <p>This report has not yet been approved for publication and is only viewable when logged into your OpenSAFELY Interactive account. You can request publication of this report, which must be approved by NHS England, from the link above. Prior to publication, the report may be shared in confidence with key members of your team, but this must be done in line with the <a href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets">OpenSAFELY policy</a> on sharing of results.</p>
 {% endblock content %}

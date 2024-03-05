@@ -16,105 +16,105 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-{% if progress_percent > 0 %}
-<div class="max-w-3xl border-b pb-4 mb-4 -mt-3">
-  <h2 class="text-lg leading-snug font-semibold mb-3">
-    Your progress
-  </h2>
-  <label class="relative grid" for="progressbar">
-    <span class="sr-only">Form progress</span>
-    <progress
-      class="
-        w-full bg-slate-200 rounded-lg h-6
-        [&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-l-lg [&::-webkit-progress-bar]:bg-slate-200 [&::-webkit-progress-value]:bg-oxford-200 [&::-moz-progress-bar]:bg-oxford-200
-      "
-      id="progressbar"
-      max="100"
-      value="{{ progress_percent }}"
-    >
-    </progress>
-    <span class="absolute text-sm font-bold self-center justify-self-center text-oxford-900">
-      {{ progress_percent }}%
-    </span>
-  </label>
-</div>
-{% endif %}
-
-{% article_header title=title text=sub_title class="mb-6" %}
-
-{% #card class="max-w-3xl pb-6" container=True %}
-  {% if rubric %}
-    <div class="prose prose-oxford mb-6" id="applicationForm">
-      {{ rubric }}
+  {% if progress_percent > 0 %}
+    <div class="max-w-3xl border-b pb-4 mb-4 -mt-3">
+      <h2 class="text-lg leading-snug font-semibold mb-3">
+        Your progress
+      </h2>
+      <label class="relative grid" for="progressbar">
+        <span class="sr-only">Form progress</span>
+        <progress
+          class="
+                 w-full bg-slate-200 rounded-lg h-6
+                 [&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-l-lg [&::-webkit-progress-bar]:bg-slate-200 [&::-webkit-progress-value]:bg-oxford-200 [&::-moz-progress-bar]:bg-oxford-200
+                "
+          id="progressbar"
+          max="100"
+          value="{{ progress_percent }}"
+        >
+        </progress>
+        <span class="absolute text-sm font-bold self-center justify-self-center text-oxford-900">
+          {{ progress_percent }}%
+        </span>
+      </label>
     </div>
   {% endif %}
 
-  {% if non_field_errors %}
-    {% for error in non_field_errors %}
-      {% #alert variant="danger" class="mb-6" %}
-        {{ error }}
-      {% /alert %}
-    {% endfor %}
-  {% endif %}
+  {% article_header title=title text=sub_title class="mb-6" %}
 
-  {% if not template_name %}
-    <form method="POST" class="flex flex-col gap-8">
-      {% csrf_token %}
+  {% #card class="max-w-3xl pb-6" container=True %}
+    {% if rubric %}
+      <div class="prose prose-oxford mb-6" id="applicationForm">
+        {{ rubric }}
+      </div>
+    {% endif %}
 
-      {% for fieldset in fieldsets %}
-        <fieldset class="flex flex-col gap-6 mb-3">
-          {% if fieldset.label %}
-            <legend class="text-xl font-semibold leading-tight float-left -mb-3">
-              {{ fieldset.label }}
-            </legend>
-          {% endif %}
-
-          {% for field in fieldset.fields %}
-            {% if field.template_name == "form_input" %}
-              {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
-            {% elif field.template_name == "form_textarea" %}
-              {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
-            {% elif field.template_name == "form_radio" %}
-              {% #form_fieldset %}
-                {% form_legend text=field.label %}
-
-                {% for value, label in field.field.field.choices %}
-                  {% var countStr=forloop.counter0|stringformat:"s" %}
-                  {% var valueStr=value|stringformat:"s"|lower %}
-                  {% var id="id"|add:valueStr|add:countStr %}
-
-                  {% if value == field.field.value %}
-                  {% var checked=True %}
-                  {% else %}
-                  {% var checked=False %}
-                  {% endif %}
-                  {% form_radio id=id label=label name=field.name value=value errors=field.errors checked=checked %}
-                {% endfor %}
-              {% /form_fieldset %}
-            {% elif field.template_name == "form_checkbox" %}
-              <div class="flex flex-col -mb-3">
-                {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text checked=field.field.value %}
-              </div>
-            {% endif %}
-          {% endfor %}
-        </fieldset>
+    {% if non_field_errors %}
+      {% for error in non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
       {% endfor %}
+    {% endif %}
 
-      {% if footer %}
-        <div class="prose prose-oxford">
-          {{ footer }}
-        </div>
-      {% endif %}
+    {% if not template_name %}
+      <form method="POST" class="flex flex-col gap-8">
+        {% csrf_token %}
 
-      {% #button variant="success" type="submit" class="self-start" %}
-        Continue
-      {% /button %}
-    </form>
+        {% for fieldset in fieldsets %}
+          <fieldset class="flex flex-col gap-6 mb-3">
+            {% if fieldset.label %}
+              <legend class="text-xl font-semibold leading-tight float-left -mb-3">
+                {{ fieldset.label }}
+              </legend>
+            {% endif %}
+
+            {% for field in fieldset.fields %}
+              {% if field.template_name == "form_input" %}
+                {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
+              {% elif field.template_name == "form_textarea" %}
+                {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
+              {% elif field.template_name == "form_radio" %}
+                {% #form_fieldset %}
+                  {% form_legend text=field.label %}
+
+                  {% for value, label in field.field.field.choices %}
+                    {% var countStr=forloop.counter0|stringformat:"s" %}
+                    {% var valueStr=value|stringformat:"s"|lower %}
+                    {% var id="id"|add:valueStr|add:countStr %}
+
+                    {% if value == field.field.value %}
+                      {% var checked=True %}
+                    {% else %}
+                      {% var checked=False %}
+                    {% endif %}
+                    {% form_radio id=id label=label name=field.name value=value errors=field.errors checked=checked %}
+                  {% endfor %}
+                {% /form_fieldset %}
+              {% elif field.template_name == "form_checkbox" %}
+                <div class="flex flex-col -mb-3">
+                  {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text checked=field.field.value %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </fieldset>
+        {% endfor %}
+
+        {% if footer %}
+          <div class="prose prose-oxford">
+            {{ footer }}
+          </div>
+        {% endif %}
+
+        {% #button variant="success" type="submit" class="self-start" %}
+          Continue
+        {% /button %}
+      </form>
+    {% endif %}
+  {% /card %}
+
+  {% if template_name %}
+    {% include template_name %}
   {% endif %}
-{% /card %}
-
-{% if template_name %}
-  {% include template_name %}
-{% endif %}
 
 {% endblock %}

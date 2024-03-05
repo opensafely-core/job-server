@@ -3,10 +3,10 @@
 {% load humanize %}
 
 {% block extra_meta %}
-<meta property="og:title" content="Action: {{ job.action }}" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="{{ request.build_absolute_uri }}" />
-<meta property="og:description" content="Workspace: {{ job.job_request.workspace.name }}" />
+  <meta property="og:title" content="Action: {{ job.action }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+  <meta property="og:description" content="Workspace: {{ job.job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
 {% block metatitle %}Job request: {{ job.action }} - {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
@@ -23,250 +23,250 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-{% var backendName=job.job_request.backend|stringformat:"s"|upper %}
+  {% var backendName=job.job_request.backend|stringformat:"s"|upper %}
 
-{% if job.is_missing_updates %}
-  {% #alert variant="warning" title="Attention needed" class="mb-4" %}
-    This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
-  {% /alert %}
-{% endif %}
-
-{% if cancellation_requested and not job.is_completed %}
-  {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
-    A User has requested this job is cancelled.
-  {% /alert %}
-{% endif %}
-
-<div class="md:flex md:items-center md:justify-between md:space-x-5">
-  <h1 class="min-w-0 text-3xl break-words md:text-4xl font-bold text-slate-900">
-    {% if job.action == "__error__" %}
-    Error creating jobs
-    {% else %}
-    {{ job.action }}
-    {% endif %}
-  </h1>
-  {% if user_can_cancel_jobs %}
-    <div class="mt-6 flex flex-col-reverse flex-shrink-0 justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-      <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
-        {% csrf_token %}
-        {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
-          {% #button type="submit" disabled=True tooltip="This job can no longer be cancelled" %}
-            Cancel this job
-          {% /button %}
-        {% else %}
-          {% #button type="submit" variant="danger" %}
-            Cancel this job
-          {% /button %}
-        {% endif %}
-      </form>
-    </div>
+  {% if job.is_missing_updates %}
+    {% #alert variant="warning" title="Attention needed" class="mb-4" %}
+      This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
+    {% /alert %}
   {% endif %}
-</div>
 
-<div class="grid grid-cols-1 gap-6 lg:grid-flow-col-dense mt-2 md:mt-8 lg:grid-cols-3">
-  {% #card title="Timeline" class="lg:col-start-1 lg:col-span-1" container=True %}
-    <ul class="flow-root">
-      {% #timeline_item background="blue" title="Created by the backend:" time=job.created_at %}
-        {% icon_pencil_outline class="h-5 w-5" %}
-      {% /timeline_item %}
+  {% if cancellation_requested and not job.is_completed %}
+    {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
+      A User has requested this job is cancelled.
+    {% /alert %}
+  {% endif %}
 
-      {% if job.started_at %}
-        {% #timeline_item background="purple" title="Moved to the pending or running state on the backend:" time=job.started_at %}
-          {% icon_folder_open_outline class="h-5 w-5" %}
-        {% /timeline_item %}
+  <div class="md:flex md:items-center md:justify-between md:space-x-5">
+    <h1 class="min-w-0 text-3xl break-words md:text-4xl font-bold text-slate-900">
+      {% if job.action == "__error__" %}
+        Error creating jobs
+      {% else %}
+        {{ job.action }}
       {% endif %}
-
-      {% if job.status == "pending" %}
-        {% #timeline_item background="yellow" title="Pending run on the backend" time=job.completed_at %}
-          {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-      {% elif job.status == "running" %}
-        {% #timeline_item background="blue" title="Running on the backend" time=job.completed_at %}
-          {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-      {% elif job.status == "failed" %}
-        {% #timeline_item background="pink" title="Failed running on the backend:" time=job.completed_at %}
-          {% icon_x_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-      {% elif job.status == "succeeded" %}
-        {% #timeline_item background="green" title="Finished running on the backend:" time=job.completed_at %}
-          {% icon_check_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-      {% endif %}
-
-      {% if job.runtime %}
-        {% #timeline_item background="stone" title="Time spent running on the backend:" content=job.runtime %}
-          {% icon_clock_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-      {% endif %}
-
-      {% #timeline_item background="slate" title="Last update by backend:" time=job.updated_at last=True no_padding_bottom=True %}
-        {% icon_status_online_outline class="h-5 w-5" %}
-      {% /timeline_item %}
-    </ul>
-    {% #card_footer %}
-      <p class="text-sm font-medium text-slate-600">
-        These timestamps are generated and stored using the UTC timezone on the {{ backendName }} backend.
-      </p>
-    {% /card_footer %}
-  {% /card %}
-
-  <div class="space-y-6 md:space-y-6 lg:col-start-2 lg:col-span-2">
-    {% #card title="Job information" %}
-      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-        {% #description_item title="Status" %}
-          <div class="flex flex-col gap-y-2">
-            <span
-              class="
-                inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 font-semibold sm:text-base
-                {% if job.status == "pending" %}
-                  bg-bn-flamenco-200 text-bn-flamenco-900
-                {% elif job.status == "running" %}
-                  bg-blue-200 text-blue-900
-                {% elif job.status == "failed" %}
-                  bg-red-200 text-red-900
-                {% elif job.status == "succeeded" %}
-                  bg-green-200 text-green-900
-                {% endif %}
-              ">
-              {{ job.status|capfirst }}
-            </span>
-
-            {% if job.status_message %}
-              <p>{{ job.status_message }}</p>
-            {% endif %}
-
-            {% if job.action in job.job_request.cancelled_actions %}
-              <p>A User has requested this Job is cancelled.</p>
-            {% endif %}
-
-            {% if log_path %}
-              <p class="text-slate-600">
-                You can check the log output in the {% link text="outputs viewer" href=log_path_url %}
-                {% pill text="VPN Required" variant="primary" %}
-              </p>
-              <p class="text-slate-600">
-                Alternatively, view the file on the {{ job.job_request.backend.name }} server at: <pre class="text-slate-500 break-all whitespace-pre-wrap">{{ log_path }}</pre>
-              </p>
-              {% endif %}
-          </div>
-        {% /description_item %}
-
-        {% #description_item title="Job identifier" %}
-          <code class="font-mono font-semibold text-oxford-800 tracking-widest">
-            {{ job.identifier }}
-          </code>
-        {% /description_item %}
-
-        {% #description_item title="Job request" %}
-          {% link href=job.job_request.get_absolute_url text=job.job_request_id %}
-        {% /description_item %}
-
-        {% #description_item title="Requested by" %}
-          {{ job.job_request.created_by.name }}
-          {% /description_item %}
-
-        {% #description_item title="Branch" %}
-          {{ job.job_request.workspace.branch }}
-        {% /description_item %}
-
-        {% #description_item title="Backend" %}
-          {{ backendName }}
-        {% /description_item %}
-
-        {% #description_item title="Action" %}
-          <code class="font-mono text-oxford-800 tracking-widest">
-            {{ job.action }}
-          </code>
-        {% /description_item %}
-
-        {% #description_item title="Run command" %}
-          {% if job.run_command %}
-          {% #code %}{{ job.run_command }}{% /code %}
+    </h1>
+    {% if user_can_cancel_jobs %}
+      <div class="mt-6 flex flex-col-reverse flex-shrink-0 justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+        <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
+          {% csrf_token %}
+          {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
+            {% #button type="submit" disabled=True tooltip="This job can no longer be cancelled" %}
+              Cancel this job
+            {% /button %}
           {% else %}
-          -
+            {% #button type="submit" variant="danger" %}
+              Cancel this job
+            {% /button %}
           {% endif %}
-        {% /description_item %}
-
-        {% #description_item title="Git commit hash" %}
-          {% link href=job.job_request.get_repo_url text=job.job_request.sha|slice:7|default:"-" %}
-        {% /description_item %}
-
-        {% #description_item title="Code comparison" %}
-          {% if code_compare_url %}
-            <ul class="list-disc ml-4 space-y-1">
-              <li>
-                {% link href=code_compare_url text="Compare workspace code to this action's previous run on the "|add:backendName|add:" backend" %}
-              </li>
-              {% if code_compare_succeeded_url %}
-                <li>
-                  {% link href=code_compare_succeeded_url text="Compare workspace code to this action's previous successful run on the "|add:backendName|add:" backend" %}
-                </li>
-              {% endif %}
-            </ul>
-          {% else %}
-            No previous action runs on this backend available for comparison
-          {% endif %}
-        {% /description_item %}
-
-      </dl>
-    {% /card %}
-
-    {% if request.user.all_roles %}
-    {% #card title="Job metrics" subtitle="Computed for the time spent running on the backend" %}
-      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-        {% #description_item title="Mean CPU usage" %}
-          {% if job.metrics %}
-          <span class="relative group cursor-pointer">
-          {{ job.metrics.cpu_mean|floatformat:"0" }}%
-          {% tooltip content="Values are reported across all CPU cores" %}
-          </span>
-          {% else %}
-          -
-          {% endif %}
-        {% /description_item %}
-
-        {% #description_item title="Peak CPU usage" %}
-          {% if job.metrics %}
-          <span class="relative group cursor-pointer">
-          {{ job.metrics.cpu_peak|floatformat:"0" }}%
-          {% tooltip content="Values are reported across all CPU cores" %}
-          </span>
-          {% else %}
-          -
-          {% endif %}
-        {% /description_item %}
-
-        {% #description_item title="Mean memory usage" %}
-          {% if job.metrics %}
-          {{ job.metrics.mem_mb_mean|floatformat:"0g" }} MB
-          {% else %}
-          -
-          {% endif %}
-        {% /description_item %}
-
-        {% #description_item title="Peak memory usage" %}
-          {% if job.metrics %}
-          {{ job.metrics.mem_mb_peak|floatformat:"0g" }} MB
-          {% else %}
-          -
-          {% endif %}
-        {% /description_item %}
-      </dl>
-    {% /card %}
-    {% endif %}
-
-    {% if honeycomb_links %}
-      {% #card title="Monitoring" subtitle="Honeycomb login required" container %}
-        <ul class="flex flex-col gap-y-1.5 list-disc text-sm">
-          {% for name, link in honeycomb_links.items %}
-            <li class="ml-4">
-              {% link href=link text=name new_tab=True %}
-            </li>
-          {% endfor %}
-        </ul>
-      {% /card %}
+        </form>
+      </div>
     {% endif %}
   </div>
-</div>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-flow-col-dense mt-2 md:mt-8 lg:grid-cols-3">
+    {% #card title="Timeline" class="lg:col-start-1 lg:col-span-1" container=True %}
+      <ul class="flow-root">
+        {% #timeline_item background="blue" title="Created by the backend:" time=job.created_at %}
+          {% icon_pencil_outline class="h-5 w-5" %}
+        {% /timeline_item %}
+
+        {% if job.started_at %}
+          {% #timeline_item background="purple" title="Moved to the pending or running state on the backend:" time=job.started_at %}
+            {% icon_folder_open_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% endif %}
+
+        {% if job.status == "pending" %}
+          {% #timeline_item background="yellow" title="Pending run on the backend" time=job.completed_at %}
+            {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% elif job.status == "running" %}
+          {% #timeline_item background="blue" title="Running on the backend" time=job.completed_at %}
+            {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% elif job.status == "failed" %}
+          {% #timeline_item background="pink" title="Failed running on the backend:" time=job.completed_at %}
+            {% icon_x_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% elif job.status == "succeeded" %}
+          {% #timeline_item background="green" title="Finished running on the backend:" time=job.completed_at %}
+            {% icon_check_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% endif %}
+
+        {% if job.runtime %}
+          {% #timeline_item background="stone" title="Time spent running on the backend:" content=job.runtime %}
+            {% icon_clock_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% endif %}
+
+        {% #timeline_item background="slate" title="Last update by backend:" time=job.updated_at last=True no_padding_bottom=True %}
+          {% icon_status_online_outline class="h-5 w-5" %}
+        {% /timeline_item %}
+      </ul>
+      {% #card_footer %}
+        <p class="text-sm font-medium text-slate-600">
+          These timestamps are generated and stored using the UTC timezone on the {{ backendName }} backend.
+        </p>
+      {% /card_footer %}
+    {% /card %}
+
+    <div class="space-y-6 md:space-y-6 lg:col-start-2 lg:col-span-2">
+      {% #card title="Job information" %}
+        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+          {% #description_item title="Status" %}
+            <div class="flex flex-col gap-y-2">
+              <span
+                class="
+                       inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 font-semibold sm:text-base
+                       {% if job.status == "pending" %}
+                         bg-bn-flamenco-200 text-bn-flamenco-900
+                       {% elif job.status == "running" %}
+                         bg-blue-200 text-blue-900
+                       {% elif job.status == "failed" %}
+                         bg-red-200 text-red-900
+                       {% elif job.status == "succeeded" %}
+                         bg-green-200 text-green-900
+                       {% endif %}
+                      ">
+                {{ job.status|capfirst }}
+              </span>
+
+              {% if job.status_message %}
+                <p>{{ job.status_message }}</p>
+              {% endif %}
+
+              {% if job.action in job.job_request.cancelled_actions %}
+                <p>A User has requested this Job is cancelled.</p>
+              {% endif %}
+
+              {% if log_path %}
+                <p class="text-slate-600">
+                  You can check the log output in the {% link text="outputs viewer" href=log_path_url %}
+                  {% pill text="VPN Required" variant="primary" %}
+                </p>
+                <p class="text-slate-600">
+                  Alternatively, view the file on the {{ job.job_request.backend.name }} server at: <pre class="text-slate-500 break-all whitespace-pre-wrap">{{ log_path }}</pre>
+                </p>
+              {% endif %}
+            </div>
+          {% /description_item %}
+
+          {% #description_item title="Job identifier" %}
+            <code class="font-mono font-semibold text-oxford-800 tracking-widest">
+              {{ job.identifier }}
+            </code>
+          {% /description_item %}
+
+          {% #description_item title="Job request" %}
+            {% link href=job.job_request.get_absolute_url text=job.job_request_id %}
+          {% /description_item %}
+
+          {% #description_item title="Requested by" %}
+            {{ job.job_request.created_by.name }}
+          {% /description_item %}
+
+          {% #description_item title="Branch" %}
+            {{ job.job_request.workspace.branch }}
+          {% /description_item %}
+
+          {% #description_item title="Backend" %}
+            {{ backendName }}
+          {% /description_item %}
+
+          {% #description_item title="Action" %}
+            <code class="font-mono text-oxford-800 tracking-widest">
+              {{ job.action }}
+            </code>
+          {% /description_item %}
+
+          {% #description_item title="Run command" %}
+            {% if job.run_command %}
+              {% #code %}{{ job.run_command }}{% /code %}
+            {% else %}
+              -
+            {% endif %}
+          {% /description_item %}
+
+          {% #description_item title="Git commit hash" %}
+            {% link href=job.job_request.get_repo_url text=job.job_request.sha|slice:7|default:"-" %}
+          {% /description_item %}
+
+          {% #description_item title="Code comparison" %}
+            {% if code_compare_url %}
+              <ul class="list-disc ml-4 space-y-1">
+                <li>
+                  {% link href=code_compare_url text="Compare workspace code to this action's previous run on the "|add:backendName|add:" backend" %}
+                </li>
+                {% if code_compare_succeeded_url %}
+                  <li>
+                    {% link href=code_compare_succeeded_url text="Compare workspace code to this action's previous successful run on the "|add:backendName|add:" backend" %}
+                  </li>
+                {% endif %}
+              </ul>
+            {% else %}
+              No previous action runs on this backend available for comparison
+            {% endif %}
+          {% /description_item %}
+
+        </dl>
+      {% /card %}
+
+      {% if request.user.all_roles %}
+        {% #card title="Job metrics" subtitle="Computed for the time spent running on the backend" %}
+          <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+            {% #description_item title="Mean CPU usage" %}
+              {% if job.metrics %}
+                <span class="relative group cursor-pointer">
+                  {{ job.metrics.cpu_mean|floatformat:"0" }}%
+                  {% tooltip content="Values are reported across all CPU cores" %}
+                </span>
+              {% else %}
+                -
+              {% endif %}
+            {% /description_item %}
+
+            {% #description_item title="Peak CPU usage" %}
+              {% if job.metrics %}
+                <span class="relative group cursor-pointer">
+                  {{ job.metrics.cpu_peak|floatformat:"0" }}%
+                  {% tooltip content="Values are reported across all CPU cores" %}
+                </span>
+              {% else %}
+                -
+              {% endif %}
+            {% /description_item %}
+
+            {% #description_item title="Mean memory usage" %}
+              {% if job.metrics %}
+                {{ job.metrics.mem_mb_mean|floatformat:"0g" }} MB
+              {% else %}
+                -
+              {% endif %}
+            {% /description_item %}
+
+            {% #description_item title="Peak memory usage" %}
+              {% if job.metrics %}
+                {{ job.metrics.mem_mb_peak|floatformat:"0g" }} MB
+              {% else %}
+                -
+              {% endif %}
+            {% /description_item %}
+          </dl>
+        {% /card %}
+      {% endif %}
+
+      {% if honeycomb_links %}
+        {% #card title="Monitoring" subtitle="Honeycomb login required" container %}
+          <ul class="flex flex-col gap-y-1.5 list-disc text-sm">
+            {% for name, link in honeycomb_links.items %}
+              <li class="ml-4">
+                {% link href=link text=name new_tab=True %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% /card %}
+      {% endif %}
+    </div>
+  </div>
 {% endblock content %}

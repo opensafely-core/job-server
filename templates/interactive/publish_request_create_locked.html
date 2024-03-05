@@ -6,11 +6,11 @@
 {% block metatitle %}{{ analysis_request.report.title }} is Locked | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_meta %}
-<meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
+  <meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
 
 {% block extra_styles %}
-<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+  <link rel="stylesheet" href="{% static 'highlighting.css' %}">
 {% endblock extra_styles %}
 
 {% block breadcrumbs %}
@@ -25,53 +25,53 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
-    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
-      <div class="order-2 w-full lg:mr-auto lg:order-1">
-        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-          This report is locked
-        </h1>
-        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
-          <dt class="sr-only">Organisation:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.org.name }}</span>
-          </dd>
-          <dt class="sr-only">Project:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.name }}</span>
-          </dd>
-        </dl>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+      <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
+        <div class="order-2 w-full lg:mr-auto lg:order-1">
+          <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+            This report is locked
+          </h1>
+          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+            <dt class="sr-only">Organisation:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.org.name }}</span>
+            </dd>
+            <dt class="sr-only">Project:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.name }}</span>
+            </dd>
+          </dl>
+        </div>
       </div>
     </div>
-  </div>
 
-  {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1" %}
-    <div class="text-center p-8 z-10 relative">
-      {% icon_lock_closed_solid class="h-12 w-12 mb-4 mx-auto text-slate-600" %}
-      <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
-        This report is currently locked
-      </h2>
-      <div class="grid gap-y-2 max-w-prose mx-auto">
-        {% if publish_request.is_pending %}
-        <p>
-          A request to publish this report is currently awaiting a decision.
-          Further requests to publish the report cannot be created at this
-          time.
-        </p>
-        {% elif publish_request.is_approved %}
-        <p>
-          This report has been published and cannot have further requests to publish it.
-        </p>
-        {% endif %}
-        <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
-          If you have any questions,
-          {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
-        </p>
+    {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1" %}
+      <div class="text-center p-8 z-10 relative">
+        {% icon_lock_closed_solid class="h-12 w-12 mb-4 mx-auto text-slate-600" %}
+        <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
+          This report is currently locked
+        </h2>
+        <div class="grid gap-y-2 max-w-prose mx-auto">
+          {% if publish_request.is_pending %}
+            <p>
+              A request to publish this report is currently awaiting a decision.
+              Further requests to publish the report cannot be created at this
+              time.
+            </p>
+          {% elif publish_request.is_approved %}
+            <p>
+              This report has been published and cannot have further requests to publish it.
+            </p>
+          {% endif %}
+          <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
+            If you have any questions,
+            {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
+          </p>
+        </div>
       </div>
-    </div>
-  {% /card %}
-</div>
+    {% /card %}
+  </div>
 {% endblock content %}

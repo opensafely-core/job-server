@@ -5,7 +5,7 @@
 
 {% block metatitle %}{{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 {% block extra_meta %}
-<meta name="description" content="{{ project.name }} is an OpenSAFELY project from {{ project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
+  <meta name="description" content="{{ project.name }} is an OpenSAFELY project from {{ project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -19,29 +19,29 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-{{ events|json_script:"codelist_events" }}
-{{ medications|json_script:"codelist_medications" }}
-<div
-  id="osi"
-  data-base-path="{{ base_path }}"
-  data-csrf-token="{{ csrf_token }}"
-  data-events="codelist_events"
-  data-medications="codelist_medications"
-  data-date-start="{{ start_date }}"
-  data-date-end="{{ end_date }}"
->
-</div>
+  {{ events|json_script:"codelist_events" }}
+  {{ medications|json_script:"codelist_medications" }}
+  <div
+    id="osi"
+    data-base-path="{{ base_path }}"
+    data-csrf-token="{{ csrf_token }}"
+    data-events="codelist_events"
+    data-medications="codelist_medications"
+    data-date-start="{{ start_date }}"
+    data-date-end="{{ end_date }}"
+  >
+  </div>
 {% endblock %}
 
 {% block extra_js %}
   {% if debug %}
-  <script type="module" nonce="{{ request.csp_nonce }}">
-    import RefreshRuntime from 'http://localhost:5173/static/@react-refresh'
-    RefreshRuntime.injectIntoGlobalHook(window)
-    window.$RefreshReg$ = () => {}
-    window.$RefreshSig$ = () => (type) => type
-    window.__vite_plugin_react_preamble_installed__ = true
-  </script>
+    <script type="module" nonce="{{ request.csp_nonce }}">
+      import RefreshRuntime from 'http://localhost:5173/static/@react-refresh'
+      RefreshRuntime.injectIntoGlobalHook(window)
+      window.$RefreshReg$ = () => {}
+      window.$RefreshSig$ = () => (type) => type
+      window.__vite_plugin_react_preamble_installed__ = true
+    </script>
   {% endif %}
   {% vite_asset "assets/src/scripts/interactive/main.jsx" %}
 {% endblock %}

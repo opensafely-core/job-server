@@ -20,47 +20,47 @@
               {% /table_head %}
               {% #table_body %}
                 {% for job_request in job_requests %}
-                {% #table_row %}
-                  {% #table_cell class="py-2 pl-4 pr-3" title=job_request.status|title nowrap=True %}
-                    {% if job_request.status == "succeeded" %}
-                      {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
-                    {% elif job_request.status == "pending" %}
-                      {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
-                    {% elif job_request.status == "running" %}
-                      {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
-                    {% elif job_request.status == "failed" %}
-                      {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
-                    {% endif %}
-                    <span class="sr-only">{{ job_request.status|title }}</span>
-                  {% /table_cell %}
-                  {% #table_cell class="max-w-[25ch]" %}
-                    {{ job_request.workspace.project.org }}
-                  {% /table_cell %}
-                  {% #table_cell class="break-words min-w-[18ch]" %}
-                    {{ job_request.workspace.project.name }}
-                  {% /table_cell %}
-                  {% #table_cell nowrap=True %}
-                    {{ job_request.created_by.name }}
-                  {% /table_cell %}
-                  {% #table_cell nowrap=True title=job_request.started_at %}
-                    <span class="relative group{% if job_request.started_at %} cursor-pointer{% endif %}">
-                      {% if job_request.started_at|naturalday == "today" %}
-                        {{ job_request.started_at|naturaltime }}
-                      {% elif job_request.started_at %}
-                        {{ job_request.started_at|date:"d M Y" }}
-                        at
-                        {{ job_request.started_at|date:"H:i" }}
-                      {% else %}
-                        -
+                  {% #table_row %}
+                    {% #table_cell class="py-2 pl-4 pr-3" title=job_request.status|title nowrap=True %}
+                      {% if job_request.status == "succeeded" %}
+                        {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+                      {% elif job_request.status == "pending" %}
+                        {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+                      {% elif job_request.status == "running" %}
+                        {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+                      {% elif job_request.status == "failed" %}
+                        {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
                       {% endif %}
-                    </span>
-                  {% /table_cell %}
-                  {% #table_cell nowrap=True %}
-                    {% #button type="link" href=job_request.get_absolute_url variant="secondary-outline" small=True %}
-                      View<span class="sr-only">, Job request {{ job_request.id }}</span>
-                    {% /button %}
-                  {% /table_cell %}
-                {% /table_row %}
+                      <span class="sr-only">{{ job_request.status|title }}</span>
+                    {% /table_cell %}
+                    {% #table_cell class="max-w-[25ch]" %}
+                      {{ job_request.workspace.project.org }}
+                    {% /table_cell %}
+                    {% #table_cell class="break-words min-w-[18ch]" %}
+                      {{ job_request.workspace.project.name }}
+                    {% /table_cell %}
+                    {% #table_cell nowrap=True %}
+                      {{ job_request.created_by.name }}
+                    {% /table_cell %}
+                    {% #table_cell nowrap=True title=job_request.started_at %}
+                      <span class="relative group{% if job_request.started_at %} cursor-pointer{% endif %}">
+                        {% if job_request.started_at|naturalday == "today" %}
+                          {{ job_request.started_at|naturaltime }}
+                        {% elif job_request.started_at %}
+                          {{ job_request.started_at|date:"d M Y" }}
+                          at
+                          {{ job_request.started_at|date:"H:i" }}
+                        {% else %}
+                          -
+                        {% endif %}
+                      </span>
+                    {% /table_cell %}
+                    {% #table_cell nowrap=True %}
+                      {% #button type="link" href=job_request.get_absolute_url variant="secondary-outline" small=True %}
+                        View<span class="sr-only">, Job request {{ job_request.id }}</span>
+                      {% /button %}
+                    {% /table_cell %}
+                  {% /table_row %}
                 {% endfor %}
               {% /table_body %}
             {% /table %}

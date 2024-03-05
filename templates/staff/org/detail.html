@@ -34,28 +34,28 @@
     <div class="flex flex-col gap-4 lg:col-span-2">
       {% fragment as custom_button %}
         {% #modal id="addGitHubOrg" button_text="Add a GitHub Organisation" button_variant="primary-outline" request=request %}
-            {% #card container=True title="Add a GitHub Organisation" %}
+          {% #card container=True title="Add a GitHub Organisation" %}
             <form method="POST" action="{% url 'staff:org-add-github-org' slug=org.slug %}">
-                {% csrf_token %}
+              {% csrf_token %}
 
-                {% if form.non_field_errors %}
+              {% if form.non_field_errors %}
                 {% for error in form.non_field_errors %}
-                    {% #alert variant="danger" class="mb-6" %}
+                  {% #alert variant="danger" class="mb-6" %}
                     {{ error }}
-                    {% /alert %}
+                  {% /alert %}
                 {% endfor %}
-                {% endif %}
+              {% endif %}
 
-                <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+              <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
                 {% form_input custom_field=True id="id_name" label="Organisation name" name="name" placeholder="GitHub Organisation name" show_placeholder=True %}
-                </div>
+              </div>
 
-                <div class="flex flex-row flex-wrap gap-2">
+              <div class="flex flex-row flex-wrap gap-2">
                 {% #button variant="success" type="submit" %}Add org{% /button %}
                 {% #button variant="danger" type="cancel" %}Cancel{% /button %}
-                </div>
+              </div>
             </form>
-            {% /card %}
+          {% /card %}
         {% /modal %}
 
       {% endfragment %}

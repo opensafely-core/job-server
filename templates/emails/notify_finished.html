@@ -1,9 +1,9 @@
 {% extends "emails/base.html" %}
 
 {% block content %}
-<p>{{ action }} in workspace {{ workspace }} {{ status }} {% if elapsed_time %} after {{ elapsed_time }} seconds {% endif %}with the following message:</p>
+  <p>{{ action }} in workspace {{ workspace }} {{ status }} {% if elapsed_time %} after {{ elapsed_time }} seconds {% endif %}with the following message:</p>
 
-<p>{{ status_message }}</p>
+  <p>{{ status_message }}</p>
 
-<p><a href="{{ url }}">You can view the job here</a></p>
+  <p><a href="{{ url }}">You can view the job here</a></p>
 {% endblock content %}

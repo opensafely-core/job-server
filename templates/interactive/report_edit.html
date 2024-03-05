@@ -7,11 +7,11 @@
 {% block metatitle %}{{ analysis_request.project.name }} Analysis | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_meta %}
-<meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
+  <meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
 
 {% block extra_styles %}
-<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+  <link rel="stylesheet" href="{% static 'highlighting.css' %}">
 {% endblock extra_styles %}
 
 {% block breadcrumbs %}
@@ -26,65 +26,65 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
-    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
-      <div class="order-2 w-full lg:mr-auto lg:order-1">
-        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-          Edit analysis title and summary
-        </h1>
-        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
-          <dt class="sr-only">Organisation:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.org.name }}</span>
-          </dd>
-          <dt class="sr-only">Project:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.name }}</span>
-          </dd>
-        </dl>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+      <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
+        <div class="order-2 w-full lg:mr-auto lg:order-1">
+          <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+            Edit analysis title and summary
+          </h1>
+          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+            <dt class="sr-only">Organisation:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.org.name }}</span>
+            </dd>
+            <dt class="sr-only">Project:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.name }}</span>
+            </dd>
+          </dl>
+        </div>
       </div>
     </div>
-  </div>
 
-  {% #card title="Request information" class="lg:col-span-2" header_class="sr-only" %}
-    <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-      {% #description_item title="Title" stacked=True %}
-        {{ analysis_request.title }}
-      {% /description_item %}
-
-      {% #description_item title="Created at" stacked=True %}
-        {{ analysis_request.created_at }}
-        <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
-      {% /description_item %}
-
-      {% #description_item title="Created by" stacked=True %}
-        {% if user_can_view_staff_area %}
-          {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
-        {% else %}
-          {{ analysis_request.created_by.fullname }}
-        {% endif %}
-      {% /description_item %}
-
-      {% if analysis_request.purpose %}
-        {% #description_item title="Purpose" stacked=True %}
-          {{ analysis_request.purpose }}
+    {% #card title="Request information" class="lg:col-span-2" header_class="sr-only" %}
+      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+        {% #description_item title="Title" stacked=True %}
+          {{ analysis_request.title }}
         {% /description_item %}
-      {% endif %}
-    </dl>
-  {% /card %}
 
-  <div class="lg:col-span-2" id="request_form">
-    {% #card title="Update Request Details" container=True class="relative font-lg text-slate-700 xl:col-span-6" header_class="sr-only" %}
-    <form method="POST" class="flex flex-col gap-y-6 items-start">
-      {% csrf_token %}
-      {% form_input class="w-full max-w-prose" field=form.title label="Analysis title" hint_text="This title will be used when the report is made public" %}
-      {% form_textarea class="w-full max-w-prose" field=form.description label="Analysis summary" resize=True rows=10 hint_text="This is a high-level description of the report. It will be part of the final public report, and should summarise the findings and any conclusions drawn or further work needed." %}
-      {% #button type="submit" variant="primary" %}Update Report{% /button %}
-    </form>
+        {% #description_item title="Created at" stacked=True %}
+          {{ analysis_request.created_at }}
+          <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
+        {% /description_item %}
+
+        {% #description_item title="Created by" stacked=True %}
+          {% if user_can_view_staff_area %}
+            {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
+          {% else %}
+            {{ analysis_request.created_by.fullname }}
+          {% endif %}
+        {% /description_item %}
+
+        {% if analysis_request.purpose %}
+          {% #description_item title="Purpose" stacked=True %}
+            {{ analysis_request.purpose }}
+          {% /description_item %}
+        {% endif %}
+      </dl>
     {% /card %}
+
+    <div class="lg:col-span-2" id="request_form">
+      {% #card title="Update Request Details" container=True class="relative font-lg text-slate-700 xl:col-span-6" header_class="sr-only" %}
+        <form method="POST" class="flex flex-col gap-y-6 items-start">
+          {% csrf_token %}
+          {% form_input class="w-full max-w-prose" field=form.title label="Analysis title" hint_text="This title will be used when the report is made public" %}
+          {% form_textarea class="w-full max-w-prose" field=form.description label="Analysis summary" resize=True rows=10 hint_text="This is a high-level description of the report. It will be part of the final public report, and should summarise the findings and any conclusions drawn or further work needed." %}
+          {% #button type="submit" variant="primary" %}Update Report{% /button %}
+        </form>
+      {% /card %}
+    </div>
   </div>
-</div>
 {% endblock content %}

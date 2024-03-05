@@ -5,102 +5,102 @@
 {% block metatitle %}Edit {{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% url "staff:project-list" as staff_project_list_url %}
-  {% breadcrumb title="Staff area" url=staff_url %}
-  {% breadcrumb title="Projects" url=staff_project_list_url %}
-  {% breadcrumb title=project.title url=project.get_staff_url %}
-  {% breadcrumb title="Edit" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title=project.title url=project.get_staff_url %}
+    {% breadcrumb title="Edit" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% staff_hero title="Edit: "|add:project.title %}
+  {% staff_hero title="Edit: "|add:project.title %}
 {% endblock hero %}
 
 {% block content %}
-<form method="POST" class="max-w-3xl flex flex-col gap-y-6">
-  {% csrf_token %}
+  <form method="POST" class="max-w-3xl flex flex-col gap-y-6">
+    {% csrf_token %}
 
-  {% if form.non_field_errors or form.errors %}
-    {% #alert variant="danger" %}
-      <ul>
-        {% for error in form.non_field_errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
+    {% if form.non_field_errors or form.errors %}
+      {% #alert variant="danger" %}
+        <ul>
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
 
-        {% for field in form %}
-          {% if field.errors %}
-            <li>
-              <strong>{{ field.label }}:</strong>
-              <ul>
-                {% for error in field.errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-              </ul>
-            </li>
-          {% endif %}
-        {% endfor %}
-      </ul>
-    {% /alert %}
-  {% endif %}
+          {% for field in form %}
+            {% if field.errors %}
+              <li>
+                <strong>{{ field.label }}:</strong>
+                <ul>
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% /alert %}
+    {% endif %}
 
-  {% #card title="Project info" container=True %}
-    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-      {% form_legend text="Project info" class="sr-only" %}
-      {% form_input field=form.name label="Project name" required %}
-      {% form_input field=form.slug label="URL slug" required %}
-      {% form_input field=form.number label="Project number" inputmode="numeric" %}
-    {% /form_fieldset %}
-  {% /card %}
+    {% #card title="Project info" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Project info" class="sr-only" %}
+        {% form_input field=form.name label="Project name" required %}
+        {% form_input field=form.slug label="URL slug" required %}
+        {% form_input field=form.number label="Project number" inputmode="numeric" %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #card title="Organisations" container=True %}
-    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-      {% form_legend text="Organisations" class="sr-only" %}
-      {% form_select field=form.fields.orgs choices=form.fields.orgs.choices selected=form.orgs.value id="id_orgs" name="orgs" label="Select an organisation" required %}
-    {% /form_fieldset %}
-  {% /card %}
+    {% #card title="Organisations" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Organisations" class="sr-only" %}
+        {% form_select field=form.fields.orgs choices=form.fields.orgs.choices selected=form.orgs.value id="id_orgs" name="orgs" label="Select an organisation" required %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #card title="Application" container=True %}
-    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-      {% form_legend text="Application" class="sr-only" %}
+    {% #card title="Application" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Application" class="sr-only" %}
 
-      {% if project.applications.exists %}
-        <p>This project is linked to an application, which cannot be edited here.</p>
-      {% else %}
-        {% #alert variant="warning" class="mb-" %}
-          If you are looking to link to an application created on this site use "Find and Link"
-          {% link href=project.get_staff_url text="on the Project page" append_after="." %}
-        {% /alert %}
-        {% form_input field=form.application_url label="Application URL" type="url" %}
-      {% endif %}
-    {% /form_fieldset %}
-  {% /card %}
+        {% if project.applications.exists %}
+          <p>This project is linked to an application, which cannot be edited here.</p>
+        {% else %}
+          {% #alert variant="warning" class="mb-" %}
+            If you are looking to link to an application created on this site use "Find and Link"
+            {% link href=project.get_staff_url text="on the Project page" append_after="." %}
+          {% /alert %}
+          {% form_input field=form.application_url label="Application URL" type="url" %}
+        {% endif %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #card title="Internal co-pilot details" container=True %}
-    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-      {% form_legend text="Internal co-pilot details" class="sr-only" %}
+    {% #card title="Internal co-pilot details" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Internal co-pilot details" class="sr-only" %}
 
-      {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value label="Select a co-pilot" %}
-      {% form_input custom_field=True id="id_copilot_support_ends_at" name="copilot_support_ends_at" value=form.copilot_support_ends_at.value|date:"Y-m-d" errors=form.copilot_support_ends_at.errors type="date" label="Co-pilot support ends at" %}
-      {% form_textarea field=form.copilot_notes label="Co-pilot notes" %}
-    {% /form_fieldset %}
-  {% /card %}
+        {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value label="Select a co-pilot" %}
+        {% form_input custom_field=True id="id_copilot_support_ends_at" name="copilot_support_ends_at" value=form.copilot_support_ends_at.value|date:"Y-m-d" errors=form.copilot_support_ends_at.errors type="date" label="Co-pilot support ends at" %}
+        {% form_textarea field=form.copilot_notes label="Co-pilot notes" %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #card title="Status" container=True %}
-    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-      {% form_legend text="Status" class="sr-only" %}
+    {% #card title="Status" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Status" class="sr-only" %}
 
-      {% form_select field=form.status choices=form.fields.status.choices selected=form.status.value %}
-      {% form_textarea custom_field name="status_description" id="id_status_description" hint_text="You can format the status description text using Markdown" label="Status description" resize rows="12" value=form.status_description.value errors=form.status_description.errors %}
-    {% /form_fieldset %}
-  {% /card %}
+        {% form_select field=form.status choices=form.fields.status.choices selected=form.status.value %}
+        {% form_textarea custom_field name="status_description" id="id_status_description" hint_text="You can format the status description text using Markdown" label="Status description" resize rows="12" value=form.status_description.value errors=form.status_description.errors %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #button variant="success" type="submit" class="self-start" %}
-    Save
-  {% /button %}
-</form>
+    {% #button variant="success" type="submit" class="self-start" %}
+      Save
+    {% /button %}
+  </form>
 {% endblock content %}
 
 {% block extra_js %}

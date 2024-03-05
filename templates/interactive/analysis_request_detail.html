@@ -7,11 +7,11 @@
 {% block metatitle %}{{ analysis_request.project.name }} Analysis | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_meta %}
-<meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
+  <meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
 
 {% block extra_styles %}
-<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+  <link rel="stylesheet" href="{% static 'highlighting.css' %}">
 {% endblock extra_styles %}
 
 {% block breadcrumbs %}
@@ -25,329 +25,329 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
-    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
-      <div class="order-2 w-full lg:mr-auto lg:order-1">
-        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-          {{ analysis_request.title }}
-        </h1>
-        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
-          <dt class="sr-only">Organisation:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.org.name }}</span>
-          </dd>
-          <dt class="sr-only">Project:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.name }}</span>
-          </dd>
-        </dl>
-      </div>
-      {% if user_can_view_staff_area %}
-        <div class="order-1 lg:order-2 flex-shrink-0">
-          {% #button href=analysis_request.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
-            View in Staff Area
-            {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+      <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
+        <div class="order-2 w-full lg:mr-auto lg:order-1">
+          <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+            {{ analysis_request.title }}
+          </h1>
+          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+            <dt class="sr-only">Organisation:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.org.name }}</span>
+            </dd>
+            <dt class="sr-only">Project:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.name }}</span>
+            </dd>
+          </dl>
         </div>
-      {% endif %}
-    </div>
+        {% if user_can_view_staff_area %}
+          <div class="order-1 lg:order-2 flex-shrink-0">
+            {% #button href=analysis_request.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+              View in Staff Area
+              {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          </div>
+        {% endif %}
+      </div>
 
-    <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
-      {% if request.user.is_authenticated %}
-        {% if not object.report %}
-          {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
-            Publish report
+      <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
+        {% if request.user.is_authenticated %}
+          {% if not object.report %}
+            {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
+              Publish report
+            {% /button %}
+            {% #button type="link" variant="primary" disabled=True tooltip="Report has not been processed" %}
+              Update title and summary
+            {% /button %}
+          {% elif object.publish_request.is_approved %}
+            {% #button type="button" variant="success" disabled=True tooltip="Report has been published" %}
+              Publish report
+            {% /button %}
+            {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit after report has been published" %}
+              Update title and summary
+            {% /button %}
+          {% elif object.publish_request.is_pending %}
+            {% #button type="button" variant="success" disabled=True tooltip="A publishing review is ongoing" %}
+              Publish report
+            {% /button %}
+            {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit while publishing review is ongoing" %}
+              Update title and summary
+            {% /button %}
+          {% elif object.publish_request is None or object.publish_request.is_rejected %}
+            {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
+              Publish report
+            {% /button %}
+            {% #button type="link" variant="primary" href=analysis_request.get_edit_url %}
+              Update title and summary
+            {% /button %}
+          {% endif %}
+        {% endif %}
+
+        {% if report %}
+          {% #button type="button" id="downloadBtn" variant="primary" data-title=analysis_request.title %}
+            Download report
           {% /button %}
-          {% #button type="link" variant="primary" disabled=True tooltip="Report has not been processed" %}
-            Update title and summary
-          {% /button %}
-        {% elif object.publish_request.is_approved %}
-          {% #button type="button" variant="success" disabled=True tooltip="Report has been published" %}
-            Publish report
-          {% /button %}
-          {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit after report has been published" %}
-            Update title and summary
-          {% /button %}
-        {% elif object.publish_request.is_pending %}
-          {% #button type="button" variant="success" disabled=True tooltip="A publishing review is ongoing" %}
-            Publish report
-          {% /button %}
-          {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit while publishing review is ongoing" %}
-            Update title and summary
-          {% /button %}
-        {% elif object.publish_request is None or object.publish_request.is_rejected %}
-          {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
-            Publish report
-          {% /button %}
-          {% #button type="link" variant="primary" href=analysis_request.get_edit_url %}
-            Update title and summary
+        {% else %}
+          {% #button type="button" variant="primary" disabled=True tooltip="Report has not been processed" %}
+            Download report
           {% /button %}
         {% endif %}
-      {% endif %}
+      </div>
+    </div>
 
+    <div class="grid gap-6 lg:col-span-3 xl:grid-cols-6" id="reportContainer">
       {% if report %}
-        {% #button type="button" id="downloadBtn" variant="primary" data-title=analysis_request.title %}
-          Download report
-        {% /button %}
+        {% #card title="Request information" class="xl:col-span-4 xl:col-start-2" header_class="sr-only" %}
+          <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+            {% #description_item title="Created at" %}
+              <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}">
+                {{ analysis_request.created_at|date:"d M Y H:i:s e" }}
+              </time>
+            {% /description_item %}
+
+            {% #description_item title="Created by" %}
+              {% link href=analysis_request.created_by.get_absolute_url text=analysis_request.created_by.fullname %}
+            {% /description_item %}
+          </dl>
+        {% /card %}
+
+        {% #card title="Report" container=True class="blur-on-modal relative font-lg text-slate-800 xl:col-span-6" header_class="sr-only" %}
+          <div id="report">
+
+            <div class="text-base bg-oxford-50 py-6 px-8 mb-6 pdf--hide">
+              <p>This report was generated by <strong>{{ analysis_request.created_by.fullname }}</strong> on <strong>{{ analysis_request.created_at|date:"dS F Y" }}</strong> using the <a href="https://www.opensafely.org/interactive/" target="_blank" rel="noopener noreferrer">OpenSAFELY Interactive application</a>.</p>
+              {% if not object.publish_request.is_approved %}
+                <p><strong>This report has not yet been approved for publication and is being shared in confidence.</strong> Recipients must not distribute further unless permitted via the <a href="https://www.opensafely.org/policies-for-researchers/#acknowledgment-and-data-sharing--publication-policy" target="_blank" rel="noopener noreferrer">OpenSAFELY policy on sharing of results</a>.</p>
+              {% endif %}
+            </div>
+
+            <section id="editable_header">
+              <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+                {{ analysis_request.report.title }}
+              </h1>
+
+              {% if analysis_request.report.description %}
+                <p class="lead !mb-2">{{ analysis_request.report.description|linebreaksbr }}</p>
+              {% endif %}
+
+              <p class="mb-4">
+                <a id="viewProjectPurposeLink" href="{{ analysis_request.project.get_approved_url }}">
+                  View project purpose
+                </a>
+                <a id="viewOnOpensafelyLink" class="hidden" href="{{ analysis_request.get_absolute_url }}">
+                  View on OpenSAFELY
+                </a>
+              </p>
+            </section>
+
+            <div class="[&_h1]:hidden" id="interactiveReport">
+              {{ report }}
+            </div>
+
+            <div class="text-base bg-oxford-50 py-6 px-8 mt-6 pdf--hide">
+              <p>Generated using OpenSAFELY Interactive:</p>
+              <ul>
+                <li>
+                  <strong>Project:</strong>
+                  <a href="{{ analysis_request.project.get_absolute_url }}" target="_blank" rel="noopener noreferrer">{{ analysis_request.project.name }}</a>
+                </li>
+                <li>
+                  <strong>Report:</strong>
+                  <a href="{{ analysis_request.get_absolute_url }}" target="_blank" rel="noopener noreferrer">{{ analysis_request.title }}</a>
+                </li>
+              </ul>
+              <p><a href="{{ analysis_request.job_request.get_repo_url }}" target="_blank" rel="noopener noreferrer">All code is shared openly for review and re-use under MIT open license</a></p>
+            </div>
+
+            <div class="report__footer-text">
+              <p>This project was conducted with the approval of NHS England, using the OpenSAFELY Interactive tool. For more information on how OpenSAFELY tool works, as well as how the platform is funded, <a href="https://www.opensafely.org/interactive" target="_blank" rel="noopener noreferrer">please see our website</a>. The OpenSAFELY team also invites any patient or member of the public to make contact via our website regarding the broader OpenSAFELY project.</p>
+              <p>We are very grateful for all the support received from theTPP Technical Operations team throughout this work, and for generous assistance from the information governance and database teams at NHS England and the NHS England Transformation Directorate.</p>
+              <h2>Information governance and ethical approval</h2>
+              <p>NHS England is the data controller for OpenSAFELY-TPP; TPP is the data processor; all study authors using OpenSAFELY have the approval of NHS England. This implementation of OpenSAFELY is hosted within the TPP environment which is accredited to the ISO 27001 information security standard and is NHS IG Toolkit compliant.<sup class="ml-1 mr-2"><a id="location-1" href="#footnote-1">1</a></sup></p>
+              <p>Patient data has been pseudonymised for analysis and linkage using industry standard cryptographic hashing techniques; all pseudonymised datasets transmitted for linkage onto OpenSAFELY are encrypted; access to the platform is via a virtual private network (VPN) connection, restricted to a small group of researchers; the researchers hold contracts with NHS England and only access the platform to initiate database queries and statistical models; all database activity is logged; only aggregate statistical outputs leave the platform environment following best practice for anonymisation of results such as statistical disclosure control for low cell counts.<sup class="ml-1 mr-2"><a id="location-2" href="#footnote-2">2</a></sup></p>
+              <p>The OpenSAFELY research platform adheres to the obligations of the UK General Data Protection Regulation (GDPR) and the Data Protection Act 2018. In March 2020, the Secretary of State for Health and Social Care used powers under the UK Health Service (Control of Patient Information) Regulations 2002 (COPI) to require organisations to process confidential patient information for the purposes of protecting public health, providing healthcare services to the public and monitoring and managing the COVID-19 outbreak and incidents of exposure; this sets aside the requirement for patient consent.<sup class="ml-1 mr-2"><a id="location-3" href="#footnote-3">3</a></sup> This was extended in November 2022 for the NHS England OpenSAFELY COVID-19 research platform.<sup class="ml-1 mr-2"><a id="location-4" href="#footnote-4">4</a></sup> In some cases of data sharing, the common law duty of confidence is met using, for example, patient consent or support from the Health Research Authority Confidentiality Advisory Group.<sup class="ml-1 mr-2"><a id="location-5" href="#footnote-5">5</a></sup></p>
+              <p>Taken together, these provide the legal bases to link patient datasets on the OpenSAFELY platform. GP practices, from which the primary care data are obtained, are required to share relevant health information to support the public health response to the pandemic, and have been informed of the OpenSAFELY analytics platform.</p>
+              <ol class="report__footer-notes">
+                <li id="footnote-1">
+                  Data Security and Protection Toolkit - NHS Digital. NHS Digital. <a href="http://https://digital.nhs.uk/data-and-information/looking-after-information/data-security-and-information-governance/data-security-and-protection-toolkit" target="_blank" rel="noopener noreferrer">https://digital.nhs.uk/data-and-information/looking-after-information/data-security-and-information-governance/data-security-and-protection-toolkit</a> (accessed 30 Apr 2020).
+                  <a href="#location-1" class="!decoration-transparent"><span role="img" aria-label="Show footnote 1 location">↵</span></a>
+                </li>
+                <li>ISB1523: Anonymisation Standard for Publishing Health and Social Care Data - NHS Digital. NHS Digital. <a href="https://digital.nhs.uk/data-and-information/information-standards/information-standards-and-data-collections-including-extractions/publications-and-notifications/standards-and-collections/isb1523-anonymisation-standard-for-publishing-health-and-social-care-data" target="_blank" rel="noopener noreferrer">https://digital.nhs.uk/data-and-information/information-standards/information-standards-and-data-collections-including-extractions/publications-and-notifications/standards-and-collections/isb1523-anonymisation-standard-for-publishing-health-and-social-care-data</a> (accessed 30 Apr 2020).
+                  <a href="#location-2" class="!decoration-transparent"><span role="img" aria-label="Show footnote 2 location">↵</span></a>
+                </li>
+                <li>Secretary of State for Health and Social Care - UK Government. Coronavirus (COVID-19): notification to organisations to share information. 2020.<a href=" https://web.archive.org/web/20200421171727/https://www.gov.uk/government/publications/covid-19-notification-to-gps-and-nhs-england-to-share-information" target="_blank" rel="noopener noreferrer"> https://web.archive.org/web/20200421171727/https://www.gov.uk/government/publications/covid-19-notification-to-gps-and-nhs-england-to-share-information</a>
+                  <a href="#location-3" class="!decoration-transparent"><span role="img" aria-label="Show footnote 3 location">↵</span></a>
+                </li>
+                <li>Secretary of State for Health and Social Care - UK Government. Coronavirus (COVID-19): notification to organisations to share information. 2022. <a href="https://www.gov.uk/government/publications/coronavirus-covid-19-notification-to-organisations-to-share-information/coronavirus-covid-19-notice-under-regulation-34-of-the-health-service-control-of-patient-information-regulations-2002" target="_blank" rel="noopener noreferrer">https://www.gov.uk/government/publications/coronavirus-covid-19-notification-to-organisations-to-share-information/coronavirus-covid-19-notice-under-regulation-34-of-the-health-service-control-of-patient-information-regulations-2002</a>
+                  <a href="#location-4" class="!decoration-transparent"><span role="img" aria-label="Show footnote 4 location">↵</span></a>
+                </li>
+                <li>Confidentiality Advisory Group. Health Research Authority. <a href="https://www.hra.nhs.uk/about-us/committees-and-services/confidentiality-advisory-group/" target="_blank" rel="noopener noreferrer">https://www.hra.nhs.uk/about-us/committees-and-services/confidentiality-advisory-group/</a>
+                  <a href="#location-5" class="!decoration-transparent"><span role="img" aria-label="Show footnote 5 location">↵</span></a>
+                </li>
+              </ol>
+            </div>
+
+            <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10 break-words">
+              {% if not object.publish_request.is_approved %}
+                <span class="py-16 block">Confidential</span>
+                <span class="py-16 block">Not for publication</span>
+                <span class="py-16 block">Downloaded by {{ user.email }}</span>
+              {% endif %}
+            </div>
+          </div>
+        {% /card %}
       {% else %}
-        {% #button type="button" variant="primary" disabled=True tooltip="Report has not been processed" %}
-          Download report
-        {% /button %}
+        {% #card class="xl:col-start-5 xl:col-span-2 xl:row-start-1" %}
+          <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+            {% #description_item stacked=False title="Created at" %}
+              {{ analysis_request.created_at }}
+              <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
+            {% /description_item %}
+
+            {% #description_item title="Created by" %}
+              {% link href=analysis_request.created_by.get_absolute_url text=analysis_request.created_by.fullname %}
+            {% /description_item %}
+
+            {% #description_item title="Purpose" %}
+              {{ analysis_request.purpose }}
+            {% /description_item %}
+          </dl>
+        {% /card %}
+        {% if analysis_request.status == "failed" %}
+          {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1 xl:row-start-1" %}
+            <div class="text-center p-8 z-10 relative">
+              {% icon_exclamation_triangle_solid class="h-12 w-12 mb-4 mx-auto text-slate-600" %}
+              <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
+                An error has occurred while processing your request
+              </h2>
+              <div class="grid gap-y-2 max-w-prose mx-auto">
+                <p class="text-lg">
+                  The OpenSAFELY team has been notified and is investigating
+                </p>
+                <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
+                  If you'd like any more information about requesting an analysis
+                  <span class="md:block">
+                    or have any questions,
+                    {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
+                  </span>
+                </p>
+              </div>
+            </div>
+          {% /card %}
+        {% else %}
+          {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1 xl:row-start-1" %}
+            <div class="text-center p-8 z-10 relative">
+              {% icon_custom_spinner class="h-12 w-12 mb-4 mx-auto flex-1 animate-spin stroke-current stroke-2 text-slate-600" %}
+              <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
+                Your request is being processed
+              </h2>
+              <div class="grid gap-y-2 max-w-prose mx-auto">
+                <p class="text-lg">
+                  You will be emailed when your report is ready.
+                </p>
+                <p>
+                  The results will be checked carefully by our team for privacy and
+                  security reasons.
+                </p>
+                <p>
+                  We aim to process requests within five working days. We are
+                  working to improve this for future requests.
+                </p>
+                <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
+                  If you'd like any more information about requesting an analysis
+                  <span class="md:block">
+                    or have any questions,
+                    {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
+                  </span>
+                </p>
+              </div>
+            </div>
+          {% /card %}
+        {% endif %}
       {% endif %}
     </div>
   </div>
 
-  <div class="grid gap-6 lg:col-span-3 xl:grid-cols-6" id="reportContainer">
-    {% if report %}
-      {% #card title="Request information" class="xl:col-span-4 xl:col-start-2" header_class="sr-only" %}
-        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-          {% #description_item title="Created at" %}
-            <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}">
-              {{ analysis_request.created_at|date:"d M Y H:i:s e" }}
-            </time>
-          {% /description_item %}
-
-          {% #description_item title="Created by" %}
-            {% link href=analysis_request.created_by.get_absolute_url text=analysis_request.created_by.fullname %}
-          {% /description_item %}
-        </dl>
-      {% /card %}
-
-      {% #card title="Report" container=True class="blur-on-modal relative font-lg text-slate-800 xl:col-span-6" header_class="sr-only" %}
-        <div id="report">
-
-          <div class="text-base bg-oxford-50 py-6 px-8 mb-6 pdf--hide">
-            <p>This report was generated by <strong>{{ analysis_request.created_by.fullname }}</strong> on <strong>{{ analysis_request.created_at|date:"dS F Y" }}</strong> using the <a href="https://www.opensafely.org/interactive/" target="_blank" rel="noopener noreferrer">OpenSAFELY Interactive application</a>.</p>
-            {% if not object.publish_request.is_approved %}
-            <p><strong>This report has not yet been approved for publication and is being shared in confidence.</strong> Recipients must not distribute further unless permitted via the <a href="https://www.opensafely.org/policies-for-researchers/#acknowledgment-and-data-sharing--publication-policy" target="_blank" rel="noopener noreferrer">OpenSAFELY policy on sharing of results</a>.</p>
-            {% endif %}
-          </div>
-
-          <section id="editable_header">
-            <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-              {{ analysis_request.report.title }}
-            </h1>
-
-            {% if analysis_request.report.description %}
-            <p class="lead !mb-2">{{ analysis_request.report.description|linebreaksbr }}</p>
-            {% endif %}
-
-            <p class="mb-4">
-              <a id="viewProjectPurposeLink" href="{{ analysis_request.project.get_approved_url }}">
-                View project purpose
-              </a>
-              <a id="viewOnOpensafelyLink" class="hidden" href="{{ analysis_request.get_absolute_url }}">
-                View on OpenSAFELY
-              </a>
-            </p>
-          </section>
-
-          <div class="[&_h1]:hidden" id="interactiveReport">
-            {{ report }}
-          </div>
-
-          <div class="text-base bg-oxford-50 py-6 px-8 mt-6 pdf--hide">
-            <p>Generated using OpenSAFELY Interactive:</p>
-            <ul>
-              <li>
-                <strong>Project:</strong>
-                <a href="{{ analysis_request.project.get_absolute_url }}" target="_blank" rel="noopener noreferrer">{{ analysis_request.project.name }}</a>
-              </li>
-              <li>
-                <strong>Report:</strong>
-                <a href="{{ analysis_request.get_absolute_url }}" target="_blank" rel="noopener noreferrer">{{ analysis_request.title }}</a>
-              </li>
-            </ul>
-            <p><a href="{{ analysis_request.job_request.get_repo_url }}" target="_blank" rel="noopener noreferrer">All code is shared openly for review and re-use under MIT open license</a></p>
-          </div>
-
-          <div class="report__footer-text">
-            <p>This project was conducted with the approval of NHS England, using the OpenSAFELY Interactive tool. For more information on how OpenSAFELY tool works, as well as how the platform is funded, <a href="https://www.opensafely.org/interactive" target="_blank" rel="noopener noreferrer">please see our website</a>. The OpenSAFELY team also invites any patient or member of the public to make contact via our website regarding the broader OpenSAFELY project.</p>
-            <p>We are very grateful for all the support received from theTPP Technical Operations team throughout this work, and for generous assistance from the information governance and database teams at NHS England and the NHS England Transformation Directorate.</p>
-            <h2>Information governance and ethical approval</h2>
-            <p>NHS England is the data controller for OpenSAFELY-TPP; TPP is the data processor; all study authors using OpenSAFELY have the approval of NHS England. This implementation of OpenSAFELY is hosted within the TPP environment which is accredited to the ISO 27001 information security standard and is NHS IG Toolkit compliant.<sup class="ml-1 mr-2"><a id="location-1" href="#footnote-1">1</a></sup></p>
-            <p>Patient data has been pseudonymised for analysis and linkage using industry standard cryptographic hashing techniques; all pseudonymised datasets transmitted for linkage onto OpenSAFELY are encrypted; access to the platform is via a virtual private network (VPN) connection, restricted to a small group of researchers; the researchers hold contracts with NHS England and only access the platform to initiate database queries and statistical models; all database activity is logged; only aggregate statistical outputs leave the platform environment following best practice for anonymisation of results such as statistical disclosure control for low cell counts.<sup class="ml-1 mr-2"><a id="location-2" href="#footnote-2">2</a></sup></p>
-            <p>The OpenSAFELY research platform adheres to the obligations of the UK General Data Protection Regulation (GDPR) and the Data Protection Act 2018. In March 2020, the Secretary of State for Health and Social Care used powers under the UK Health Service (Control of Patient Information) Regulations 2002 (COPI) to require organisations to process confidential patient information for the purposes of protecting public health, providing healthcare services to the public and monitoring and managing the COVID-19 outbreak and incidents of exposure; this sets aside the requirement for patient consent.<sup class="ml-1 mr-2"><a id="location-3" href="#footnote-3">3</a></sup> This was extended in November 2022 for the NHS England OpenSAFELY COVID-19 research platform.<sup class="ml-1 mr-2"><a id="location-4" href="#footnote-4">4</a></sup> In some cases of data sharing, the common law duty of confidence is met using, for example, patient consent or support from the Health Research Authority Confidentiality Advisory Group.<sup class="ml-1 mr-2"><a id="location-5" href="#footnote-5">5</a></sup></p>
-            <p>Taken together, these provide the legal bases to link patient datasets on the OpenSAFELY platform. GP practices, from which the primary care data are obtained, are required to share relevant health information to support the public health response to the pandemic, and have been informed of the OpenSAFELY analytics platform.</p>
-            <ol class="report__footer-notes">
-              <li id="footnote-1">
-                Data Security and Protection Toolkit - NHS Digital. NHS Digital. <a href="http://https://digital.nhs.uk/data-and-information/looking-after-information/data-security-and-information-governance/data-security-and-protection-toolkit" target="_blank" rel="noopener noreferrer">https://digital.nhs.uk/data-and-information/looking-after-information/data-security-and-information-governance/data-security-and-protection-toolkit</a> (accessed 30 Apr 2020).
-                <a href="#location-1" class="!decoration-transparent"><span role="img" aria-label="Show footnote 1 location">↵</span></a>
-              </li>
-              <li>ISB1523: Anonymisation Standard for Publishing Health and Social Care Data - NHS Digital. NHS Digital. <a href="https://digital.nhs.uk/data-and-information/information-standards/information-standards-and-data-collections-including-extractions/publications-and-notifications/standards-and-collections/isb1523-anonymisation-standard-for-publishing-health-and-social-care-data" target="_blank" rel="noopener noreferrer">https://digital.nhs.uk/data-and-information/information-standards/information-standards-and-data-collections-including-extractions/publications-and-notifications/standards-and-collections/isb1523-anonymisation-standard-for-publishing-health-and-social-care-data</a> (accessed 30 Apr 2020).
-                <a href="#location-2" class="!decoration-transparent"><span role="img" aria-label="Show footnote 2 location">↵</span></a>
-              </li>
-              <li>Secretary of State for Health and Social Care - UK Government. Coronavirus (COVID-19): notification to organisations to share information. 2020.<a href=" https://web.archive.org/web/20200421171727/https://www.gov.uk/government/publications/covid-19-notification-to-gps-and-nhs-england-to-share-information" target="_blank" rel="noopener noreferrer"> https://web.archive.org/web/20200421171727/https://www.gov.uk/government/publications/covid-19-notification-to-gps-and-nhs-england-to-share-information</a>
-                <a href="#location-3" class="!decoration-transparent"><span role="img" aria-label="Show footnote 3 location">↵</span></a>
-              </li>
-              <li>Secretary of State for Health and Social Care - UK Government. Coronavirus (COVID-19): notification to organisations to share information. 2022. <a href="https://www.gov.uk/government/publications/coronavirus-covid-19-notification-to-organisations-to-share-information/coronavirus-covid-19-notice-under-regulation-34-of-the-health-service-control-of-patient-information-regulations-2002" target="_blank" rel="noopener noreferrer">https://www.gov.uk/government/publications/coronavirus-covid-19-notification-to-organisations-to-share-information/coronavirus-covid-19-notice-under-regulation-34-of-the-health-service-control-of-patient-information-regulations-2002</a>
-                <a href="#location-4" class="!decoration-transparent"><span role="img" aria-label="Show footnote 4 location">↵</span></a>
-              </li>
-              <li>Confidentiality Advisory Group. Health Research Authority. <a href="https://www.hra.nhs.uk/about-us/committees-and-services/confidentiality-advisory-group/" target="_blank" rel="noopener noreferrer">https://www.hra.nhs.uk/about-us/committees-and-services/confidentiality-advisory-group/</a>
-                <a href="#location-5" class="!decoration-transparent"><span role="img" aria-label="Show footnote 5 location">↵</span></a>
-              </li>
-            </ol>
-          </div>
-
-          <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10 break-words">
-            {% if not object.publish_request.is_approved %}
-            <span class="py-16 block">Confidential</span>
-            <span class="py-16 block">Not for publication</span>
-            <span class="py-16 block">Downloaded by {{ user.email }}</span>
-            {% endif %}
-          </div>
-        </div>
-      {% /card %}
-    {% else %}
-      {% #card class="xl:col-start-5 xl:col-span-2 xl:row-start-1" %}
-        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-          {% #description_item stacked=False title="Created at" %}
-            {{ analysis_request.created_at }}
-            <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
-          {% /description_item %}
-
-          {% #description_item title="Created by" %}
-            {% link href=analysis_request.created_by.get_absolute_url text=analysis_request.created_by.fullname %}
-          {% /description_item %}
-
-          {% #description_item title="Purpose" %}
-            {{ analysis_request.purpose }}
-          {% /description_item %}
-        </dl>
-      {% /card %}
-      {% if analysis_request.status == "failed" %}
-      {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1 xl:row-start-1" %}
-        <div class="text-center p-8 z-10 relative">
-          {% icon_exclamation_triangle_solid class="h-12 w-12 mb-4 mx-auto text-slate-600" %}
-          <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
-            An error has occurred while processing your request
-          </h2>
-          <div class="grid gap-y-2 max-w-prose mx-auto">
-            <p class="text-lg">
-              The OpenSAFELY team has been notified and is investigating
-            </p>
-            <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
-              If you'd like any more information about requesting an analysis
-              <span class="md:block">
-                or have any questions,
-                {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
-              </span>
-            </p>
-          </div>
-        </div>
-      {% /card %}
+  <dialog id="downloadModal" class="max-w-prose p-8 shadow-xl rounded-md backdrop:bg-black/25 backdrop:backdrop-blur-sm">
+    <section class="prose prose-blue">
+      {% if object.publish_request.is_approved %}
+        <p>
+          This report has been generated using the
+          <a href="https://www.opensafely.org/interactive/">OpenSAFELY Interactive tool</a>.
+          The contents should not be shared out of context, and the audience must
+          always be provided with a link to this report page. This ensures
+          transparency around how results were generated, in line with the
+          <a href="https://www.opensafely.org/about/#transparency-and-public-logs">principles of OpenSAFELY</a>.
+        </p>
       {% else %}
-      {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1 xl:row-start-1" %}
-        <div class="text-center p-8 z-10 relative">
-          {% icon_custom_spinner class="h-12 w-12 mb-4 mx-auto flex-1 animate-spin stroke-current stroke-2 text-slate-600" %}
-          <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
-            Your request is being processed
-          </h2>
-          <div class="grid gap-y-2 max-w-prose mx-auto">
-            <p class="text-lg">
-              You will be emailed when your report is ready.
-            </p>
-            <p>
-              The results will be checked carefully by our team for privacy and
-              security reasons.
-            </p>
-            <p>
-              We aim to process requests within five working days. We are
-              working to improve this for future requests.
-            </p>
-            <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
-              If you'd like any more information about requesting an analysis
-              <span class="md:block">
-                or have any questions,
-                {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
-              </span>
-            </p>
-          </div>
-        </div>
-      {% /card %}
+        <h2 class="sr-only">Read and agree before downloading</h2>
+        <p>
+          You must abide by the
+          <a
+            href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets"
+          >OpenSAFELY policy</a
+            > when sharing these results:
+          </p>
+          <p>
+            This report can be shared IN CONFIDENCE and ONLY with key members of your team
+            / collaborators (for the purpose of seeking feedback and contribution to
+            inform the final paper or report), by a webinar or by email, but the following
+            guidelines must be adhered to:
+          </p>
+          <ol>
+            <li>
+              Acceptable sharing examples include: the senior sponsor; analysts and senior
+              manager in the NHS E department accountable for the specific policy
+              activities being investigated (but NOT other departments); key members of
+              the relevant
+              <a
+                href="https://www.gov.uk/government/publications/scientific-advisory-group-for-emergencies-sage-coronavirus-covid-19-response-membership/list-of-participants-of-sage-and-related-sub-groups"
+              >scientific advisory groups</a
+                >; established relevant expert collaborators.
+              </li>
+              <li>
+                If sharing this report with individuals external to your immediate project
+                team (e.g. key members of the relevant scientific advisory groups; relevant
+                external expert collaborators) you must ensure the content being shared has
+                been reviewed and approved by the senior sponsor and your line manager and
+                provide your co-pilot with a copy of the content.
+              </li>
+              <li>
+                All recipients must be reminded that the content is shared in confidence and
+                they must not distribute it further (see
+                <a
+                  href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets"
+                >publication guidelines</a
+                  >).
+                </li>
+              </ol>
+              <p>
+                If you are unsure that your planned sharing is appropriate, please contact
+                your co-pilot in the first instance,or email
+                <a href="mailto:publications@opensafely.org">publications@opensafely.org</a>.
+              </p>
       {% endif %}
-    {% endif %}
-  </div>
-</div>
-
-<dialog id="downloadModal" class="max-w-prose p-8 shadow-xl rounded-md backdrop:bg-black/25 backdrop:backdrop-blur-sm">
-  <section class="prose prose-blue">
-    {% if object.publish_request.is_approved %}
-    <p>
-      This report has been generated using the
-      <a href="https://www.opensafely.org/interactive/">OpenSAFELY Interactive tool</a>.
-      The contents should not be shared out of context, and the audience must
-      always be provided with a link to this report page. This ensures
-      transparency around how results were generated, in line with the
-      <a href="https://www.opensafely.org/about/#transparency-and-public-logs">principles of OpenSAFELY</a>.
-    </p>
-    {% else %}
-    <h2 class="sr-only">Read and agree before downloading</h2>
-    <p>
-      You must abide by the
-      <a
-        href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets"
-        >OpenSAFELY policy</a
-      > when sharing these results:
-    </p>
-    <p>
-      This report can be shared IN CONFIDENCE and ONLY with key members of your team
-      / collaborators (for the purpose of seeking feedback and contribution to
-      inform the final paper or report), by a webinar or by email, but the following
-      guidelines must be adhered to:
-    </p>
-    <ol>
-      <li>
-        Acceptable sharing examples include: the senior sponsor; analysts and senior
-        manager in the NHS E department accountable for the specific policy
-        activities being investigated (but NOT other departments); key members of
-        the relevant
-        <a
-          href="https://www.gov.uk/government/publications/scientific-advisory-group-for-emergencies-sage-coronavirus-covid-19-response-membership/list-of-participants-of-sage-and-related-sub-groups"
-          >scientific advisory groups</a
-        >; established relevant expert collaborators.
-      </li>
-      <li>
-        If sharing this report with individuals external to your immediate project
-        team (e.g. key members of the relevant scientific advisory groups; relevant
-        external expert collaborators) you must ensure the content being shared has
-        been reviewed and approved by the senior sponsor and your line manager and
-        provide your co-pilot with a copy of the content.
-      </li>
-      <li>
-        All recipients must be reminded that the content is shared in confidence and
-        they must not distribute it further (see
-        <a
-          href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets"
-          >publication guidelines</a
-        >).
-      </li>
-    </ol>
-    <p>
-      If you are unsure that your planned sharing is appropriate, please contact
-      your co-pilot in the first instance,or email
-      <a href="mailto:publications@opensafely.org">publications@opensafely.org</a>.
-    </p>
-    {% endif %}
-  </section>
-  <div class="flex flex-row gap-2 mt-6">
-    {% #button variant="primary" type="button" value="generating" disabled=True %}
-      Generating PDF
-    {% /button %}
-    {% #button variant="primary" type="button" value="confirm" class="hidden" %}
-      Agree and download
-    {% /button %}
-    {% #button variant="primary" type="button" value="downloading" disabled=True class="hidden" %}
-      Downloading
-    {% /button %}
-    {% #button variant="secondary-outline" type="button" value="cancel" %}
-      Cancel
-    {% /button %}
-  </div>
-</dialog>
+    </section>
+    <div class="flex flex-row gap-2 mt-6">
+      {% #button variant="primary" type="button" value="generating" disabled=True %}
+        Generating PDF
+      {% /button %}
+      {% #button variant="primary" type="button" value="confirm" class="hidden" %}
+        Agree and download
+      {% /button %}
+      {% #button variant="primary" type="button" value="downloading" disabled=True class="hidden" %}
+        Downloading
+      {% /button %}
+      {% #button variant="secondary-outline" type="button" value="cancel" %}
+        Cancel
+      {% /button %}
+    </div>
+  </dialog>
 {% endblock content %}
 
 {% block extra_js %}

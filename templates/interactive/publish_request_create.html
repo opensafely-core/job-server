@@ -14,64 +14,64 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
-    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
-      <div class="order-2 w-full lg:mr-auto lg:order-1">
-        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-          Request to publish: {{ analysis_request.title }}
-        </h1>
-        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
-          <dt class="sr-only">Organisation:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.org.name }}</span>
-          </dd>
-          <dt class="sr-only">Project:</dt>
-          <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-            <span class="truncate">{{ analysis_request.project.name }}</span>
-          </dd>
-        </dl>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+      <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
+        <div class="order-2 w-full lg:mr-auto lg:order-1">
+          <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+            Request to publish: {{ analysis_request.title }}
+          </h1>
+          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+            <dt class="sr-only">Organisation:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.org.name }}</span>
+            </dd>
+            <dt class="sr-only">Project:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ analysis_request.project.name }}</span>
+            </dd>
+          </dl>
+        </div>
       </div>
+
+      {% #card container=True title="Confirm publish" container_class="!border-t-0" header_class="sr-only" class="mt-4" %}
+        <div class="prose text-left">
+          <p>
+            You are requesting the report titled <strong>"{{ analysis_request.report.title }}"</strong>
+            is made publicly available.
+          </p>
+          <p>
+            Once the request is sent, your report will be locked while it is
+            reviewed, and you will not be able to edit the content.
+          </p>
+          <p>
+            As part of the approval process, aligned with our
+            <a href="https://www.opensafely.org/policies-for-researchers/#all-datasets-publication">research publication policy</a>,
+            this report will be sent to NHSE for approval. They will pay
+            particular attention to how you have described your conclusions in
+            the <strong>Report Summary</strong>.
+          </p>
+          <p>
+            Once the report is published it will be publicly available and no
+            longer editable.
+          </p>
+          <p>
+            Should your request to publish the report be rejected, you will be able to
+            make changes and submit it for another review.
+          </p>
+        </div>
+
+        <div class="flex flex-row flex-wrap gap-2 mt-4">
+          <form method="POST">
+            {% csrf_token %}
+            {% #button type="submit" variant="success" %}Submit request{% /button %}
+          </form>
+          {% #button type="link" href=analysis_request.report.get_absolute_url variant="secondary-outline" %}Cancel{% /button %}
+        </div>
+      {% /card %}
+
     </div>
-
-    {% #card container=True title="Confirm publish" container_class="!border-t-0" header_class="sr-only" class="mt-4" %}
-      <div class="prose text-left">
-        <p>
-          You are requesting the report titled <strong>"{{ analysis_request.report.title }}"</strong>
-          is made publicly available.
-        </p>
-        <p>
-          Once the request is sent, your report will be locked while it is
-          reviewed, and you will not be able to edit the content.
-        </p>
-        <p>
-          As part of the approval process, aligned with our
-          <a href="https://www.opensafely.org/policies-for-researchers/#all-datasets-publication">research publication policy</a>,
-          this report will be sent to NHSE for approval. They will pay
-          particular attention to how you have described your conclusions in
-          the <strong>Report Summary</strong>.
-        </p>
-        <p>
-          Once the report is published it will be publicly available and no
-          longer editable.
-        </p>
-        <p>
-          Should your request to publish the report be rejected, you will be able to
-          make changes and submit it for another review.
-        </p>
-      </div>
-
-      <div class="flex flex-row flex-wrap gap-2 mt-4">
-        <form method="POST">
-          {% csrf_token %}
-          {% #button type="submit" variant="success" %}Submit request{% /button %}
-        </form>
-        {% #button type="link" href=analysis_request.report.get_absolute_url variant="secondary-outline" %}Cancel{% /button %}
-      </div>
-    {% /card %}
-
   </div>
-</div>
 {% endblock %}

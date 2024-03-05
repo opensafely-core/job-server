@@ -5,10 +5,10 @@
 {% block metatitle %}{{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_meta %}
-<meta property="og:title" content="{{ workspace.name }}" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="{{ request.build_absolute_uri }}" />
-<meta property="og:description" content="Repo: {{ workspace.repo.name }} ({{ workspace.branch }})" />
+  <meta property="og:title" content="{{ workspace.name }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+  <meta property="og:description" content="Repo: {{ workspace.repo.name }} ({{ workspace.branch }})" />
 {% endblock extra_meta %}
 
 {% block breadcrumbs %}
@@ -127,43 +127,43 @@
       {% if show_admin %}
         {% #card title="Workspace admin" class="text-center" container=True %}
           {% if user_can_archive_workspace %}
-          <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
-            {% csrf_token %}
-            <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
+            <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
+              {% csrf_token %}
+              <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
 
-            {% if workspace.is_archived %}
-              {% #button variant="primary" type="submit" %}
-                Unarchive workspace
-              {% /button %}
-            {% else %}
-              {% #button variant="danger" type="submit" class="" %}
-                Archive workspace
-              {% /button %}
-            {% endif %}
-          </form>
+              {% if workspace.is_archived %}
+                {% #button variant="primary" type="submit" %}
+                  Unarchive workspace
+                {% /button %}
+              {% else %}
+                {% #button variant="danger" type="submit" class="" %}
+                  Archive workspace
+                {% /button %}
+              {% endif %}
+            </form>
           {% endif %}
 
           {% if repo_is_private %}
-          {% #button variant="warning" type="link" href=workspace.repo.get_sign_off_url class="mb-2" %}
-            Change repo visibility
-          {% /button %}
+            {% #button variant="warning" type="link" href=workspace.repo.get_sign_off_url class="mb-2" %}
+              Change repo visibility
+            {% /button %}
           {% endif %}
 
           {% if user_can_toggle_notifications %}
-          <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
-            {% csrf_token %}
-            <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
+            <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
+              {% csrf_token %}
+              <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
 
-            {% if workspace.should_notify %}
-              {% #button variant="warning" type="submit" %}
-                Disable notifications
-              {% /button %}
-            {% else %}
-              {% #button variant="success" type="submit" %}
-                Enable notification
-              {% /button %}
-            {% endif %}
-          </form>
+              {% if workspace.should_notify %}
+                {% #button variant="warning" type="submit" %}
+                  Disable notifications
+                {% /button %}
+              {% else %}
+                {% #button variant="success" type="submit" %}
+                  Enable notification
+                {% /button %}
+              {% endif %}
+            </form>
           {% endif %}
         {% /card %}
       {% endif %}
@@ -173,23 +173,23 @@
           {% #description_item title="Repo" %}
             {% link text=workspace.repo.name href=workspace.repo.url %}
 
-              {% if repo_is_private %}
-                <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
-                <details class="group">
-                  <summary
-                    class="
-                      text-oxford-600 font-semibold cursor-pointer
-                      hover:text-oxford-900 hover:underline
-                    "
-                  >
-                    Why is this repo private?
-                  </summary>
-                  <div class="pl-3">
-                    <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
-                    <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
-                  </div>
-                </details>
-              {% endif %}
+            {% if repo_is_private %}
+              <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
+              <details class="group">
+                <summary
+                  class="
+                         text-oxford-600 font-semibold cursor-pointer
+                         hover:text-oxford-900 hover:underline
+                        "
+                >
+                  Why is this repo private?
+                </summary>
+                <div class="pl-3">
+                  <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
+                  <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
+                </div>
+              </details>
+            {% endif %}
           {% /description_item %}
 
           {% #description_item title="Branch" %}
@@ -274,35 +274,35 @@
       {% #card title="Reports" %}
         {% #list_group small=True %}
           {% for report in reports %}
-          {% #list_group_item href=report.get_absolute_url disabled=report.is_draft %}
-            {{ report.title }}
-            {% if report.is_draft %}
-              {% pill class="ml-2" text="Not published" variant="primary" %}
-            {% endif %}
-          {% /list_group_item %}
+            {% #list_group_item href=report.get_absolute_url disabled=report.is_draft %}
+              {{ report.title }}
+              {% if report.is_draft %}
+                {% pill class="ml-2" text="Not published" variant="primary" %}
+              {% endif %}
+            {% /list_group_item %}
           {% empty %}
-          {% list_group_empty description="No reports added to this workspace" %}
+            {% list_group_empty description="No reports added to this workspace" %}
           {% endfor %}
         {% /list_group %}
       {% /card %}
 
       {% if analyses %}
-      {% #card title="Interactive analyses" %}
-        {% #list_group small=True %}
-          {% for analysis in analyses %}
-          {% #list_group_item href=analysis.get_absolute_url %}
-            {{ analysis.title }}
-            {% pill class="ml-2" text=analysis.job_request.status variant=analysis.job_request.status|match:"pending:info,running:primary,succeeded:success,failed:danger"|default:"info" %}
-          {% /list_group_item %}
-          {% empty %}
-          {% list_group_empty description="No analyses requested for this workspace" %}
-          {% endfor %}
-          {% #card_footer no_container=True %}
-            {% url "job-list" as job_list_url %}
-            {% link href=workspace.get_analyses_url text="View all Interactive analyses →" %}
-          {% /card_footer %}
-        {% /list_group %}
-      {% /card %}
+        {% #card title="Interactive analyses" %}
+          {% #list_group small=True %}
+            {% for analysis in analyses %}
+              {% #list_group_item href=analysis.get_absolute_url %}
+                {{ analysis.title }}
+                {% pill class="ml-2" text=analysis.job_request.status variant=analysis.job_request.status|match:"pending:info,running:primary,succeeded:success,failed:danger"|default:"info" %}
+              {% /list_group_item %}
+            {% empty %}
+              {% list_group_empty description="No analyses requested for this workspace" %}
+            {% endfor %}
+            {% #card_footer no_container=True %}
+              {% url "job-list" as job_list_url %}
+              {% link href=workspace.get_analyses_url text="View all Interactive analyses →" %}
+            {% /card_footer %}
+          {% /list_group %}
+        {% /card %}
       {% endif %}
 
       {% #card title="Monitoring" subtitle="Honeycomb login required" %}

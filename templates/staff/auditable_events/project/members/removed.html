@@ -1,21 +1,21 @@
 {% if event.actor.link %}
-{% link href=event.actor.link text=event.actor %}
+  {% link href=event.actor.link text=event.actor %}
 {% else %}
-{{ event.actor }}
+  {{ event.actor }}
 {% endif %}
 
 removed
 
 {% if event.user.link %}
-{% link href=event.user.link text=event.user %}
+  {% link href=event.user.link text=event.user %}
 {% else %}
-{{ event.user }}
+  {{ event.user }}
 {% endif %}
 
 from
 
 {% if event.project.link %}
-{% link href=event.project.link text=event.project %}
+  {% link href=event.project.link text=event.project %}
 {% else %}
-{{ event.project }}
+  {{ event.project }}
 {% endif %}

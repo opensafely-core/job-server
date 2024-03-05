@@ -1,13 +1,13 @@
 {% extends "emails/base.html" %}
 
 {% block content %}
-<p>Hi {{ name }},</p>
+  <p>Hi {{ name }},</p>
 
-<p>Welcome to OpenSAFELY Interactive.</p>
+  <p>Welcome to OpenSAFELY Interactive.</p>
 
-<p><a href="{{ url }}">Click here to get started.</a></p>
+  <p><a href="{{ url }}">Click here to get started.</a></p>
 
-<p>Clicking on the link will take you to the login page of, <a href="{{ domain }}">{{ domain }}</a>. You'll log in by requesting a one-time link, sent to your email address. Once you're logged in, you'll be taken to the "Request an analysis" page where you can design and request your Interactive analysis.</p>
+  <p>Clicking on the link will take you to the login page of, <a href="{{ domain }}">{{ domain }}</a>. You'll log in by requesting a one-time link, sent to your email address. Once you're logged in, you'll be taken to the "Request an analysis" page where you can design and request your Interactive analysis.</p>
 
-<p>Once your analysis has been run, we will send you an email with instructions on how to view the results.</p>
+  <p>Once your analysis has been run, we will send you an email with instructions on how to view the results.</p>
 {% endblock content %}

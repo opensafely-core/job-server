@@ -1,18 +1,18 @@
 <header
   class="
-    bg-gradient-to-r from-oxford-200/20 via-bn-roman-200/35 to-bn-strawberry-200/25
-    after:absolute after:h-1 after:w-full after:bg-gradient-to-r after:from-oxford-600/60 after:via-bn-roman-600/70 after:to-bn-strawberry-600/60
-  "
+         bg-gradient-to-r from-oxford-200/20 via-bn-roman-200/35 to-bn-strawberry-200/25
+         after:absolute after:h-1 after:w-full after:bg-gradient-to-r after:from-oxford-600/60 after:via-bn-roman-600/70 after:to-bn-strawberry-600/60
+        "
 >
   <nav class="relative container xl:max-w-screen-xl flex justify-center items-center flex-wrap py-3 gap-y-2">
     <p class="relative z-30 flex-shrink-0 flex items-center mr-4 text-xl font-extrabold tracking-tight leading-none text-stone-700">
       {% url 'home' as url %}
       <a
         class="
-          group relative p-2 -ml-2 bg-transparent rounded overflow-hidden focus:text-bn-strawberry-600 focus:outline-none focus:ring-2 focus:ring-oxford-500
-          after:absolute after:bottom-1 after:h-[2px] after:left-2 after:bg-bn-strawberry-300 after:w-1 after:transition-all after:opacity-0
-          after:hover:w-11/12 after:hover:opacity-100
-        "
+               group relative p-2 -ml-2 bg-transparent rounded overflow-hidden focus:text-bn-strawberry-600 focus:outline-none focus:ring-2 focus:ring-oxford-500
+               after:absolute after:bottom-1 after:h-[2px] after:left-2 after:bg-bn-strawberry-300 after:w-1 after:transition-all after:opacity-0
+               after:hover:w-11/12 after:hover:opacity-100
+              "
         href="{% url 'home' %}"
       >
         <span class="transition-colors ease-in duration-150 text-oxford group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
@@ -29,10 +29,10 @@
       <details class="group">
         <summary
           class="
-            list-none flex relative z-30 cursor-pointer border border-oxford/25 rounded p-1 ml-auto transition-colors text-oxford duration-200
-            hover:text-bn-strawberry-700 hover:border-bn-strawberry-500 hover:bg-bn-strawberry-50
-            focus:text-bn-strawberry-700 focus:border-bn-strawberry-500 focus:bg-bn-strawberry-50 focus:outline-none focus:ring focus:ring-offset-2 focus:ring-offset-bn-strawberry-50 focus:ring-oxford-500
-          "
+                 list-none flex relative z-30 cursor-pointer border border-oxford/25 rounded p-1 ml-auto transition-colors text-oxford duration-200
+                 hover:text-bn-strawberry-700 hover:border-bn-strawberry-500 hover:bg-bn-strawberry-50
+                 focus:text-bn-strawberry-700 focus:border-bn-strawberry-500 focus:bg-bn-strawberry-50 focus:outline-none focus:ring focus:ring-offset-2 focus:ring-offset-bn-strawberry-50 focus:ring-oxford-500
+                "
         >
           <span class="sr-only">Toggle menu</span>
           {% icon_menu_outline class="h-6 w-6 group-open:hidden" %}
@@ -40,22 +40,22 @@
         </summary>
         <ul class="absolute z-20 top-1 w-full left-0 flex flex-col rounded shadow-xl pt-14 pb-2 px-4 bg-white text-sm font-semibold">
           {% for location in nav %}
-          <li>
-            <a
-              class="
-                relative inline-flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 -ml-2
-                hover:text-bn-strawberry-700
-                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
-                before:hidden before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
-                before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
-                {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
-              "
-              href="{{ location.url }}"
-            >
-              {{ location.name }}
-              {% if location.is_active %}<span class="sr-only">(current)</span>{% endif %}
-            </a>
-          </li>
+            <li>
+              <a
+                class="
+                       relative inline-flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 -ml-2
+                       hover:text-bn-strawberry-700
+                       focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
+                       before:hidden before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+                       before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
+                       {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
+                      "
+                href="{{ location.url }}"
+              >
+                {{ location.name }}
+                {% if location.is_active %}<span class="sr-only">(current)</span>{% endif %}
+              </a>
+            </li>
           {% endfor %}
           {% if not user.is_authenticated %}
             <li>
@@ -64,30 +64,30 @@
               </a>
             </li>
           {% else %}
-          <li>
-            <span class="sr-only">Account</span>
-            <ul class="relative shadow-none ring-0 text-sm mt-2 -mx-4 border-t border-t-slate-200">
-              <li class="px-3 py-2 border-b border-b-slate-200 mb-2">
-                Logged in as:
-                <span class="block">
-                  <strong class="break-words">{{ request.user.username }}</strong>
-                  {% if request.user.uses_social_auth %}
-                  via GitHub
-                  {% endif %}
-                </span>
-              </li>
-              {% var link_class="inline-block px-2 py-2 rounded text-oxford hover:text-bn-strawberry-700 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500" %}
-              {% if user_can_view_staff_area %}
-              <li><a href="{% url 'staff:index' %}" class="{{ link_class }}">🚨 Staff Area 🚨</a></li>
-              {% endif %}
-              <li><a href="{% url 'settings' %}" class="{{ link_class }}">Settings</a></li>
-              <li><a href="{% url 'applications:list' %}" class="{{ link_class }}">Applications</a></li>
-              <form action="{% url 'logout' %}" method="POST">
-                {% csrf_token %}
-                <button class="{{ link_class }} w-full text-left" type="submit">Logout</button>
-              </form>
-            </ul>
-          </li>
+            <li>
+              <span class="sr-only">Account</span>
+              <ul class="relative shadow-none ring-0 text-sm mt-2 -mx-4 border-t border-t-slate-200">
+                <li class="px-3 py-2 border-b border-b-slate-200 mb-2">
+                  Logged in as:
+                  <span class="block">
+                    <strong class="break-words">{{ request.user.username }}</strong>
+                    {% if request.user.uses_social_auth %}
+                      via GitHub
+                    {% endif %}
+                  </span>
+                </li>
+                {% var link_class="inline-block px-2 py-2 rounded text-oxford hover:text-bn-strawberry-700 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500" %}
+                {% if user_can_view_staff_area %}
+                  <li><a href="{% url 'staff:index' %}" class="{{ link_class }}">🚨 Staff Area 🚨</a></li>
+                {% endif %}
+                <li><a href="{% url 'settings' %}" class="{{ link_class }}">Settings</a></li>
+                <li><a href="{% url 'applications:list' %}" class="{{ link_class }}">Applications</a></li>
+                <form action="{% url 'logout' %}" method="POST">
+                  {% csrf_token %}
+                  <button class="{{ link_class }} w-full text-left" type="submit">Logout</button>
+                </form>
+              </ul>
+            </li>
           {% endif %}
         </ul>
       </details>
@@ -96,86 +96,86 @@
     {# Desktop nav #}
     <ul class="hidden relative flex-row gap-4 mx-1 ml-auto text-sm font-semibold md:flex">
       {% for location in nav %}
-      <li>
-        <a
-          class="
-            relative flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-0
-            hover:text-bn-strawberry-700
-            focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
-            before:inline before:absolute before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
-            before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
-            {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
-          "
-          href="{{ location.url }}"
-        >
-          {{ location.name }}
-          {% if location.is_active %}<span class="sr-only">(current)</span>{% endif %}
-        </a>
-      </li>
+        <li>
+          <a
+            class="
+                   relative flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-0
+                   hover:text-bn-strawberry-700
+                   focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
+                   before:inline before:absolute before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+                   before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
+                   {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
+                  "
+            href="{{ location.url }}"
+          >
+            {{ location.name }}
+            {% if location.is_active %}<span class="sr-only">(current)</span>{% endif %}
+          </a>
+        </li>
       {% endfor %}
       {% if not user.is_authenticated %}
-      <li>
-        <a
-          class="
-            relative inline-flex self-start p-2 rounded whitespace-nowrap text-oxford duration-200 bg-bn-strawberry-200 border border-bn-strawberry-300 px-4 mx-0 leading-none transition-all
-            hover:text-bn-strawberry-700 hover:bg-bn-strawberry-100 hover:border-bn-strawberry-400 hover:shadow-lg
-            focus:bg-bn-strawberry-100 focus:text-bn-strawberry-700 focus:border-bn-strawberry-400 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-oxford-500
-          "
-          href="{{ login_url }}"
-          rel="nofollow"
-        >
-          Login
-        </a>
-      </li>
+        <li>
+          <a
+            class="
+                   relative inline-flex self-start p-2 rounded whitespace-nowrap text-oxford duration-200 bg-bn-strawberry-200 border border-bn-strawberry-300 px-4 mx-0 leading-none transition-all
+                   hover:text-bn-strawberry-700 hover:bg-bn-strawberry-100 hover:border-bn-strawberry-400 hover:shadow-lg
+                   focus:bg-bn-strawberry-100 focus:text-bn-strawberry-700 focus:border-bn-strawberry-400 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-oxford-500
+                  "
+            href="{{ login_url }}"
+            rel="nofollow"
+          >
+            Login
+          </a>
+        </li>
       {% else %}
-      <li>
-        <details-utils close-click-outside close-esc>
-          <details class="flex group">
-            <summary
-              class="
-                flex relative h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-0 cursor-pointer
-                hover:text-bn-strawberry-700
-                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
-                before:inline before:absolute before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
-                before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
-              "
-            >
-              Account
-              <span class="opacity-75 ml-1">
-                {% icon_chevron_down_mini class="h-5 w-5 inline-block group-open:hidden" %}
-                {% icon_chevron_up_mini class="h-5 w-5 hidden group-open:inline-block" %}
-              </span>
-            </summary>
-            <div class="absolute border-0 origin-top-right top-full mt-2 right-0 z-10 w-48 rounded-md shadow-lg overflow-hidden bg-white ring-1 ring-black ring-opacity-5 focus:outline-none text-sm">
-              <p class="pt-3 pb-2 px-4">
-                Logged in as:
-                <span class="block">
-                  <strong class="break-words">{{ request.user.username }}</strong>
-                  {% if request.user.uses_social_auth %}
-                  via GitHub
-                  {% endif %}
+        <li>
+          <details-utils close-click-outside close-esc>
+            <details class="flex group">
+              <summary
+                class="
+                       flex relative h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-0 cursor-pointer
+                       hover:text-bn-strawberry-700
+                       focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
+                       before:inline before:absolute before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+                       before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
+                      "
+              >
+                Account
+                <span class="opacity-75 ml-1">
+                  {% icon_chevron_down_mini class="h-5 w-5 inline-block group-open:hidden" %}
+                  {% icon_chevron_up_mini class="h-5 w-5 hidden group-open:inline-block" %}
                 </span>
-              </p>
-              <ul class="border-t">
-                {% var link_class="block px-4 py-2 text-oxford hover:text-bn-strawberry-700 hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 focus:ring-inset" %}
-                {% if user_can_view_staff_area %}
-                <li class="-mt-[1px]">
-                  <a class="{{ link_class }} bg-bn-ribbon-100" href="{% url 'staff:index' %}" >
-                    Staff Area
-                  </a>
-                </li>
-                {% endif %}
-                <li><a class="{{ link_class }}" href="{% url 'settings' %}">Settings</a></li>
-                <li><a class="{{ link_class }}" href="{% url 'applications:list' %}">Applications</a></li>
-                <form action="{% url 'logout' %}" method="POST">
-                  {% csrf_token %}
-                  <button class="{{ link_class }} w-full text-left" type="submit">Logout</button>
-                </form>
-              </ul>
-            </div>
-          </details>
-        </details-utils>
-      </li>
+              </summary>
+              <div class="absolute border-0 origin-top-right top-full mt-2 right-0 z-10 w-48 rounded-md shadow-lg overflow-hidden bg-white ring-1 ring-black ring-opacity-5 focus:outline-none text-sm">
+                <p class="pt-3 pb-2 px-4">
+                  Logged in as:
+                  <span class="block">
+                    <strong class="break-words">{{ request.user.username }}</strong>
+                    {% if request.user.uses_social_auth %}
+                      via GitHub
+                    {% endif %}
+                  </span>
+                </p>
+                <ul class="border-t">
+                  {% var link_class="block px-4 py-2 text-oxford hover:text-bn-strawberry-700 hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 focus:ring-inset" %}
+                  {% if user_can_view_staff_area %}
+                    <li class="-mt-[1px]">
+                      <a class="{{ link_class }} bg-bn-ribbon-100" href="{% url 'staff:index' %}" >
+                        Staff Area
+                      </a>
+                    </li>
+                  {% endif %}
+                  <li><a class="{{ link_class }}" href="{% url 'settings' %}">Settings</a></li>
+                  <li><a class="{{ link_class }}" href="{% url 'applications:list' %}">Applications</a></li>
+                  <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button class="{{ link_class }} w-full text-left" type="submit">Logout</button>
+                  </form>
+                </ul>
+              </div>
+            </details>
+          </details-utils>
+        </li>
       {% endif %}
     </ul>
   </nav>

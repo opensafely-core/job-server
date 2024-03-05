@@ -12,70 +12,70 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<section class="flex flex-col max-w-2xl gap-y-4">
-  <h1 class="text-3xl break-words font-bold text-slate-900 mt-2 md:mt-0 md:col-span-3 md:text-4xl">
-    Login
-  </h1>
+  <section class="flex flex-col max-w-2xl gap-y-4">
+    <h1 class="text-3xl break-words font-bold text-slate-900 mt-2 md:mt-0 md:col-span-3 md:text-4xl">
+      Login
+    </h1>
 
-  {% if not show_token_login %}
-    <div class="prose prose-lg mb-6">
+    {% if not show_token_login %}
+      <div class="prose prose-lg mb-6">
         <p class="lead">
-        For most users OpenSAFELY Jobs uses your GitHub account to confirm your identity.
+          For most users OpenSAFELY Jobs uses your GitHub account to confirm your identity.
         </p>
-    </div>
+      </div>
 
-    <div class="mb-6 pb-12 border-b border-b-slate-300">
+      <div class="mb-6 pb-12 border-b border-b-slate-300">
         {% #card title="GitHub Login" container=True %}
-        <div class="prose prose-sm mb-6">
+          <div class="prose prose-sm mb-6">
             <p>If you do not already have a GitHub account, then you will need to create one before signing in.</p>
-        </div>
-        <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST" action="{% url "auth-login" "github" %}">
+          </div>
+          <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST" action="{% url "auth-login" "github" %}">
             <input type="hidden" name="next" value="{{ next_url }}" />
             {% #button type="submit" variant="success" %}
-            Sign in with GitHub
+              Sign in with GitHub
             {% /button %}
             <p class="text-slate-700 text-lg">or</p>
             {% #button type="link" href="https://github.com/signup" variant="secondary" %}
-            Create a GitHub account
+              Create a GitHub account
             {% /button %}
-        </form>
+          </form>
         {% /card %}
-    </div>
+      </div>
 
-    <div class="mb-6 pb-12 border-b border-b-slate-300">
-    {% #card title="OpenSAFELY Interactive" subtitle="Users of OpenSAFELY Interactive can enter their email address below to receive an email with a link to log in" container=True class="md:col-span-2" %}
-        <form class="gap-2 flex-wrap md:flex-nowrap" method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next_url }}" />
+      <div class="mb-6 pb-12 border-b border-b-slate-300">
+        {% #card title="OpenSAFELY Interactive" subtitle="Users of OpenSAFELY Interactive can enter their email address below to receive an email with a link to log in" container=True class="md:col-span-2" %}
+          <form class="gap-2 flex-wrap md:flex-nowrap" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next_url }}" />
 
-        {% form_input type="email" field=form.email label="Email address" required=True class="mb-3" placeholder="you@example.com" input_class="max-w-md" %}
+            {% form_input type="email" field=form.email label="Email address" required=True class="mb-3" placeholder="you@example.com" input_class="max-w-md" %}
 
-        {% #button type="submit" variant="primary" %}
-            Sign in with Email
-        {% /button %}
+            {% #button type="submit" variant="primary" %}
+              Sign in with Email
+            {% /button %}
 
-        </form>
-    {% /card %}
-    </div>
-  {% else %}
-    {% #card title="Login with Single Use Token" subtitle="Log in from Level 4 environments with a Single Use Token" container=True class="md:col-span-2" %}
-    <form class="gap-2 flex-wrap md:flex-nowrap" method="POST" action="{% url 'login-with-token' %}" >
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next_url }}" />
+          </form>
+        {% /card %}
+      </div>
+    {% else %}
+      {% #card title="Login with Single Use Token" subtitle="Log in from Level 4 environments with a Single Use Token" container=True class="md:col-span-2" %}
+        <form class="gap-2 flex-wrap md:flex-nowrap" method="POST" action="{% url 'login-with-token' %}" >
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next_url }}" />
 
-        {% form_input type="text" field=token_form.user label="GitHub username or Email address" required=True class="mb-3" placeholder="opensafely" input_class="max-w-md" %}
-        {% form_input type="text" field=token_form.token label="Single Use Token" required=True placeholder="three random words" show_placeholder=True class="mb-3" input_class="max-w-md" %}
+          {% form_input type="text" field=token_form.user label="GitHub username or Email address" required=True class="mb-3" placeholder="opensafely" input_class="max-w-md" %}
+          {% form_input type="text" field=token_form.token label="Single Use Token" required=True placeholder="three random words" show_placeholder=True class="mb-3" input_class="max-w-md" %}
 
-        {% #button type="submit" variant="primary-outline" %}
+          {% #button type="submit" variant="primary-outline" %}
             Log in with token
-        {% /button %}
+          {% /button %}
         </form>
         <div class="prose prose-sm mb-6">
-            <p>You cannot access Github to login from Level 4. Instead, you must generate a single user token to log in with.</p>
-            <p>To do so, you will need to login with Github on your usual browser, outside Level 4. Then click on the Account drop down on the top right, and click Settings.
+          <p>You cannot access Github to login from Level 4. Instead, you must generate a single user token to log in with.</p>
+          <p>To do so, you will need to login with Github on your usual browser, outside Level 4. Then click on the Account drop down on the top right, and click Settings.
             Then click the button "Generate Single User Token".  You can then use that token to login on Level 4.
-            </p>
+          </p>
         </div>
-    {% /card %}
-  {% endif %}
+      {% /card %}
+    {% endif %}
 {% endblock content %}

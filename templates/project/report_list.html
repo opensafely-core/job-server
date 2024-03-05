@@ -20,9 +20,9 @@
             {{ report.title }}
             {% if user_can_view_unpublished_reports %}
               {% if report.is_published %}
-              {% pill class="ml-2" text="Published" variant="success" %}
+                {% pill class="ml-2" text="Published" variant="success" %}
               {% else %}
-              {% pill class="ml-2" text="Draft" variant="info" %}
+                {% pill class="ml-2" text="Draft" variant="info" %}
               {% endif %}
             {% endif %}
           {% /list_group_item %}

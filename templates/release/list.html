@@ -15,154 +15,154 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="flex flex-col gap-4">
-  <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
-    Releases for the {{ workspace.name }} workspace
-  </h1>
-  <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose">
-    <p>
-      Each release listed below contains one or more files released from a
-      secure research backend to the website. Some releases have been
-      redacted for privacy reasons.
-    </p>
-    <p>
-      The buttons below are disabled if a release has been redacted or if you
-      do not have permission to view them.
-    </p>
-  </div>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+      Releases for the {{ workspace.name }} workspace
+    </h1>
+    <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose">
+      <p>
+        Each release listed below contains one or more files released from a
+        secure research backend to the website. Some releases have been
+        redacted for privacy reasons.
+      </p>
+      <p>
+        The buttons below are disabled if a release has been redacted or if you
+        do not have permission to view them.
+      </p>
+    </div>
 
-  {% #card title="Releases" %}
-    {% #list_group %}
-      {% if latest_release.can_view_files %}
-      <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6">
-        <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
-          <span class="mr-auto">{% link href=latest_release.view_url text=latest_release.title %}</span>
-          {% if latest_release.can_view_files %}
-          <div class="flex-shrink-0 ml-auto">
-            {% #button class="min-w-[16ch]" variant="primary" type="link" href=latest_release.download_url %}
-              Download all
-            {% /button %}
-            {% #button class="min-w-[16ch] ml-0.5" variant="secondary" data-expander-button="release-"|add:latest_release.id %}
-              List
-              {% if latest_release.can_view_files %}
-              ({{ latest_release.files | length }} file{{ latest_release.files | length | pluralize }})
-              {% endif %}
-            {% /button %}
-          </div>
-          {% endif %}
-        </div>
+    {% #card title="Releases" %}
+      {% #list_group %}
         {% if latest_release.can_view_files %}
-        <div
-          aria-expanded="false"
-          class="hidden my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
-          data-expander-list="release-{{ latest_release.id }}"
-        >
-          {% #list_group small %}
-            {% for file in latest_release.files %}
-              {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
-                <code class="truncate">{{ file.name }}</code>
-
-                {% if file.is_deleted %}
-                <span class="text-xs text-slate-600 font-normal mr-auto">
-                  (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
-                </span>
-                {% endif %}
-
-                {% if file.not_uploaded %}
-                <span class="text-xs text-slate-600 font-normal mr-auto">
-                  (Not yet uploaded)
-                </span>
-                {% endif %}
-
-                {% if user_can_delete_files and not file.disable_deletion %}
-                <form
-                  action="{{ file.get_delete_url }}"
-                  class="ml-auto"
-                  method="POST"
-                >
-                  {% csrf_token %}
-
-                  {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
-                  Delete file
+          <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6">
+            <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
+              <span class="mr-auto">{% link href=latest_release.view_url text=latest_release.title %}</span>
+              {% if latest_release.can_view_files %}
+                <div class="flex-shrink-0 ml-auto">
+                  {% #button class="min-w-[16ch]" variant="primary" type="link" href=latest_release.download_url %}
+                    Download all
                   {% /button %}
-                </form>
-                {% endif %}
-              {% /list_group_item %}
-            {% endfor %}
-          {% /list_group %}
-        </div>
-        {% endif %}
-      </li>
-      {% endif %}
-
-      {% for release in releases %}
-        <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6"
-        >
-          <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
-            <span class="mr-auto">
-              {% if release.can_view_files %}
-              {% link href=release.view_url text=release.title disabled=True %}
-              {% else %}
-              {{ release.title }}
+                  {% #button class="min-w-[16ch] ml-0.5" variant="secondary" data-expander-button="release-"|add:latest_release.id %}
+                    List
+                    {% if latest_release.can_view_files %}
+                      ({{ latest_release.files | length }} file{{ latest_release.files | length | pluralize }})
+                    {% endif %}
+                  {% /button %}
+                </div>
               {% endif %}
-            </span>
-            {% if release.can_view_files %}
-            <div class="flex-shrink-0 ml-auto">
-              {% #button class="min-w-[16ch]" variant="primary" type="link" href=release.download_url %}
-                Download all
-              {% /button %}
-              {% #button class="min-w-[16ch] ml-0.5" variant="secondary" data-expander-button="release-"|add:release.id  %}
-                List
-                ({{ release.files | length }} file{{ release.files | length | pluralize }})
-              {% /button %}
             </div>
+            {% if latest_release.can_view_files %}
+              <div
+                aria-expanded="false"
+                class="hidden my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
+                data-expander-list="release-{{ latest_release.id }}"
+              >
+                {% #list_group small %}
+                  {% for file in latest_release.files %}
+                    {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+                      <code class="truncate">{{ file.name }}</code>
+
+                      {% if file.is_deleted %}
+                        <span class="text-xs text-slate-600 font-normal mr-auto">
+                          (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                        </span>
+                      {% endif %}
+
+                      {% if file.not_uploaded %}
+                        <span class="text-xs text-slate-600 font-normal mr-auto">
+                          (Not yet uploaded)
+                        </span>
+                      {% endif %}
+
+                      {% if user_can_delete_files and not file.disable_deletion %}
+                        <form
+                          action="{{ file.get_delete_url }}"
+                          class="ml-auto"
+                          method="POST"
+                        >
+                          {% csrf_token %}
+
+                          {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
+                            Delete file
+                          {% /button %}
+                        </form>
+                      {% endif %}
+                    {% /list_group_item %}
+                  {% endfor %}
+                {% /list_group %}
+              </div>
             {% endif %}
-          </div>
-          {% if release.can_view_files %}
-          <div
-            aria-expanded="false"
-            class="hidden my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
-            data-expander-list="release-{{ release.id }}"
+          </li>
+        {% endif %}
+
+        {% for release in releases %}
+          <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6"
           >
-            {% #list_group small %}
-              {% for file in release.files %}
-                {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
-                  <code class="truncate">{{ file.name }}</code>
+            <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
+              <span class="mr-auto">
+                {% if release.can_view_files %}
+                  {% link href=release.view_url text=release.title disabled=True %}
+                {% else %}
+                  {{ release.title }}
+                {% endif %}
+              </span>
+              {% if release.can_view_files %}
+                <div class="flex-shrink-0 ml-auto">
+                  {% #button class="min-w-[16ch]" variant="primary" type="link" href=release.download_url %}
+                    Download all
+                  {% /button %}
+                  {% #button class="min-w-[16ch] ml-0.5" variant="secondary" data-expander-button="release-"|add:release.id  %}
+                    List
+                    ({{ release.files | length }} file{{ release.files | length | pluralize }})
+                  {% /button %}
+                </div>
+              {% endif %}
+            </div>
+            {% if release.can_view_files %}
+              <div
+                aria-expanded="false"
+                class="hidden my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
+                data-expander-list="release-{{ release.id }}"
+              >
+                {% #list_group small %}
+                  {% for file in release.files %}
+                    {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+                      <code class="truncate">{{ file.name }}</code>
 
-                  {% if file.is_deleted %}
-                  <span class="text-xs text-slate-600 font-normal mr-auto">
-                    (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
-                  </span>
-                  {% endif %}
+                      {% if file.is_deleted %}
+                        <span class="text-xs text-slate-600 font-normal mr-auto">
+                          (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                        </span>
+                      {% endif %}
 
-                  {% if file.not_uploaded %}
-                  <span class="text-xs text-slate-600 font-normal mr-auto">
-                    (Not yet uploaded)
-                  </span>
-                  {% endif %}
+                      {% if file.not_uploaded %}
+                        <span class="text-xs text-slate-600 font-normal mr-auto">
+                          (Not yet uploaded)
+                        </span>
+                      {% endif %}
 
-                  {% if user_can_delete_files and not file.disable_deletion %}
-                  <form
-                    action="{{ file.get_delete_url }}"
-                    class="ml-auto"
-                    method="POST"
-                  >
-                    {% csrf_token %}
+                      {% if user_can_delete_files and not file.disable_deletion %}
+                        <form
+                          action="{{ file.get_delete_url }}"
+                          class="ml-auto"
+                          method="POST"
+                        >
+                          {% csrf_token %}
 
-                    {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
-                    Delete file
-                    {% /button %}
-                  </form>
-                  {% endif %}
-                {% /list_group_item %}
-              {% endfor %}
-            {% /list_group %}
-          </div>
-          {% endif %}
-        </li>
-      {% endfor %}
-    {% /list_group %}
-  {% /card %}
-</div>
+                          {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
+                            Delete file
+                          {% /button %}
+                        </form>
+                      {% endif %}
+                    {% /list_group_item %}
+                  {% endfor %}
+                {% /list_group %}
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
 
 {% endblock %}

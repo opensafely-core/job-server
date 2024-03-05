@@ -3,21 +3,21 @@
 {% block metatitle %}Send a Sentry message: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% url "staff:sentry:index" as staff_sentry_url %}
-  {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
-  {% breadcrumb title="Sentry" url=staff_sentry_url %}
-  {% breadcrumb title="Message" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:sentry:index" as staff_sentry_url %}
+    {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
+    {% breadcrumb title="Sentry" url=staff_sentry_url %}
+    {% breadcrumb title="Message" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% staff_hero title="Sentry: Message" %}
+  {% staff_hero title="Sentry: Message" %}
 {% endblock hero %}
 
 {% block content %}
-<div class="prose prose-lg prose-oxford">
-  <p>Check the message has <a href="https://ebm-datalab.sentry.io/issues/?project=5443358">arrived on Sentry</a>.</p>
-</div>
+  <div class="prose prose-lg prose-oxford">
+    <p>Check the message has <a href="https://ebm-datalab.sentry.io/issues/?project=5443358">arrived on Sentry</a>.</p>
+  </div>
 {% endblock content %}

@@ -6,142 +6,142 @@
 {% block metatitle %}Analysis Requests: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
-  {% breadcrumb title="Analysis Requests" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
+    {% breadcrumb title="Analysis Requests" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% staff_hero title="Analysis Requests" %}
+  {% staff_hero title="Analysis Requests" %}
 {% endblock hero %}
 
 {% block content %}
-{% url "staff:analysis-request-list" as staff_analysis_request_list_url %}
+  {% url "staff:analysis-request-list" as staff_analysis_request_list_url %}
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  <div class="flex flex-col gap-y-6">
-    {% if request.GET.has_report or request.GET.project or request.GET.user %}
-      {% #button variant="secondary-outline" type="link" href=staff_analysis_request_list_url %}
-        Clear filters
-      {% /button %}
-    {% endif %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="flex flex-col gap-y-6">
+      {% if request.GET.has_report or request.GET.project or request.GET.user %}
+        {% #button variant="secondary-outline" type="link" href=staff_analysis_request_list_url %}
+          Clear filters
+        {% /button %}
+      {% endif %}
 
-    {% #card title="Filter by report" %}
-      {% is_filter_selected key="has_report" value="yes" as is_has_report_yes %}
-      {% is_filter_selected key="has_report" value="no" as is_has_report_no %}
+      {% #card title="Filter by report" %}
+        {% is_filter_selected key="has_report" value="yes" as is_has_report_yes %}
+        {% is_filter_selected key="has_report" value="no" as is_has_report_no %}
 
-      {% url_with_querystring has_report="yes" as add_has_report_yes_query_url %}
-      {% url_with_querystring has_report="no" as add_has_report_no_query_url %}
+        {% url_with_querystring has_report="yes" as add_has_report_yes_query_url %}
+        {% url_with_querystring has_report="no" as add_has_report_no_query_url %}
 
-      {% #list_group %}
-        {% if is_has_report_yes %}
-          {% url_without_querystring has_report="yes" as remove_has_report_yes_query_url %}
-          {% #list_group_item href=remove_has_report_yes_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
-            Has report
-          {% /list_group_item %}
-          {% #list_group_item href=add_has_report_no_query_url role="checkbox" aria-checked="false" %}
-            Does not have report
-          {% /list_group_item %}
-        {% elif is_has_report_no %}
-          {% url_without_querystring has_report="no" as remove_has_report_no_query_url %}
-          {% #list_group_item href=add_has_report_yes_query_url role="checkbox" aria-checked="false" %}
-            Has report
-          {% /list_group_item %}
-          {% #list_group_item href=remove_has_report_no_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
-            Does not have report
-          {% /list_group_item %}
-        {% else %}
-          {% #list_group_item href=add_has_report_yes_query_url role="checkbox" aria-checked="false" %}
-            Has report
-          {% /list_group_item %}
-          {% #list_group_item href=add_has_report_no_query_url role="checkbox" aria-checked="false" %}
-            Does not have report
-          {% /list_group_item %}
-        {% endif %}
-      {% /list_group %}
-    {% /card %}
-
-    {% #card title="Filter by project" %}
-      {% #list_group small=True class="max-h-96 overflow-y-auto" %}
-        {% for project in projects %}
-          {% is_filter_selected key="project" value=project.slug as is_project_active %}
-          {% url_with_querystring project=project.slug as add_project_query_url %}
-
-          {% if is_project_active %}
-            {% url_without_querystring project=project.slug as remove_project_query_url %}
-            {% #list_group_item href=remove_project_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
-              {{ project.title }}
+        {% #list_group %}
+          {% if is_has_report_yes %}
+            {% url_without_querystring has_report="yes" as remove_has_report_yes_query_url %}
+            {% #list_group_item href=remove_has_report_yes_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
+              Has report
+            {% /list_group_item %}
+            {% #list_group_item href=add_has_report_no_query_url role="checkbox" aria-checked="false" %}
+              Does not have report
+            {% /list_group_item %}
+          {% elif is_has_report_no %}
+            {% url_without_querystring has_report="no" as remove_has_report_no_query_url %}
+            {% #list_group_item href=add_has_report_yes_query_url role="checkbox" aria-checked="false" %}
+              Has report
+            {% /list_group_item %}
+            {% #list_group_item href=remove_has_report_no_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
+              Does not have report
             {% /list_group_item %}
           {% else %}
-            {% #list_group_item href=add_project_query_url role="checkbox" aria-checked="false" %}
-              {{ project.title }}
+            {% #list_group_item href=add_has_report_yes_query_url role="checkbox" aria-checked="false" %}
+              Has report
+            {% /list_group_item %}
+            {% #list_group_item href=add_has_report_no_query_url role="checkbox" aria-checked="false" %}
+              Does not have report
             {% /list_group_item %}
           {% endif %}
-        {% endfor %}
-      {% /list_group %}
-    {% /card %}
+        {% /list_group %}
+      {% /card %}
 
-    {% #card title="Filter by author" %}
-      {% #list_group small=True class="max-h-96 overflow-y-auto" %}
-        {% for user in users %}
-          {% is_filter_selected key="user" value=user.username as is_user_active %}
-          {% url_with_querystring user=user.username as add_user_query_url %}
+      {% #card title="Filter by project" %}
+        {% #list_group small=True class="max-h-96 overflow-y-auto" %}
+          {% for project in projects %}
+            {% is_filter_selected key="project" value=project.slug as is_project_active %}
+            {% url_with_querystring project=project.slug as add_project_query_url %}
 
-          {% if is_user_active %}
-            {% url_without_querystring user=user.username as remove_user_query_url %}
-            {% #list_group_item href=remove_user_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
-              {{ user.name }}
-            {% /list_group_item %}
-          {% else %}
-            {% #list_group_item href=add_user_query_url role="checkbox" aria-checked="false" %}
-              {{ user.name }}
-            {% /list_group_item %}
+            {% if is_project_active %}
+              {% url_without_querystring project=project.slug as remove_project_query_url %}
+              {% #list_group_item href=remove_project_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
+                {{ project.title }}
+              {% /list_group_item %}
+            {% else %}
+              {% #list_group_item href=add_project_query_url role="checkbox" aria-checked="false" %}
+                {{ project.title }}
+              {% /list_group_item %}
+            {% endif %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+
+      {% #card title="Filter by author" %}
+        {% #list_group small=True class="max-h-96 overflow-y-auto" %}
+          {% for user in users %}
+            {% is_filter_selected key="user" value=user.username as is_user_active %}
+            {% url_with_querystring user=user.username as add_user_query_url %}
+
+            {% if is_user_active %}
+              {% url_without_querystring user=user.username as remove_user_query_url %}
+              {% #list_group_item href=remove_user_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
+                {{ user.name }}
+              {% /list_group_item %}
+            {% else %}
+              {% #list_group_item href=add_user_query_url role="checkbox" aria-checked="false" %}
+                {{ user.name }}
+              {% /list_group_item %}
+            {% endif %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    </div>
+
+    <div class="flex flex-col gap-y-6 lg:col-span-2">
+      {% #card container=True title="Search for a request" %}
+        <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% if request.GET.q %}
+            {% var value=request.GET.q|stringformat:"s" %}
           {% endif %}
-        {% endfor %}
-      {% /list_group %}
-    {% /card %}
-  </div>
-
-  <div class="flex flex-col gap-y-6 lg:col-span-2">
-    {% #card container=True title="Search for a request" %}
-      <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% form_input custom_field=True type="search" id="requestSearch" name="q" value=value label="Search for a request" label_class="sr-only" class="w-full" input_class="!m-0" %}
+          {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+        </form>
         {% if request.GET.q %}
-          {% var value=request.GET.q|stringformat:"s" %}
+          <p class="mt-3">
+            {% link href=staff_analysis_request_list_url text="Clear search" %}
+          </p>
         {% endif %}
-        {% form_input custom_field=True type="search" id="requestSearch" name="q" value=value label="Search for a request" label_class="sr-only" class="w-full" input_class="!m-0" %}
-        {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
-      </form>
-      {% if request.GET.q %}
-        <p class="mt-3">
-          {% link href=staff_analysis_request_list_url text="Clear search" %}
-        </p>
-      {% endif %}
-    {% /card %}
+      {% /card %}
 
-    {% #card %}
-      {% #list_group small=True %}
-        {% for analysis_request in object_list %}
-          {% #list_group_rich_item type="Analysis Request" title=analysis_request.title url=analysis_request.get_staff_url no_truncate=True %}
-            <dl class="text-sm">
-              <div class="flex flex-row gap-1">
-                <dt class="font-semibold">Created by:</dt>
-                <dd>{{ analysis_request.created_by.name }}</dd>
-              </div>
-              <div class="flex flex-row gap-1">
-                <dt class="font-semibold">Created at:</dt>
-                <dd>{{ analysis_request.created_at|date:"d F Y" }}</dd>
-              </div>
-            </dl>
-          {% /list_group_rich_item %}
-        {% endfor %}
-      {% /list_group %}
+      {% #card %}
+        {% #list_group small=True %}
+          {% for analysis_request in object_list %}
+            {% #list_group_rich_item type="Analysis Request" title=analysis_request.title url=analysis_request.get_staff_url no_truncate=True %}
+              <dl class="text-sm">
+                <div class="flex flex-row gap-1">
+                  <dt class="font-semibold">Created by:</dt>
+                  <dd>{{ analysis_request.created_by.name }}</dd>
+                </div>
+                <div class="flex flex-row gap-1">
+                  <dt class="font-semibold">Created at:</dt>
+                  <dd>{{ analysis_request.created_at|date:"d F Y" }}</dd>
+                </div>
+              </dl>
+            {% /list_group_rich_item %}
+          {% endfor %}
+        {% /list_group %}
 
-      {% if page_obj.has_previous or page_obj.has_next %}
-        {% card_pagination page_obj=page_obj request=request no_container=True %}
-      {% endif %}
-    {% /card %}
+        {% if page_obj.has_previous or page_obj.has_next %}
+          {% card_pagination page_obj=page_obj request=request no_container=True %}
+        {% endif %}
+      {% /card %}
+    </div>
   </div>
-</div>
 {% endblock content %}

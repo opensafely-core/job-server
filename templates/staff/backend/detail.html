@@ -5,57 +5,57 @@
 {% block metatitle %}{{ backend.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% url "staff:backend-list" as staff_backend_list_url %}
-  {% breadcrumb title="Staff area" url=staff_url %}
-  {% breadcrumb title="Backends" url=staff_backend_list_url %}
-  {% breadcrumb title=backend.name active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:backend-list" as staff_backend_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Backends" url=staff_backend_list_url %}
+    {% breadcrumb title=backend.name active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% #staff_hero title="Backend: "|add:backend.name %}
-<div class="flex flex-row flex-wrap gap-2 items-center mt-3">
-  {% #button type="link" href=backend.get_edit_url variant="primary" %}
-    Edit
-  {% /button %}
-  <form method="POST" action="{{ backend.get_rotate_url }}">
-    {% csrf_token %}
-    {% #button type="submit" variant="danger" %}
-      Rotate Token
-    {% /button %}
-  </form>
-</div>
-{% /staff_hero %}
+  {% #staff_hero title="Backend: "|add:backend.name %}
+    <div class="flex flex-row flex-wrap gap-2 items-center mt-3">
+      {% #button type="link" href=backend.get_edit_url variant="primary" %}
+        Edit
+      {% /button %}
+      <form method="POST" action="{{ backend.get_rotate_url }}">
+        {% csrf_token %}
+        {% #button type="submit" variant="danger" %}
+          Rotate Token
+        {% /button %}
+      </form>
+    </div>
+  {% /staff_hero %}
 {% endblock hero %}
 
 {% block content %}
-{% #card class="max-w-3xl" %}
-  <dl>
-    {% #description_item title="Name" %}
-      {{ backend.name }}
-    {% /description_item %}
-    {% #description_item title="Token" %}
-      {{ backend.auth_token }}
-    {% /description_item %}
-    {% #description_item title="Level 4 URL" %}
-      {{ backend.level_4_url|default:"-" }}
-    {% /description_item %}
-    {% #description_item title="Active" %}
-      {% if backend.is_active %}
-        {% #pill variant="success" %}
-          Active
-        {% /pill %}
-      {% else %}
-        {% #pill variant="danger" %}
-          Inactive
-        {% /pill %}
-      {% endif %}
-    {% /description_item %}
-    {% #description_item title="Missing threshold" %}
-      {{ backend.missing_threshold|duration }}
-    {% /description_item %}
-  </dl>
-{% /card %}
+  {% #card class="max-w-3xl" %}
+    <dl>
+      {% #description_item title="Name" %}
+        {{ backend.name }}
+      {% /description_item %}
+      {% #description_item title="Token" %}
+        {{ backend.auth_token }}
+      {% /description_item %}
+      {% #description_item title="Level 4 URL" %}
+        {{ backend.level_4_url|default:"-" }}
+      {% /description_item %}
+      {% #description_item title="Active" %}
+        {% if backend.is_active %}
+          {% #pill variant="success" %}
+            Active
+          {% /pill %}
+        {% else %}
+          {% #pill variant="danger" %}
+            Inactive
+          {% /pill %}
+        {% endif %}
+      {% /description_item %}
+      {% #description_item title="Missing threshold" %}
+        {{ backend.missing_threshold|duration }}
+      {% /description_item %}
+    </dl>
+  {% /card %}
 {% endblock content %}

@@ -11,16 +11,16 @@
 <div class="multiselect {{ class }}">
   <select data-multiselect data-placeholder="{{ placeholder }}" name="{{ input_name }}" id="{{ input_id }}" {% attrs multiple required data-max-items %}>
     {% if custom_field == True %}
-    {{ children }}
+      {{ children }}
     {% else %}
-    {% for value, label in field.choices %}
-      {% if value in field.value %}
-      {% var is_active=True %}
-      {% else %}
-      {% var is_active=False %}
-      {% endif %}
-      {% multiselect_option value=value name=label is_active=is_active %}
-    {% endfor %}
+      {% for value, label in field.choices %}
+        {% if value in field.value %}
+          {% var is_active=True %}
+        {% else %}
+          {% var is_active=False %}
+        {% endif %}
+        {% multiselect_option value=value name=label is_active=is_active %}
+      {% endfor %}
     {% endif %}
   </select>
 </div>

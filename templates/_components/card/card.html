@@ -1,39 +1,39 @@
 <section {% attrs class id %} {% if title %}aria-labelledby="{{ title | slugify }}-title"{% endif %}>
   <div class="bg-white shadow">
     {% if title or subtitle or button %}
-    <div class="flex flex-wrap gap-2 items-center justify-between px-4 py-2 sm:px-6 sm:py-4 {{ header_class }}">
-      <div>
-        {% if title %}
-        <h2 id="{{ title | slugify }}-title" class="text-xl font-semibold tracking-tight text-slate-900">
-          {{ title }}
-        </h2>
-        {% endif %}
+      <div class="flex flex-wrap gap-2 items-center justify-between px-4 py-2 sm:px-6 sm:py-4 {{ header_class }}">
+        <div>
+          {% if title %}
+            <h2 id="{{ title | slugify }}-title" class="text-xl font-semibold tracking-tight text-slate-900">
+              {{ title }}
+            </h2>
+          {% endif %}
 
-        {% if subtitle %}
-        <p class="text-slate-600 text-sm leading-tight">{{ subtitle }}</p>
+          {% if subtitle %}
+            <p class="text-slate-600 text-sm leading-tight">{{ subtitle }}</p>
+          {% endif %}
+        </div>
+        {% if button %}
+          {% #button class="flex-shrink-0" href=button_href type="link" variant="primary" %}
+            {{ button_text }}
+          {% /button %}
+        {% endif %}
+        {% if custom_button %}
+          {{ custom_button }}
         {% endif %}
       </div>
-      {% if button %}
-        {% #button class="flex-shrink-0" href=button_href type="link" variant="primary" %}
-          {{ button_text }}
-        {% /button %}
-      {% endif %}
-      {% if custom_button %}
-        {{ custom_button }}
-      {% endif %}
-    </div>
     {% endif %}
 
     {% if container %}
       <div
         class="
-          px-4 py-3 md:px-6 md:py-5
-          {% if title or subtitle %}border-t border-slate-200{% endif %}
-          {{ container_class }}
-        "
+               px-4 py-3 md:px-6 md:py-5
+               {% if title or subtitle %}border-t border-slate-200{% endif %}
+               {{ container_class }}
+              "
       >
     {% endif %}
-      {{ children }}
+    {{ children }}
     {% if container %}
       </div>
     {% endif %}

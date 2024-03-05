@@ -4,7 +4,7 @@
 
 {% block metatitle %}{{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 {% block extra_meta %}
-<meta name="description" content="{{ project.name }} is an OpenSAFELY project from {{ project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
+  <meta name="description" content="{{ project.name }} is an OpenSAFELY project from {{ project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -27,265 +27,265 @@
 
   <div class="grid grid-cols-1 gap-x-6 lg:grid-cols-3 lg:col-span-3">
     <div class="
-      mb-6 mt-0 flex flex-col gap-4 text-center
-      sm:mt-2 sm:flex-row sm:text-left
-      md:mt-0 md:gap-6
-      lg:col-span-2
-    ">
+                mb-6 mt-0 flex flex-col gap-4 text-center
+                sm:mt-2 sm:flex-row sm:text-left
+                md:mt-0 md:gap-6
+                lg:col-span-2
+               ">
       <div class="flex-shrink-0 flex flex-col items-center">
         {% with org=project.orgs.first %}
-        {% if org.logo_file %}
-          <img
-            alt="{{ org.name }} logo"
-            class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
-            height="144"
-            src="{{ org.logo_file.url }}"
-            width="144"
-          />
-        {% else %}
-          <span class="grid place-content-center text-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden flex-shrink-0 mt-1 mb-2">
-            <span class="text-xs text-slate-600 tracking-tighter leading-4 p-1">
-              {{ org.name }}
+          {% if org.logo_file %}
+            <img
+              alt="{{ org.name }} logo"
+              class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
+              height="144"
+              src="{{ org.logo_file.url }}"
+              width="144"
+            />
+          {% else %}
+            <span class="grid place-content-center text-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden flex-shrink-0 mt-1 mb-2">
+              <span class="text-xs text-slate-600 tracking-tighter leading-4 p-1">
+                {{ org.name }}
+              </span>
             </span>
-          </span>
-        {% endif %}
+          {% endif %}
         {% endwith %}
 
         {% pill sr_only="Status:" variant=status.variant text=status.title %}
-        {% if status.sub_title %}
-        {% pill class="mt-2" variant="info" text=status.sub_title %}
-        {% endif %}
+          {% if status.sub_title %}
+            {% pill class="mt-2" variant="info" text=status.sub_title %}
+            {% endif %}
 
-        {% if project.number %}
-          {% #pill sr_only="Project number:" class="mt-2" variant="info" %}
-            #{{ project.number }}
-          {% /pill %}
-        {% endif %}
-      </div>
-
-      {% fragment as text %}
-        <p>
-          {{ project.name }} is an OpenSAFELY project from
-          {% link href=project.org.get_absolute_url text=project.org.name append_after="." %}
-          Every time a researcher runs their analytic
-          code against patient data, it is audited in public here.
-        </p>
-      {% endfragment %}
-      {% #article_header title=project.name text=text %}
-        <div class="flex flex-row flex-wrap items-start gap-2">
-          {% #button variant="secondary-outline" type="link" href=project.get_approved_url %}
-            View project purpose
-          {% /button %}
-          {% #button href=project.get_logs_url type="link" variant="primary" %}
-            View logs
-            {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
-          {% if is_interactive_user %}
-            {% #button class="flex-shrink-0" href=project.get_interactive_url type="link" variant="primary" %}
-              Run interactive analysis
-              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
-          {% endif %}
-          {% if is_member %}
-            {% #button class="flex-shrink-0" href=project.get_edit_url type="link" variant="secondary" %}
-              Edit project
-              {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
-          {% endif %}
-        </div>
-        {% if project.status_description %}
-          {% #alert variant="info" title="Project "|add:project.get_status_display class="mt-3 !shadow-none border" no_icon %}
-            <div class="prose prose-sm prose-oxford">
-              {{ project.status_description|safe }}
+            {% if project.number %}
+              {% #pill sr_only="Project number:" class="mt-2" variant="info" %}
+                #{{ project.number }}
+              {% /pill %}
+            {% endif %}
             </div>
-          {% /alert %}
-        {% endif %}
-      {% /article_header %}
-    </div>
 
-    {% if user_can_view_staff_area %}
-      {% #button href=project.get_staff_url type="link" variant="danger" class="flex-shrink-0 self-start justify-self-start mb-3 lg:justify-self-end" %}
-        View in Staff Area
-        {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
-      {% /button %}
-    {% endif %}
-  </div>
+            {% fragment as text %}
+              <p>
+                {{ project.name }} is an OpenSAFELY project from
+                {% link href=project.org.get_absolute_url text=project.org.name append_after="." %}
+                Every time a researcher runs their analytic
+                code against patient data, it is audited in public here.
+              </p>
+            {% endfragment %}
+            {% #article_header title=project.name text=text %}
+              <div class="flex flex-row flex-wrap items-start gap-2">
+                {% #button variant="secondary-outline" type="link" href=project.get_approved_url %}
+                  View project purpose
+                {% /button %}
+                {% #button href=project.get_logs_url type="link" variant="primary" %}
+                  View logs
+                  {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+                {% /button %}
+                {% if is_interactive_user %}
+                  {% #button class="flex-shrink-0" href=project.get_interactive_url type="link" variant="primary" %}
+                    Run interactive analysis
+                    {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+                  {% /button %}
+                {% endif %}
+                {% if is_member %}
+                  {% #button class="flex-shrink-0" href=project.get_edit_url type="link" variant="secondary" %}
+                    Edit project
+                    {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+                  {% /button %}
+                {% endif %}
+              </div>
+              {% if project.status_description %}
+                {% #alert variant="info" title="Project "|add:project.get_status_display class="mt-3 !shadow-none border" no_icon %}
+                  <div class="prose prose-sm prose-oxford">
+                    {{ project.status_description|safe }}
+                  </div>
+                {% /alert %}
+              {% endif %}
+            {% /article_header %}
+            </div>
 
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    {% url 'workspace-create' project_slug=project.slug as new_workspace_url %}
-    {% #card class="lg:col-span-2" title="Workspaces" button=can_create_workspaces button_href=new_workspace_url button_text="Create a new workspace"  %}
-      {% #list_group %}
-        {% for workspace in workspaces %}
-          <li class="relative transition-colors hover:bg-oxford-50 group">
-            <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
-              <div class="flex gap-x-2">
-                <dt class="sr-only">Workspace:</dt>
-                <dd class="
-                  text-base font-semibold text-oxford-600 transition-colors truncate
-                  group-hover:text-oxford-900
-                  group-focus:text-oxford-900
-                ">
-                  <a
-                    class="
-                      focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
-                      before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
-                    href="{{ workspace.get_absolute_url }}"
-                  >
-                    {{ workspace.name }}
-                  </a>
-                </dd>
-                <dt class="sr-only">Status:</dt>
-                <dd class="ml-auto flex-shrink-0">
-                  {% if workspace.is_archived %}
-                    {% pill variant="warning" text="Archived" %}
-                  {% else %}
-                    {% pill variant="primary" text="Active" %}
+            {% if user_can_view_staff_area %}
+              {% #button href=project.get_staff_url type="link" variant="danger" class="flex-shrink-0 self-start justify-self-start mb-3 lg:justify-self-end" %}
+                View in Staff Area
+                {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+              {% /button %}
+            {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              {% url 'workspace-create' project_slug=project.slug as new_workspace_url %}
+              {% #card class="lg:col-span-2" title="Workspaces" button=can_create_workspaces button_href=new_workspace_url button_text="Create a new workspace"  %}
+                {% #list_group %}
+                  {% for workspace in workspaces %}
+                    <li class="relative transition-colors hover:bg-oxford-50 group">
+                      <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+                        <div class="flex gap-x-2">
+                          <dt class="sr-only">Workspace:</dt>
+                          <dd class="
+                                     text-base font-semibold text-oxford-600 transition-colors truncate
+                                     group-hover:text-oxford-900
+                                     group-focus:text-oxford-900
+                                    ">
+                            <a
+                              class="
+                                     focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                                     before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+                              href="{{ workspace.get_absolute_url }}"
+                            >
+                              {{ workspace.name }}
+                            </a>
+                          </dd>
+                          <dt class="sr-only">Status:</dt>
+                          <dd class="ml-auto flex-shrink-0">
+                            {% if workspace.is_archived %}
+                              {% pill variant="warning" text="Archived" %}
+                            {% else %}
+                              {% pill variant="primary" text="Active" %}
+                            {% endif %}
+                          </dd>
+                        </div>
+                        <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
+                          <dt class="sr-only">GitHub repository:</dt>
+                          <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                            {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                            <span class="truncate">{{ workspace.repo.name }}</span>
+                          </dd>
+                          <dt class="sr-only">Git branch:</dt>
+                          <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                            {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                            <span class="truncate">{{ workspace.branch }}</span>
+                          </dd>
+                          <dt class="sr-only">Created at:</dt>
+                          <dd class="flex flex-row flex-shrink-0 items-start sm:ml-auto">
+                            {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                            <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
+                              {{ workspace.created_at|date:"d M Y" }}
+                            </time>
+                          </dd>
+                        </div>
+                      </dl>
+                    </li>
+                  {% empty %}
+                    {% list_group_empty icon=True title="No workspaces" description="This project does not have any associated workspaces" %}
+                  {% endfor %}
+                {% /list_group %}
+              {% /card %}
+
+              <div class="lg:col-start-3 lg:col-span-1 gap-y-6 flex flex-col">
+                {% #card title="Project timeline" container=True %}
+                  <ul class="flow-root">
+                    {% #timeline_item background="blue" title="Project created:" time=project.created_at %}
+                      {% icon_pencil_outline class="h-5 w-5" %}
+                    {% /timeline_item %}
+
+                    {% if first_job_ran_at %}
+                      {% #timeline_item background="green" title="Code first run:" time=first_job_ran_at last=True no_padding_bottom=True %}
+                        {% icon_code_bracket_outline class="h-5 w-5" %}
+                      {% /timeline_item %}
+                    {% else %}
+                      {% #timeline_item background="yellow" title="Code first run:" content="No code has run" last=True no_padding_bottom=True %}
+                        {% icon_code_bracket_outline class="h-5 w-5" %}
+                      {% /timeline_item %}
+                    {% endif %}
+                  </ul>
+                  {% if first_job_ran_at < project.created_at %}
+                    {% #card_footer %}
+                      <div class="text-sm flex flex-col gap-y-2">
+                        <p><strong>Why was the project created after code was first run?</strong></p>
+                        <p>The concept of projects were added to this site after workspaces, so this workspace predates its project.</p>
+                      </div>
+                    {% /card_footer %}
                   {% endif %}
-                </dd>
-              </div>
-              <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
-                <dt class="sr-only">GitHub repository:</dt>
-                <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                  {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                  <span class="truncate">{{ workspace.repo.name }}</span>
-                </dd>
-                <dt class="sr-only">Git branch:</dt>
-                <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                  {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                  <span class="truncate">{{ workspace.branch }}</span>
-                </dd>
-                <dt class="sr-only">Created at:</dt>
-                <dd class="flex flex-row flex-shrink-0 items-start sm:ml-auto">
-                  {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                  <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
-                    {{ workspace.created_at|date:"d M Y" }}
-                  </time>
-                </dd>
-              </div>
-            </dl>
-          </li>
-        {% empty %}
-          {% list_group_empty icon=True title="No workspaces" description="This project does not have any associated workspaces" %}
-        {% endfor %}
-      {% /list_group %}
-    {% /card %}
+                {% /card %}
 
-    <div class="lg:col-start-3 lg:col-span-1 gap-y-6 flex flex-col">
-      {% #card title="Project timeline" container=True %}
-        <ul class="flow-root">
-          {% #timeline_item background="blue" title="Project created:" time=project.created_at %}
-            {% icon_pencil_outline class="h-5 w-5" %}
-          {% /timeline_item %}
-
-          {% if first_job_ran_at %}
-            {% #timeline_item background="green" title="Code first run:" time=first_job_ran_at last=True no_padding_bottom=True %}
-              {% icon_code_bracket_outline class="h-5 w-5" %}
-            {% /timeline_item %}
-          {% else %}
-            {% #timeline_item background="yellow" title="Code first run:" content="No code has run" last=True no_padding_bottom=True %}
-              {% icon_code_bracket_outline class="h-5 w-5" %}
-            {% /timeline_item %}
-          {% endif %}
-        </ul>
-        {% if first_job_ran_at < project.created_at %}
-          {% #card_footer %}
-            <div class="text-sm flex flex-col gap-y-2">
-              <p><strong>Why was the project created after code was first run?</strong></p>
-              <p>The concept of projects were added to this site after workspaces, so this workspace predates its project.</p>
-            </div>
-          {% /card_footer %}
-        {% endif %}
-      {% /card %}
-
-      {% if public_repos %}
-        {% #card title="Public repos" %}
-          {% #list_group small=True %}
-            {% for repo in public_repos %}
-              {% #list_group_item href=repo.url %}
-                {{ repo.name }}
-              {% /list_group_item%}
-            {% endfor %}
-          {% /list_group %}
-        {% /card %}
-      {% endif %}
-
-      {% if private_repos %}
-        {% #card title="Private repos" subtitle="These repos are currently not publicly visible" %}
-          {% #list_group small=True %}
-            {% for repo in private_repos %}
-              {% #list_group_item href=repo.url %}
-                {{ repo.name }}
-              {% /list_group_item%}
-            {% endfor %}
-          {% /list_group %}
-          {% #card_footer no_container=True %}
-            <div class="prose prose-sm">
-              <p>In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
-              <p>However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
-            </div>
-          {% /card_footer %}
-        {% /card %}
-      {% endif %}
-
-      {% if outputs %}
-        {% #card title="Outputs" %}
-          {% #list_group small=True %}
-            {% for output in outputs %}
-              {% #list_group_item href=output.get_absolute_url %}
-                Published on {{ output.created_at|date:"Y-m-d" }}
-              {% /list_group_item%}
-            {% endfor %}
-          {% /list_group %}
-        {% /card %}
-      {% endif %}
-
-      {% #card title="Reports" subtitle="Recently published reports" %}
-        {% #list_group %}
-          {% for report in reports %}
-            {% #list_group_item href=report.get_absolute_url %}
-              {{ report.title }}
-            {% /list_group_item %}
-          {% empty %}
-            {% list_group_empty icon=True title="No reports" description="This project does not currently have any published reports" %}
-          {% endfor %}
-        {% /list_group %}
-
-        {% if counts.reports > reports|length %}
-          {% #card_footer no_container=True %}
-            {% link href=project.get_reports_url text="View all reports →" %}
-          {% /card_footer %}
-        {% endif %}
-      {% /card %}
-
-      {% if memberships %}
-        {% #card title="Researchers" %}
-          <div class="border-t border-t-slate-200">
-            <ul
-              class="
-                text-sm list-disc flex flex-col gap-y-1 px-4 py-3 ml-4
-                md:px-6 md:py-4 md:ml-5
-              "
-              role="list"
-            >
-              {% for membership in memberships %}
-                {% if not project_org_in_user_orgs %}
-                  <li>{{ membership.user.name }}</li>
-                {% else %}
-                  <li>
-                    {{ membership.user.name }}
-                    <ul class="list-disc ml-4 mb-1">
-                      {% for role in membership.roles %}
-                        <li>{{ role.display_name }}</li>
+                {% if public_repos %}
+                  {% #card title="Public repos" %}
+                    {% #list_group small=True %}
+                      {% for repo in public_repos %}
+                        {% #list_group_item href=repo.url %}
+                          {{ repo.name }}
+                        {% /list_group_item%}
                       {% endfor %}
-                    </ul>
-                  </li>
-                  {% endif %}
-              {% endfor %}
-            </ul>
-          </div>
-        {% /card %}
-      {% endif %}
+                    {% /list_group %}
+                  {% /card %}
+                {% endif %}
 
-    </div>
-  </div>
-{% endblock %}
+                {% if private_repos %}
+                  {% #card title="Private repos" subtitle="These repos are currently not publicly visible" %}
+                    {% #list_group small=True %}
+                      {% for repo in private_repos %}
+                        {% #list_group_item href=repo.url %}
+                          {{ repo.name }}
+                        {% /list_group_item%}
+                      {% endfor %}
+                    {% /list_group %}
+                    {% #card_footer no_container=True %}
+                      <div class="prose prose-sm">
+                        <p>In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
+                        <p>However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
+                      </div>
+                    {% /card_footer %}
+                  {% /card %}
+                {% endif %}
+
+                {% if outputs %}
+                  {% #card title="Outputs" %}
+                    {% #list_group small=True %}
+                      {% for output in outputs %}
+                        {% #list_group_item href=output.get_absolute_url %}
+                          Published on {{ output.created_at|date:"Y-m-d" }}
+                        {% /list_group_item%}
+                      {% endfor %}
+                    {% /list_group %}
+                  {% /card %}
+                {% endif %}
+
+                {% #card title="Reports" subtitle="Recently published reports" %}
+                  {% #list_group %}
+                    {% for report in reports %}
+                      {% #list_group_item href=report.get_absolute_url %}
+                        {{ report.title }}
+                      {% /list_group_item %}
+                    {% empty %}
+                      {% list_group_empty icon=True title="No reports" description="This project does not currently have any published reports" %}
+                    {% endfor %}
+                  {% /list_group %}
+
+                  {% if counts.reports > reports|length %}
+                    {% #card_footer no_container=True %}
+                      {% link href=project.get_reports_url text="View all reports →" %}
+                    {% /card_footer %}
+                  {% endif %}
+                {% /card %}
+
+                {% if memberships %}
+                  {% #card title="Researchers" %}
+                    <div class="border-t border-t-slate-200">
+                      <ul
+                        class="
+                               text-sm list-disc flex flex-col gap-y-1 px-4 py-3 ml-4
+                               md:px-6 md:py-4 md:ml-5
+                              "
+                        role="list"
+                      >
+                        {% for membership in memberships %}
+                          {% if not project_org_in_user_orgs %}
+                            <li>{{ membership.user.name }}</li>
+                          {% else %}
+                            <li>
+                              {{ membership.user.name }}
+                              <ul class="list-disc ml-4 mb-1">
+                                {% for role in membership.roles %}
+                                  <li>{{ role.display_name }}</li>
+                                {% endfor %}
+                              </ul>
+                            </li>
+                          {% endif %}
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% /card %}
+                {% endif %}
+
+              </div>
+            </div>
+          {% endblock %}

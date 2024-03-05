@@ -3,24 +3,24 @@
     <div class="flex gap-x-2">
       <dt class="sr-only">{{ type }}:</dt>
       <dd class="
-        text-base font-semibold text-oxford-600 transition-colors
-        {% if no_truncate %}leading-tight{% else %}truncate{% endif %}
-        group-hover:text-oxford-900
-        group-focus:text-oxford-900
-      ">
+                 text-base font-semibold text-oxford-600 transition-colors
+                 {% if no_truncate %}leading-tight{% else %}truncate{% endif %}
+                 group-hover:text-oxford-900
+                 group-focus:text-oxford-900
+                ">
         {% if url %}
-        <a
-          class="
-            focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
-            before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full
-            {{ title_class }}
-          "
-          href="{{ url }}"
-        >
-          {{ title }}
-        </a>
+          <a
+            class="
+                   focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                   before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full
+                   {{ title_class }}
+                  "
+            href="{{ url }}"
+          >
+            {{ title }}
+          </a>
         {% else %}
-        <span class="{{ title_class }}">{{ title }}</span>
+          <span class="{{ title_class }}">{{ title }}</span>
         {% endif %}
       </dd>
       {% if status_text or custom_status %}
@@ -55,9 +55,9 @@
               {% pill variant="info" text=text %}
             {% endif %}
           {% endif %}
-        {% if custom_status %}
-          {{ custom_status }}
-        {% endif %}
+          {% if custom_status %}
+            {{ custom_status }}
+          {% endif %}
         </dd>
       {% endif %}
     </div>

@@ -22,103 +22,103 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-{% if is_edit %}
-  {% article_header title="Edit a researcher" class="mb-6" %}
-{% else %}
-  {% article_header title="Add a researcher" class="mb-6" %}
-{% endif %}
+  {% if is_edit %}
+    {% article_header title="Edit a researcher" class="mb-6" %}
+  {% else %}
+    {% article_header title="Add a researcher" class="mb-6" %}
+  {% endif %}
 
-<form method="POST" class="flex flex-col gap-8">
-  {% csrf_token %}
+  <form method="POST" class="flex flex-col gap-8">
+    {% csrf_token %}
 
-  {% #card title="Researcher contact information" class="max-w-3xl" container=True %}
-    {% if does_researcher_need_server_access %}
-      {% for error in does_researcher_need_server_access %}
-        {% #alert variant="danger" class="mb-6" %}
-          {{ error }}
-        {% /alert %}
-      {% endfor %}
-    {% endif %}
+    {% #card title="Researcher contact information" class="max-w-3xl" container=True %}
+      {% if does_researcher_need_server_access %}
+        {% for error in does_researcher_need_server_access %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
 
-    {% #form_fieldset class="grid gap-y-6 !min-w-0 w-full max-w-prose" %}
-      {% form_legend text="Researcher contact information" class="sr-only" %}
+      {% #form_fieldset class="grid gap-y-6 !min-w-0 w-full max-w-prose" %}
+        {% form_legend text="Researcher contact information" class="sr-only" %}
 
-      {% form_input field=form.name label="Researcher name" name="name" %}
-      {% form_input field=form.job_title label="Researcher job title" name="job_title" %}
-      {% form_input field=form.email label="Researcher work email address" name="email" type="email" %}
-      {% form_input field=form.github_username label="GitHub username" name="github_username" %}
-      {% form_input field=form.telephone label="Mobile phone number" name="telephone" %}
-    {% /form_fieldset %}
-  {% /card %}
+        {% form_input field=form.name label="Researcher name" name="name" %}
+        {% form_input field=form.job_title label="Researcher job title" name="job_title" %}
+        {% form_input field=form.email label="Researcher work email address" name="email" type="email" %}
+        {% form_input field=form.github_username label="GitHub username" name="github_username" %}
+        {% form_input field=form.telephone label="Mobile phone number" name="telephone" %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #card title="Secure results server" class="max-w-3xl" container=True %}
-    <div class="prose mb-4">
-      {% snippet "researcher-server-access-rubric" %}
-    </div>
+    {% #card title="Secure results server" class="max-w-3xl" container=True %}
+      <div class="prose mb-4">
+        {% snippet "researcher-server-access-rubric" %}
+      </div>
 
-    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
-      {% form_legend text="Does this researcher require access to the OpenSAFELY secure results server?" %}
+      {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+        {% form_legend text="Does this researcher require access to the OpenSAFELY secure results server?" %}
 
-      {% for value, label in form.does_researcher_need_server_access.field.choices %}
-        {% with id=forloop.counter0|stringformat:"s" %}
-          {% if form.does_researcher_need_server_access.value == value %}
-          {% var checked=True %}
-          {% else %}
-          {% var checked=False %}
-          {% endif %}
-          {% form_radio name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
-        {% endwith %}
-      {% endfor %}
-    {% /form_fieldset %}
-  {% /card %}
+        {% for value, label in form.does_researcher_need_server_access.field.choices %}
+          {% with id=forloop.counter0|stringformat:"s" %}
+            {% if form.does_researcher_need_server_access.value == value %}
+              {% var checked=True %}
+            {% else %}
+              {% var checked=False %}
+            {% endif %}
+            {% form_radio name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+          {% endwith %}
+        {% endfor %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #card title="Mobile phone" class="max-w-3xl" container=True %}
-    <p class="prose mb-4">
-      This is required to set up Virtual Private Network (VPN) access to access the results server.
-    </p>
+    {% #card title="Mobile phone" class="max-w-3xl" container=True %}
+      <p class="prose mb-4">
+        This is required to set up Virtual Private Network (VPN) access to access the results server.
+      </p>
 
-    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
-      {% form_legend text="What type of smartphone does this researcher have?" %}
+      {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+        {% form_legend text="What type of smartphone does this researcher have?" %}
 
-      {% for value, label in form.phone_type.field.choices %}
-        {% with id=forloop.counter0|stringformat:"s" %}
-          {% if form.phone_type.value == value %}
-          {% var checked=True %}
-          {% else %}
-          {% var checked=False %}
-          {% endif %}
-          {% form_radio name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
-        {% endwith %}
-      {% endfor %}
-    {% /form_fieldset %}
-  {% /card %}
+        {% for value, label in form.phone_type.field.choices %}
+          {% with id=forloop.counter0|stringformat:"s" %}
+            {% if form.phone_type.value == value %}
+              {% var checked=True %}
+            {% else %}
+              {% var checked=False %}
+            {% endif %}
+            {% form_radio name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+          {% endwith %}
+        {% endfor %}
+      {% /form_fieldset %}
+    {% /card %}
 
-  {% #card title="Safe researcher training" class="max-w-3xl" container=True container_class="grid gap-y-6 max-w-prose" %}
-    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
-      {% form_legend text="Has this researcher undertaken safe researcher training?" %}
+    {% #card title="Safe researcher training" class="max-w-3xl" container=True container_class="grid gap-y-6 max-w-prose" %}
+      {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+        {% form_legend text="Has this researcher undertaken safe researcher training?" %}
 
-      {% for value, label in form.has_taken_safe_researcher_training.field.choices %}
-        {% with id=forloop.counter0|stringformat:"s" %}
-          {% if form.has_taken_safe_researcher_training.value == value %}
-          {% var checked=True %}
-          {% else %}
-          {% var checked=False %}
-          {% endif %}
+        {% for value, label in form.has_taken_safe_researcher_training.field.choices %}
+          {% with id=forloop.counter0|stringformat:"s" %}
+            {% if form.has_taken_safe_researcher_training.value == value %}
+              {% var checked=True %}
+            {% else %}
+              {% var checked=False %}
+            {% endif %}
             {% form_radio name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
-        {% endwith %}
-      {% endfor %}
-    {% /form_fieldset %}
+          {% endwith %}
+        {% endfor %}
+      {% /form_fieldset %}
 
-    {% form_input field=form.training_with_org label="If yes, with which organisation?" %}
-    {% form_input custom_field=True label="If yes, on what date did they pass?" id="id_training_passed_at" name="training_passed_at" type="date" required=form.training_passed_at.field.required value=form.training_passed_at.value|date:"Y-m-d" %}
+      {% form_input field=form.training_with_org label="If yes, with which organisation?" %}
+      {% form_input custom_field=True label="If yes, on what date did they pass?" id="id_training_passed_at" name="training_passed_at" type="date" required=form.training_passed_at.field.required value=form.training_passed_at.value|date:"Y-m-d" %}
 
-    <div class="prose prose-oxford">
-      {% snippet "researcher-server-access-footer" %}
-    </div>
-  {% /card %}
+      <div class="prose prose-oxford">
+        {% snippet "researcher-server-access-footer" %}
+      </div>
+    {% /card %}
 
-  {% #button variant="success" type="submit" class="self-start" %}
-    {% if is_edit %}Save{% else %}Add a new{% endif %} researcher
-  {% /button %}
-</form>
+    {% #button variant="success" type="submit" class="self-start" %}
+      {% if is_edit %}Save{% else %}Add a new{% endif %} researcher
+    {% /button %}
+  </form>
 {% endblock %}
