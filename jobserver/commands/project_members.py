@@ -2,17 +2,18 @@ from django.db import transaction
 from django.utils import timezone
 
 from ..authorization.utils import dotted_path
-from ..models import AuditableEvent
+from ..models import AuditableEvent, ProjectMembership
 
 
 @transaction.atomic()
 def add(*, project, user, roles, by):
-    membership = project.memberships.create(
+    membership = ProjectMembership(
+        project=project,
         user=user,
         created_by=by,
         roles=roles,
-        override=True,
     )
+    membership.save(override=True)
 
     # use a single timestamp in case we're also setting roles below and
     # want to match up records in the future

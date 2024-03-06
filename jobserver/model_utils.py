@@ -1,3 +1,6 @@
+from django.db import models
+
+
 class ImmutableError(TypeError):
     pass
 
@@ -17,3 +20,30 @@ class ImmutableModelMixin:
         if not override:
             _raise_error(self)
         super().save(*args, **kwargs)
+
+
+class ImmutableQuerySet(models.QuerySet):
+    # We don't override get_or_create, because we don't want to disable the get part.
+    # The create part delegates to create.
+
+    def bulk_create(self, *args, **kwargs):
+        _raise_error(self.model)
+
+    def bulk_update(self, *args, **kwargs):
+        _raise_error(self.model)
+
+    def create(self, *args, **kwargs):
+        _raise_error(self.model)
+
+    def delete(self, *args, **kwargs):
+        _raise_error(self.model)
+
+    def update(self, *args, **kwargs):
+        _raise_error(self.model)
+
+    def update_or_create(self, *args, **kwargs):
+        _raise_error(self.model)
+
+
+class ImmutableManager(models.Manager.from_queryset(ImmutableQuerySet)):
+    pass

@@ -4,29 +4,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..authorization.fields import RolesArrayField
-from ..model_utils import ImmutableModelMixin
+from ..model_utils import ImmutableManager, ImmutableModelMixin
 
 
 logger = structlog.get_logger(__name__)
-
-
-class ProjectMembershipManager(models.Manager):
-    def create(self, *args, override=False, **kwargs):
-        if override:
-            return super().create(*args, **kwargs)
-
-        msg = (
-            "Direct creation of ProjectMemberships via this method is disabled, "
-            "please use commands.project_members.add"
-        )
-        raise TypeError(msg)
-
-    def update(self, *args, **kwargs):
-        msg = (
-            "Direct update of ProjectMemberships via this method is disabled, "
-            "please use commands.project_memberships.update_roles"
-        )
-        raise TypeError(msg)
 
 
 class ProjectMembership(ImmutableModelMixin, models.Model):
@@ -58,7 +39,7 @@ class ProjectMembership(ImmutableModelMixin, models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
 
-    objects = ProjectMembershipManager()
+    objects = ImmutableManager()
 
     class Meta:
         unique_together = ["project", "user"]

@@ -100,3 +100,21 @@ def test_mutable_model_methods(Model, method):
 def test_immutable_model_methods(Model, method):
     with pytest.raises(ImmutableError):
         getattr(Model(), method)()
+
+
+@pytest.mark.parametrize("Model", MUTABLE_MODELS)
+@pytest.mark.parametrize("method", QUERYSET_METHODS)
+def test_mutable_queryset_methods(Model, method):
+    try:
+        getattr(Model.objects.all(), method)()
+    except Exception as e:
+        assert type(e) != ImmutableError
+    else:
+        assert True
+
+
+@pytest.mark.parametrize("Model", IMMUTABLE_MODELS)
+@pytest.mark.parametrize("method", QUERYSET_METHODS)
+def test_immutable_queryset_methods(Model, method):
+    with pytest.raises(ImmutableError):
+        getattr(Model.objects.all(), method)()
