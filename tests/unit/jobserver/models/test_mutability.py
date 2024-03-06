@@ -1,5 +1,7 @@
+import pytest
 from django.apps import apps
 
+from jobserver.model_utils import ImmutableError
 from tests.paired_fields_utils import get_models
 
 
@@ -36,7 +38,6 @@ MUTABLE_MODELS = [
         "jobserver.OrgMembership",
         "jobserver.Project",
         "jobserver.ProjectCollaboration",
-        "jobserver.ProjectMembership",
         "jobserver.PublishRequest",
         "jobserver.Release",
         "jobserver.ReleaseFile",
@@ -51,8 +52,12 @@ MUTABLE_MODELS = [
     ]
 ]
 
-IMMUTABLE_MODELS = [apps.get_model(x) for x in []]
-
+IMMUTABLE_MODELS = [
+    apps.get_model(x)
+    for x in [
+        "jobserver.ProjectMembership",
+    ]
+]
 
 MODEL_METHODS = ["delete", "save"]
 
@@ -77,3 +82,21 @@ def test_all_models_are_listed_as_either_mutable_or_immutable():
     assert (
         set(MUTABLE_MODELS) & set(IMMUTABLE_MODELS) == set()
     ), "A model must be listed as either mutable or immutable"
+
+
+@pytest.mark.parametrize("Model", MUTABLE_MODELS)
+@pytest.mark.parametrize("method", MODEL_METHODS)
+def test_mutable_model_methods(Model, method):
+    try:
+        getattr(Model(), method)()
+    except Exception as e:
+        assert type(e) != ImmutableError
+    else:
+        assert True
+
+
+@pytest.mark.parametrize("Model", IMMUTABLE_MODELS)
+@pytest.mark.parametrize("method", MODEL_METHODS)
+def test_immutable_model_methods(Model, method):
+    with pytest.raises(ImmutableError):
+        getattr(Model(), method)()

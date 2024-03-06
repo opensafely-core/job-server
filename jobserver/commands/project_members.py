@@ -66,7 +66,7 @@ def update_roles(*, member, by, roles):
     )
 
     member.roles = roles
-    member.save(update_fields=["roles"])
+    member.save(update_fields=["roles"], override=True)
 
 
 @transaction.atomic()
@@ -89,4 +89,4 @@ def remove(*, membership, by):
         created_by=by.username,
     )
 
-    membership.delete()
+    membership.delete(override=True)

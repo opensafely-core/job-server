@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..authorization.fields import RolesArrayField
+from ..model_utils import ImmutableModelMixin
 
 
 logger = structlog.get_logger(__name__)
@@ -28,7 +29,7 @@ class ProjectMembershipManager(models.Manager):
         raise TypeError(msg)
 
 
-class ProjectMembership(models.Model):
+class ProjectMembership(ImmutableModelMixin, models.Model):
     """
     Membership of a Project for a User
 
