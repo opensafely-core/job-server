@@ -1,8 +1,7 @@
 import pytest
 from django.apps import apps
 
-from jobserver.model_utils import ImmutableError
-from tests.paired_fields_utils import get_models
+from jobserver.model_utils import ImmutableError, get_models
 
 
 MUTABLE_MODELS = [

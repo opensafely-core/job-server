@@ -2,10 +2,10 @@ import pytest
 from django.db import IntegrityError
 from django.utils import timezone
 
+from jobserver.model_utils import get_models
 from tests.factories import UserFactory
 from tests.paired_fields_utils import (
     get_all_paired_fields,
-    get_models,
     get_optional_paired_fields,
 )
 

@@ -1,4 +1,19 @@
+from django.apps import apps
 from django.db import models
+
+
+_SKIP_APP_LABELS = {"auth", "contenttypes", "sessions", "social_django"}
+
+
+def get_models():
+    """
+    Return a list of all installed, project-specific models.
+    """
+    return [
+        model
+        for model in apps.get_models()
+        if model._meta.app_label not in _SKIP_APP_LABELS
+    ]
 
 
 class ImmutableError(TypeError):
