@@ -103,6 +103,16 @@
                   </span>
                 </div>
               {% /table_header %}
+              {% #table_header data-type="date" data-format="DD MMM YYYY" %}
+                <div class="flex flex-row gap-2">
+                  Last run job
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
               {% #table_header %}
                 <div class="flex flex-row gap-2">
                   Files released
@@ -185,6 +195,9 @@
                 {% /table_cell %}
                 {% #table_cell %}
                   {{ project.date_first_run|date:"d M Y" }}
+                {% /table_cell %}
+                {% #table_cell %}
+                  {{ project.date_last_run|date:"d M Y" }}
                 {% /table_cell %}
                 {% #table_cell %}
                   {{ project.files_released_count }}
