@@ -3,27 +3,16 @@ import inspect
 from django.apps import apps
 from factory.django import DjangoModelFactory
 
+from jobserver.model_utils import get_models
+
 from . import factories
 
-
-_SKIP_APP_LABELS = {"auth", "contenttypes", "sessions", "social_django"}
 
 _MODEL_TO_FACTORY = {
     f._meta.model: f
     for f in vars(factories).values()
     if inspect.isclass(f) and issubclass(f, DjangoModelFactory)
 }
-
-
-def get_models():
-    """
-    Return a list of all installed, project-specific models.
-    """
-    return [
-        model
-        for model in apps.get_models()
-        if model._meta.app_label not in _SKIP_APP_LABELS
-    ]
 
 
 class MissingFactoryError(Exception):
