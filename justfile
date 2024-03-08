@@ -155,13 +155,14 @@ ruff *args=".": devenv
 
 
 # run the various dev checks but does not change any files
-check: black django-upgrade ruff
-    $BIN/djhtml --tabwidth 2 --check templates
+check: black django-upgrade ruff djhtml
 
 check-migrations: devenv
     $BIN/python manage.py makemigrations --dry-run --check \
     || echo "There is model state unaccounted for in the migrations, run python manage.py migrations to fix."
 
+djhtml *args="templates": devenv
+    $BIN/djhtml --tabwidth 2 --check {{ args }}
 
 # fix formatting and import sort ordering
 fix: devenv
