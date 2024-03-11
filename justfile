@@ -166,7 +166,7 @@ check-migrations: devenv
 # fix formatting and import sort ordering
 fix: devenv
     $BIN/black .
-    $BIN/ruff --fix .
+    $BIN/ruff check --fix .
 
 
 load-dev-data: devenv
