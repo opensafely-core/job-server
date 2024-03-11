@@ -61,7 +61,7 @@ def make_html(release_file):
     headers = [f"<th>{title}</th>" for title in titles]
     thead = "\n".join(headers)
 
-    row = "<tr><td>{id}</td><td>{created_at}</td><td>{workspace_name}</td><td>{release_id}</td></tr>".format(
+    row = "<tr><td>{id}</td><td>{created_at}</td><td>{workspace_name}</td><td>{release_id}</td></tr>".format(  # noqa: UP032
         id=release_file.pk,
         created_at=release_file.created_at.isoformat(),
         workspace_name=release_file.workspace.name,
