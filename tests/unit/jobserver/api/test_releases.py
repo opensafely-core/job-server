@@ -8,6 +8,8 @@ from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
 from jobserver.api.releases import (
+    Level4AuthorisationAPI,
+    Level4TokenAuthenticationAPI,
     ReleaseAPI,
     ReleaseFileAPI,
     ReleaseNotificationAPICreate,
@@ -16,7 +18,6 @@ from jobserver.api.releases import (
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
-    TokenAuthenticationAPI,
     WorkspaceStatusAPI,
     is_interactive_report,
     validate_release_access,
@@ -1542,7 +1543,9 @@ def test_workspacestatusapi_success(api_rf):
     assert not response.data["uses_new_release_flow"]
 
 
-def test_tokenauthenticationapi_success(api_rf, project_membership, token_login_user):
+def test_level4tokenauthenticationapi_success(
+    api_rf, project_membership, token_login_user
+):
     # give user correct permissions on this project
     project1 = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project1)
@@ -1566,7 +1569,7 @@ def test_tokenauthenticationapi_success(api_rf, project_membership, token_login_
         format="json",
     )
 
-    response = TokenAuthenticationAPI.as_view()(request)
+    response = Level4TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 200
     assert response.data == {
         "username": token_login_user.username,
@@ -1580,7 +1583,7 @@ def test_tokenauthenticationapi_success(api_rf, project_membership, token_login_
     }
 
 
-def test_tokenauthenticationapi_success_privileged(
+def test_level4tokenauthenticationapi_success_privileged(
     api_rf, project_membership, token_login_user
 ):
     # enable privileges for user
@@ -1608,7 +1611,7 @@ def test_tokenauthenticationapi_success_privileged(
         format="json",
     )
 
-    response = TokenAuthenticationAPI.as_view()(request)
+    response = Level4TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 200
     assert response.data == {
         "username": token_login_user.username,
@@ -1622,7 +1625,7 @@ def test_tokenauthenticationapi_success_privileged(
     }
 
 
-def test_tokenauthenticationapi_fails_not_backend(
+def test_level4tokenauthenticationapi_fails_not_backend(
     api_rf, project_membership, token_login_user
 ):
     project = ProjectFactory()
@@ -1633,7 +1636,7 @@ def test_tokenauthenticationapi_fails_not_backend(
     # do not set authorization header
     request = api_rf.post("/", data=token_data, format="json")
 
-    response = TokenAuthenticationAPI.as_view()(request)
+    response = Level4TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 403
 
 
@@ -1651,7 +1654,7 @@ def invalid_users():
 
 
 @pytest.mark.parametrize("user_function", invalid_users())
-def test_tokenauthenticationapi_fails_invalid_user(
+def test_level4tokenauthenticationapi_fails_invalid_user(
     api_rf, project_membership, user_function
 ):
     user = user_function()
@@ -1667,5 +1670,83 @@ def test_tokenauthenticationapi_fails_invalid_user(
         format="json",
     )
 
-    response = TokenAuthenticationAPI.as_view()(request)
+    response = Level4TokenAuthenticationAPI.as_view()(request)
+    assert response.status_code == 403
+
+
+def test_level4authorisationapi_success(api_rf, project_membership, token_login_user):
+    # give user correct permissions on this project
+    project1 = ProjectFactory()
+    workspace1 = WorkspaceFactory(project=project1)
+    workspace2 = WorkspaceFactory(project=project1)
+    project_membership(
+        user=token_login_user, project=project1, roles=[ProjectDeveloper]
+    )
+
+    # another project, where user does *not* have permissions
+    project2 = ProjectFactory()
+    WorkspaceFactory(project=project2)
+    project_membership(user=token_login_user, project=project2)
+
+    backend = token_login_user.backends.first()
+    request_data = {"user": token_login_user.username}
+    request = api_rf.post(
+        "/",
+        data=request_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
+
+    response = Level4AuthorisationAPI.as_view()(request)
+    assert response.status_code == 200
+    assert response.data == {
+        "username": token_login_user.username,
+        "fullname": token_login_user.fullname,
+        "workspaces": {
+            workspace1.name: {"project": project1.name},
+            workspace2.name: {"project": project1.name},
+        },  # should not include workspace3
+        "output_checker": False,
+        "staff": False,
+    }
+
+
+def test_level4authorisationapi_bad_backend_token(api_rf, token_login_user):
+    request_data = {"user": token_login_user.username}
+    request = api_rf.post(
+        "/",
+        data=request_data,
+        headers={"authorization": "bad token"},
+        format="json",
+    )
+
+    response = Level4AuthorisationAPI.as_view()(request)
+    assert response.status_code == 403
+
+
+def test_level4authorisationapi_user_not_exists(api_rf):
+    backend = BackendFactory()
+    request_data = {"user": "baduser"}
+    request = api_rf.post(
+        "/",
+        data=request_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
+
+    response = Level4AuthorisationAPI.as_view()(request)
+    assert response.status_code == 404
+
+
+def test_level4authorisationapi_invalid_user(api_rf, user):
+    backend = BackendFactory()
+    request_data = {"user": user.username}
+    request = api_rf.post(
+        "/",
+        data=request_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
+
+    response = Level4AuthorisationAPI.as_view()(request)
     assert response.status_code == 403

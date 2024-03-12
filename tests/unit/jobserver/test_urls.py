@@ -14,6 +14,8 @@ from jobserver.api.jobs import (
     WorkspaceStatusesAPI,
 )
 from jobserver.api.releases import (
+    Level4AuthorisationAPI,
+    Level4TokenAuthenticationAPI,
     ReleaseAPI,
     ReleaseFileAPI,
     ReleaseNotificationAPICreate,
@@ -21,7 +23,6 @@ from jobserver.api.releases import (
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
-    TokenAuthenticationAPI,
     WorkspaceStatusAPI,
 )
 from jobserver.utils import dotted_path
@@ -82,7 +83,8 @@ def test_url_redirects(client, url, redirect):
         ("/api/v2/releases/workspace/w", ReleaseWorkspaceAPI),
         ("/api/v2/releases/release/42", ReleaseAPI),
         ("/api/v2/releases/file/42", ReleaseFileAPI),
-        ("/api/v2/releases/auth", TokenAuthenticationAPI),
+        ("/api/v2/releases/authenticate", Level4TokenAuthenticationAPI),
+        ("/api/v2/releases/authorise", Level4AuthorisationAPI),
         ("/apply/", TemplateView),
         ("/apply/sign-in", applications.sign_in),
         ("/apply/terms/", applications.terms),
