@@ -622,7 +622,7 @@ class Level4TokenAuthenticationAPI(APIView):
         ) as exc:
             logger.info(f"API Login with token failed for user {data['user']}: {exc}")
             trace.get_current_span().record_exception(exc)
-            raise NotAuthenticated()
+            raise NotAuthenticated(str(exc))
 
         logger.info(f"User {user} logged in with login token via API")
 
@@ -652,7 +652,7 @@ class Level4AuthorisationAPI(APIView):
         except users.TokenLoginException as exc:
             logger.info(f"User {data['user']} is not a valid Level 4 user")
             trace.get_current_span().record_exception(exc)
-            raise NotAuthenticated()
+            raise NotAuthenticated(str(exc))
 
         logger.info(f"Provided authorization information for {user} via API")
 

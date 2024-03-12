@@ -1632,24 +1632,58 @@ def test_level4tokenauthenticationapi_fails_not_backend(
     project_membership(user=token_login_user, project=project, roles=[ProjectDeveloper])
 
     token = generate_login_token(token_login_user)
+
     token_data = {"user": token_login_user.username, "token": token}
     # do not set authorization header
     request = api_rf.post("/", data=token_data, format="json")
 
     response = Level4TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 403
+    response_json = json.loads(response.rendered_content)
+    assert response_json["detail"] == "Authorization header is missing"
+
+
+def test_level4tokenauthenticationapi_fails_invalid_token(
+    api_rf, project_membership, token_login_user
+):
+    project = ProjectFactory()
+    project_membership(user=token_login_user, project=project, roles=[ProjectDeveloper])
+
+    generate_login_token(token_login_user)
+    backend = token_login_user.backends.first()
+    token_data = {"user": token_login_user.username, "token": "bad token"}
+    # do not set authorization header
+    request = api_rf.post(
+        "/",
+        data=token_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
+
+    response = Level4TokenAuthenticationAPI.as_view()(request)
+    assert response.status_code == 403
+    response_json = json.loads(response.rendered_content)
+    assert (
+        response_json["detail"] == f"Token for {token_login_user.username} was invalid"
+    )
 
 
 def invalid_users():
-    # non-github user
-    yield UserFactory
+
+    def nonsocial_user():
+        user = UserFactory()
+        return user, f"User {user.username} is not a github user"
 
     def social_user():
         # github user but no backends
         social_user = UserFactory()
         UserSocialAuthFactory(user=social_user)
-        return social_user
+        return (
+            social_user,
+            f"User {social_user.username} does not have access to any backends",
+        )
 
+    yield nonsocial_user
     yield social_user
 
 
@@ -1657,7 +1691,7 @@ def invalid_users():
 def test_level4tokenauthenticationapi_fails_invalid_user(
     api_rf, project_membership, user_function
 ):
-    user = user_function()
+    user, expected_msg = user_function()
     project = ProjectFactory()
     project_membership(user=user, project=project, roles=[ProjectDeveloper])
 
@@ -1672,6 +1706,8 @@ def test_level4tokenauthenticationapi_fails_invalid_user(
 
     response = Level4TokenAuthenticationAPI.as_view()(request)
     assert response.status_code == 403
+    response_json = json.loads(response.rendered_content)
+    assert response_json["detail"] == expected_msg
 
 
 def test_level4authorisationapi_success(api_rf, project_membership, token_login_user):
