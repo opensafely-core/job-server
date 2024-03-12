@@ -570,10 +570,7 @@ class TokenAuthenticationAPI(APIView):
     class Level4AuthenticatedUser(serializers.Serializer):
         username = serializers.CharField()
         fullname = serializers.CharField()
-        workspaces = serializers.ListField(
-            child=serializers.CharField(),
-            default=[],
-        )
+        workspaces = serializers.DictField(default={})
         output_checker = serializers.BooleanField()
         staff = serializers.BooleanField()
 
@@ -599,16 +596,15 @@ class TokenAuthenticationAPI(APIView):
 
         logger.info(f"User {user} logged in with login token via API")
 
-        workspaces = []
+        workspaces = {}
         # this is 1 or 2 queries per project, not ideal, but we permissions are not stored in the db
         for project in user.projects.all():
             if has_permission(user, "unreleased_outputs_view", project=project):
-                workspaces.extend(
-                    w["name"] for w in project.workspaces.all().values("name")
-                )
+                for workspace in project.workspaces.all().values("name"):
+                    workspaces[workspace["name"]] = {"project": project.name}
 
         # using a DRF serializer for now, so we've *some* schema definition
-        user = self.Level4AuthenticatedUser(
+        level4_user = self.Level4AuthenticatedUser(
             data=dict(
                 username=user.username,
                 fullname=user.fullname,
@@ -623,6 +619,6 @@ class TokenAuthenticationAPI(APIView):
             )
         )
         # we must validate this or DRF will refuse to serializer it.
-        user.is_valid()
+        level4_user.is_valid()
 
-        return Response(user.data)
+        return Response(level4_user.data)

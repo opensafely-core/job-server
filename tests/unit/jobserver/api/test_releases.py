@@ -1571,10 +1571,10 @@ def test_tokenauthenticationapi_success(api_rf, project_membership, token_login_
     assert response.data == {
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
-        "workspaces": [
-            workspace1.name,
-            workspace2.name,
-        ],  # should not include workspace3
+        "workspaces": {
+            workspace1.name: {"project": project1.name},
+            workspace2.name: {"project": project1.name},
+        },  # should not include workspace3
         "output_checker": False,
         "staff": False,
     }
@@ -1613,7 +1613,10 @@ def test_tokenauthenticationapi_success_privileged(
     assert response.data == {
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
-        "workspaces": [workspace1.name, workspace2.name],
+        "workspaces": {
+            workspace1.name: {"project": project.name},
+            workspace2.name: {"project": project.name},
+        },  # should not include workspace3
         "output_checker": True,
         "staff": True,
     }
