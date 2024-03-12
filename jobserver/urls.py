@@ -15,6 +15,8 @@ from jobserver.api.jobs import (
     WorkspaceStatusesAPI,
 )
 from jobserver.api.releases import (
+    Level4AuthorisationAPI,
+    Level4TokenAuthenticationAPI,
     ReleaseAPI,
     ReleaseFileAPI,
     ReleaseNotificationAPICreate,
@@ -23,7 +25,6 @@ from jobserver.api.releases import (
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
-    TokenAuthenticationAPI,
     WorkspaceStatusAPI,
 )
 from jobserver.views.health_check import HealthCheck
@@ -137,9 +138,14 @@ api_urls = [
         name="release-file",
     ),
     path(
-        "releases/auth",
-        TokenAuthenticationAPI.as_view(),
-        name="token-auth",
+        "releases/authenticate",
+        Level4TokenAuthenticationAPI.as_view(),
+        name="level4-authenticate",
+    ),
+    path(
+        "releases/authorise",
+        Level4AuthorisationAPI.as_view(),
+        name="level4-authorise",
     ),
 ]
 
