@@ -7,7 +7,7 @@ if (document.location.hostname === "jobs.opensafely.org") {
   script.defer = true;
   script.setAttribute("data-domain", "jobs.opensafely.org");
   script.id = "plausible";
-  script.src = "https://plausible.io/js/script.pageview-props.js";
+  script.src = "https://plausible.io/js/script.pageview-props.tagged-events.js";
 
   if (isLoggedIn) {
     script.setAttribute("event-is_logged_in", isLoggedIn.content);
