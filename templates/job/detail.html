@@ -196,11 +196,11 @@
           {% if code_compare_url %}
             <ul class="list-disc ml-4 space-y-1">
               <li>
-                {% link href=code_compare_url text="Compare workspace code to this action's previous run on the "|add:backendName|add:" backend" %}
+                {% link href=code_compare_url text="Compare workspace code to this action's previous run on the "|add:backendName|add:" backend" class="plausible-event-name=Button+Click" %}
               </li>
               {% if code_compare_succeeded_url %}
                 <li>
-                  {% link href=code_compare_succeeded_url text="Compare workspace code to this action's previous successful run on the "|add:backendName|add:" backend" %}
+                  {% link href=code_compare_succeeded_url text="Compare workspace code to this action's previous successful run on the "|add:backendName|add:" backend" class="plausible-event-name=Button+Click" %}
                 </li>
               {% endif %}
             </ul>
