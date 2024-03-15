@@ -70,7 +70,6 @@ There are three steps to this process.
 ### 1. Duplicate the existing secret key
 
 ```bash
-dokku config:get job-server SECRET_KEY
 dokku config:set job-server OLD_SECRET_KEY="$(dokku config:get job-server SECRET_KEY)"
 ```
 
