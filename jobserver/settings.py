@@ -34,6 +34,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str("SECRET_KEY")
 
+# Optional fallback for rotating the secret key.
+# Any OLD_SECRET_KEY that is added should then be removed
+# after the time in SESSION_COOKIE_AGE elapses.
+# Refer to DEVELOPERS.md for guidance.
+OLD_SECRET_KEY = env.str("OLD_SECRET_KEY", default=None)
+if OLD_SECRET_KEY is not None:
+    SECRET_KEY_FALLBACKS = [OLD_SECRET_KEY]
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 

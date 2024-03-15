@@ -56,3 +56,43 @@ dokku$ sudo mkdir -p /var/log/journal
 dokku$ dokku enter job-server
 container$ python manage.py sendtestemail me@myemail.org
 ```
+
+## Rotating the Django secret key
+
+If this is a *routine rotation* of the secret key
+— and not a compromised secret key —
+you can temporarily leave the secret key to be rotated alongside the new secret key.
+
+This allows for changing the secret key without logging out all users at once.
+
+There are three steps to this process.
+
+### 1. Duplicate the existing secret key
+
+```bash
+dokku config:set job-server OLD_SECRET_KEY="$(dokku config:get job-server SECRET_KEY)"
+```
+
+### 2. Replace the existing secret key
+
+```bash
+# Prefix the command with a space to avoid saving the input to shell history:
+ dokku config:set job-server SECRET_KEY='xxx'
+```
+
+### 3. Remove the previous secret key
+
+A suitable expiry time is given by adding the `SESSION_COOKIE_AGE` duration
+to the time at which the secret key was replaced.
+Once that expiry time is reached,
+any sessions created before the secret key was replaced will have then expired anyway.
+
+If this is not set in the code,
+Django's default [`SESSION_COOKIE_AGE`](https://docs.djangoproject.com/en/dev/ref/settings/#session-cookie-age) is *two weeks*.
+
+Set a Slack reminder for this time,
+and then remove `OLD_SECRET_KEY` as soon as possible when reminded:
+
+```bash
+dokku config:unset job-server OLD_SECRET_KEY
+```
