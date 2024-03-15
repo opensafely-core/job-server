@@ -301,11 +301,11 @@
       {% #card title="Code comparison" subtitle="Compare the code used in this Job Request" %}
         {% #list_group small=True %}
           {% if code_compare_url %}
-            {% #list_group_item href=code_compare_url %}
+            {% #list_group_item href=code_compare_url class="plausible-event-name=Compare+Previous+JobRequest" %}
               Compare to the previous Job Request
             {% /list_group_item %}
             {% if code_compare_succeeded_url %}
-              {% #list_group_item href=code_compare_succeeded_url %}
+              {% #list_group_item href=code_compare_succeeded_url class="plausible-event-name=Compare+Previous+Successful+JobRequest" %}
                 Compare to the previous successful Job Request
               {% /list_group_item %}
             {% endif %}
