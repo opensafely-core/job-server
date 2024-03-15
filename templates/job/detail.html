@@ -217,10 +217,12 @@
       <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
         {% #description_item title="Mean CPU usage" %}
           {% if job.metrics %}
-          <span class="relative group cursor-pointer">
-          {{ job.metrics.cpu_mean|floatformat:"0" }}%
-          {% tooltip content="Values are reported across all CPU cores" %}
-          </span>
+            {{ job.metrics.cpu_mean|floatformat:"0" }}%
+            {% if job.metrics.cpu_mean > 100 %}
+              <span class="text-xs block">
+                Values are reported across all CPU cores so can be higher than 100%
+              </span>
+            {% endif %}
           {% else %}
           -
           {% endif %}
@@ -228,10 +230,12 @@
 
         {% #description_item title="Peak CPU usage" %}
           {% if job.metrics %}
-          <span class="relative group cursor-pointer">
-          {{ job.metrics.cpu_peak|floatformat:"0" }}%
-          {% tooltip content="Values are reported across all CPU cores" %}
-          </span>
+            {{ job.metrics.cpu_peak|floatformat:"0" }}%
+            {% if job.metrics.cpu_peak > 100 %}
+              <span class="text-xs block">
+                Values are reported across all CPU cores so can be higher than 100%
+              </span>
+            {% endif %}
           {% else %}
           -
           {% endif %}
