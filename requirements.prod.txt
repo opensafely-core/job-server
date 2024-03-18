@@ -423,9 +423,9 @@ django-zen-queries==2.1.0 \
     --hash=sha256:255f6a1efd94974c5752af2ef60d2d1fa66466d74e7faf32a6ff46141e947e55 \
     --hash=sha256:624dad6a10f04df4dc188ff4f27a875943c1708738bd9863388dd39861ac9614
     # via -r requirements.prod.in
-djangorestframework==3.14.0 \
-    --hash=sha256:579a333e6256b09489cbe0a067e66abe55c6595d8926be6b99423786334350c8 \
-    --hash=sha256:eb63f58c9f218e1a7d064d17a70751f528ed4e1d35547fdade9aaf4cd103fd08
+djangorestframework==3.15.0 \
+    --hash=sha256:3f4a263012e1b263bf49a4907eb4cfe14de840a09b1ba64596d01a9c54835919 \
+    --hash=sha256:5fa616048a7ec287fdaab3148aa5151efb73f7f8be1e23a9d18484e61e672695
     # via -r requirements.prod.in
 environs==9.5.0 \
     --hash=sha256:1e549569a3de49c05f856f40bce86979e7d5ffbbc4398e7f338574c220189124 \
@@ -884,10 +884,6 @@ python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
     --hash=sha256:6626f771e0417486701e0b4daff762e7212e820ca5b29fcc0d05f6f8736dfa6b
     # via social-auth-core
-pytz==2024.1 \
-    --hash=sha256:2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812 \
-    --hash=sha256:328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319
-    # via djangorestframework
 pyyaml==6.0.1 \
     --hash=sha256:062582fca9fabdd2c8b54a3ef1c978d786e0f6b3a1510e0ac93ef59e0ddae2bc \
     --hash=sha256:1635fd110e8d85d55237ab316b5b011de701ea0f29d07611174a1b42f1444741 \
