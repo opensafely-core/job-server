@@ -150,22 +150,18 @@ def test_update_roles_with_integrity_error(monkeypatch, project_membership):
 
 
 def test_remove(project_membership):
-    deletor = UserFactory()
     project = ProjectFactory()
-    user = UserFactory()
-
+    user, deletor = UserFactory.create_batch(2)
     membership = project_membership(project=project, user=user)
     membership_pk = str(membership.pk)
 
     members.remove(membership=membership, by=deletor)
 
     assert not project.memberships.exists()
-
     assert AuditableEvent.objects.count() == 2
 
-    # first one is the membership we added while staging this test
+    # we created the first when arranging this test
     event = AuditableEvent.objects.last()
-
     assert event.type == AuditableEvent.Type.PROJECT_MEMBER_REMOVED
     assert event.target_model == "jobserver.ProjectMembership"
     assert event.target_id == membership_pk
