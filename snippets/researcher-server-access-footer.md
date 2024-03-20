@@ -1,9 +1,8 @@
 For each researcher who is not named on the "List of Accredited Researchers" document, which is found [at the bottom of this page][1], please email evidence of them completing safe researcher training to <applications@opensafely.org>.
 
-If you do not have such training, you must register with the ONS' [Research Accreditation Service (RAS)][2].
-ONS courses are visible once your RAS application is completed.
-If you decide to attend a [UK Data Service course][3], you should specify in your email to them that you are "Applying for AR status through the ONS Research Accreditation Service" (you still need to complete a RAS application).
+If you do not have such training, you must register with the ONS' Research Accreditation Service (RAS); use this link to register on the RAS platform: https://researchaccreditationservice.ons.gov.uk/ons/ONS_homepage.ofml. ONS courses are visible once your RAS application is completed (when you apply, specify in an appropriate box where you describe your project that you are "onboarding to the NHS England OpenSAFELY TRE and need to complete safe researcher training").
+If, however, you decide to attend a UK Data Service course (sometimes their Safe Researcher courses are more frequent, and can be found here: https://ukdataservice.ac.uk/training-events/; remember you can use the filter function to find them more easily), you should specify in your email to the UK Data Service (secure.training@ukdataservice.ac.uk) that you are "Applying for AR status through the ONS Research Accreditation Service". Remember; you still need to complete a RAS application even if you are going to do the course with the UK Data Service.
+To note: when booking your training, courses are run frequently and the training is always 3 and a half hours long. To take the course with the UK Data Service, you are required to have an active RAS application that has a pending status before any training links are provided. 
 
-[1]: https://uksa.statisticsauthority.gov.uk/digitaleconomyact-research-statistics/better-useofdata-for-research-information-for-researchers/list-of-accredited-researchers-and-research-projects-under-the-research-strand-of-the-digital-economy-act/
-[2]: https://researchaccreditationservice.ons.gov.uk/ons/ONS_registration.ofml
-[3]: https://ukdataservice.ac.uk/training-events/?topic=safe-researcher
+Once the training is completed, a link to the exam is sent, which can then be taken at any time.  
+
