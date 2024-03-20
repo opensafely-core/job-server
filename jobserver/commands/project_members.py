@@ -72,6 +72,12 @@ def update_roles(*, membership, by, roles):
 
 @transaction.atomic()
 def remove(*, membership, by):
+    # We remove the roles from the membership before we remove the membership to ensure
+    # the audit log is complete: the membership may have been created before the audit
+    # log existed, so may not contain an entry that records the roles associated with
+    # the membership.
+    update_roles(membership=membership, by=by, roles=[])
+
     # We're removing the membership here so we need to save some details for
     # displaying that this happened as we won't be able to look them up at
     # render time.

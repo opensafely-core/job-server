@@ -160,9 +160,9 @@ def test_remove(project_membership):
     members.remove(membership=membership, by=deletor)
 
     assert not project.memberships.exists()
-    assert AuditableEvent.objects.count() == 3
+    assert AuditableEvent.objects.count() == 4
 
-    # we created the first and second when arranging this test
+    # we created the first, second, and third when arranging this test
     event = AuditableEvent.objects.last()
     assert event.type == AuditableEvent.Type.PROJECT_MEMBER_REMOVED
     assert event.target_model == "jobserver.ProjectMembership"
