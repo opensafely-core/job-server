@@ -152,15 +152,17 @@ def test_update_roles_with_integrity_error(monkeypatch, project_membership):
 def test_remove(project_membership):
     project = ProjectFactory()
     user, deletor = UserFactory.create_batch(2)
-    membership = project_membership(project=project, user=user)
+    membership = project_membership(
+        project=project, user=user, roles=[ProjectDeveloper]
+    )
     membership_pk = str(membership.pk)
 
     members.remove(membership=membership, by=deletor)
 
     assert not project.memberships.exists()
-    assert AuditableEvent.objects.count() == 2
+    assert AuditableEvent.objects.count() == 3
 
-    # we created the first when arranging this test
+    # we created the first and second when arranging this test
     event = AuditableEvent.objects.last()
     assert event.type == AuditableEvent.Type.PROJECT_MEMBER_REMOVED
     assert event.target_model == "jobserver.ProjectMembership"
@@ -174,10 +176,12 @@ def test_remove(project_membership):
 def test_remove_with_integrity_error(monkeypatch, project_membership):
     project = ProjectFactory()
     user, deletor = UserFactory.create_batch(2)
-    membership = project_membership(project=project, user=user, roles=[])
+    membership = project_membership(
+        project=project, user=user, roles=[ProjectDeveloper]
+    )
 
     assert ProjectMembership.objects.count() == 1
-    assert AuditableEvent.objects.count() == 1
+    assert AuditableEvent.objects.count() == 2
 
     with monkeypatch.context() as mp, pytest.raises(IntegrityError):
         # We patch ProjectMembership.delete because it is called after
@@ -188,4 +192,4 @@ def test_remove_with_integrity_error(monkeypatch, project_membership):
 
     # nothing has changed
     assert ProjectMembership.objects.count() == 1
-    assert AuditableEvent.objects.count() == 1
+    assert AuditableEvent.objects.count() == 2
