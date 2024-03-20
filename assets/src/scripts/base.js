@@ -14,4 +14,3 @@ import "../styles/base.css";
 import "./_alert";
 import "./_expand-list";
 import "./_plausible";
-import "./utils/double-click";
