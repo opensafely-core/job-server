@@ -314,7 +314,7 @@ class ProjectMembershipEdit(UpdateView):
 
     def form_valid(self, form):
         members.update_roles(
-            member=self.object,
+            membership=self.object,
             by=self.request.user,
             roles=form.cleaned_data["roles"],
         )

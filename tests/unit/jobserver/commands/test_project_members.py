@@ -108,7 +108,7 @@ def test_update_roles(project_membership):
 
     assert membership.roles == []
 
-    members.update_roles(member=membership, by=updator, roles=[ProjectDeveloper])
+    members.update_roles(membership=membership, by=updator, roles=[ProjectDeveloper])
 
     membership.refresh_from_db()
     assert membership.roles == [ProjectDeveloper]
@@ -140,7 +140,9 @@ def test_update_roles_with_integrity_error(monkeypatch, project_membership):
         # AuditableEvent.objects.create. In other words, we test that an AuditableEvent
         # isn't created if updating a ProjectMembership fails.
         mp.setattr("jobserver.models.ProjectMembership.save", raise_integrity_error)
-        members.update_roles(member=membership, by=updator, roles=[ProjectDeveloper])
+        members.update_roles(
+            membership=membership, by=updator, roles=[ProjectDeveloper]
+        )
 
     # nothing has changed
     assert ProjectMembership.objects.count() == 1
