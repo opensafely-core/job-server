@@ -107,4 +107,4 @@ def clear_all_roles(*, user, by):
         org_members.update_roles(member=org_membership, by=by, roles=[])
 
     for project_membership in user.project_memberships.all():
-        project_members.update_roles(member=project_membership, by=by, roles=[])
+        project_members.update_roles(membership=project_membership, by=by, roles=[])

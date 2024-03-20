@@ -52,26 +52,32 @@ def add(*, project, user, roles, by):
 
 
 @transaction.atomic()
-def update_roles(*, member, by, roles):
+def update_roles(*, membership, by, roles):
     AuditableEvent.objects.create(
         type=AuditableEvent.Type.PROJECT_MEMBER_UPDATED_ROLES,
-        old=",".join([dotted_path(r) for r in member.roles]),
-        target_model=member._meta.label,
+        old=",".join([dotted_path(r) for r in membership.roles]),
+        target_model=membership._meta.label,
         target_field="roles",
-        target_id=member.pk,
-        target_user=member.user.username,
-        parent_model=member.project._meta.label,
-        parent_id=member.project.pk,
+        target_id=membership.pk,
+        target_user=membership.user.username,
+        parent_model=membership.project._meta.label,
+        parent_id=membership.project.pk,
         created_by=by.username,
         new=",".join([dotted_path(r) for r in roles]),
     )
 
-    member.roles = roles
-    member.save(update_fields=["roles"], override=True)
+    membership.roles = roles
+    membership.save(update_fields=["roles"], override=True)
 
 
 @transaction.atomic()
 def remove(*, membership, by):
+    # We remove the roles from the membership before we remove the membership to ensure
+    # the audit log is complete: the membership may have been created before the audit
+    # log existed, so may not contain an entry that records the roles associated with
+    # the membership.
+    update_roles(membership=membership, by=by, roles=[])
+
     # We're removing the membership here so we need to save some details for
     # displaying that this happened as we won't be able to look them up at
     # render time.

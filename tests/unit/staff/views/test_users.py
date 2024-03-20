@@ -47,7 +47,7 @@ def test_userauditlog_filter_by_type(rf, core_developer, project_membership):
         by=actor,
     )
     project_members.update_roles(
-        member=project.memberships.first(),
+        membership=project.memberships.first(),
         by=actor,
         roles=[ProjectCollaborator, ProjectDeveloper],
     )
@@ -76,7 +76,7 @@ def test_userauditlog_success(rf, core_developer, project_membership):
         by=actor,
     )
     project_members.update_roles(
-        member=project.memberships.first(),
+        membership=project.memberships.first(),
         by=actor,
         roles=[ProjectCollaborator, ProjectDeveloper],
     )
