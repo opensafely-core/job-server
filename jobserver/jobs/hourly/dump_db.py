@@ -2,18 +2,15 @@ import pathlib
 import subprocess
 import sys
 
+from django.conf import settings
 from django_extensions.management.jobs import HourlyJob
-from environs import Env
-
-
-env = Env()
 
 
 class Job(HourlyJob):
     help = "Dump the database to storage for copying to local dev environments"  # noqa: A003
 
     def execute(self):
-        database_url = env.str("DATABASE_URL")
+        db = settings.DATABASES["default"]
         output = pathlib.Path("/storage/jobserver.dump")
 
         if not output.exists():
@@ -30,6 +27,7 @@ class Job(HourlyJob):
                 "--no-acl",
                 "--no-owner",
                 f"--file={output}",
-                database_url,
+                f"postgresql://{db['USER']}@{db['HOST']}:{db['PORT']}/{db['NAME']}",
             ],
+            env={"PGPASSWORD": db["PASSWORD"]},
         )
