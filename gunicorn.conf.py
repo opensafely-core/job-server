@@ -26,6 +26,10 @@ bind = "0.0.0.0"
 
 
 def post_fork(server, worker):
+    # opentelemetry initialisation needs these env vars to be set, so ensure they are
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jobserver.settings")
+    os.environ.setdefault("PYTHONPATH", "")
+
     server.log.info("Worker spawned (pid: %s)", worker.pid)
 
     resource = Resource.create(attributes={"service.name": "job-server"})

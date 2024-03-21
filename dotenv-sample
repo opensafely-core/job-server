@@ -30,12 +30,5 @@ ASSETS_DEV_MODE=False
 # Token for frontend Sentry error tracking DSN
 VITE_SENTRY_DSN=
 
-export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.honeycomb.io"
-# key will be for specific prod/test/dev honeycomb environment
-export OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=VALIDKEY1234"
-# this is the dataset that telemetry will go into in honeycomb
-export OTEL_SERVICE_NAME="job-server"
-
-# OTEL requires these, it needs to access settings before other stuff has initialised
-DJANGO_SETTINGS_MODULE="jobserver.settings"
-PYTHONPATH="/usr/local/bin/python"
+# To send to honecomb in dev, create a token for the development and set it here.
+# OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=TOKEN34"
