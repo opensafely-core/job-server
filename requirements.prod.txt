@@ -640,8 +640,8 @@ oauthlib==3.2.2 \
     # via
     #   requests-oauthlib
     #   social-auth-core
-opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2023.11.06.145820.zip \
-    --hash=sha256:cc37eefd337c3cbad92bfbd7bad506d4dab9b661d66bbcf0a911eef6f5dcba56
+opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2024.03.19.153938.zip \
+    --hash=sha256:f1fb0829c832f4c52a495d7fe167e0656c2a77fde4e58426268c60754a5f6e89
     # via -r requirements.prod.in
 opentelemetry-api==1.22.0 \
     --hash=sha256:15ae4ca925ecf9cfdfb7a709250846fbb08072260fca08ade78056c502b86bed \
