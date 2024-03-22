@@ -170,6 +170,42 @@
     {% endfor %}
   </div>
 
+  <div class="grid gap-y-6">
+    {% #card title="Checklist" container=True %}
+      <div class="prose prose-oxford">
+        <p>
+          The following sections must be completed for all types of study.
+          If they are not, then your application will be rejected.
+        </p>
+        <ol>
+          <li>Contact details. All sections completed including mobile number and organisation.</li>
+          <li>Study Information. Study name and purpose to be fully completed with clear evidence of a Covid-19 related purpose.</li>
+          <li>Study Purpose. Simple lay description provided of no more than 300 words with your project meeting at least one of the topic areas listed. Study lead to be listed too.</li>
+          <li>Completion of the full research team. All researchers listed in the researcher section who will write code and/or access the results server must have a completed Data Access Agreement form returned to the applications@opensafely.org inbox. Additionally researchers requesting access to the results server must have passed a safe researcher course and the date passed filled in.</li>
+          <li>Completion of the Getting Started Tutorial needs to be finished at the point of application submission.</li>
+        </ol>
+
+        <p>The following sections must be completed for research.</p>
+        <ol>
+          <li>Type of study. If your study meets a research focus, evidence of an HRA favourable opinion sent to the <a href="mailto:applications@opensafely.org">applications@opensafely.org</a> inbox.</li>
+          <li>Confirmation of support of your study from both the principal investigator and Line Manager detailing that they have read application Study Information and Study Purpose and our <a href="https://www.opensafely.org/about/">Opensafely Principles</a>. Send the confirmation to the <a href="mailto:applications@opensafely.org">applications@opensafely.org</a> inbox.</li>
+        </ol>
+
+        The following sections must be completed for service evaluation or audit.
+        <ol>
+          <li>Confirmation that the study is not research, for example, either by completion of the <a href="https://www.hra-decisiontools.org.uk/research/">HRA Decision toolkit</a> or providing a note from your institutional ethics committee confirming the study is a service evaluation/audit. Send the evidence to the <a href="mailto:applications@opensafely.org">applications@opensafely.org</a> inbox.</li>
+          <li>Confirmation of support of your study from both the sponsor and line manager detailing that they have read application Study Information and Study Purpose, and our <a href="https://www.opensafely.org/about/">Opensafely Principles</a>. Send the confirmation to the <a href="mailto:applications@opensafely.org">applications@opensafely.org</a> inbox.</li>
+        </ol>
+
+        <p>The following sections must be completed for short data reports.</p>
+        <ol>
+          <li>Confirmation that the study is not research, for example, either by completion of the <a href="https://www.hra-decisiontools.org.uk/research/">HRA Decision toolkit</a> or providing a note from your institutional ethics committee confirming the study is a service evaluation/audit. Send the evidence to the <a href="mailto:applications@opensafely.org">applications@opensafely.org</a> inbox.</li>
+          <li>Confirmation of support of your study from both the sponsor and line manager detailing that they have read application Study Information and Study Purpose, and our <a href="https://www.opensafely.org/about/">Opensafely Principles</a>. Send the confirmation to the <a href="mailto:applications@opensafely.org">applications@opensafely.org</a> inbox.</li>
+        </ol>
+      </div>
+    {% /card %}
+  </div>
+
   <form method="POST" class="mt-6">
     {% csrf_token %}
 
