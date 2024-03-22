@@ -174,6 +174,13 @@ class Application(models.Model):
         except ObjectDoesNotExist:
             return False
 
+    @property
+    def is_study_short_data_report(self):
+        try:
+            return self.typeofstudypage.is_study_short_data_report
+        except ObjectDoesNotExist:
+            return False
+
 
 class AbstractPage(models.Model):
     application = models.OneToOneField("Application", on_delete=models.CASCADE)
@@ -247,6 +254,7 @@ class TypeOfStudyPage(AbstractPage):
     is_study_research = models.BooleanField(default=False)
     is_study_service_evaluation = models.BooleanField(default=False)
     is_study_audit = models.BooleanField(default=False)
+    is_study_short_data_report = models.BooleanField(default=False)
 
 
 class ReferencesPage(AbstractPage):
@@ -261,6 +269,10 @@ class SponsorDetailsPage(AbstractPage):
     sponsor_job_role = models.TextField(blank=True)
     institutional_rec_reference = models.TextField(blank=True)
     is_member_of_bennett_or_lshtm = models.BooleanField(default=False)
+
+
+class ShortDataReportPage(AbstractPage):
+    pass
 
 
 class CmoPriorityListPage(AbstractPage):

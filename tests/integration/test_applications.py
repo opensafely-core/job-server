@@ -163,6 +163,7 @@ def test_successful_application(client, mailoutbox, slack_messages):
         "is_study_research": "yes",
         "is_study_service_evaluation": "",
         "is_study_audit": "",
+        "is_study_short_data_report": "",
     }
     response = client.post(url("type-of-study"), data, follow=True)
     assert response.status_code == 200
@@ -171,11 +172,13 @@ def test_successful_application(client, mailoutbox, slack_messages):
     assert page.is_study_research
     assert not page.is_study_service_evaluation
     assert not page.is_study_audit
+    assert not page.is_study_short_data_report
 
     # reset the type of study so we can also test the service eval/study audit flow
     application.typeofstudypage.is_study_research = False
     application.typeofstudypage.is_study_service_evaluation = False
     application.typeofstudypage.is_study_audit = False
+    application.typeofstudypage.is_study_short_data_report = False
     application.typeofstudypage.save()
     application.refresh_from_db()
 
@@ -184,6 +187,7 @@ def test_successful_application(client, mailoutbox, slack_messages):
         "is_study_research": "",
         "is_study_service_evaluation": "yes",
         "is_study_audit": "",
+        "is_study_short_data_report": "",
     }
     response = client.post(url("type-of-study"), data, follow=True)
     assert response.status_code == 200
@@ -192,6 +196,31 @@ def test_successful_application(client, mailoutbox, slack_messages):
     assert not page.is_study_research
     assert page.is_study_service_evaluation
     assert not page.is_study_audit
+    assert not page.is_study_short_data_report
+
+    # reset the type of study so we can also test the short data report flow
+    application.typeofstudypage.is_study_research = False
+    application.typeofstudypage.is_study_service_evaluation = False
+    application.typeofstudypage.is_study_audit = False
+    application.typeofstudypage.is_study_short_data_report = False
+    application.typeofstudypage.save()
+    application.refresh_from_db()
+
+    # type-of-study (short data report)
+    data = {
+        "is_study_research": "",
+        "is_study_service_evaluation": "",
+        "is_study_audit": "",
+        "is_study_short_data_report": "yes",
+    }
+    response = client.post(url("type-of-study"), data, follow=True)
+    assert response.status_code == 200
+    assert response.redirect_chain == [(url("short-data-report"), 302)]
+    page = application.typeofstudypage
+    assert not page.is_study_research
+    assert not page.is_study_service_evaluation
+    assert not page.is_study_audit
+    assert page.is_study_short_data_report
 
     # references
     data = {
@@ -201,7 +230,11 @@ def test_successful_application(client, mailoutbox, slack_messages):
     }
     response = client.post(url("references"), data, follow=True)
     assert response.status_code == 200
-    assert response.redirect_chain == [(url("service-evaluation-audit"), 302)]
+    # The expected redirect URL depends on the current values of the page.is_*
+    # properties, which are set above. We wouldn't expect the short-data-report form to
+    # follow the references form, unless, as we have done here, we try and cram too much
+    # behaviour into a test.
+    assert response.redirect_chain == [(url("short-data-report"), 302)]
     page = application.referencespage
     assert page.hra_ires_id
     assert page.hra_rec_reference
@@ -217,7 +250,11 @@ def test_successful_application(client, mailoutbox, slack_messages):
     }
     response = client.post(url("service-evaluation-audit"), data, follow=True)
     assert response.status_code == 200
-    assert response.redirect_chain == [(url("study-funding"), 302)]
+    # The expected redirect URL depends on the current values of the page.is_*
+    # properties, which are set above. We wouldn't expect the short-data-report form to
+    # follow the service-evaluation-audit form, unless, as we have done here, we try and
+    # cram too much behaviour into a test.
+    assert response.redirect_chain == [(url("short-data-report"), 302)]
     page = application.sponsordetailspage
     assert page.is_member_of_bennett_or_lshtm
     assert page.institutional_rec_reference

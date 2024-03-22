@@ -290,6 +290,10 @@ form_specs = [
                         name="is_study_audit",
                         label="Audit",
                     ),
+                    Field(
+                        name="is_study_short_data_report",
+                        label="Short data report (Data Curation Project)",
+                    ),
                 ],
             ),
         ],
@@ -297,6 +301,7 @@ form_specs = [
             application.is_study_research
             or application.is_study_service_evaluation
             or application.is_study_audit
+            or application.is_study_short_data_report
         ),
         cant_continue_message="You must select at least one purpose",
     ),
@@ -384,6 +389,15 @@ form_specs = [
         prerequisite=lambda application: (
             application.is_study_service_evaluation or application.is_study_audit
         ),
+    ),
+    Form(
+        key="short-data-report",
+        model=models.ShortDataReportPage,
+        title="Short Data Report",
+        sub_title="",
+        rubric=snippet("short-data-report-rubric"),
+        fieldsets=[],
+        prerequisite=lambda application: application.is_study_short_data_report,
     ),
     Form(
         key="study-funding",
