@@ -80,6 +80,14 @@ dokku config:set job-server OLD_SECRET_KEY="$(dokku config:get job-server SECRET
  dokku config:set job-server SECRET_KEY='xxx'
 ```
 
+You can generate a new secret key as follows:
+
+```py
+from django.core.management.utils import get_random_secret_key
+
+get_random_secret_key()
+```
+
 ### 3. Remove the previous secret key
 
 A suitable expiry time is given by adding the `SESSION_COOKIE_AGE` duration
