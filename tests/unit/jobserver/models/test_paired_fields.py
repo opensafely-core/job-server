@@ -244,6 +244,13 @@ UNPAIRED_FIELDS = [
         "updated_at",
     ),
     (
+        "applications.ShortDataReportPage",
+        "created_at",
+        "last_reviewed_at",
+        "reviewed_by",
+        "updated_at",
+    ),
+    (
         "applications.SoftwareDevelopmentExperiencePage",
         "created_at",
         "last_reviewed_at",

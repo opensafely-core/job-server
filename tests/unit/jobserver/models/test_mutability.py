@@ -19,6 +19,7 @@ MUTABLE_MODELS = [
         "applications.ResearcherDetailsPage",
         "applications.ResearcherRegistration",
         "applications.SharingCodePage",
+        "applications.ShortDataReportPage",
         "applications.SoftwareDevelopmentExperiencePage",
         "applications.SponsorDetailsPage",
         "applications.StudyDataPage",
