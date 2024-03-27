@@ -29,8 +29,10 @@
     {% endif %}
   </label>
 
-  {% if hint_text %}
-    <div class="mb-2 text-sm text-gray-700">{{ hint_text }}</div>
+  {% if hint_text and not hint_below %}
+    <div class="mb-2 prose prose-sm prose-oxford">
+      {{ hint_text }}
+    </div>
   {% endif %}
 
   <div class="relative">
@@ -54,6 +56,12 @@
       </div>
     {% endif %}
   </div>
+
+  {% if hint_text and hint_below %}
+    <div class="mt-2 prose prose-sm prose-oxford">
+      {{ hint_text }}
+    </div>
+  {% endif %}
 
   {% if field_errors %}
     <ul class="mt-2 text-sm text-bn-ribbon-600">

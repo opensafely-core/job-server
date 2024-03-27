@@ -23,11 +23,13 @@
     {% endif %}
   </label>
 
-  {% if hint_text %}
-    <div class="mb-2 text-sm text-gray-700">{{ hint_text }}</div>
-  {% endif %}
-
   <div class="relative">
+    {% if hint_text and not hint_below %}
+      <div class="mb-2 prose prose-sm prose-oxford">
+        {{ hint_text }}
+      </div>
+    {% endif %}
+
     <select
       {% attrs id=select_id name=select_name required %}
       class="mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1"
@@ -43,6 +45,12 @@
         </option>
       {% endfor %}
     </select>
+
+    {% if hint_text and hint_below %}
+      <div class="mt-2 prose prose-sm prose-oxford">
+        {{ hint_text }}
+      </div>
+    {% endif %}
 
     {% if field.errors %}
       <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">

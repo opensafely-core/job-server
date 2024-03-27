@@ -33,10 +33,6 @@
       </label>
   {% endif %}
 
-  {% if hint_text %}
-    <div class="mb-2 text-sm text-gray-700">{{ hint_text }}</div>
-  {% endif %}
-
 {% for value, label in field.field.choices %}
 
   {% if field.value == value %}
@@ -50,4 +46,10 @@
   {% endwith %}
 
 {% endfor %}
+
+{% if hint_text %}
+  <div class="mt-2 prose prose-sm prose-oxford">
+    {{ hint_text }}
+  </div>
+{% endif %}
 </div>
