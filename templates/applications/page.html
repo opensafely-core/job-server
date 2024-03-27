@@ -71,9 +71,9 @@
 
           {% for field in fieldset.fields %}
             {% if field.template_name == "form_input" %}
-              {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
+              {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
             {% elif field.template_name == "form_textarea" %}
-              {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
+              {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
             {% elif field.template_name == "form_radio" %}
               {% #form_fieldset %}
                 {% form_legend text=field.label %}
@@ -93,7 +93,7 @@
               {% /form_fieldset %}
             {% elif field.template_name == "form_checkbox" %}
               <div class="flex flex-col -mb-3">
-                {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text checked=field.field.value %}
+                {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.field.help_text checked=field.field.value %}
               </div>
             {% endif %}
           {% endfor %}
