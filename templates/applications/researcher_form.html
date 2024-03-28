@@ -69,6 +69,10 @@
           {% form_radio name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
         {% endwith %}
       {% endfor %}
+
+      <div class="mb-2 prose prose-sm">
+        {% snippet "researcher-details" %}
+      </div>
     {% /form_fieldset %}
   {% /card %}
 
