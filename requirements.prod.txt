@@ -584,7 +584,13 @@ lxml==5.2.0 \
     --hash=sha256:f90c36ca95a44d2636bbf55a51ca30583b59b71b6547b88d954e029598043551 \
     --hash=sha256:f9e27841cddfaebc4e3ffbe5dbdff42891051acf5befc9f5323944b2c61cef16 \
     --hash=sha256:fadda215e32fe375d65e560b7f7e2a37c7f9c4ecee5315bb1225ca6ac9bf5838
-    # via -r requirements.prod.in
+    # via
+    #   -r requirements.prod.in
+    #   lxml-html-clean
+lxml-html-clean==0.1.0 \
+    --hash=sha256:003b61437129b2df4f6f6455e20f5f57707828e2067bc5524d0142e240bb4cd1 \
+    --hash=sha256:f21a33d279eb3bddd336ebfa0c73d3d5b359dbfa8113014f7d1f2d8738fdc305
+    # via lxml
 markdown==3.6 \
     --hash=sha256:48f276f4d8cfb8ce6527c8f79e2ee29708508bf4d40aa410fbc3b4ee832c850f \
     --hash=sha256:ed4f41f6daecbeeb96e576ce414c41d2d876daa9a16cb35fa8ed8c2ddfad0224
