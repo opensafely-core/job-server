@@ -298,7 +298,9 @@ class WorkspaceDetail(View):
             request.user, permissions.job_run, project=workspace.project
         )
         can_toggle_notifications = has_permission(
-            request.user, "workspace_toggle_notifications", project=workspace.project
+            request.user,
+            permissions.workspace_toggle_notifications,
+            project=workspace.project,
         )
         has_backends = request.user.is_authenticated and request.user.backends.exists()
 
@@ -579,7 +581,9 @@ class WorkspaceNotificationsToggle(View):
         )
 
         if not has_permission(
-            request.user, "workspace_toggle_notifications", project=workspace.project
+            request.user,
+            permissions.workspace_toggle_notifications,
+            project=workspace.project,
         ):
             raise Http404
 
