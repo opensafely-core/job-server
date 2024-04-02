@@ -236,7 +236,7 @@ class ReportEdit(FormView):
 
         if not has_permission(
             request.user,
-            "analysis_request_view",
+            permissions.analysis_request_view,
             project=self.analysis_request.project,
         ):
             raise PermissionDenied
