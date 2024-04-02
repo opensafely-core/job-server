@@ -516,7 +516,7 @@ class WorkspaceLatestOutputsDetail(View):
         # only show the publish button if the user has permission to publish
         # ouputs
         can_publish = has_permission(
-            request.user, "snapshot_create", project=workspace.project
+            request.user, permissions.snapshot_create, project=workspace.project
         )
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
