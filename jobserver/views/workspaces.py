@@ -165,7 +165,7 @@ class WorkspaceCreate(CreateView):
 
         can_create_workspaces = has_permission(
             self.request.user,
-            "workspace_create",
+            permissions.workspace_create,
             project=self.project,
         )
         if not can_create_workspaces:
@@ -386,7 +386,7 @@ class WorkspaceEdit(FormView):
 
         can_create_workspaces = has_permission(
             self.request.user,
-            "workspace_create",
+            permissions.workspace_create,
             project=self.workspace.project,
         )
         if not can_create_workspaces:

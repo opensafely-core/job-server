@@ -38,7 +38,7 @@ class ProjectDetail(View):
         project.status_description = nh3.clean(markdown(project.status_description))
 
         can_create_workspaces = has_permission(
-            request.user, "workspace_create", project=project
+            request.user, permissions.workspace_create, project=project
         )
 
         is_member = project.members.filter(username=request.user.username).exists()
