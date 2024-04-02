@@ -295,7 +295,7 @@ class WorkspaceDetail(View):
             request.user, "workspace_archive", project=workspace.project
         )
         can_run_jobs = has_permission(
-            request.user, "job_run", project=workspace.project
+            request.user, permissions.job_run, project=workspace.project
         )
         can_toggle_notifications = has_permission(
             request.user, "workspace_toggle_notifications", project=workspace.project

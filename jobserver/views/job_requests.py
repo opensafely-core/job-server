@@ -68,7 +68,9 @@ class JobRequestCreate(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
-        if not has_permission(request.user, "job_run", project=self.workspace.project):
+        if not has_permission(
+            request.user, permissions.job_run, project=self.workspace.project
+        ):
             raise Http404
 
         if self.workspace.is_archived:
