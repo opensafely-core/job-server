@@ -28,7 +28,7 @@ from interactive.models import AnalysisRequest
 from interactive.slacks import notify_report_uploaded
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
-from jobserver.authorization import OutputChecker, has_permission, has_role
+from jobserver.authorization import OutputChecker, has_permission, has_role, permissions
 from jobserver.commands import users
 from jobserver.models import (
     PublishRequest,
@@ -201,7 +201,9 @@ def validate_upload_access(request, workspace):
         raise NotAuthenticated
 
     # check the user has permission to upload release files
-    if not has_permission(user, "release_file_upload", project=workspace.project):
+    if not has_permission(
+        user, permissions.release_file_upload, project=workspace.project
+    ):
         raise NotAuthenticated
 
     return backend, user
