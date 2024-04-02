@@ -241,7 +241,9 @@ class SnapshotDetail(View):
         }
 
         can_publish = has_permission(
-            request.user, "snapshot_publish", project=snapshot.workspace.project
+            request.user,
+            permissions.snapshot_publish,
+            project=snapshot.workspace.project,
         )
         if can_publish and snapshot.is_draft:
             context["publish_url"] = snapshot.get_publish_api_url()
