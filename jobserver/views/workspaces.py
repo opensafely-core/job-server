@@ -353,7 +353,7 @@ class WorkspaceDetail(View):
         # a user can see backend files if they have access to at least one
         # backend and the permissions required to see outputs
         is_privileged_user = has_permission(
-            user, "release_file_view", project=workspace.project
+            user, permissions.release_file_view, project=workspace.project
         )
         has_backends = (
             user.is_authenticated and user.backends.exclude(level_4_url="").exists()
@@ -509,7 +509,7 @@ class WorkspaceLatestOutputsDetail(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "release_file_view", project=workspace.project
+            request.user, permissions.release_file_view, project=workspace.project
         ):
             raise Http404
 
@@ -555,7 +555,7 @@ class WorkspaceLatestOutputsDownload(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "release_file_view", project=workspace.project
+            request.user, permissions.release_file_view, project=workspace.project
         ):
             raise Http404
 
@@ -610,7 +610,7 @@ class WorkspaceOutputList(ListView):
         snapshots = workspace.snapshots.order_by("-created_at")
 
         can_view_all_files = has_permission(
-            request.user, "release_file_view", project=workspace.project
+            request.user, permissions.release_file_view, project=workspace.project
         )
         if not can_view_all_files:
             snapshots = snapshots.filter(

@@ -249,7 +249,7 @@ class ProjectReportList(ListView):
         self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         self.can_view_unpublished_reports = has_permission(
-            self.request.user, "release_file_view", project=self.project
+            self.request.user, permissions.release_file_view, project=self.project
         )
 
         return super().dispatch(request, *args, **kwargs)

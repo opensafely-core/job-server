@@ -229,7 +229,9 @@ def validate_release_access(request, workspace):
     if request.user.is_anonymous:
         raise NotAuthenticated("Invalid user or token")
 
-    if not has_permission(request.user, "release_file_view", project=workspace.project):
+    if not has_permission(
+        request.user, permissions.release_file_view, project=workspace.project
+    ):
         raise NotAuthenticated(f"Invalid user or token for workspace {workspace.name}")
 
 
@@ -246,7 +248,7 @@ def validate_snapshot_access(request, snapshot):
         raise NotAuthenticated("Invalid user or token")
 
     if not has_permission(
-        request.user, "release_file_view", project=snapshot.workspace.project
+        request.user, permissions.release_file_view, project=snapshot.workspace.project
     ):
         raise NotAuthenticated(f"Invalid user or token for snapshot pk={snapshot.pk}")
 
