@@ -21,7 +21,7 @@ gunicorn
 incuna-mail
 interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/refs/tags/v2023.09.12.100407.zip
 itsdangerous
-lxml
+lxml[html_clean]
 markdown
 nh3
 psycopg[binary]
