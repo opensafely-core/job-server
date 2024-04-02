@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
-from ..authorization import has_permission
+from ..authorization import has_permission, permissions
 from ..models import (
     Project,
     PublishRequest,
@@ -60,7 +60,7 @@ class ProjectReleaseList(View):
             raise Http404
 
         can_delete_files = has_permission(
-            request.user, "release_file_delete", project=project
+            request.user, permissions.release_file_delete, project=project
         )
         can_view_files = has_permission(
             request.user, "release_file_view", project=project
@@ -191,7 +191,7 @@ class ReleaseFileDelete(View):
 
         if not has_permission(
             request.user,
-            "release_file_delete",
+            permissions.release_file_delete,
             project=rfile.release.workspace.project,
         ):
             raise Http404
@@ -291,7 +291,7 @@ class WorkspaceReleaseList(View):
             raise Http404
 
         can_delete_files = has_permission(
-            request.user, "release_file_delete", project=workspace.project
+            request.user, permissions.release_file_delete, project=workspace.project
         )
         can_view_files = has_permission(
             request.user,
