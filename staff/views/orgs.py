@@ -9,7 +9,7 @@ from django.views.generic import CreateView, FormView, ListView, UpdateView, Vie
 from django_htmx.http import HttpResponseClientRedirect
 from furl import furl
 
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import CoreDeveloper, permissions
 from jobserver.authorization.decorators import require_permission, require_role
 from jobserver.models import Org, OrgMembership, User
 
@@ -42,7 +42,7 @@ def org_add_github_org(request, slug):
     return redirect(org.get_staff_url())
 
 
-@method_decorator(require_permission("org_create"), name="dispatch")
+@method_decorator(require_permission(permissions.org_create), name="dispatch")
 class OrgCreate(CreateView):
     fields = ["name"]
     model = Org
