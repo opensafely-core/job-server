@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, RedirectView, UpdateView, View
 
-from jobserver.authorization import CoreDeveloper, has_permission, has_role
+from jobserver.authorization import CoreDeveloper, has_permission, has_role, permissions
 from jobserver.hash_utils import unhash_or_404
 from jobserver.slacks import notify_application
 
@@ -21,7 +21,7 @@ from .wizard import Wizard
 
 
 def validate_application_access(user, application):
-    if has_permission(user, "application_manage"):
+    if has_permission(user, permissions.application_manage):
         return
 
     if application.created_by == user:
