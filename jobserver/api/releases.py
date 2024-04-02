@@ -578,7 +578,7 @@ def build_level4_user(user):
     workspaces = {}
     # this is 1 or 2 queries per project, not ideal, but we permissions are not stored in the db
     for project in user.projects.all():
-        if has_permission(user, "unreleased_outputs_view", project=project):
+        if has_permission(user, permissions.unreleased_outputs_view, project=project):
             for workspace in project.workspaces.all().values("name"):
                 workspaces[workspace["name"]] = {"project": project.name}
 

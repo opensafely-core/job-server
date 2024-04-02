@@ -121,7 +121,7 @@ class WorkspaceBackendFiles(View):
 
         if not has_permission(
             request.user,
-            "unreleased_outputs_view",
+            permissions.unreleased_outputs_view,
             project=workspace.project,
         ):
             raise Http404
@@ -469,7 +469,7 @@ class WorkspaceFileList(View):
 
         if not has_permission(
             request.user,
-            "unreleased_outputs_view",
+            permissions.unreleased_outputs_view,
             project=workspace.project,
         ):
             raise Http404
