@@ -17,7 +17,7 @@ from furl import furl
 
 from interactive.models import AnalysisRequest
 
-from ..authorization import CoreDeveloper, has_permission, has_role
+from ..authorization import CoreDeveloper, has_permission, has_role, permissions
 from ..forms import (
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -52,7 +52,9 @@ class WorkspaceAnalysisRequestList(ListView):
         )
 
         if not has_permission(
-            request.user, "analysis_request_create", project=self.workspace.project
+            request.user,
+            permissions.analysis_request_create,
+            project=self.workspace.project,
         ):
             raise PermissionDenied
 
@@ -308,7 +310,7 @@ class WorkspaceDetail(View):
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
         is_interactive_user = has_permission(
-            request.user, "analysis_request_create", project=workspace.project
+            request.user, permissions.analysis_request_create, project=workspace.project
         )
         show_interactive_button = is_interactive_user and workspace.is_interactive
 

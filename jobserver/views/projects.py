@@ -18,7 +18,7 @@ from zen_queries import fetch
 
 from jobserver.utils import set_from_qs
 
-from ..authorization import has_permission
+from ..authorization import has_permission, permissions
 from ..github import _get_github_api
 from ..models import Job, JobRequest, Project, PublishRequest, Repo, Snapshot
 
@@ -84,7 +84,7 @@ class ProjectDetail(View):
             )
 
         is_interactive_user = has_permission(
-            request.user, "analysis_request_create", project=project
+            request.user, permissions.analysis_request_create, project=project
         )
 
         with self.tracer.start_as_current_span("reports"):
