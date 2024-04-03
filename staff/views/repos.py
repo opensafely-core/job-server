@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, View
 
-from jobserver.authorization import CoreDeveloper, has_permission
+from jobserver.authorization import CoreDeveloper, has_permission, permissions
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
 from jobserver.issues import create_switch_repo_to_public_request
@@ -75,7 +75,7 @@ class RepoDetail(View):
         }
 
     def build_disabled(self, repo, user):
-        can_sign_off = has_permission(user, "repo_sign_off_with_outputs")
+        can_sign_off = has_permission(user, permissions.repo_sign_off_with_outputs)
         return Disabled(
             already_signed_off=repo.internal_signed_off_at is not None,
             no_permission=repo.has_github_outputs and not can_sign_off,
@@ -199,7 +199,7 @@ class RepoSignOff(View):
         repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
         if repo.has_github_outputs and not has_permission(
-            request.user, "repo_sign_off_with_outputs"
+            request.user, permissions.repo_sign_off_with_outputs
         ):
             msg = "The SignOffRepoWithOutputs role is required to sign off repos with outputs hosted on GitHub"
             messages.error(request, msg)

@@ -17,7 +17,7 @@ from furl import furl
 
 from interactive.models import AnalysisRequest
 
-from ..authorization import CoreDeveloper, has_permission, has_role
+from ..authorization import CoreDeveloper, has_permission, has_role, permissions
 from ..forms import (
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -52,7 +52,9 @@ class WorkspaceAnalysisRequestList(ListView):
         )
 
         if not has_permission(
-            request.user, "analysis_request_create", project=self.workspace.project
+            request.user,
+            permissions.analysis_request_create,
+            project=self.workspace.project,
         ):
             raise PermissionDenied
 
@@ -81,7 +83,7 @@ class WorkspaceArchiveToggle(View):
         )
 
         if not has_permission(
-            request.user, "workspace_archive", project=workspace.project
+            request.user, permissions.workspace_archive, project=workspace.project
         ):
             raise Http404
 
@@ -119,7 +121,7 @@ class WorkspaceBackendFiles(View):
 
         if not has_permission(
             request.user,
-            "unreleased_outputs_view",
+            permissions.unreleased_outputs_view,
             project=workspace.project,
         ):
             raise Http404
@@ -163,7 +165,7 @@ class WorkspaceCreate(CreateView):
 
         can_create_workspaces = has_permission(
             self.request.user,
-            "workspace_create",
+            permissions.workspace_create,
             project=self.project,
         )
         if not can_create_workspaces:
@@ -290,13 +292,15 @@ class WorkspaceDetail(View):
         )
 
         can_archive_workspace = has_permission(
-            request.user, "workspace_archive", project=workspace.project
+            request.user, permissions.workspace_archive, project=workspace.project
         )
         can_run_jobs = has_permission(
-            request.user, "job_run", project=workspace.project
+            request.user, permissions.job_run, project=workspace.project
         )
         can_toggle_notifications = has_permission(
-            request.user, "workspace_toggle_notifications", project=workspace.project
+            request.user,
+            permissions.workspace_toggle_notifications,
+            project=workspace.project,
         )
         has_backends = request.user.is_authenticated and request.user.backends.exists()
 
@@ -308,7 +312,7 @@ class WorkspaceDetail(View):
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
         is_interactive_user = has_permission(
-            request.user, "analysis_request_create", project=workspace.project
+            request.user, permissions.analysis_request_create, project=workspace.project
         )
         show_interactive_button = is_interactive_user and workspace.is_interactive
 
@@ -351,7 +355,7 @@ class WorkspaceDetail(View):
         # a user can see backend files if they have access to at least one
         # backend and the permissions required to see outputs
         is_privileged_user = has_permission(
-            user, "release_file_view", project=workspace.project
+            user, permissions.release_file_view, project=workspace.project
         )
         has_backends = (
             user.is_authenticated and user.backends.exclude(level_4_url="").exists()
@@ -384,7 +388,7 @@ class WorkspaceEdit(FormView):
 
         can_create_workspaces = has_permission(
             self.request.user,
-            "workspace_create",
+            permissions.workspace_create,
             project=self.workspace.project,
         )
         if not can_create_workspaces:
@@ -467,7 +471,7 @@ class WorkspaceFileList(View):
 
         if not has_permission(
             request.user,
-            "unreleased_outputs_view",
+            permissions.unreleased_outputs_view,
             project=workspace.project,
         ):
             raise Http404
@@ -507,14 +511,14 @@ class WorkspaceLatestOutputsDetail(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "release_file_view", project=workspace.project
+            request.user, permissions.release_file_view, project=workspace.project
         ):
             raise Http404
 
         # only show the publish button if the user has permission to publish
         # ouputs
         can_publish = has_permission(
-            request.user, "snapshot_create", project=workspace.project
+            request.user, permissions.snapshot_create, project=workspace.project
         )
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
@@ -553,7 +557,7 @@ class WorkspaceLatestOutputsDownload(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "release_file_view", project=workspace.project
+            request.user, permissions.release_file_view, project=workspace.project
         ):
             raise Http404
 
@@ -577,7 +581,9 @@ class WorkspaceNotificationsToggle(View):
         )
 
         if not has_permission(
-            request.user, "workspace_toggle_notifications", project=workspace.project
+            request.user,
+            permissions.workspace_toggle_notifications,
+            project=workspace.project,
         ):
             raise Http404
 
@@ -608,7 +614,7 @@ class WorkspaceOutputList(ListView):
         snapshots = workspace.snapshots.order_by("-created_at")
 
         can_view_all_files = has_permission(
-            request.user, "release_file_view", project=workspace.project
+            request.user, permissions.release_file_view, project=workspace.project
         )
         if not can_view_all_files:
             snapshots = snapshots.filter(

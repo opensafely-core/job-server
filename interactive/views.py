@@ -11,7 +11,7 @@ from django.views.generic import DetailView, FormView, View
 from interactive_templates.dates import END_DATE, START_DATE, WEEK_OF_LATEST_EXTRACT
 from interactive_templates.schema import Codelist, v2
 
-from jobserver.authorization import has_permission
+from jobserver.authorization import has_permission, permissions
 from jobserver.models import Backend, Project
 from jobserver.opencodelists import _get_opencodelists_api
 from jobserver.reports import process_html
@@ -81,7 +81,7 @@ class AnalysisRequestCreate(View):
         self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         if not has_permission(
-            request.user, "analysis_request_create", project=self.project
+            request.user, permissions.analysis_request_create, project=self.project
         ):
             raise PermissionDenied
 
@@ -205,7 +205,7 @@ class AnalysisRequestDetail(DetailView):
             return redirect_to_login(path, resolved_login_url)
 
         if not has_permission(
-            request.user, "release_file_view", project=self.object.project
+            request.user, permissions.release_file_view, project=self.object.project
         ):
             raise PermissionDenied
 
@@ -236,7 +236,7 @@ class ReportEdit(FormView):
 
         if not has_permission(
             request.user,
-            "analysis_request_view",
+            permissions.analysis_request_view,
             project=self.analysis_request.project,
         ):
             raise PermissionDenied

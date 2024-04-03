@@ -9,7 +9,7 @@ from django.views.generic import RedirectView, View
 from furl import furl
 
 from .. import honeycomb
-from ..authorization import CoreDeveloper, has_permission, has_role
+from ..authorization import CoreDeveloper, has_permission, has_role, permissions
 from ..models import Job, JobRequest
 
 
@@ -18,7 +18,9 @@ class JobCancel(View):
         job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
 
         can_cancel_job = job.job_request.created_by == request.user or has_permission(
-            request.user, "job_cancel", project=job.job_request.workspace.project
+            request.user,
+            permissions.job_cancel,
+            project=job.job_request.workspace.project,
         )
         if not can_cancel_job:
             raise Http404
@@ -55,7 +57,9 @@ class JobDetail(View):
             return redirect(job)
 
         can_cancel_jobs = job.job_request.created_by == request.user or has_permission(
-            request.user, "job_cancel", project=job.job_request.workspace.project
+            request.user,
+            permissions.job_cancel,
+            project=job.job_request.workspace.project,
         )
 
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)

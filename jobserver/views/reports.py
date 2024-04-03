@@ -7,7 +7,7 @@ from django.views.generic import View
 
 from interactive.models import AnalysisRequest
 
-from ..authorization import has_permission
+from ..authorization import has_permission, permissions
 from ..github import _get_github_api
 from ..issues import create_copilot_publish_report_request
 from ..models import PublishRequest
@@ -26,7 +26,7 @@ class PublishRequestCreate(View):
 
         if not has_permission(
             self.request.user,
-            "analysis_request_view",
+            permissions.analysis_request_view,
             project=self.analysis_request.project,
         ):
             raise PermissionDenied

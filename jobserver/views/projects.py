@@ -18,7 +18,7 @@ from zen_queries import fetch
 
 from jobserver.utils import set_from_qs
 
-from ..authorization import has_permission
+from ..authorization import has_permission, permissions
 from ..github import _get_github_api
 from ..models import Job, JobRequest, Project, PublishRequest, Repo, Snapshot
 
@@ -38,7 +38,7 @@ class ProjectDetail(View):
         project.status_description = nh3.clean(markdown(project.status_description))
 
         can_create_workspaces = has_permission(
-            request.user, "workspace_create", project=project
+            request.user, permissions.workspace_create, project=project
         )
 
         is_member = project.members.filter(username=request.user.username).exists()
@@ -84,7 +84,7 @@ class ProjectDetail(View):
             )
 
         is_interactive_user = has_permission(
-            request.user, "analysis_request_create", project=project
+            request.user, permissions.analysis_request_create, project=project
         )
 
         with self.tracer.start_as_current_span("reports"):
@@ -249,7 +249,7 @@ class ProjectReportList(ListView):
         self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         self.can_view_unpublished_reports = has_permission(
-            self.request.user, "release_file_view", project=self.project
+            self.request.user, permissions.release_file_view, project=self.project
         )
 
         return super().dispatch(request, *args, **kwargs)
