@@ -299,7 +299,7 @@ def test_projectedit_unknown_project(rf):
 
 
 @pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
-def test_projectedit_without_permissions(rf, user):
+def test_projectedit_user_is_not_member(rf, user):
     project = ProjectFactory()
 
     request = rf.get("/")
