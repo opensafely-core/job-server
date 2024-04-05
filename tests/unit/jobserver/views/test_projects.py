@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import CoreDeveloper, InteractiveReporter
+from jobserver.authorization import CoreDeveloper, InteractiveReporter, ProjectDeveloper
 from jobserver.models import Project, PublishRequest, Snapshot
 from jobserver.utils import set_from_list, set_from_qs
 from jobserver.views.projects import (
@@ -234,7 +234,7 @@ def test_projectedit_get_success(rf, project_membership):
     project = ProjectFactory()
 
     user = UserFactory()
-    project_membership(project=project, user=user)
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
     request.user = user
@@ -248,7 +248,7 @@ def test_projectedit_post_success(rf, project_membership):
     project = ProjectFactory(status=Project.Statuses.POSTPONED)
 
     user = UserFactory()
-    project_membership(project=project, user=user)
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     data = {
         "status": Project.Statuses.ONGOING,
@@ -271,7 +271,7 @@ def test_projectedit_post_success_with_next(rf, project_membership):
     project = ProjectFactory(status=Project.Statuses.POSTPONED)
 
     user = UserFactory()
-    project_membership(project=project, user=user)
+    project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     data = {
         "status": Project.Statuses.ONGOING,
@@ -307,6 +307,29 @@ def test_projectedit_user_is_not_member(rf, user):
     # our global fixture to re-enable it doesn't trigger early enough for the
     # parametrize call
     request.user = user()
+
+    with pytest.raises(PermissionDenied):
+        ProjectEdit.as_view()(request, project_slug=project.slug)
+
+
+def test_projectedit_user_has_global_project_manage(rf, project_membership):
+    project = ProjectFactory()
+    user = UserFactory(roles=[ProjectDeveloper])
+    project_membership(project=project, user=user)
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectEdit.as_view()(request, project_slug=project.slug)
+
+    assert response.status_code == 200
+
+
+def test_projectedit_member_does_not_have_project_manage(rf, project_membership):
+    project = ProjectFactory()
+    user = UserFactory()
+    project_membership(project=project, user=user)
+    request = rf.get("/")
+    request.user = user
 
     with pytest.raises(PermissionDenied):
         ProjectEdit.as_view()(request, project_slug=project.slug)

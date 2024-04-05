@@ -212,9 +212,11 @@ class ProjectEdit(UpdateView):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         user = self.request.user
-        user_is_member = project.members.filter(username=user.username).exists()
+        user_has_project_manage = has_permission(
+            user, permissions.project_manage, project=project
+        )
 
-        if not user_is_member:
+        if not user_has_project_manage:
             raise PermissionDenied
 
         return project
