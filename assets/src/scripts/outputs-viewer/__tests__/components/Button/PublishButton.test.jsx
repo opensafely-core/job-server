@@ -34,9 +34,11 @@ describe("<PublishButton />", () => {
       "Create a public published output",
     );
 
-    await user.click(screen.getByRole("button"));
+    user.click(screen.getByRole("button"));
 
-    expect(screen.getByRole("button")).toHaveTextContent("Creating…");
+    expect(
+      await screen.findByRole("button", { name: "Creating…" }),
+    ).toBeVisible();
 
     await waitFor(() => expect(fetch.requests().length).toEqual(1));
   });
@@ -56,7 +58,7 @@ describe("<PublishButton />", () => {
       "Create a public published output",
     );
 
-    await user.click(screen.getByRole("button"));
+    user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
@@ -83,7 +85,7 @@ describe("<PublishButton />", () => {
       "Create a public published output",
     );
 
-    await user.click(screen.getByRole("button"));
+    user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({

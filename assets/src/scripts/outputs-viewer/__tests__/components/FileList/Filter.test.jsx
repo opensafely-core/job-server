@@ -15,7 +15,7 @@ describe("<Filter />", () => {
   const setFiles = vi.fn();
   const listRef = vi.fn();
 
-  it("shows the filter", async () => {
+  it("shows the filter", () => {
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);
 
     expect(
@@ -29,7 +29,7 @@ describe("<Filter />", () => {
 
     const searchbox = screen.getByRole("searchbox", { name: "Find a file…" });
     expect(searchbox).toBeVisible();
-    await user.type(searchbox, "html");
+    user.type(searchbox, "html");
 
     await waitFor(() =>
       expect(setFiles).toHaveBeenLastCalledWith([
@@ -41,15 +41,15 @@ describe("<Filter />", () => {
     );
   });
 
-  it("clears filter on clearing of input", async () => {
+  it("clears filter on clearing of input", () => {
     const user = userEvent.setup();
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);
 
     const searchbox = screen.getByRole("searchbox", { name: "Find a file…" });
     expect(searchbox).toBeVisible();
-    await user.type(searchbox, "html");
+    user.type(searchbox, "html");
 
-    await waitFor(() =>
+    waitFor(() =>
       expect(setFiles).toHaveBeenLastCalledWith([
         { ...csvFile, visible: false },
         { ...pngFile, visible: false },
@@ -58,8 +58,8 @@ describe("<Filter />", () => {
       ]),
     );
 
-    await user.clear(searchbox);
+    user.clear(searchbox);
 
-    await waitFor(() => expect(setFiles).toHaveBeenLastCalledWith(fileList));
+    waitFor(() => expect(setFiles).toHaveBeenLastCalledWith(fileList));
   });
 });

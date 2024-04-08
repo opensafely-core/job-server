@@ -2,7 +2,7 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it } from "vitest";
 import App from "../App";
-import { csvFile, fileList } from "./helpers/files";
+import { csvFile, fileList, txtFile } from "./helpers/files";
 import props, { prepareUrl, publishUrl } from "./helpers/props";
 import { render, screen, waitFor } from "./test-utils";
 
@@ -36,9 +36,9 @@ describe("<App />", () => {
       );
     });
 
-    expect(screen.getByRole("button").textContent).toEqual("Hide file list");
-    await userEvent.click(screen.getByRole("button"));
-    expect(screen.getByRole("button").textContent).toEqual("Show file list");
+    expect(await screen.findByText("Hide file list")).toBeVisible();
+    userEvent.click(screen.getByRole("button"));
+    expect(await screen.findByText("Show file list")).toBeVisible();
   });
 
   it("shows prepare button", async () => {
@@ -65,10 +65,9 @@ describe("<App />", () => {
     render(<App {...props} />);
 
     await screen.findByText(csvFile.shortName);
-    await user.click(screen.queryAllByRole("link")[0]);
+    user.click(screen.getByRole("link", { name: txtFile.shortName }));
 
-    expect(screen.getByText("Last modified at:")).toBeVisible();
-    expect(screen.getByText("hello")).toBeVisible();
-    expect(screen.getByText("world")).toBeVisible();
+    expect(await screen.findByText("Last modified at:")).toBeVisible();
+    expect(await screen.findByText("hello,world")).toBeVisible();
   });
 });

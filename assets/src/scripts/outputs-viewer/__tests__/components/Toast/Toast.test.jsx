@@ -2,7 +2,13 @@ import React from "react";
 import toast from "react-hot-toast";
 import { afterEach, describe, expect, it } from "vitest";
 import Toast from "../../../components/Toast/Toast";
-import { act, fireEvent, render, screen, waitFor } from "../../test-utils";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from "../../test-utils";
 
 describe("<Toast />", () => {
   afterEach(() => {
@@ -18,9 +24,8 @@ describe("<Toast />", () => {
 
     expect(screen.getByRole("status").textContent).toBe(str);
     fireEvent.click(screen.getByRole("button"));
-    await waitFor(() => {
-      expect(screen.queryByText(str)).not.toBeInTheDocument();
-    });
+    screen.debug();
+    await waitForElementToBeRemoved(() => screen.queryByText(str));
   });
 
   it("displays and dismisses the danger toast", async () => {
@@ -30,9 +35,7 @@ describe("<Toast />", () => {
 
     expect(screen.getByRole("status").textContent).toBe(str);
     fireEvent.click(screen.getByRole("button"));
-    await waitFor(() => {
-      expect(screen.queryByText(str)).not.toBeInTheDocument();
-    });
+    await waitForElementToBeRemoved(() => screen.queryByText(str));
   });
 
   it("displays and dismisses the success toast", async () => {
@@ -42,8 +45,6 @@ describe("<Toast />", () => {
 
     expect(screen.getByRole("status").textContent).toBe(str);
     fireEvent.click(screen.getByRole("button"));
-    await waitFor(() => {
-      expect(screen.queryByText(str)).not.toBeInTheDocument();
-    });
+    await waitForElementToBeRemoved(() => screen.queryByText(str));
   });
 });

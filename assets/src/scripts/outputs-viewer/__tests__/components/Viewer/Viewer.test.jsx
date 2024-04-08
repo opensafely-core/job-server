@@ -20,7 +20,7 @@ import props, { uuid } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<Viewer />", () => {
-  it("returns a loading state", async () => {
+  it("returns a loading state", () => {
     fetch.mockResponseOnce(JSON.stringify(htmlExample));
     render(
       <Viewer
@@ -31,7 +31,7 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() => expect(screen.getByText("Loading...")).toBeVisible());
+    expect(screen.getByText("Loading...")).toBeVisible();
   });
 
   it("returns <NoPreview /> for network error", async () => {
@@ -47,9 +47,7 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(screen.getByText("Error: Unable to load file")).toBeVisible(),
-    );
+    expect(await screen.findByText("Error: Unable to load file")).toBeVisible();
   });
 
   it("returns text for a file that has not been uploaded", async () => {
@@ -65,13 +63,11 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(
-        screen.getByText(
-          "This file has not been uploaded yet. This is likely due to do an error that occurred during release.",
-        ),
-      ).toBeVisible(),
-    );
+    expect(
+      await screen.findByText(
+        "This file has not been uploaded yet. This is likely due to do an error that occurred during release.",
+      ),
+    ).toBeVisible();
   });
 
   it("returns <NoPreview /> for no data", async () => {
@@ -87,11 +83,9 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(
-        screen.getByText("We cannot show a preview of this file."),
-      ).toBeVisible(),
-    );
+    expect(
+      await screen.findByText("We cannot show a preview of this file."),
+    ).toBeVisible();
   });
 
   it("returns <NoPreview /> for invalid file type", async () => {
@@ -107,11 +101,9 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(
-        screen.getByText("We cannot show a preview of this file."),
-      ).toBeVisible(),
-    );
+    expect(
+      await screen.findByText("We cannot show a preview of this file."),
+    ).toBeVisible();
   });
 
   it("returns <NoPreview /> for empty data", async () => {
@@ -125,11 +117,9 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(
-        screen.getByText("We cannot show a preview of this file."),
-      ).toBeVisible(),
-    );
+    expect(
+      await screen.findByText("We cannot show a preview of this file."),
+    ).toBeVisible();
   });
 
   it("returns <NoPreview /> for too large CSV", async () => {
@@ -143,11 +133,9 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(
-        screen.getByText("We cannot show a preview of this file."),
-      ).toBeVisible(),
-    );
+    expect(
+      await screen.findByText("We cannot show a preview of this file."),
+    ).toBeVisible();
   });
 
   it("returns <NoPreview /> for failed PNG", async () => {
@@ -161,14 +149,12 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(
-        screen.getByText("We cannot show a preview of this file."),
-      ).toBeVisible(),
-    );
+    expect(
+      await screen.findByText("We cannot show a preview of this file."),
+    ).toBeVisible();
   });
 
-  it("returns <Table /> for CSV", async () => {
+  it("returns <Table /> for CSV", () => {
     fetch.mockResponseOnce(JSON.stringify(csvExample));
     render(
       <Viewer
@@ -179,10 +165,10 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() => expect(screen.getByRole("table")).toBeVisible());
+    waitFor(() => expect(screen.getByRole("table")).toBeVisible());
   });
 
-  it("returns <Iframe /> for HTML", async () => {
+  it("returns <Iframe /> for HTML", () => {
     fetch.mockResponseOnce(JSON.stringify(htmlExample));
     const { container } = render(
       <Viewer
@@ -193,7 +179,8 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() => {
+
+    waitFor(() => {
       const iframe = container.querySelector("iframe");
       return expect(iframe.getAttribute("srcDoc")).toContain(
         JSON.stringify(htmlExample),
@@ -213,9 +200,9 @@ describe("<Viewer />", () => {
       />,
     );
 
-    await waitFor(() =>
-      expect(screen.getByRole("img").src).toBe(`http://localhost:3000/imgSrc`),
-    );
+    expect(await screen.findByRole("img")).toBeVisible();
+    const image = screen.getByRole("img");
+    expect(image.getAttribute("src")).toBe("imgSrc");
   });
 
   it("returns <Text /> for TXT", async () => {
@@ -229,9 +216,7 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-    await waitFor(() =>
-      expect(screen.getByText(`"${txtExample}"`)).toBeVisible(),
-    );
+    expect(await screen.findByText(`"${txtExample}"`)).toBeVisible();
   });
 
   it("returns <Text /> for JSON", async () => {
@@ -246,12 +231,10 @@ describe("<Viewer />", () => {
       />,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText(JSON.stringify(jsonExample))).toBeVisible();
-    });
+    expect(await screen.findByText(JSON.stringify(jsonExample))).toBeVisible();
   });
 
-  it("checks the release-hatch for an un-uploaded file", async () => {
+  it("checks the release-hatch for an un-uploaded file", () => {
     fetch.mockResponseOnce(() => ({
       body: JSON.stringify(txtExample),
       headers: {
@@ -270,7 +253,7 @@ describe("<Viewer />", () => {
       />,
     );
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(fetch.requests().length).toEqual(2);
     });
   });
@@ -290,9 +273,7 @@ describe("<Viewer />", () => {
       />,
     );
 
-    await waitFor(() =>
-      expect(screen.getByText("Error: Unable to load file")).toBeVisible(),
-    );
+    expect(await screen.findByText("Error: Unable to load file")).toBeVisible();
   });
 
   it("throw error if release-hatch returns with a not ok response", async () => {
@@ -318,8 +299,6 @@ describe("<Viewer />", () => {
       ok: false,
     }));
 
-    await waitFor(() =>
-      expect(screen.getByText("Error: Unable to load file")).toBeVisible(),
-    );
+    expect(await screen.findByText("Error: Unable to load file")).toBeVisible();
   });
 });

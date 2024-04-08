@@ -99,7 +99,7 @@ describe("<PrepareButton />", () => {
       "Create a draft publication",
     );
 
-    await user.click(screen.getByRole("button"));
+    user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent("Creating…"),
@@ -136,7 +136,7 @@ describe("<PrepareButton />", () => {
       "Create a draft publication",
     );
 
-    await user.click(screen.getByRole("button"));
+    user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
@@ -174,7 +174,7 @@ describe("<PrepareButton />", () => {
       "Create a draft publication",
     );
 
-    await user.click(screen.getByRole("button"));
+    user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
