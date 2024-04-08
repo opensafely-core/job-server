@@ -50,7 +50,7 @@
     "@sentry/react": "^7.109.0",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.12",
-    "@tanstack/react-query": "^5.28.9",
+    "@tanstack/react-query": "^5.29.0",
     "@tanstack/react-query-devtools": "^5.28.10",
     "@zachleat/details-utils": "^2.0.2",
     "formik": "^2.4.5",
