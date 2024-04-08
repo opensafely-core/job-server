@@ -31,6 +31,7 @@ services:
         # env vars supplied by just
         - BUILD_DATE
         - GITREF
+        - NODE_VERSION
     environment:
       # anything we run using this docker-compose file is in development, and thus we force the use of the db service.
       - DATABASE_URL=postgres://user:pass@db:5432/jobserver
