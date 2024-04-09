@@ -131,10 +131,7 @@ describe("<FileList />", () => {
       );
     });
 
-    userEvent.selectOptions(
-      await screen.findByRole("combobox"),
-      "Created date",
-    );
+    user.selectOptions(await screen.findByRole("combobox"), "Created date");
 
     waitFor(() => {
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
@@ -145,7 +142,7 @@ describe("<FileList />", () => {
       );
     });
 
-    userEvent.selectOptions(await screen.findByRole("combobox"), "File name");
+    user.selectOptions(await screen.findByRole("combobox"), "File name");
 
     waitFor(() => {
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(

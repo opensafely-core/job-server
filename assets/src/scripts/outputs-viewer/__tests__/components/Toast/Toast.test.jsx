@@ -1,10 +1,10 @@
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import toast from "react-hot-toast";
 import { afterEach, describe, expect, it } from "vitest";
 import Toast from "../../../components/Toast/Toast";
 import {
   act,
-  fireEvent,
   render,
   screen,
   waitForElementToBeRemoved,
@@ -18,6 +18,7 @@ describe("<Toast />", () => {
   });
 
   it("displays and dismisses the default toast", async () => {
+    const user = userEvent.setup();
     const str = "This is a notification";
     toast(str);
     render(<Toast />);
@@ -25,12 +26,13 @@ describe("<Toast />", () => {
     const toaster = await screen.findByRole("status");
     expect(toaster.textContent).toBe(str);
 
-    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    user.click(screen.getByRole("button", { name: "Dismiss" }));
 
-    await waitForElementToBeRemoved(() => screen.queryByText(str));
+    waitForElementToBeRemoved(() => screen.queryByText(str));
   });
 
   it("displays and dismisses the danger toast", async () => {
+    const user = userEvent.setup();
     const str = "This is an error";
     toast.error(str);
     render(<Toast type="error" />);
@@ -38,12 +40,13 @@ describe("<Toast />", () => {
     const toaster = await screen.findByRole("status");
     expect(toaster.textContent).toBe(str);
 
-    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    user.click(screen.getByRole("button", { name: "Dismiss" }));
 
-    await waitForElementToBeRemoved(() => screen.queryByText(str));
+    waitForElementToBeRemoved(() => screen.queryByText(str));
   });
 
   it("displays and dismisses the success toast", async () => {
+    const user = userEvent.setup();
     const str = "This is a success";
     toast.success(str);
     render(<Toast type="success" />);
@@ -51,8 +54,8 @@ describe("<Toast />", () => {
     const toaster = await screen.findByRole("status");
     expect(toaster.textContent).toBe(str);
 
-    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    user.click(screen.getByRole("button", { name: "Dismiss" }));
 
-    await waitForElementToBeRemoved(() => screen.queryByText(str));
+    waitForElementToBeRemoved(() => screen.queryByText(str));
   });
 });
