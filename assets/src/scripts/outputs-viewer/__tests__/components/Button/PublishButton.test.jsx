@@ -10,12 +10,18 @@ import { render, screen, waitFor } from "../../test-utils";
 describe("<PublishButton />", () => {
   const { csrfToken } = props;
 
-  it("shows the button", () => {
+  it("shows the button", async () => {
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent(
       "Create a public published output",
     );
+
+    expect(
+      await screen.findByRole("button", {
+        name: "Create a public published output",
+      }),
+    ).toBeVisible();
   });
 
   it("triggers a mutation on click", async () => {
@@ -30,15 +36,17 @@ describe("<PublishButton />", () => {
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
-    expect(screen.getByRole("button")).toHaveTextContent(
-      "Create a public published output",
-    );
+    const publicBtn = await screen.findByRole("button", {
+      name: "Create a public published output",
+    });
+    expect(publicBtn).toBeVisible();
+    user.click(publicBtn);
 
-    await user.click(screen.getByRole("button"));
+    expect(
+      await screen.findByRole("button", { name: "Creating…" }),
+    ).toBeVisible();
 
-    expect(screen.getByRole("button")).toHaveTextContent("Creating…");
-
-    await waitFor(() => expect(fetch.requests().length).toEqual(1));
+    waitFor(() => expect(fetch.requests().length).toEqual(1));
   });
 
   it("show the JSON error message", async () => {
@@ -52,13 +60,13 @@ describe("<PublishButton />", () => {
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
-    expect(screen.getByRole("button")).toHaveTextContent(
-      "Create a public published output",
-    );
+    const publicBtn = await screen.findByRole("button", {
+      name: "Create a public published output",
+    });
+    expect(publicBtn).toBeVisible();
+    user.click(publicBtn);
 
-    await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
+    waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
         message: "Error: Invalid user token",
         publishUrl,
@@ -79,13 +87,13 @@ describe("<PublishButton />", () => {
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
-    expect(screen.getByRole("button")).toHaveTextContent(
-      "Create a public published output",
-    );
+    const publicBtn = await screen.findByRole("button", {
+      name: "Create a public published output",
+    });
+    expect(publicBtn).toBeVisible();
+    user.click(publicBtn);
 
-    await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
+    waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
         message: "Error",
         publishUrl,

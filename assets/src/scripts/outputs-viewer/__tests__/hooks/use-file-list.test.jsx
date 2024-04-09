@@ -86,7 +86,7 @@ describe("useFileList hook", () => {
       { wrapper },
     );
 
-    await waitFor(() =>
+    waitFor(() =>
       expect(result.current.error).toEqual(new Error("File list not found")),
     );
   });

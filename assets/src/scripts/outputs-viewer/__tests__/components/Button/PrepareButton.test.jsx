@@ -49,7 +49,7 @@ describe("<PrepareButton />", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("shows if there are files", () => {
+  it("shows if there are files", async () => {
     vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
@@ -63,9 +63,9 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent(
-      "Create a draft publication",
-    );
+    expect(
+      await screen.findByRole("button", { name: "Create a draft publication" }),
+    ).toBeVisible();
   });
 
   it("triggers a mutation on click", async () => {
@@ -95,17 +95,17 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent(
-      "Create a draft publication",
-    );
+    const draftBtn = await screen.findByRole("button", {
+      name: "Create a draft publication",
+    });
+    expect(draftBtn).toBeVisible();
+    user.click(draftBtn);
 
-    await user.click(screen.getByRole("button"));
+    expect(
+      await screen.findByRole("button", { name: "Creating…" }),
+    ).toBeVisible();
 
-    await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Creating…"),
-    );
-
-    await waitFor(() => {
+    waitFor(() => {
       expect(window.location.href).toEqual(urls.redirect);
     });
   });
@@ -132,13 +132,13 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent(
-      "Create a draft publication",
-    );
+    const draftBtn = await screen.findByRole("button", {
+      name: "Create a draft publication",
+    });
+    expect(draftBtn).toBeVisible();
+    user.click(draftBtn);
 
-    await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
+    waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
         message: "Error: Invalid user token",
         prepareUrl,
@@ -170,13 +170,13 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent(
-      "Create a draft publication",
-    );
+    const draftBtn = await screen.findByRole("button", {
+      name: "Create a draft publication",
+    });
+    expect(draftBtn).toBeVisible();
+    user.click(draftBtn);
 
-    await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
+    waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
         message: "Error",
         prepareUrl,

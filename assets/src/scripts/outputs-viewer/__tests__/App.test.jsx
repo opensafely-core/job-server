@@ -11,7 +11,7 @@ describe("<App />", () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} />);
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         fileList[0].shortName,
@@ -19,33 +19,35 @@ describe("<App />", () => {
     });
 
     expect(
-      screen.getByRole("searchbox", { name: "Find a file…" }),
+      await screen.findByRole("searchbox", { name: "Find a file…" }),
     ).toBeVisible();
   });
 
   it("shows and hides the file list", async () => {
+    const user = userEvent.setup();
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} />);
 
     window.resizeTo(500, 500);
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         fileList[0].shortName,
       );
     });
 
-    expect(screen.getByRole("button").textContent).toEqual("Hide file list");
-    await userEvent.click(screen.getByRole("button"));
-    expect(screen.getByRole("button").textContent).toEqual("Show file list");
+    const btn = await screen.findByRole("button", { name: "Hide file list" });
+    expect(btn).toBeVisible();
+    user.click(btn);
+    expect(await screen.findByRole("button", { name: "Show file list" }));
   });
 
   it("shows prepare button", async () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} prepareUrl={prepareUrl} />);
     expect(
-      screen.getByRole("button", { name: "Create a draft publication" }),
+      await screen.findByRole("button", { name: "Create a draft publication" }),
     ).toBeVisible();
   });
 
@@ -53,22 +55,24 @@ describe("<App />", () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} publishUrl={publishUrl} />);
     expect(
-      screen.getByRole("button", { name: "Create a public published output" }),
+      await screen.findByRole("button", {
+        name: "Create a public published output",
+      }),
     ).toBeVisible();
   });
 
   it("shows the Viewer if a file is selected", async () => {
+    const user = userEvent.setup();
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     fetch.mockResponseOnce(["hello", "world"]);
 
-    const user = userEvent.setup();
     render(<App {...props} />);
 
-    await screen.findByText(csvFile.shortName);
-    await user.click(screen.queryAllByRole("link")[0]);
+    expect(await screen.findByText(csvFile.shortName)).toBeVisible();
+    user.click(await screen.findByRole("link", { name: csvFile.shortName }));
 
-    expect(screen.getByText("Last modified at:")).toBeVisible();
-    expect(screen.getByText("hello")).toBeVisible();
-    expect(screen.getByText("world")).toBeVisible();
+    expect(await screen.findByText("Last modified at:")).toBeVisible();
+    expect(await screen.findByRole("cell", { name: "hello" })).toBeVisible();
+    expect(await screen.findByRole("cell", { name: "world" })).toBeVisible();
   });
 });

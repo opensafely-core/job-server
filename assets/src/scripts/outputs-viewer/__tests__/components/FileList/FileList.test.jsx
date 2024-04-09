@@ -32,7 +32,7 @@ describe("<FileList />", () => {
 
     render(<FileListWrapper />);
 
-    await waitFor(() => expect(screen.getByText("Loading…")).toBeVisible());
+    waitFor(() => expect(screen.getByText("Loading…")).toBeVisible());
   });
 
   it("returns error state for network error", async () => {
@@ -42,7 +42,7 @@ describe("<FileList />", () => {
 
     render(<FileListWrapper />);
 
-    await waitFor(() =>
+    waitFor(() =>
       expect(screen.getByText("Unable to load files")).toBeVisible(),
     );
   });
@@ -51,7 +51,7 @@ describe("<FileList />", () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<FileListWrapper />);
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         fileList[0].shortName,
@@ -64,16 +64,22 @@ describe("<FileList />", () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<FileListWrapper />);
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         fileList[0].shortName,
       );
     });
 
-    await user.click(screen.queryAllByRole("link")[0]);
+    const csvLink = await screen.findByRole("link", {
+      name: csvFile.shortName,
+    });
+    expect(csvLink).toBeVisible();
+    user.click(csvLink);
 
-    expect(history.location.pathname).toBe(`/${csvFile.name}`);
+    waitFor(() => {
+      expect(history.location.pathname).toBe(`/${csvFile.name}`);
+    });
   });
 
   it("doesn't update if the clicked file is already showing", async () => {
@@ -82,23 +88,34 @@ describe("<FileList />", () => {
     history.replace("/");
     render(<FileListWrapper />);
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         fileList[0].shortName,
       );
     });
 
-    await user.click(screen.getByText(csvFile.shortName));
-    expect(history.location.pathname).toBe(`/${csvFile.name}`);
+    const csvLink = await screen.findByRole("link", {
+      name: csvFile.shortName,
+    });
+    expect(csvLink).toBeVisible();
 
-    await user.click(screen.getByText(csvFile.shortName));
-    await expect(history.location.pathname).toBe(`/${csvFile.name}`);
-    expect(history.index).toBe(2);
+    user.click(csvLink);
+    waitFor(() => {
+      expect(history.location.pathname).toBe(`/${csvFile.name}`);
+    });
 
-    await user.click(screen.getByText(csvFile.shortName));
-    expect(history.location.pathname).toBe(`/${csvFile.name}`);
-    expect(history.index).toBe(2);
+    user.click(csvLink);
+    waitFor(() => {
+      expect(history.location.pathname).toBe(`/${csvFile.name}`);
+      expect(history.index).toBe(1);
+    });
+
+    user.click(csvLink);
+    waitFor(() => {
+      expect(history.location.pathname).toBe(`/${csvFile.name}`);
+      expect(history.index).toBe(1);
+    });
   });
 
   it("sorts the files by date or file name order", async () => {
@@ -107,16 +124,19 @@ describe("<FileList />", () => {
     history.replace("/");
     render(<FileListWrapper />);
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         fileList[0].shortName,
       );
     });
 
-    userEvent.selectOptions(screen.getByRole("combobox"), "Created date");
+    userEvent.selectOptions(
+      await screen.findByRole("combobox"),
+      "Created date",
+    );
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         htmlFile.shortName,
       );
@@ -125,9 +145,9 @@ describe("<FileList />", () => {
       );
     });
 
-    userEvent.selectOptions(screen.getByRole("combobox"), "File name");
+    userEvent.selectOptions(await screen.findByRole("combobox"), "File name");
 
-    await waitFor(() => {
+    waitFor(() => {
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
         csvFile.shortName,
       );

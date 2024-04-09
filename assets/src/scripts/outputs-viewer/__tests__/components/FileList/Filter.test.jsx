@@ -27,29 +27,33 @@ describe("<Filter />", () => {
     const user = userEvent.setup();
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);
 
-    const searchbox = screen.getByRole("searchbox", { name: "Find a file…" });
+    const searchbox = await screen.findByRole("searchbox", {
+      name: "Find a file…",
+    });
     expect(searchbox).toBeVisible();
-    await user.type(searchbox, "html");
+    user.type(searchbox, "html");
 
-    await waitFor(() =>
+    waitFor(() => {
       expect(setFiles).toHaveBeenLastCalledWith([
         { ...csvFile, visible: false },
         { ...pngFile, visible: false },
         { ...txtFile, visible: false },
         { ...htmlFile, visible: true },
-      ]),
-    );
+      ]);
+    });
   });
 
   it("clears filter on clearing of input", async () => {
     const user = userEvent.setup();
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);
 
-    const searchbox = screen.getByRole("searchbox", { name: "Find a file…" });
+    const searchbox = await screen.findByRole("searchbox", {
+      name: "Find a file…",
+    });
     expect(searchbox).toBeVisible();
-    await user.type(searchbox, "html");
+    user.type(searchbox, "html");
 
-    await waitFor(() =>
+    waitFor(() =>
       expect(setFiles).toHaveBeenLastCalledWith([
         { ...csvFile, visible: false },
         { ...pngFile, visible: false },
@@ -58,8 +62,8 @@ describe("<Filter />", () => {
       ]),
     );
 
-    await user.clear(searchbox);
+    user.clear(searchbox);
 
-    await waitFor(() => expect(setFiles).toHaveBeenLastCalledWith(fileList));
+    expect(setFiles).toHaveBeenLastCalledWith(fileList);
   });
 });
