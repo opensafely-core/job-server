@@ -16,6 +16,7 @@ build env="dev": _dotenv
     # set build args for prod builds
     export BUILD_DATE=$(date -u +'%y-%m-%dT%H:%M:%SZ')
     export GITREF=$(git rev-parse --short HEAD)
+    export NODE_VERSION=$(cat ../.node-version)
 
     # build the thing
     docker-compose build --pull {{ env }}
