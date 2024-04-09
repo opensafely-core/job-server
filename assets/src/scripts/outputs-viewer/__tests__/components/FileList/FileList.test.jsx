@@ -42,9 +42,7 @@ describe("<FileList />", () => {
 
     render(<FileListWrapper />);
 
-    waitFor(() =>
-      expect(screen.getByText("Unable to load files")).toBeVisible(),
-    );
+    expect(await screen.findByText("Unable to load files")).toBeVisible();
   });
 
   it("returns a file list", async () => {

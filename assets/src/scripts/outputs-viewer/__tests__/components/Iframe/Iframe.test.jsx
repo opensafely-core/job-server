@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from "react";
 import { describe, expect, it } from "vitest";
 import Iframe from "../../../components/Iframe/Iframe";

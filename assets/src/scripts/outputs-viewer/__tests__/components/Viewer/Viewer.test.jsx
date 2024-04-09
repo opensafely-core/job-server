@@ -202,9 +202,9 @@ describe("<Viewer />", () => {
       />,
     );
 
-    waitFor(() =>
-      expect(screen.getByRole("img").src).toBe(`http://localhost:3000/imgSrc`),
-    );
+    const image = await screen.findByRole("img");
+    expect(image).toBeVisible();
+    expect(image.getAttribute("src")).toBe("imgSrc");
   });
 
   it("returns <Text /> for TXT", async () => {

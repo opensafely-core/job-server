@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import toast from "react-hot-toast";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import PrepareButton from "../../../components/Button/PrepareButton";
 import * as useFileList from "../../../hooks/use-file-list";
-import * as toast from "../../../utils/toast";
+import * as toastUtils from "../../../utils/toast";
 import { fileList } from "../../helpers/files";
 import props, { prepareUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
@@ -112,14 +113,12 @@ describe("<PrepareButton />", () => {
 
   it("show the JSON error message", async () => {
     const user = userEvent.setup();
-    const toastError = vi.fn();
-    console.error = vi.fn();
 
     vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
-    vi.spyOn(toast, "toastError").mockImplementation(toastError);
+    vi.spyOn(toastUtils, "toastError").mockImplementation((error) => error);
 
     fetch.mockRejectOnce(new Error("Invalid user token"));
 
@@ -136,10 +135,10 @@ describe("<PrepareButton />", () => {
       name: "Create a draft publication",
     });
     expect(draftBtn).toBeVisible();
-    user.click(draftBtn);
+    await user.click(draftBtn);
 
     waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith({
+      expect(toast.error).toHaveBeenCalledWith({
         message: "Error: Invalid user token",
         prepareUrl,
         toastId: "PrepareButton",
@@ -150,16 +149,16 @@ describe("<PrepareButton />", () => {
 
   it("show the server error message", async () => {
     const user = userEvent.setup();
-    const toastError = vi.fn();
-    console.error = vi.fn();
 
     vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
-    vi.spyOn(toast, "toastError").mockImplementation(toastError);
+    vi.spyOn(toastUtils, "toastError").mockImplementation((error) => error);
 
-    fetch.mockRejectOnce(new Error());
+    fetch.mockRejectOnce(() => ({
+      ok: false,
+    }));
 
     render(
       <PrepareButton
@@ -174,15 +173,15 @@ describe("<PrepareButton />", () => {
       name: "Create a draft publication",
     });
     expect(draftBtn).toBeVisible();
-    user.click(draftBtn);
+    await user.click(draftBtn);
 
-    waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith({
+    waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith({
         message: "Error",
         prepareUrl,
         toastId: "PrepareButton",
         url: "http://localhost:3000/",
-      }),
-    );
+      });
+    });
   });
 });
