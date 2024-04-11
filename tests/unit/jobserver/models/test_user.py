@@ -8,7 +8,6 @@ from django.utils import timezone
 from jobserver.authorization.roles import (
     CoreDeveloper,
     InteractiveReporter,
-    OrgCoordinator,
     OutputChecker,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -70,13 +69,15 @@ def test_user_get_all_permissions(role_factory, project_membership):
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[role_factory(permissions=["a_global_permission"])])
 
-    OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
+    OrgMembershipFactory(
+        org=org, user=user, roles=[role_factory(permissions=["an_org_permission"])]
+    )
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     output = user.get_all_permissions()
     expected = {
         "global": ["a_global_permission"],
-        "orgs": [{"slug": org.slug, "permissions": []}],
+        "orgs": [{"slug": org.slug, "permissions": ["an_org_permission"]}],
         "projects": [
             {
                 "slug": project.slug,
