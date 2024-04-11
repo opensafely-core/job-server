@@ -24,6 +24,7 @@ describe("<App />", () => {
   });
 
   it("shows and hides the file list", async () => {
+    const user = userEvent.setup();
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} />);
 
@@ -37,7 +38,7 @@ describe("<App />", () => {
     });
 
     expect(screen.getByRole("button").textContent).toEqual("Hide file list");
-    await userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
     expect(screen.getByRole("button").textContent).toEqual("Show file list");
   });
 

@@ -1,3 +1,4 @@
+/* v8 ignore start */
 import * as Sentry from "@sentry/react";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -23,3 +24,4 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>,
 );
+/* v8 ignore stop */
