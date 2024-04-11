@@ -65,22 +65,17 @@ def test_user_get_absolute_url():
     assert url == reverse("user-detail", kwargs={"username": user.username})
 
 
-def test_user_get_all_permissions(project_membership):
+def test_user_get_all_permissions(role_factory, project_membership):
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
-    user = UserFactory(roles=[CoreDeveloper])
+    user = UserFactory(roles=[role_factory(permissions=["a_global_permission"])])
 
     OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     output = user.get_all_permissions()
     expected = {
-        "global": [
-            "application_manage",
-            "backend_manage",
-            "org_create",
-            "user_manage",
-        ],
+        "global": ["a_global_permission"],
         "orgs": [{"slug": org.slug, "permissions": []}],
         "projects": [
             {
