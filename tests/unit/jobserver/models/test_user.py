@@ -72,27 +72,17 @@ def test_user_get_all_permissions(role_factory, project_membership):
     OrgMembershipFactory(
         org=org, user=user, roles=[role_factory(permissions=["an_org_permission"])]
     )
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=["a_project_permission"])],
+    )
 
     output = user.get_all_permissions()
     expected = {
         "global": ["a_global_permission"],
         "orgs": [{"slug": org.slug, "permissions": ["an_org_permission"]}],
-        "projects": [
-            {
-                "slug": project.slug,
-                "permissions": [
-                    "job_cancel",
-                    "job_run",
-                    "project_manage",
-                    "snapshot_create",
-                    "unreleased_outputs_view",
-                    "workspace_archive",
-                    "workspace_create",
-                    "workspace_toggle_notifications",
-                ],
-            }
-        ],
+        "projects": [{"slug": project.slug, "permissions": ["a_project_permission"]}],
     }
 
     assert output == expected
