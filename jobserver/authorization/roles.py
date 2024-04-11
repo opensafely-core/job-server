@@ -6,6 +6,7 @@ from .permissions import (
     job_cancel,
     job_run,
     org_create,
+    project_manage,
     release_file_delete,
     release_file_upload,
     release_file_view,
@@ -141,6 +142,7 @@ class ProjectDeveloper:
     permissions = [
         job_cancel,
         job_run,
+        project_manage,
         snapshot_create,
         unreleased_outputs_view,
         workspace_archive,

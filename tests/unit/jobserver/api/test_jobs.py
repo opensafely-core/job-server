@@ -913,6 +913,7 @@ def test_userapidetail_success(api_rf, project_membership):
             "permissions": [
                 "job_cancel",
                 "job_run",
+                "project_manage",
                 "snapshot_create",
                 "unreleased_outputs_view",
                 "workspace_archive",
