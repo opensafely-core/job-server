@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import CoreDeveloper, InteractiveReporter, ProjectDeveloper
+from jobserver.authorization import CoreDeveloper, InteractiveReporter, permissions
 from jobserver.models import Project, PublishRequest, Snapshot
 from jobserver.utils import set_from_list, set_from_qs
 from jobserver.views.projects import (
@@ -230,11 +230,15 @@ def test_projectdetail_unknown_project(rf):
         ProjectDetail.as_view()(request, project_slug="test")
 
 
-def test_projectedit_get_success(rf, project_membership):
+def test_projectedit_get_success(rf, project_membership, role_factory):
     project = ProjectFactory()
 
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.project_manage])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -244,11 +248,15 @@ def test_projectedit_get_success(rf, project_membership):
     assert response.status_code == 200
 
 
-def test_projectedit_post_success(rf, project_membership):
+def test_projectedit_post_success(rf, project_membership, role_factory):
     project = ProjectFactory(status=Project.Statuses.POSTPONED)
 
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.project_manage])],
+    )
 
     data = {
         "status": Project.Statuses.ONGOING,
@@ -267,11 +275,15 @@ def test_projectedit_post_success(rf, project_membership):
     assert project.status_description == "test"
 
 
-def test_projectedit_post_success_with_next(rf, project_membership):
+def test_projectedit_post_success_with_next(rf, project_membership, role_factory):
     project = ProjectFactory(status=Project.Statuses.POSTPONED)
 
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.project_manage])],
+    )
 
     data = {
         "status": Project.Statuses.ONGOING,
@@ -312,9 +324,11 @@ def test_projectedit_user_is_not_member(rf, user):
         ProjectEdit.as_view()(request, project_slug=project.slug)
 
 
-def test_projectedit_user_has_global_project_manage(rf, project_membership):
+def test_projectedit_user_has_global_project_manage(
+    rf, project_membership, role_factory
+):
     project = ProjectFactory()
-    user = UserFactory(roles=[ProjectDeveloper])
+    user = UserFactory(roles=[role_factory(permissions=[permissions.project_manage])])
     project_membership(project=project, user=user)
     request = rf.get("/")
     request.user = user
