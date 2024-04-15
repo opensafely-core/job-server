@@ -203,7 +203,7 @@ describe("<Viewer />", () => {
 
   it("returns <Image /> for PNG", async () => {
     fetch.mockResponseOnce({ Blob: pngExample });
-    render(
+    const { container } = render(
       <Viewer
         authToken={props.authToken}
         fileName={pngFile.name}
@@ -214,7 +214,7 @@ describe("<Viewer />", () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByRole("img").src).toBe(`http://localhost:3000/imgSrc`),
+      expect(container.querySelector("img").getAttribute("src")).toBe(`imgSrc`),
     );
   });
 
