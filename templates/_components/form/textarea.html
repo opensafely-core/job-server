@@ -40,6 +40,7 @@
       {% attrs autocapitalize autocomplete autocorrect inputmode maxlength name=textarea_name placeholder readonly required rows=rows|default:"4" %}
       class="
         mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
+        {% if readonly %}bg-slate-100 cursor-not-allowed focus:!outline-none focus:!border-slate-300 focus:!ring-0{% endif %}
         {% if not resize %}resize-none{% endif %}
         {% if show_placeholder %}placeholder:text-slate-400{% else %}placeholder:text-white{% endif %}
         sm:text-sm
