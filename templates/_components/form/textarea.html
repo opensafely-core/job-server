@@ -37,7 +37,7 @@
 
   <div class="relative">
     <textarea
-      {% attrs autocapitalize autocomplete autocorrect inputmode maxlength name=textarea_name placeholder required rows=rows|default:"4" %}
+      {% attrs autocapitalize autocomplete autocorrect inputmode maxlength name=textarea_name placeholder readonly required rows=rows|default:"4" %}
       class="
         mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
         {% if not resize %}resize-none{% endif %}
