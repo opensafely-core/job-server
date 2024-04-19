@@ -8,7 +8,6 @@ from django.utils import timezone
 from jobserver.authorization.roles import (
     CoreDeveloper,
     InteractiveReporter,
-    OrgCoordinator,
     OutputChecker,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -65,38 +64,25 @@ def test_user_get_absolute_url():
     assert url == reverse("user-detail", kwargs={"username": user.username})
 
 
-def test_user_get_all_permissions(project_membership):
+def test_user_get_all_permissions(role_factory, project_membership):
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
-    user = UserFactory(roles=[CoreDeveloper])
+    user = UserFactory(roles=[role_factory(permissions=["a_global_permission"])])
 
-    OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    OrgMembershipFactory(
+        org=org, user=user, roles=[role_factory(permissions=["an_org_permission"])]
+    )
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=["a_project_permission"])],
+    )
 
     output = user.get_all_permissions()
     expected = {
-        "global": [
-            "application_manage",
-            "backend_manage",
-            "org_create",
-            "user_manage",
-        ],
-        "orgs": [{"slug": org.slug, "permissions": []}],
-        "projects": [
-            {
-                "slug": project.slug,
-                "permissions": [
-                    "job_cancel",
-                    "job_run",
-                    "project_manage",
-                    "snapshot_create",
-                    "unreleased_outputs_view",
-                    "workspace_archive",
-                    "workspace_create",
-                    "workspace_toggle_notifications",
-                ],
-            }
-        ],
+        "global": ["a_global_permission"],
+        "orgs": [{"slug": org.slug, "permissions": ["an_org_permission"]}],
+        "projects": [{"slug": project.slug, "permissions": ["a_project_permission"]}],
     }
 
     assert output == expected

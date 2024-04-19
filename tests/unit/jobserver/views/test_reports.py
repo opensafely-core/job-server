@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import InteractiveReporter
+from jobserver.authorization import permissions
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
 
@@ -20,12 +20,14 @@ from ....factories import (
 from ....fakes import FakeGitHubAPI
 
 
-def test_publishrequestcreate_get_success(rf):
+def test_publishrequestcreate_get_success(rf, role_factory):
     report = ReportFactory()
     analysis_request = AnalysisRequestFactory(report=report)
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[InteractiveReporter])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.analysis_request_view])]
+    )
 
     response = PublishRequestCreate.as_view()(
         request,
@@ -36,10 +38,16 @@ def test_publishrequestcreate_get_success(rf):
     assert response.status_code == 200
 
 
-def test_publishrequestcreate_locked_with_approved_decision(rf, project_membership):
+def test_publishrequestcreate_locked_with_approved_decision(
+    rf, project_membership, role_factory
+):
     project = ProjectFactory()
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
 
     rfile = ReleaseFileFactory()
     snapshot = SnapshotFactory()
@@ -48,7 +56,9 @@ def test_publishrequestcreate_locked_with_approved_decision(rf, project_membersh
     analysis_request = AnalysisRequestFactory(project=project, report=report)
 
     request = rf.post("/")
-    request.user = UserFactory(roles=[InteractiveReporter])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.analysis_request_view])]
+    )
 
     PublishRequestFactory(
         report=report,
@@ -71,10 +81,16 @@ def test_publishrequestcreate_locked_with_approved_decision(rf, project_membersh
     assert response.template_name == "interactive/publish_request_create_locked.html"
 
 
-def test_publishrequestcreate_locked_with_pending_decision(rf, project_membership):
+def test_publishrequestcreate_locked_with_pending_decision(
+    rf, project_membership, role_factory
+):
     project = ProjectFactory()
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
 
     rfile = ReleaseFileFactory()
     snapshot = SnapshotFactory()
@@ -97,10 +113,16 @@ def test_publishrequestcreate_locked_with_pending_decision(rf, project_membershi
     assert response.template_name == "interactive/publish_request_create_locked.html"
 
 
-def test_reportedit_unlocked_with_rejected_decision(rf, project_membership):
+def test_publishrequestcreate_unlocked_with_rejected_decision(
+    rf, project_membership, role_factory
+):
     project = ProjectFactory()
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
 
     rfile = ReleaseFileFactory()
     snapshot = SnapshotFactory()
@@ -129,12 +151,14 @@ def test_reportedit_unlocked_with_rejected_decision(rf, project_membership):
     assert response.template_name == "interactive/publish_request_create.html"
 
 
-def test_publishrequestcreate_post_success(rf, slack_messages):
+def test_publishrequestcreate_post_success(rf, slack_messages, role_factory):
     report = ReportFactory()
     analysis_request = AnalysisRequestFactory(report=report)
 
     request = rf.post("/")
-    request.user = UserFactory(roles=[InteractiveReporter])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.analysis_request_view])]
+    )
 
     # set up messages framework
     request.session = "session"

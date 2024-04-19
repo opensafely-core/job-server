@@ -9,12 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import (
-    CoreDeveloper,
-    InteractiveReporter,
-    ProjectCollaborator,
-    ProjectDeveloper,
-)
+from jobserver.authorization import CoreDeveloper, permissions
 from jobserver.models import PublishRequest, Workspace
 from jobserver.utils import set_from_qs
 from jobserver.views.workspaces import (
@@ -53,11 +48,15 @@ from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
-def test_workspacearchivetoggle_success(rf, project_membership):
+def test_workspacearchivetoggle_success(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory(is_archived=False)
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_archive])],
+    )
 
     request = rf.post("/", {"is_archived": "True"})
     request.user = user
@@ -103,13 +102,17 @@ def test_workspacearchivetoggle_without_permission(rf):
         )
 
 
-def test_workspacebackendfiles_success(rf, project_membership):
+def test_workspacebackendfiles_success(rf, project_membership, role_factory):
     backend = BackendFactory()
     user = UserFactory()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -155,13 +158,17 @@ def test_workspacebackendfiles_unknown_workspace(rf):
         )
 
 
-def test_workspacebackendfiles_with_permission(rf, project_membership):
+def test_workspacebackendfiles_with_permission(rf, project_membership, role_factory):
     backend = BackendFactory()
     user = UserFactory()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -176,12 +183,18 @@ def test_workspacebackendfiles_with_permission(rf, project_membership):
     assert response.status_code == 200
 
 
-def test_workspacebackendfiles_without_backend_access(rf, project_membership):
+def test_workspacebackendfiles_without_backend_access(
+    rf, project_membership, role_factory
+):
     backend = BackendFactory()
     user = UserFactory()
     workspace = WorkspaceFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -214,9 +227,13 @@ def test_workspacebackendfiles_without_permission(rf):
         )
 
 
-def test_workspacecreate_get_success(rf, project_membership, user):
+def test_workspacecreate_get_success(rf, project_membership, user, role_factory):
     project = ProjectFactory()
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -241,9 +258,13 @@ def test_workspacecreate_get_without_permission(rf):
         )
 
 
-def test_workspacecreate_post_success(rf, project_membership, user):
+def test_workspacecreate_post_success(rf, project_membership, user, role_factory):
     project = ProjectFactory()
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_create])],
+    )
 
     data = {
         "name": "Test",
@@ -265,9 +286,13 @@ def test_workspacecreate_post_success(rf, project_membership, user):
     assert workspace.created_by == user
 
 
-def test_workspacecreate_without_github(rf, project_membership, user):
+def test_workspacecreate_without_github(rf, project_membership, user, role_factory):
     project = ProjectFactory()
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -301,14 +326,18 @@ def test_workspacecreate_without_github(rf, project_membership, user):
     assert str(messages[0]) == expected
 
 
-def test_workspacecreate_without_github_orgs(rf, project_membership):
+def test_workspacecreate_without_github_orgs(rf, project_membership, role_factory):
     user = UserFactory()
 
     org = OrgFactory(github_orgs=[])
     OrgMembershipFactory(org=org, user=user)
 
     project = ProjectFactory(orgs=[org])
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -319,11 +348,15 @@ def test_workspacecreate_without_github_orgs(rf, project_membership):
     assert response.template_name == "workspace/create_error.html"
 
 
-def test_workspacecreate_without_org(rf, project_membership):
+def test_workspacecreate_without_org(rf, project_membership, role_factory):
     user = UserFactory()
 
     project = ProjectFactory()
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -344,11 +377,17 @@ def test_workspacecreate_without_permission(rf, user):
         WorkspaceCreate.as_view()(request, project_slug=project.slug)
 
 
-def test_workspacedetail_authorized_archive_workspaces(rf, project_membership):
+def test_workspacedetail_authorized_archive_workspaces(
+    rf, project_membership, role_factory
+):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_archive])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -364,7 +403,7 @@ def test_workspacedetail_authorized_archive_workspaces(rf, project_membership):
 
 
 def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(
-    rf, project_membership
+    rf, project_membership, role_factory
 ):
     project = ProjectFactory()
 
@@ -382,7 +421,11 @@ def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(
 
     user = UserFactory()
     BackendMembershipFactory(user=user)
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_archive])],
+    )
 
     # this is what defines "private"
     class AnotherFakeGitHubAPI:
@@ -403,7 +446,7 @@ def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(
 
 
 def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(
-    rf, project_membership
+    rf, project_membership, role_factory
 ):
     project = ProjectFactory()
 
@@ -421,7 +464,11 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(
 
     user = UserFactory()
     BackendMembershipFactory(user=user)
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_archive])],
+    )
 
     # this is what defines "private"
     class AnotherFakeGitHubAPI:
@@ -441,8 +488,10 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(
     assert response.context_data["show_publish_repo_warning"]
 
 
-def test_workspacedetail_authorized_toggle_notifications(rf):
-    user = UserFactory(roles=[ProjectDeveloper])
+def test_workspacedetail_authorized_toggle_notifications(rf, role_factory):
+    user = UserFactory(
+        roles=[role_factory(permissions=[permissions.workspace_toggle_notifications])]
+    )
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(user=user)
@@ -460,9 +509,11 @@ def test_workspacedetail_authorized_toggle_notifications(rf):
     assert response.context_data["user_can_toggle_notifications"]
 
 
-def test_workspacedetail_authorized_view_outputs(rf):
+def test_workspacedetail_authorized_view_outputs(rf, role_factory):
     backend = BackendFactory(level_4_url="http://test/")
-    user = UserFactory(roles=[ProjectCollaborator])
+    user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
     workspace = WorkspaceFactory()
     ReleaseFactory(workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace)
@@ -490,12 +541,16 @@ def test_workspacedetail_authorized_view_outputs(rf):
     assert not response.context_data["outputs"]["released"]["disabled"]
 
 
-def test_workspacedetail_authorized_run_jobs(rf, project_membership):
+def test_workspacedetail_authorized_run_jobs(rf, project_membership, role_factory):
     workspace = WorkspaceFactory()
     user = UserFactory()
     backend = BackendFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
     BackendMembershipFactory(backend=backend, user=user)
 
     request = rf.get("/")
@@ -512,11 +567,17 @@ def test_workspacedetail_authorized_run_jobs(rf, project_membership):
     assert response.context_data["user_has_backends"]
 
 
-def test_workspacedetail_authorized_run_jobs_no_backends(rf, project_membership):
+def test_workspacedetail_authorized_run_jobs_no_backends(
+    rf, project_membership, role_factory
+):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -559,9 +620,11 @@ def test_workspacedetail_authorized_honeycomb(rf):
     )
 
 
-def test_workspacedetail_for_interactive_button(rf, user):
+def test_workspacedetail_for_interactive_button(rf, user, role_factory):
     workspace = WorkspaceFactory(name="testing-interactive")
-    user = UserFactory(roles=[InteractiveReporter])
+    user = UserFactory(
+        roles=[role_factory(permissions=[permissions.analysis_request_create])]
+    )
 
     request = rf.get("/")
     request.user = user
@@ -658,10 +721,14 @@ def test_workspacedetail_with_no_github(rf):
     assert response.context_data["repo_is_private"] is None
 
 
-def test_workspaceedit_get_success(rf, project_membership):
+def test_workspaceedit_get_success(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory()
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -689,10 +756,14 @@ def test_workspaceedit_get_without_permission(rf):
         )
 
 
-def test_workspaceedit_post_success(rf, project_membership):
+def test_workspaceedit_post_success(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory()
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_create])],
+    )
 
     request = rf.post("/", {"purpose": "test"})
     request.user = user
@@ -714,7 +785,7 @@ def test_workspaceeventlog_filter_by_one_backend(rf, project_membership):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=workspace.project, user=user)
 
     backend = BackendFactory()
     job_request1 = JobRequestFactory(workspace=workspace, backend=backend)
@@ -738,7 +809,7 @@ def test_workspaceeventlog_filter_by_several_backends(rf, project_membership):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=workspace.project, user=user)
 
     JobRequestFactory(workspace=workspace, backend=BackendFactory())
 
@@ -774,7 +845,7 @@ def test_workspaceeventlog_search_by_action(rf, project_membership):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=workspace.project, user=user)
 
     job_request1 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request1, action="run")
@@ -799,7 +870,7 @@ def test_workspaceeventlog_search_by_id(rf, project_membership):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=workspace.project, user=user)
 
     JobFactory(job_request=JobRequestFactory())
 
@@ -823,7 +894,7 @@ def test_workspaceeventlog_success(rf, project_membership):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=workspace.project, user=user)
 
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
@@ -845,7 +916,7 @@ def test_workspaceeventlog_unknown_workspace(rf, project_membership):
     project = ProjectFactory()
     user = UserFactory()
 
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(project=project, user=user)
 
     request = rf.get("/")
     request.user = user
@@ -892,14 +963,18 @@ def test_workspaceeventlog_with_unauthenticated_user(rf):
     assert response.status_code == 200
 
 
-def test_workspacefilelist_success(rf, project_membership):
+def test_workspacefilelist_success(rf, project_membership, role_factory):
     backend1 = BackendFactory()
     BackendFactory()
     user = UserFactory()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend1, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -928,11 +1003,15 @@ def test_workspacefilelist_unknown_workspace(rf):
         )
 
 
-def test_workspacefilelist_without_backends(rf, project_membership):
+def test_workspacefilelist_without_backends(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -962,11 +1041,17 @@ def test_workspacefilelist_without_permission(rf):
         )
 
 
-def test_workspacelatestoutputsdetail_success(rf, project_membership):
-    user = UserFactory(roles=[ProjectCollaborator])
+def test_workspacelatestoutputsdetail_success(rf, project_membership, role_factory):
+    user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
     workspace = WorkspaceFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.snapshot_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -995,11 +1080,13 @@ def test_workspacelatestoutputsdetail_without_file_permission(rf):
         )
 
 
-def test_workspacelatestoutputsdetail_without_publish_permission(rf):
+def test_workspacelatestoutputsdetail_without_publish_permission(rf, role_factory):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     response = WorkspaceLatestOutputsDetail.as_view()(
         request,
@@ -1024,11 +1111,13 @@ def test_workspacelatestoutputsdetail_unknown_workspace(rf):
         )
 
 
-def test_workspacelatestoutputsdownload_no_files(rf):
+def test_workspacelatestoutputsdownload_no_files(rf, role_factory):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     with pytest.raises(Http404):
         WorkspaceLatestOutputsDownload.as_view()(
@@ -1038,13 +1127,17 @@ def test_workspacelatestoutputsdownload_no_files(rf):
         )
 
 
-def test_workspacelatestoutputsdownload_success(rf, build_release_with_files):
+def test_workspacelatestoutputsdownload_success(
+    rf, build_release_with_files, role_factory
+):
     workspace = WorkspaceFactory()
     build_release_with_files(["test1", "test2"], workspace=workspace)
     build_release_with_files(["test3"], workspace=workspace)
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     response = WorkspaceLatestOutputsDownload.as_view()(
         request,
@@ -1061,11 +1154,13 @@ def test_workspacelatestoutputsdownload_success(rf, build_release_with_files):
         assert set(zip_obj.namelist()) == {"test1", "test2", "test3"}
 
 
-def test_workspacelatestoutputsdownload_unknown_workspace(rf):
+def test_workspacelatestoutputsdownload_unknown_workspace(rf, role_factory):
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     with pytest.raises(Http404):
         WorkspaceLatestOutputsDownload.as_view()(
@@ -1090,11 +1185,15 @@ def test_workspacelatestoutputsdownload_without_permission(rf):
         )
 
 
-def test_workspacenotificationstoggle_success(rf, project_membership):
+def test_workspacenotificationstoggle_success(rf, project_membership, role_factory):
     workspace = WorkspaceFactory(should_notify=True)
     user = UserFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_toggle_notifications])],
+    )
 
     request = rf.post("/", {"should_notify": ""})
     request.user = user
@@ -1128,11 +1227,17 @@ def test_workspacenotificationstoggle_without_permission(rf, user):
         )
 
 
-def test_workspacenotificationstoggle_unknown_workspace(rf, project_membership):
+def test_workspacenotificationstoggle_unknown_workspace(
+    rf, project_membership, role_factory
+):
     project = ProjectFactory()
     user = UserFactory()
 
-    project_membership(project=project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.workspace_toggle_notifications])],
+    )
 
     request = rf.post("/")
     request.user = user
@@ -1145,7 +1250,9 @@ def test_workspacenotificationstoggle_unknown_workspace(rf, project_membership):
         )
 
 
-def test_workspaceoutputlist_success(rf, time_machine, build_release_with_files):
+def test_workspaceoutputlist_success(
+    rf, time_machine, build_release_with_files, role_factory
+):
     workspace = WorkspaceFactory()
 
     now = timezone.now()
@@ -1167,7 +1274,9 @@ def test_workspaceoutputlist_success(rf, time_machine, build_release_with_files)
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     response = WorkspaceOutputList.as_view()(
         request,
@@ -1220,11 +1329,13 @@ def test_workspaceoutputlist_without_permission(
     assert "Current" not in response.rendered_content
 
 
-def test_workspaceoutputlist_without_snapshots(rf, time_machine):
+def test_workspaceoutputlist_without_snapshots(rf, time_machine, role_factory):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     response = WorkspaceOutputList.as_view()(
         request,
@@ -1250,7 +1361,7 @@ def test_workspaceoutputlist_unknown_workspace(rf):
         )
 
 
-def test_workspaceanalaysisrequestlist_success(rf):
+def test_workspaceanalaysisrequestlist_success(rf, role_factory):
     workspace = WorkspaceFactory()
 
     job_request1 = JobRequestFactory(workspace=workspace)
@@ -1263,7 +1374,9 @@ def test_workspaceanalaysisrequestlist_success(rf):
     analysis_request3 = AnalysisRequestFactory(job_request=job_request3)
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[InteractiveReporter])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.analysis_request_create])]
+    )
 
     response = WorkspaceAnalysisRequestList.as_view()(
         request,

@@ -26,9 +26,8 @@ from jobserver.api.releases import (
 from jobserver.authorization import (
     CoreDeveloper,
     OutputChecker,
-    OutputPublisher,
     ProjectCollaborator,
-    ProjectDeveloper,
+    permissions,
 )
 from jobserver.commands.users import generate_login_token
 from jobserver.models import (
@@ -1258,10 +1257,14 @@ def test_snapshotapi_unpublished_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_snapshotcreate_unknown_files(api_rf, project_membership):
+def test_snapshotcreate_unknown_files(api_rf, project_membership, role_factory):
     workspace = WorkspaceFactory()
     user = UserFactory()
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.snapshot_create])],
+    )
 
     request = api_rf.post("/", data={"file_ids": ["test"]})
     request.user = user
@@ -1273,7 +1276,7 @@ def test_snapshotcreate_unknown_files(api_rf, project_membership):
 
 
 def test_snapshotcreate_with_existing_snapshot(
-    api_rf, build_release_with_files, project_membership
+    api_rf, build_release_with_files, project_membership, role_factory
 ):
     workspace = WorkspaceFactory()
     release = build_release_with_files(["file1.txt"], workspace=workspace)
@@ -1282,7 +1285,11 @@ def test_snapshotcreate_with_existing_snapshot(
     snapshot.files.set(release.files.all())
 
     user = UserFactory()
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.snapshot_create])],
+    )
 
     request = api_rf.post("/", data={"file_ids": [release.files.first().pk]})
     request.user = user
@@ -1294,7 +1301,7 @@ def test_snapshotcreate_with_existing_snapshot(
 
 
 def test_snapshotcreate_with_permission(
-    api_rf, build_release_with_files, project_membership
+    api_rf, build_release_with_files, project_membership, role_factory
 ):
     workspace = WorkspaceFactory()
     release = build_release_with_files(
@@ -1309,7 +1316,11 @@ def test_snapshotcreate_with_permission(
     )
 
     user = UserFactory()
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.snapshot_create])],
+    )
 
     data = {
         "file_ids": [
@@ -1345,7 +1356,7 @@ def test_snapshotcreate_without_permission(api_rf):
     assert response.status_code == 403, response.data
 
 
-def test_snapshotpublishapi_already_published(api_rf):
+def test_snapshotpublishapi_already_published(api_rf, role_factory):
     snapshot = SnapshotFactory()
     PublishRequestFactory(
         snapshot=snapshot,
@@ -1357,7 +1368,9 @@ def test_snapshotpublishapi_already_published(api_rf):
     assert snapshot.is_published
 
     request = api_rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+    )
 
     response = SnapshotPublishAPI.as_view()(
         request,
@@ -1371,14 +1384,16 @@ def test_snapshotpublishapi_already_published(api_rf):
     assert snapshot.is_published
 
 
-def test_snapshotpublishapi_success(api_rf):
+def test_snapshotpublishapi_success(api_rf, role_factory):
     snapshot = SnapshotFactory()
     PublishRequestFactory(snapshot=snapshot)
 
     assert snapshot.is_draft
 
     request = api_rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+    )
 
     response = SnapshotPublishAPI.as_view()(
         request,
@@ -1392,11 +1407,13 @@ def test_snapshotpublishapi_success(api_rf):
     assert snapshot.is_published
 
 
-def test_snapshotpublishapi_unknown_snapshot(api_rf):
+def test_snapshotpublishapi_unknown_snapshot(api_rf, role_factory):
     workspace = WorkspaceFactory()
 
     request = api_rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+    )
 
     response = SnapshotPublishAPI.as_view()(
         request,
@@ -1407,11 +1424,13 @@ def test_snapshotpublishapi_unknown_snapshot(api_rf):
     assert response.status_code == 404
 
 
-def test_snapshotpublishapi_with_missing_publish_request(api_rf):
+def test_snapshotpublishapi_with_missing_publish_request(api_rf, role_factory):
     snapshot = SnapshotFactory()
 
     request = api_rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+    )
 
     with pytest.raises(Exception, match="Snapshot is missing publish request"):
         SnapshotPublishAPI.as_view()(
@@ -1494,9 +1513,11 @@ def test_validate_upload_access_no_permission(rf):
         validate_upload_access(request, workspace)
 
 
-def test_validate_upload_access_not_a_backend_member(rf):
+def test_validate_upload_access_not_a_backend_member(rf, role_factory):
     backend = BackendFactory()
-    user = UserFactory(roles=[OutputChecker])
+    user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_upload])]
+    )
     workspace = WorkspaceFactory()
 
     request = rf.get(
@@ -1544,14 +1565,16 @@ def test_workspacestatusapi_success(api_rf):
 
 
 def test_level4tokenauthenticationapi_success(
-    api_rf, project_membership, token_login_user
+    api_rf, project_membership, token_login_user, role_factory
 ):
     # give user correct permissions on this project
     project1 = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project1)
     workspace2 = WorkspaceFactory(project=project1)
     project_membership(
-        user=token_login_user, project=project1, roles=[ProjectDeveloper]
+        user=token_login_user,
+        project=project1,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
     )
 
     # another project, where user does *not* have permissions
@@ -1584,7 +1607,7 @@ def test_level4tokenauthenticationapi_success(
 
 
 def test_level4tokenauthenticationapi_success_privileged(
-    api_rf, project_membership, token_login_user
+    api_rf, project_membership, token_login_user, role_factory
 ):
     # enable privileges for user
     token_login_user.roles.append(OutputChecker)
@@ -1596,7 +1619,7 @@ def test_level4tokenauthenticationapi_success_privileged(
     project_membership(
         user=token_login_user,
         project=project,
-        roles=[ProjectDeveloper],
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
     )
     workspace1 = WorkspaceFactory(project=project)
     workspace2 = WorkspaceFactory(project=project)
@@ -1626,10 +1649,14 @@ def test_level4tokenauthenticationapi_success_privileged(
 
 
 def test_level4tokenauthenticationapi_fails_not_backend(
-    api_rf, project_membership, token_login_user
+    api_rf, project_membership, token_login_user, role_factory
 ):
     project = ProjectFactory()
-    project_membership(user=token_login_user, project=project, roles=[ProjectDeveloper])
+    project_membership(
+        user=token_login_user,
+        project=project,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     token = generate_login_token(token_login_user)
 
@@ -1644,10 +1671,14 @@ def test_level4tokenauthenticationapi_fails_not_backend(
 
 
 def test_level4tokenauthenticationapi_fails_invalid_token(
-    api_rf, project_membership, token_login_user
+    api_rf, project_membership, token_login_user, role_factory
 ):
     project = ProjectFactory()
-    project_membership(user=token_login_user, project=project, roles=[ProjectDeveloper])
+    project_membership(
+        user=token_login_user,
+        project=project,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     generate_login_token(token_login_user)
     backend = token_login_user.backends.first()
@@ -1669,7 +1700,6 @@ def test_level4tokenauthenticationapi_fails_invalid_token(
 
 
 def invalid_users():
-
     def nonsocial_user():
         user = UserFactory()
         return user, f"User {user.username} is not a github user"
@@ -1689,11 +1719,15 @@ def invalid_users():
 
 @pytest.mark.parametrize("user_function", invalid_users())
 def test_level4tokenauthenticationapi_fails_invalid_user(
-    api_rf, project_membership, user_function
+    api_rf, project_membership, user_function, role_factory
 ):
     user, expected_msg = user_function()
     project = ProjectFactory()
-    project_membership(user=user, project=project, roles=[ProjectDeveloper])
+    project_membership(
+        user=user,
+        project=project,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+    )
 
     backend = BackendFactory()
     token_data = {"user": user.username, "token": "doesn't matter"}
@@ -1710,13 +1744,17 @@ def test_level4tokenauthenticationapi_fails_invalid_user(
     assert response_json["detail"] == expected_msg
 
 
-def test_level4authorisationapi_success(api_rf, project_membership, token_login_user):
+def test_level4authorisationapi_success(
+    api_rf, project_membership, token_login_user, role_factory
+):
     # give user correct permissions on this project
     project1 = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project1)
     workspace2 = WorkspaceFactory(project=project1)
     project_membership(
-        user=token_login_user, project=project1, roles=[ProjectDeveloper]
+        user=token_login_user,
+        project=project1,
+        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
     )
 
     # another project, where user does *not* have permissions

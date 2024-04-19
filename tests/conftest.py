@@ -19,6 +19,7 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from structlog.testing import LogCapture
 
+import jobserver.authorization.roles
 import services.slack
 from applications.form_specs import form_specs
 from jobserver.authorization.roles import CoreDeveloper
@@ -333,3 +334,34 @@ def project_memberships(project_membership):
         return [project_membership(**kwargs) for i in range(count)]
 
     return func
+
+
+@pytest.fixture
+def role_factory():
+    """A fixture for dynamically creating a role with a given set of permissions."""
+
+    def _role_factory(*, permissions):
+        # By using `type` as a class factory, we ensure `Role.permissions` is a class
+        # attribute rather than an instance attribute.
+
+        # Unlike other role classes, we don't want to define this role class within
+        # jobserver.authorization.roles (it's for testing). Elsewhere, however, we check
+        # that role classes are defined within jobserver.authorization.roles and import
+        # them using their dotted path. To accommodate the check and the import, we move
+        # this role class into place with __module__ and setattr.
+
+        name = f"Role_{'_'.join(permissions)}"
+        assert name.isidentifier(), f"{name} is not a valid Python identifier"
+        Role = type(
+            name,
+            (object,),
+            {
+                "__module__": jobserver.authorization.roles.__name__,
+                "models": [],
+                "permissions": permissions,
+            },
+        )
+        setattr(jobserver.authorization.roles, name, Role)
+        return Role
+
+    return _role_factory

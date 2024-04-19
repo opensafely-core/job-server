@@ -15,7 +15,7 @@ from interactive.views import (
     ReportEdit,
     from_codelist,
 )
-from jobserver.authorization import InteractiveReporter
+from jobserver.authorization import permissions
 from jobserver.models import PublishRequest
 
 from ...factories import (
@@ -32,11 +32,15 @@ from ...factories import (
 from ...fakes import FakeOpenCodelistsAPI
 
 
-def test_analysisrequestcreate_get_success(rf, project_membership):
+def test_analysisrequestcreate_get_success(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
 
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -49,7 +53,9 @@ def test_analysisrequestcreate_get_success(rf, project_membership):
     assert response.context_data["project"] == project
 
 
-def test_analysisrequestcreate_post_failure(rf, interactive_repo, project_membership):
+def test_analysisrequestcreate_post_failure(
+    rf, interactive_repo, project_membership, role_factory
+):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     user = UserFactory()
@@ -57,7 +63,11 @@ def test_analysisrequestcreate_post_failure(rf, interactive_repo, project_member
         project=project, repo=interactive_repo, name=f"{project.slug}-interactive"
     )
 
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+    )
 
     data = {
         "timeScale": "months",
@@ -75,7 +85,7 @@ def test_analysisrequestcreate_post_failure(rf, interactive_repo, project_member
 
 
 def test_analysisrequestcreate_post_success(
-    rf, interactive_repo, add_codelist, slack_messages, project_membership
+    rf, interactive_repo, add_codelist, slack_messages, project_membership, role_factory
 ):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
@@ -84,7 +94,11 @@ def test_analysisrequestcreate_post_success(
         project=project, repo=interactive_repo, name=f"{project.slug}-interactive"
     )
 
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+    )
     add_codelist("bennett/event-codelist/event123")
     add_codelist("bennett/medication-codelist/medication123")
 
@@ -138,12 +152,16 @@ def test_analysisrequestcreate_unauthorized(rf):
         AnalysisRequestCreate.as_view()(request, project_slug=project.slug)
 
 
-def test_analysisrequestdetail_success(rf, project_membership):
+def test_analysisrequestdetail_success(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
     analysis_request = AnalysisRequestFactory(project=project, created_by=user)
 
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.release_file_view])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -173,11 +191,13 @@ def test_analysisrequestdetail_unauthorized(rf):
     assert response.url == f"{settings.LOGIN_URL}?next=/"
 
 
-def test_analysisrequestdetail_with_global_interactivereporter(rf):
+def test_analysisrequestdetail_with_global_release_file_view(rf, role_factory):
     analysis_request = AnalysisRequestFactory()
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[InteractiveReporter])
+    request.user = UserFactory(
+        roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     response = AnalysisRequestDetail.as_view()(
         request,
@@ -188,13 +208,15 @@ def test_analysisrequestdetail_with_global_interactivereporter(rf):
     assert response.status_code == 200
 
 
-def test_analysisrequestdetail_with_interactivereporter_on_another_project(
-    rf, project_membership
+def test_analysisrequestdetail_with_release_file_view_on_another_project(
+    rf, project_membership, role_factory
 ):
     analysis_request = AnalysisRequestFactory()
 
     user = UserFactory()
-    project_membership(user=user, roles=[InteractiveReporter])
+    project_membership(
+        user=user, roles=[role_factory(permissions=[permissions.release_file_view])]
+    )
 
     request = rf.get("/")
     request.user = user
@@ -207,7 +229,7 @@ def test_analysisrequestdetail_with_interactivereporter_on_another_project(
         )
 
 
-def test_analysisrequestdetail_with_no_interactivereporter_role(rf):
+def test_analysisrequestdetail_with_no_release_file_view(rf):
     analysis_request = AnalysisRequestFactory()
 
     request = rf.get("/")
@@ -222,7 +244,7 @@ def test_analysisrequestdetail_with_no_interactivereporter_role(rf):
 
 
 def test_analysisrequestdetail_login_redirect_with_different_domain(
-    rf, settings, project_membership
+    rf, settings, project_membership, role_factory
 ):
     """
     Test login code with a different LOGIN_URL
@@ -237,7 +259,11 @@ def test_analysisrequestdetail_login_redirect_with_different_domain(
 
     project = ProjectFactory()
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.release_file_view])],
+    )
 
     analysis_request = AnalysisRequestFactory(project=project, created_by=user)
 
@@ -255,11 +281,15 @@ def test_analysisrequestdetail_login_redirect_with_different_domain(
 
 
 def test_analysisrequestdetail_login_redirect_with_normal_settings(
-    rf, project_membership
+    rf, project_membership, role_factory
 ):
     project = ProjectFactory()
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.release_file_view])],
+    )
 
     analysis_request = AnalysisRequestFactory(project=project, created_by=user)
 
@@ -276,10 +306,16 @@ def test_analysisrequestdetail_login_redirect_with_normal_settings(
     assert response.url == f"{settings.LOGIN_URL}?next=/"
 
 
-def test_analysisrequestdetail_with_published_report(rf, project_membership):
+def test_analysisrequestdetail_with_published_report(
+    rf, project_membership, role_factory
+):
     project = ProjectFactory()
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.release_file_view])],
+    )
 
     rfile = ReleaseFileFactory()
     snapshot = SnapshotFactory()
@@ -321,14 +357,18 @@ def test_from_codelist():
     assert from_codelist(data, "second", "inner") == ""
 
 
-def test_reportedit_get_success(rf, project_membership):
+def test_reportedit_get_success(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
     report = ReportFactory(
         title="test report title",
         description="test report description",
     )
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
     analysis_request = AnalysisRequestFactory(
         project=project,
         created_by=user,
@@ -348,10 +388,14 @@ def test_reportedit_get_success(rf, project_membership):
     assert "test report description" in response.rendered_content
 
 
-def test_reportedit_no_report(rf, project_membership):
+def test_reportedit_no_report(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
     analysis_request = AnalysisRequestFactory(
         project=project,
         created_by=user,
@@ -369,14 +413,18 @@ def test_reportedit_no_report(rf, project_membership):
         )
 
 
-def test_reportedit_post_invalid(rf, project_membership):
+def test_reportedit_post_invalid(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
     report = ReportFactory(
         title="old title",
         description="old description",
     )
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
     analysis_request = AnalysisRequestFactory(
         project=project,
         created_by=user,
@@ -397,14 +445,18 @@ def test_reportedit_post_invalid(rf, project_membership):
     assert report.description == "old description"
 
 
-def test_reportedit_post_success(rf, project_membership):
+def test_reportedit_post_success(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
     report = ReportFactory(
         title="test report title",
         description="test report description",
     )
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
     analysis_request = AnalysisRequestFactory(
         project=project,
         created_by=user,
@@ -454,7 +506,7 @@ def test_reportedit_unauthorized(rf):
         )
 
 
-def test_reportedit_locked_with_approved_decision(rf, project_membership):
+def test_reportedit_locked_with_approved_decision(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
 
@@ -468,7 +520,11 @@ def test_reportedit_locked_with_approved_decision(rf, project_membership):
         created_by=user, project=project, report=report
     )
 
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
 
     PublishRequestFactory(
         report=report,
@@ -491,7 +547,7 @@ def test_reportedit_locked_with_approved_decision(rf, project_membership):
     assert response.template_name == "interactive/report_edit_locked.html"
 
 
-def test_reportedit_locked_with_pending_decision(rf, project_membership):
+def test_reportedit_locked_with_pending_decision(rf, project_membership, role_factory):
     project = ProjectFactory()
     user = UserFactory()
 
@@ -505,7 +561,11 @@ def test_reportedit_locked_with_pending_decision(rf, project_membership):
         created_by=user, project=project, report=report
     )
 
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
     PublishRequestFactory(report=report, snapshot=snapshot)
 
     request = rf.get("/")
@@ -521,7 +581,9 @@ def test_reportedit_locked_with_pending_decision(rf, project_membership):
     assert response.template_name == "interactive/report_edit_locked.html"
 
 
-def test_reportedit_unlocked_with_rejected_decision(rf, project_membership):
+def test_reportedit_unlocked_with_rejected_decision(
+    rf, project_membership, role_factory
+):
     project = ProjectFactory()
     user = UserFactory()
 
@@ -535,7 +597,11 @@ def test_reportedit_unlocked_with_rejected_decision(rf, project_membership):
         created_by=user, project=project, report=report
     )
 
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+    )
 
     PublishRequestFactory(
         report=report,

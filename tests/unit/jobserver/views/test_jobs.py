@@ -5,7 +5,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver import honeycomb
-from jobserver.authorization import CoreDeveloper, ProjectDeveloper
+from jobserver.authorization import CoreDeveloper, permissions
 from jobserver.models import JobRequest
 from jobserver.views.jobs import JobCancel, JobDetail, JobDetailRedirect
 
@@ -17,12 +17,14 @@ from ....factories import (
 )
 
 
-def test_jobcancel_already_cancelled(rf, user, project_membership):
+def test_jobcancel_already_cancelled(rf, user, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
     job = JobFactory(job_request=job_request, action="test")
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.post("/")
@@ -37,12 +39,14 @@ def test_jobcancel_already_cancelled(rf, user, project_membership):
     assert job_request.cancelled_actions == ["another-action", "test"]
 
 
-def test_jobcancel_already_completed(rf, user, project_membership):
+def test_jobcancel_already_completed(rf, user, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=["another-action"])
     job = JobFactory(job_request=job_request, action="test", status="succeeded")
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.post("/")
@@ -57,13 +61,15 @@ def test_jobcancel_already_completed(rf, user, project_membership):
     assert job_request.cancelled_actions == ["another-action"]
 
 
-def test_jobcancel_success(rf, project_membership):
+def test_jobcancel_success(rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test")
     user = UserFactory()
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.post("/")
@@ -148,12 +154,14 @@ def test_jobdetail_with_anonymous_user(rf):
     assert "Honeycomb" not in response.rendered_content
 
 
-def test_jobdetail_with_permission(rf, project_membership):
+def test_jobdetail_with_permission(rf, project_membership, role_factory):
     job = JobFactory()
     user = UserFactory()
 
     project_membership(
-        project=job.job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job.job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.get("/")
@@ -179,6 +187,8 @@ def test_jobdetail_with_core_developer(rf, time_machine):
     job = JobFactory(
         job_request=job_request, status="succeeded", action="my_sample_action"
     )
+    # it's important that the user is associated with the CoreDeveloper role, rather
+    # than with a permission that's associated with the CoreDeveloper role
     user = UserFactory(roles=[CoreDeveloper])
 
     request = rf.get("/")
@@ -219,6 +229,8 @@ def test_jobdetail_with_core_developer_with_completed_at(rf, time_machine):
         job_request=job_request, completed_at=timezone.now(), status="succeeded"
     )
 
+    # it's important that the user is associated with the CoreDeveloper role, rather
+    # than with a permission that's associated with the CoreDeveloper role
     user = UserFactory(roles=[CoreDeveloper])
 
     request = rf.get("/")
