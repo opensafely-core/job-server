@@ -6,7 +6,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver import honeycomb
-from jobserver.authorization import CoreDeveloper, ProjectDeveloper
+from jobserver.authorization import CoreDeveloper, permissions
 from jobserver.models import JobRequest
 from jobserver.utils import set_from_qs
 from jobserver.views.job_requests import (
@@ -48,14 +48,16 @@ def mock_codelists_error(mocker):
     _mock_codelists(mocker, "error")
 
 
-def test_jobrequestcancel_already_completed(rf, project_membership):
+def test_jobrequestcancel_already_completed(rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, status="succeeded")
     JobFactory(job_request=job_request, status="failed")
     user = UserFactory()
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.post("/")
@@ -70,7 +72,7 @@ def test_jobrequestcancel_already_completed(rf, project_membership):
     assert job_request.cancelled_actions == []
 
 
-def test_jobrequestcancel_success(rf, project_membership):
+def test_jobrequestcancel_success(rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="test1")
     JobFactory(job_request=job_request, action="test2")
@@ -78,7 +80,9 @@ def test_jobrequestcancel_success(rf, project_membership):
     user = UserFactory()
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.post("/")
@@ -103,7 +107,7 @@ def test_jobrequestcancel_success(rf, project_membership):
     assert str(messages[0]) == "The requested actions have been cancelled"
 
 
-def test_jobrequestcancel_partially_completed(rf, project_membership):
+def test_jobrequestcancel_partially_completed(rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="test1", status="failed")
     JobFactory(job_request=job_request, action="test2", status="succeeded")
@@ -113,7 +117,9 @@ def test_jobrequestcancel_partially_completed(rf, project_membership):
     user = UserFactory()
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.post("/")
@@ -182,7 +188,7 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
 @pytest.mark.parametrize("ref", [None, "abc"])
 def test_jobrequestcreate_get_success(
-    ref, rf, mocker, user, mock_codelists_ok, project_membership
+    ref, rf, mocker, user, mock_codelists_ok, project_membership, role_factory
 ):
     now = timezone.now()
     workspace = WorkspaceFactory()
@@ -194,7 +200,11 @@ def test_jobrequestcreate_get_success(
     )
 
     BackendMembershipFactory(user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -234,7 +244,7 @@ def test_jobrequestcreate_get_success(
 
 
 def test_jobrequestcreate_get_with_all_backends_removed(
-    rf, settings, user, project_membership
+    rf, settings, user, project_membership, role_factory
 ):
     settings.DISABLE_CREATING_JOBS = True
 
@@ -244,7 +254,11 @@ def test_jobrequestcreate_get_with_all_backends_removed(
 
     BackendMembershipFactory(backend=tpp, user=user)
     BackendMembershipFactory(backend=emis, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -258,12 +272,16 @@ def test_jobrequestcreate_get_with_all_backends_removed(
 
 
 def test_jobrequestcreate_get_with_permission(
-    rf, mocker, user, mock_codelists_ok, project_membership
+    rf, mocker, user, mock_codelists_ok, project_membership, role_factory
 ):
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -301,12 +319,16 @@ def test_jobrequestcreate_get_with_permission(
 
 
 def test_jobrequestcreate_get_with_project_yaml_errors(
-    rf, mocker, user, mock_codelists_ok, project_membership
+    rf, mocker, user, mock_codelists_ok, project_membership, role_factory
 ):
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -330,7 +352,7 @@ def test_jobrequestcreate_get_with_project_yaml_errors(
 
 
 def test_jobrequestcreate_get_with_some_backends_removed(
-    rf, mocker, settings, user, project_membership
+    rf, mocker, settings, user, project_membership, role_factory
 ):
     settings.DISABLE_CREATING_JOBS = True
 
@@ -343,7 +365,11 @@ def test_jobrequestcreate_get_with_some_backends_removed(
     BackendMembershipFactory(backend=backend, user=user)
     BackendMembershipFactory(backend=emis, user=user)
     BackendMembershipFactory(backend=tpp, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     actions:
@@ -373,14 +399,18 @@ def test_jobrequestcreate_get_with_some_backends_removed(
 
 
 def test_jobrequestcreate_get_with_out_of_date_codelist(
-    rf, mocker, user, project_membership
+    rf, mocker, user, project_membership, role_factory
 ):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
 
     BackendMembershipFactory(user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -423,13 +453,24 @@ def test_jobrequestcreate_get_with_out_of_date_codelist(
 
 @pytest.mark.parametrize("ref", [None, "abc"])
 def test_jobrequestcreate_post_success(
-    ref, rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership
+    ref,
+    rf,
+    mocker,
+    monkeypatch,
+    user,
+    mock_codelists_ok,
+    project_membership,
+    role_factory,
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -477,14 +518,18 @@ def test_jobrequestcreate_post_success(
 
 
 def test_jobrequestcreate_post_with_invalid_backend(
-    rf, mocker, monkeypatch, user, project_membership
+    rf, mocker, monkeypatch, user, project_membership, role_factory
 ):
     backend1 = BackendFactory()
     backend2 = BackendFactory()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend1, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     actions:
@@ -517,13 +562,17 @@ def test_jobrequestcreate_post_with_invalid_backend(
 
 
 def test_jobrequestcreate_post_with_notifications_default(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership
+    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -570,13 +619,17 @@ def test_jobrequestcreate_post_with_notifications_default(
 
 
 def test_jobrequestcreate_post_with_notifications_override(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership
+    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -624,13 +677,17 @@ def test_jobrequestcreate_post_with_notifications_override(
 
 
 def test_jobrequestcreate_post_cohortextractor_without_permission(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership
+    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(project=ProjectFactory(number=1))
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -667,13 +724,17 @@ def test_jobrequestcreate_post_cohortextractor_without_permission(
 
 
 def test_jobrequestcreate_post_sqlrunner_without_permission(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership
+    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(project=ProjectFactory(number=1))
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -728,12 +789,17 @@ def test_jobrequestcreate_post_with_codelists_error(
     user,
     mock_codelists_error,
     project_membership,
+    role_factory,
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     dummy_yaml = """
     version: 3
@@ -819,11 +885,15 @@ def test_jobrequestcreate_unknown_workspace(rf, user):
     assert response.url == "/"
 
 
-def test_jobrequestcreate_with_archived_workspace(rf, project_membership):
+def test_jobrequestcreate_with_archived_workspace(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory(is_archived=True)
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     request = rf.get("/")
     request.session = "session"
@@ -840,11 +910,15 @@ def test_jobrequestcreate_with_archived_workspace(rf, project_membership):
     assert response.url == workspace.get_absolute_url()
 
 
-def test_jobrequestcreate_with_no_backends(rf, project_membership):
+def test_jobrequestcreate_with_no_backends(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory()
 
-    project_membership(project=workspace.project, user=user, roles=[ProjectDeveloper])
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_run])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -908,7 +982,7 @@ def test_jobrequestdetail_with_invalid_job_request(rf, django_assert_num_queries
 
 
 def test_jobrequestdetail_with_permission(
-    rf, django_assert_num_queries, project_membership
+    rf, django_assert_num_queries, project_membership, role_factory
 ):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, updated_at=minutes_ago(timezone.now(), 31))
@@ -916,7 +990,9 @@ def test_jobrequestdetail_with_permission(
     user = UserFactory()
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.get("/")
@@ -943,6 +1019,8 @@ def test_jobrequestdetail_with_permission_core_developer(rf, time_machine):
         job_request=job_request, completed_at=timezone.now(), status="succeeded"
     )
 
+    # it's important that the user is associated with the CoreDeveloper role, rather
+    # than with a permission that's associated with the CoreDeveloper role
     user = UserFactory(roles=[CoreDeveloper])
 
     request = rf.get("/")
@@ -966,7 +1044,9 @@ def test_jobrequestdetail_with_permission_core_developer(rf, time_machine):
     assert url in response.rendered_content
 
 
-def test_jobrequestdetail_with_permission_with_completed_at(rf, project_membership):
+def test_jobrequestdetail_with_permission_with_completed_at(
+    rf, project_membership, role_factory
+):
     job_request = JobRequestFactory()
 
     JobFactory(
@@ -978,7 +1058,9 @@ def test_jobrequestdetail_with_permission_with_completed_at(rf, project_membersh
     user = UserFactory()
 
     project_membership(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.job_cancel])],
     )
 
     request = rf.get("/")
