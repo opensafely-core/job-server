@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import CoreDeveloper, InteractiveReporter, permissions
+from jobserver.authorization import CoreDeveloper, permissions
 from jobserver.models import Project, PublishRequest, Snapshot
 from jobserver.utils import set_from_list, set_from_qs
 from jobserver.views.projects import (
@@ -64,9 +64,13 @@ def test_projectdetail_success(rf, user):
     assert "Edit" not in response.context_data
 
 
-def test_projectdetail_for_interactive_button(rf, user, project_membership):
+def test_projectdetail_for_interactive_button(
+    rf, user, project_membership, role_factory
+):
     project = ProjectFactory()
-    user = UserFactory(roles=[InteractiveReporter])
+    user = UserFactory(
+        roles=[role_factory(permissions=[permissions.analysis_request_create])]
+    )
     project_membership(project=project, user=user)
 
     request = rf.get("/")
@@ -80,7 +84,11 @@ def test_projectdetail_for_interactive_button(rf, user, project_membership):
     assert "Run interactive analysis" in response.rendered_content
 
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+    )
 
     request = rf.get("/")
     request.user = user
@@ -375,7 +383,7 @@ def test_projecteventlog_unknown_project(rf):
         ProjectEventLog.as_view()(request, project_slug="")
 
 
-def test_projectreportlist_success(rf, project_membership, release):
+def test_projectreportlist_success(rf, project_membership, release, role_factory):
     project = ProjectFactory()
     user = UserFactory()
 
@@ -401,7 +409,11 @@ def test_projectreportlist_success(rf, project_membership, release):
     assert set_from_qs(response.context_data["object_list"]) == {report2.pk}
 
     # test the page again now the user has permissions to view drafts
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permissions=[permissions.release_file_view])],
+    )
 
     request = rf.get("/")
     request.user = user
