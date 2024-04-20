@@ -69,7 +69,7 @@ def test_projectdetail_for_interactive_button(
 ):
     project = ProjectFactory()
     user = UserFactory(
-        roles=[role_factory(permissions=[permissions.analysis_request_create])]
+        roles=[role_factory(permission=permissions.analysis_request_create)]
     )
     project_membership(project=project, user=user)
 
@@ -87,7 +87,7 @@ def test_projectdetail_for_interactive_button(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
 
     request = rf.get("/")
@@ -245,7 +245,7 @@ def test_projectedit_get_success(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.project_manage])],
+        roles=[role_factory(permission=permissions.project_manage)],
     )
 
     request = rf.get("/")
@@ -263,7 +263,7 @@ def test_projectedit_post_success(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.project_manage])],
+        roles=[role_factory(permission=permissions.project_manage)],
     )
 
     data = {
@@ -290,7 +290,7 @@ def test_projectedit_post_success_with_next(rf, project_membership, role_factory
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.project_manage])],
+        roles=[role_factory(permission=permissions.project_manage)],
     )
 
     data = {
@@ -336,7 +336,7 @@ def test_projectedit_user_has_global_project_manage(
     rf, project_membership, role_factory
 ):
     project = ProjectFactory()
-    user = UserFactory(roles=[role_factory(permissions=[permissions.project_manage])])
+    user = UserFactory(roles=[role_factory(permission=permissions.project_manage)])
     project_membership(project=project, user=user)
     request = rf.get("/")
     request.user = user
@@ -412,7 +412,7 @@ def test_projectreportlist_success(rf, project_membership, release, role_factory
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.release_file_view])],
+        roles=[role_factory(permission=permissions.release_file_view)],
     )
 
     request = rf.get("/")

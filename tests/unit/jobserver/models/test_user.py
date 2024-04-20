@@ -67,15 +67,15 @@ def test_user_get_absolute_url():
 def test_user_get_all_permissions(role_factory, project_membership):
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
-    user = UserFactory(roles=[role_factory(permissions=["a_global_permission"])])
+    user = UserFactory(roles=[role_factory(permission="a_global_permission")])
 
     OrgMembershipFactory(
-        org=org, user=user, roles=[role_factory(permissions=["an_org_permission"])]
+        org=org, user=user, roles=[role_factory(permission="an_org_permission")]
     )
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=["a_project_permission"])],
+        roles=[role_factory(permission="a_project_permission")],
     )
 
     output = user.get_all_permissions()

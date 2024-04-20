@@ -338,9 +338,9 @@ def project_memberships(project_membership):
 
 @pytest.fixture
 def role_factory():
-    """A fixture for dynamically creating a role with a given set of permissions."""
+    """A fixture for dynamically creating a role with a given permission."""
 
-    def _role_factory(*, permissions):
+    def _role_factory(*, permission):
         # By using `type` as a class factory, we ensure `Role.permissions` is a class
         # attribute rather than an instance attribute.
 
@@ -350,7 +350,7 @@ def role_factory():
         # them using their dotted path. To accommodate the check and the import, we move
         # this role class into place with __module__ and setattr.
 
-        name = f"Role_{'_'.join(permissions)}"
+        name = f"Role_{permission}"
         assert name.isidentifier(), f"{name} is not a valid Python identifier"
         Role = type(
             name,
@@ -358,7 +358,7 @@ def role_factory():
             {
                 "__module__": jobserver.authorization.roles.__name__,
                 "models": [],
-                "permissions": permissions,
+                "permissions": [permission],
             },
         )
         setattr(jobserver.authorization.roles, name, Role)

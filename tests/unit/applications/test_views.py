@@ -672,9 +672,7 @@ def test_validate_application_access_error():
 
 def test_validate_application_access_with_permission(role_factory):
     application = ApplicationFactory()
-    user = UserFactory(
-        roles=[role_factory(permissions=[permissions.application_manage])]
-    )
+    user = UserFactory(roles=[role_factory(permission=permissions.application_manage)])
     assert validate_application_access(user, application) is None
 
 

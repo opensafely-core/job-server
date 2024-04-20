@@ -1263,7 +1263,7 @@ def test_snapshotcreate_unknown_files(api_rf, project_membership, role_factory):
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.snapshot_create])],
+        roles=[role_factory(permission=permissions.snapshot_create)],
     )
 
     request = api_rf.post("/", data={"file_ids": ["test"]})
@@ -1288,7 +1288,7 @@ def test_snapshotcreate_with_existing_snapshot(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.snapshot_create])],
+        roles=[role_factory(permission=permissions.snapshot_create)],
     )
 
     request = api_rf.post("/", data={"file_ids": [release.files.first().pk]})
@@ -1319,7 +1319,7 @@ def test_snapshotcreate_with_permission(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.snapshot_create])],
+        roles=[role_factory(permission=permissions.snapshot_create)],
     )
 
     data = {
@@ -1369,7 +1369,7 @@ def test_snapshotpublishapi_already_published(api_rf, role_factory):
 
     request = api_rf.post("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+        roles=[role_factory(permission=permissions.snapshot_publish)]
     )
 
     response = SnapshotPublishAPI.as_view()(
@@ -1392,7 +1392,7 @@ def test_snapshotpublishapi_success(api_rf, role_factory):
 
     request = api_rf.post("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+        roles=[role_factory(permission=permissions.snapshot_publish)]
     )
 
     response = SnapshotPublishAPI.as_view()(
@@ -1412,7 +1412,7 @@ def test_snapshotpublishapi_unknown_snapshot(api_rf, role_factory):
 
     request = api_rf.post("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+        roles=[role_factory(permission=permissions.snapshot_publish)]
     )
 
     response = SnapshotPublishAPI.as_view()(
@@ -1429,7 +1429,7 @@ def test_snapshotpublishapi_with_missing_publish_request(api_rf, role_factory):
 
     request = api_rf.post("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.snapshot_publish])]
+        roles=[role_factory(permission=permissions.snapshot_publish)]
     )
 
     with pytest.raises(Exception, match="Snapshot is missing publish request"):
@@ -1515,9 +1515,7 @@ def test_validate_upload_access_no_permission(rf):
 
 def test_validate_upload_access_not_a_backend_member(rf, role_factory):
     backend = BackendFactory()
-    user = UserFactory(
-        roles=[role_factory(permissions=[permissions.release_file_upload])]
-    )
+    user = UserFactory(roles=[role_factory(permission=permissions.release_file_upload)])
     workspace = WorkspaceFactory()
 
     request = rf.get(
@@ -1574,7 +1572,7 @@ def test_level4tokenauthenticationapi_success(
     project_membership(
         user=token_login_user,
         project=project1,
-        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
     )
 
     # another project, where user does *not* have permissions
@@ -1619,7 +1617,7 @@ def test_level4tokenauthenticationapi_success_privileged(
     project_membership(
         user=token_login_user,
         project=project,
-        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
     )
     workspace1 = WorkspaceFactory(project=project)
     workspace2 = WorkspaceFactory(project=project)
@@ -1655,7 +1653,7 @@ def test_level4tokenauthenticationapi_fails_not_backend(
     project_membership(
         user=token_login_user,
         project=project,
-        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
     )
 
     token = generate_login_token(token_login_user)
@@ -1677,7 +1675,7 @@ def test_level4tokenauthenticationapi_fails_invalid_token(
     project_membership(
         user=token_login_user,
         project=project,
-        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
     )
 
     generate_login_token(token_login_user)
@@ -1726,7 +1724,7 @@ def test_level4tokenauthenticationapi_fails_invalid_user(
     project_membership(
         user=user,
         project=project,
-        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
     )
 
     backend = BackendFactory()
@@ -1754,7 +1752,7 @@ def test_level4authorisationapi_success(
     project_membership(
         user=token_login_user,
         project=project1,
-        roles=[role_factory(permissions=[permissions.unreleased_outputs_view])],
+        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
     )
 
     # another project, where user does *not* have permissions
