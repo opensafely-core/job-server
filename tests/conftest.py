@@ -352,16 +352,20 @@ def role_factory():
 
         name = f"Role_{permission}"
         assert name.isidentifier(), f"{name} is not a valid Python identifier"
-        Role = type(
-            name,
-            (object,),
-            {
-                "__module__": jobserver.authorization.roles.__name__,
-                "models": [],
-                "permissions": [permission],
-            },
-        )
-        setattr(jobserver.authorization.roles, name, Role)
+
+        Role = getattr(jobserver.authorization.roles, name, None)
+        if Role is None:
+            Role = type(
+                name,
+                (object,),
+                {
+                    "__module__": jobserver.authorization.roles.__name__,
+                    "models": [],
+                    "permissions": [permission],
+                },
+            )
+            setattr(jobserver.authorization.roles, name, Role)
+
         return Role
 
     return _role_factory
