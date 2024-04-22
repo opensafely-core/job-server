@@ -299,10 +299,11 @@ class ReleaseWorkspaceAPI(APIView):
         serializer.is_valid(raise_exception=True)
         files = serializer.validated_data["files"]
         metadata = serializer.validated_data["metadata"]
+        release_id = metadata.pop("airlock_id", None)
 
         try:
             release = releases.create_release(
-                workspace, backend, user, files, metadata=metadata
+                workspace, backend, user, files, metadata=metadata, id=release_id
             )
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
