@@ -6,7 +6,10 @@ from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.response import Response
 
 from jobserver.api.authentication import get_backend_from_token
+from jobserver.github import _get_github_api
 from jobserver.models import User, Workspace
+
+from .issues import create_output_checking_issue
 
 
 class EventType(Enum):
@@ -64,7 +67,15 @@ class AirlockEvent:
         )
 
 
-def create_issue(airlock_event: AirlockEvent): ...
+def create_issue(airlock_event: AirlockEvent, github_api=None):
+    github_api = github_api or _get_github_api()
+
+    create_output_checking_issue(
+        airlock_event.workspace,
+        airlock_event.release_request_id,
+        airlock_event.request_author,
+        github_api,
+    )
 
 
 def close_issue(airlock_event: AirlockEvent): ...
