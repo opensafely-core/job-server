@@ -722,6 +722,57 @@ def test_releaseworkspaceapi_post_create_release(
     assert backend.name in text
 
 
+def test_releaseworkspaceapi_post_create_release_with_airlock_id(
+    api_rf, slack_messages, project_membership
+):
+    user = UserFactory(roles=[OutputChecker])
+    workspace = WorkspaceFactory()
+    project_membership(user=user, project=workspace.project)
+
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=user)
+
+    assert Release.objects.count() == 0
+
+    airlock_metadata = {"tool": "airlock", "airlock_id": "01AAA1AAAAAAA1AAAAA11A1AAA"}
+    data = {
+        "files": [
+            {
+                "name": "file1.txt",
+                "url": "url",
+                "size": 7,
+                "sha256": "hash",
+                "date": timezone.now(),
+                "metadata": airlock_metadata,
+                "review": None,
+            }
+        ],
+        "metadata": airlock_metadata,
+        "review": None,
+    }
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": "test",
+            "os-user": user.username,
+        },
+    )
+
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
+
+    assert response.status_code == 201, response.data
+    assert Release.objects.count() == 1
+
+    release = Release.objects.first()
+    assert release.id == airlock_metadata["airlock_id"]
+    assert response["Release-Id"] == airlock_metadata["airlock_id"]
+    assert response.data["release_id"] == airlock_metadata["airlock_id"]
+
+
 def test_releaseworkspaceapi_post_create_release_with_oversized_file(
     api_rf, project_membership
 ):
