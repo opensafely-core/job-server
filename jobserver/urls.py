@@ -87,6 +87,7 @@ from .views.workspaces import (
 
 
 api_urls = [
+    path("airlock/", include("airlock.urls")),
     path("job-requests/", JobRequestAPIList.as_view()),
     path("jobs/", JobAPIUpdate.as_view()),
     path("release-notifications/", ReleaseNotificationAPICreate.as_view()),
