@@ -39,7 +39,7 @@ def test_analysisrequestcreate_get_success(rf, project_membership, role_factory)
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
 
     request = rf.get("/")
@@ -66,7 +66,7 @@ def test_analysisrequestcreate_post_failure(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
 
     data = {
@@ -97,7 +97,7 @@ def test_analysisrequestcreate_post_success(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_create])],
+        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
     add_codelist("bennett/event-codelist/event123")
     add_codelist("bennett/medication-codelist/medication123")
@@ -160,7 +160,7 @@ def test_analysisrequestdetail_success(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.release_file_view])],
+        roles=[role_factory(permission=permissions.release_file_view)],
     )
 
     request = rf.get("/")
@@ -196,7 +196,7 @@ def test_analysisrequestdetail_with_global_release_file_view(rf, role_factory):
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.release_file_view])]
+        roles=[role_factory(permission=permissions.release_file_view)]
     )
 
     response = AnalysisRequestDetail.as_view()(
@@ -215,7 +215,7 @@ def test_analysisrequestdetail_with_release_file_view_on_another_project(
 
     user = UserFactory()
     project_membership(
-        user=user, roles=[role_factory(permissions=[permissions.release_file_view])]
+        user=user, roles=[role_factory(permission=permissions.release_file_view)]
     )
 
     request = rf.get("/")
@@ -262,7 +262,7 @@ def test_analysisrequestdetail_login_redirect_with_different_domain(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.release_file_view])],
+        roles=[role_factory(permission=permissions.release_file_view)],
     )
 
     analysis_request = AnalysisRequestFactory(project=project, created_by=user)
@@ -288,7 +288,7 @@ def test_analysisrequestdetail_login_redirect_with_normal_settings(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.release_file_view])],
+        roles=[role_factory(permission=permissions.release_file_view)],
     )
 
     analysis_request = AnalysisRequestFactory(project=project, created_by=user)
@@ -314,7 +314,7 @@ def test_analysisrequestdetail_with_published_report(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.release_file_view])],
+        roles=[role_factory(permission=permissions.release_file_view)],
     )
 
     rfile = ReleaseFileFactory()
@@ -367,7 +367,7 @@ def test_reportedit_get_success(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
     analysis_request = AnalysisRequestFactory(
         project=project,
@@ -394,7 +394,7 @@ def test_reportedit_no_report(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
     analysis_request = AnalysisRequestFactory(
         project=project,
@@ -423,7 +423,7 @@ def test_reportedit_post_invalid(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
     analysis_request = AnalysisRequestFactory(
         project=project,
@@ -455,7 +455,7 @@ def test_reportedit_post_success(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
     analysis_request = AnalysisRequestFactory(
         project=project,
@@ -523,7 +523,7 @@ def test_reportedit_locked_with_approved_decision(rf, project_membership, role_f
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
 
     PublishRequestFactory(
@@ -564,7 +564,7 @@ def test_reportedit_locked_with_pending_decision(rf, project_membership, role_fa
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
     PublishRequestFactory(report=report, snapshot=snapshot)
 
@@ -600,7 +600,7 @@ def test_reportedit_unlocked_with_rejected_decision(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
 
     PublishRequestFactory(

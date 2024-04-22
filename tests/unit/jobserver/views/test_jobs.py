@@ -24,7 +24,7 @@ def test_jobcancel_already_cancelled(rf, user, project_membership, role_factory)
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.post("/")
@@ -46,7 +46,7 @@ def test_jobcancel_already_completed(rf, user, project_membership, role_factory)
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.post("/")
@@ -69,7 +69,7 @@ def test_jobcancel_success(rf, project_membership, role_factory):
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.post("/")
@@ -161,7 +161,7 @@ def test_jobdetail_with_permission(rf, project_membership, role_factory):
     project_membership(
         project=job.job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.get("/")

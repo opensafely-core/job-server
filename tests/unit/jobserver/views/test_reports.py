@@ -26,7 +26,7 @@ def test_publishrequestcreate_get_success(rf, role_factory):
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.analysis_request_view])]
+        roles=[role_factory(permission=permissions.analysis_request_view)]
     )
 
     response = PublishRequestCreate.as_view()(
@@ -46,7 +46,7 @@ def test_publishrequestcreate_locked_with_approved_decision(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
 
     rfile = ReleaseFileFactory()
@@ -57,7 +57,7 @@ def test_publishrequestcreate_locked_with_approved_decision(
 
     request = rf.post("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.analysis_request_view])]
+        roles=[role_factory(permission=permissions.analysis_request_view)]
     )
 
     PublishRequestFactory(
@@ -89,7 +89,7 @@ def test_publishrequestcreate_locked_with_pending_decision(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
 
     rfile = ReleaseFileFactory()
@@ -121,7 +121,7 @@ def test_publishrequestcreate_unlocked_with_rejected_decision(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permissions=[permissions.analysis_request_view])],
+        roles=[role_factory(permission=permissions.analysis_request_view)],
     )
 
     rfile = ReleaseFileFactory()
@@ -157,7 +157,7 @@ def test_publishrequestcreate_post_success(rf, slack_messages, role_factory):
 
     request = rf.post("/")
     request.user = UserFactory(
-        roles=[role_factory(permissions=[permissions.analysis_request_view])]
+        roles=[role_factory(permission=permissions.analysis_request_view)]
     )
 
     # set up messages framework

@@ -57,7 +57,7 @@ def test_jobrequestcancel_already_completed(rf, project_membership, role_factory
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.post("/")
@@ -82,7 +82,7 @@ def test_jobrequestcancel_success(rf, project_membership, role_factory):
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.post("/")
@@ -119,7 +119,7 @@ def test_jobrequestcancel_partially_completed(rf, project_membership, role_facto
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.post("/")
@@ -203,7 +203,7 @@ def test_jobrequestcreate_get_success(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -257,7 +257,7 @@ def test_jobrequestcreate_get_with_all_backends_removed(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     request = rf.get("/")
@@ -280,7 +280,7 @@ def test_jobrequestcreate_get_with_permission(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -327,7 +327,7 @@ def test_jobrequestcreate_get_with_project_yaml_errors(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     mocker.patch(
@@ -368,7 +368,7 @@ def test_jobrequestcreate_get_with_some_backends_removed(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -409,7 +409,7 @@ def test_jobrequestcreate_get_with_out_of_date_codelist(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -469,7 +469,7 @@ def test_jobrequestcreate_post_success(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -528,7 +528,7 @@ def test_jobrequestcreate_post_with_invalid_backend(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -571,7 +571,7 @@ def test_jobrequestcreate_post_with_notifications_default(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -628,7 +628,7 @@ def test_jobrequestcreate_post_with_notifications_override(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -686,7 +686,7 @@ def test_jobrequestcreate_post_cohortextractor_without_permission(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -733,7 +733,7 @@ def test_jobrequestcreate_post_sqlrunner_without_permission(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -798,7 +798,7 @@ def test_jobrequestcreate_post_with_codelists_error(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     dummy_yaml = """
@@ -892,7 +892,7 @@ def test_jobrequestcreate_with_archived_workspace(rf, project_membership, role_f
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     request = rf.get("/")
@@ -917,7 +917,7 @@ def test_jobrequestcreate_with_no_backends(rf, project_membership, role_factory)
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_run])],
+        roles=[role_factory(permission=permissions.job_run)],
     )
 
     request = rf.get("/")
@@ -992,7 +992,7 @@ def test_jobrequestdetail_with_permission(
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.get("/")
@@ -1060,7 +1060,7 @@ def test_jobrequestdetail_with_permission_with_completed_at(
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permissions=[permissions.job_cancel])],
+        roles=[role_factory(permission=permissions.job_cancel)],
     )
 
     request = rf.get("/")
