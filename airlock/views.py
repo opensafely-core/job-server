@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.response import Response
@@ -10,6 +11,9 @@ from jobserver.github import _get_github_api
 from jobserver.models import User, Workspace
 
 from .issues import create_output_checking_issue
+
+
+class NotificationError(Exception): ...
 
 
 class EventType(Enum):
@@ -69,13 +73,15 @@ class AirlockEvent:
 
 def create_issue(airlock_event: AirlockEvent, github_api=None):
     github_api = github_api or _get_github_api()
-
-    create_output_checking_issue(
-        airlock_event.workspace,
-        airlock_event.release_request_id,
-        airlock_event.request_author,
-        github_api,
-    )
+    try:
+        create_output_checking_issue(
+            airlock_event.workspace,
+            airlock_event.release_request_id,
+            airlock_event.request_author,
+            github_api,
+        )
+    except HTTPError:
+        raise NotificationError("Error creating GitHub issue")
 
 
 def close_issue(airlock_event: AirlockEvent): ...
@@ -104,8 +110,12 @@ def airlock_event_view(request):
     get_backend_from_token(token)
 
     airlock_event = AirlockEvent.from_payload(request.data)
-    handle_notifications(airlock_event)
-    return Response({"message": "ok"})
+
+    try:
+        handle_notifications(airlock_event)
+    except NotificationError as e:
+        return Response({"status": "error", "message": str(e)}, status=201)
+    return Response({"status": "ok"}, status=201)
 
 
 def handle_notifications(airlock_event: AirlockEvent):
