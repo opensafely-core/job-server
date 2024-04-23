@@ -67,6 +67,38 @@ def test_create_issue(enable_network, github_api):
     assert real is not None
 
 
+def test_get_issue_number(enable_network, github_api):
+    # use a private repo to test here so we can mirror what the output checkers
+    # are doing
+    args = ["opensafely-testing", "github-api-testing-private", "Test Issue"]
+
+    real = github_api.get_issue_number_from_title(*args)
+    fake = FakeGitHubAPI().get_issue_number_from_title(*args)
+    compare(fake, real)
+
+    assert real is not None
+
+
+def test_create_issue_comment(enable_network, github_api):
+    # use a private repo to test here so we can mirror what the output checkers
+    # are doing
+    # We assume there's at least one existing issue entitled "Test Issue"
+    # (generated in previous test runs)
+    args = [
+        "opensafely-testing",
+        "github-api-testing-private",
+        "Test Issue",
+        "A test comment",
+    ]
+
+    real = github_api.create_issue_comment(*args)
+    fake = FakeGitHubAPI().create_issue_comment(*args)
+
+    compare(fake, real)
+
+    assert real is not None
+
+
 def test_create_repo(enable_network, github_api):
     try:
         # create a unique ID for this test using our existing ULID function.

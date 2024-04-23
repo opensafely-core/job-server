@@ -228,6 +228,68 @@ class GitHubAPI:
 
         return r.json()
 
+    def get_issue_number_from_title(self, org, repo, title_text):
+        """
+        Use search to find issue by title text (can be partial)
+        Returns the issue number. If there is > 1 matching issue, returns
+        the most recently created issue
+        """
+        path_segments = [
+            "search",
+            "issues",
+        ]
+
+        url = self._url(path_segments)
+
+        payload = {
+            "q": f"org:{org} repo:{repo} in:title {title_text}",
+            "sort": "created",
+            "order": "desc",
+            "per_page": 1,
+        }
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers, params=payload)
+
+        r.raise_for_status()
+
+        results = r.json()
+        count = results["total_count"]
+        items = results["items"]
+
+        if count > 0:
+            return items[0]["number"]
+
+    def create_issue_comment(self, org, repo, title_text, body):
+        if settings.DEBUG:  # pragma: no cover
+            print("")
+            print(f"Repo: https://github.com/{org}/{repo}/")
+            print(f"Title text: {title_text}")
+            print("Message:")
+            print(body)
+            print("")
+            return {"html_url": "http://example.com/issues/comment"}
+
+        issue_number = self.get_issue_number_from_title(org, repo, title_text)
+
+        path_segments = ["repos", org, repo, "issues", issue_number, "comments"]
+        url = self._url(path_segments)
+
+        payload = {
+            "body": body,
+        }
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._post(url, headers=headers, json=payload)
+
+        r.raise_for_status()
+
+        return r.json()
+
     def create_repo(self, org, repo):
         path_segments = [
             "orgs",
