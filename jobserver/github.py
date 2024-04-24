@@ -228,11 +228,15 @@ class GitHubAPI:
 
         return r.json()
 
-    def get_issue_number_from_title(self, org, repo, title_text):
+    def get_issue_number_from_title(
+        self, org, repo, title_text, latest=True, state=None
+    ):
         """
         Use search to find issue by title text (can be partial)
-        Returns the issue number. If there is > 1 matching issue, returns
-        the most recently created issue
+        Returns the issue number.
+        By default, fetches both open and closed issues, and sorts by reverse
+        created date, so if there is > 1 matching issue, returns the latest (most
+        recently created issue)
         """
         path_segments = [
             "search",
@@ -241,10 +245,14 @@ class GitHubAPI:
 
         url = self._url(path_segments)
 
+        query = f"org:{org} repo:{repo} in:title {title_text}"
+        if state is not None:
+            query += f" is:{state}"
+
         payload = {
-            "q": f"org:{org} repo:{repo} in:title {title_text}",
+            "q": query,
             "sort": "created",
-            "order": "desc",
+            "order": "desc" if latest else "asc",
             "per_page": 1,
         }
 
@@ -262,17 +270,22 @@ class GitHubAPI:
         if count > 0:
             return items[0]["number"]
 
-    def create_issue_comment(self, org, repo, title_text, body):
+    def create_issue_comment(
+        self, org, repo, title_text, body, latest=True, issue_number=None
+    ):
         if settings.DEBUG:  # pragma: no cover
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
-            print("Message:")
+            print("Comment:")
             print(body)
             print("")
             return {"html_url": "http://example.com/issues/comment"}
 
-        issue_number = self.get_issue_number_from_title(org, repo, title_text)
+        if issue_number is None:
+            issue_number = self.get_issue_number_from_title(
+                org, repo, title_text, latest
+            )
 
         path_segments = ["repos", org, repo, "issues", issue_number, "comments"]
         url = self._url(path_segments)
@@ -287,6 +300,51 @@ class GitHubAPI:
         r = self._post(url, headers=headers, json=payload)
 
         r.raise_for_status()
+
+        return r.json()
+
+    def _change_issue_state(self, org, repo, issue_number, to_state):
+        path_segments = ["repos", org, repo, "issues", issue_number]
+        payload = {"state": to_state}
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        url = self._url(path_segments)
+        r = self._post(url, headers=headers, json=payload)
+
+        r.raise_for_status()
+
+    def close_issue(self, org, repo, title_text, comment=None, latest=True):
+        if settings.DEBUG:  # pragma: no cover
+            print("")
+            print(f"Repo: https://github.com/{org}/{repo}/")
+            print(f"Title text: {title_text}")
+            print("")
+            return {"html_url": "http://example.com/issues/closed"}
+
+        issue_number = self.get_issue_number_from_title(
+            org, repo, title_text, latest, state="open"
+        )
+        r = self._change_issue_state(org, repo, issue_number, "closed")
+
+        path_segments = ["repos", org, repo, "issues", issue_number]
+        url = self._url(path_segments)
+
+        payload = {
+            "state": "closed",
+        }
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._post(url, headers=headers, json=payload)
+
+        r.raise_for_status()
+
+        if comment is not None:
+            self.create_issue_comment(
+                org, repo, title_text, comment, issue_number=issue_number
+            )
 
         return r.json()
 

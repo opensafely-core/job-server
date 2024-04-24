@@ -13,10 +13,19 @@ class FakeGitHubAPI:
             "html_url": "http://example.com",
         }
 
-    def get_issue_number_from_title(self, org, repo, title_text):
+    def get_issue_number_from_title(
+        self, org, repo, title_text, latest=True, state=None
+    ):
         return 1
 
-    def create_issue_comment(self, org, repo, title_text, body):
+    def create_issue_comment(
+        self, org, repo, title_text, body, latest=True, issue_number=None
+    ):
+        return {
+            "html_url": "http://example.com/issues/comment",
+        }
+
+    def close_issue(self, org, repo, title_text, comment=None, latest=True):
         return {
             "html_url": "http://example.com/issues/comment",
         }
