@@ -10,7 +10,11 @@ from jobserver.api.authentication import get_backend_from_token
 from jobserver.github import _get_github_api
 from jobserver.models import User, Workspace
 
-from .issues import close_output_checking_issue, create_output_checking_issue
+from .issues import (
+    close_output_checking_issue,
+    create_output_checking_issue,
+    update_output_checking_issue,
+)
 
 
 class NotificationError(Exception): ...
@@ -98,7 +102,19 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
         raise NotificationError("Error closing GitHub issue")
 
 
-def update_issue(airlock_event: AirlockEvent): ...
+def update_issue(airlock_event: AirlockEvent, github_api=None):
+    github_api = github_api or _get_github_api()
+    update = airlock_event.update_type.name.lower().replace("_", " ")
+    try:
+        update_output_checking_issue(
+            airlock_event.release_request_id,
+            airlock_event.user,
+            update,
+            airlock_event.group,
+            github_api,
+        )
+    except HTTPError:
+        raise NotificationError("Error creating GitHub issue comment")
 
 
 def email_author(airlock_event: AirlockEvent): ...

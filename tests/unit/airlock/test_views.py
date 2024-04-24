@@ -17,26 +17,29 @@ class FakeGithubApiWithError:
     def create_issue(*args, **kwargs):
         raise HTTPError()
 
+    def create_issue_comment(*args, **kwargs):
+        raise HTTPError()
+
     def close_issue(*args, **kwargs):
         raise HTTPError()
 
 
 @pytest.mark.parametrize(
-    "event_type,update_type",
+    "event_type,group,update_type",
     [
-        ("request_submitted", None),
-        ("request_rejected", None),
-        ("request_withdrawn", None),
-        ("request_released", None),
-        ("request_updated", "file_added"),
-        ("request_updated", "file_withdrawn"),
-        ("request_updated", "context_edited"),
-        ("request_updated", "controls_edited"),
-        ("request_updated", "comment_added"),
+        ("request_submitted", None, None),
+        ("request_rejected", None, None),
+        ("request_withdrawn", None, None),
+        ("request_released", None, None),
+        ("request_updated", "Group 1", "file_added"),
+        ("request_updated", "Group 1", "file_withdrawn"),
+        ("request_updated", "Group 1", "context_edited"),
+        ("request_updated", "Group 1", "controls_edited"),
+        ("request_updated", "Group 1", "comment_added"),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPI)
-def test_api_airlock_event_post(api_rf, event_type, update_type):
+def test_api_airlock_event_post(api_rf, event_type, group, update_type):
     user = UserFactory()
     WorkspaceFactory(name="test-workspace")
     backend = BackendFactory(auth_token="test", name="test-backend")
@@ -45,6 +48,7 @@ def test_api_airlock_event_post(api_rf, event_type, update_type):
     data = {
         "event_type": event_type,
         "update_type": update_type,
+        "group": group,
         "workspace": "test-workspace",
         "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
         "request_author": user.username,
@@ -95,14 +99,20 @@ def test_api_post_release_request_submitted_by_non_author(api_rf):
 
 
 @pytest.mark.parametrize(
-    "event_type,error",
+    "event_type,update_type,group,error",
     [
-        ("request_submitted", "Error creating GitHub issue"),
-        ("request_rejected", "Error closing GitHub issue"),
+        ("request_submitted", None, None, "Error creating GitHub issue"),
+        ("request_rejected", None, None, "Error closing GitHub issue"),
+        (
+            "request_updated",
+            "file_added",
+            "Group 1",
+            "Error creating GitHub issue comment",
+        ),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGithubApiWithError)
-def test_api_airlock_event_error(api_rf, event_type, error):
+def test_api_airlock_event_error(api_rf, event_type, update_type, group, error):
 
     author = UserFactory()
     user = UserFactory()
@@ -112,7 +122,8 @@ def test_api_airlock_event_error(api_rf, event_type, error):
 
     data = {
         "event_type": event_type,
-        "update_type": None,
+        "update_type": update_type,
+        "group": group,
         "workspace": "test-workspace",
         "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
         "request_author": author.username,

@@ -1,7 +1,11 @@
 from django.conf import settings
 from first import first
 
-from airlock.issues import close_output_checking_issue, create_output_checking_issue
+from airlock.issues import (
+    close_output_checking_issue,
+    create_output_checking_issue,
+    update_output_checking_issue,
+)
 from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,
@@ -86,3 +90,23 @@ def test_close_output_checking_request(github_api):
     assert comment.repo == "opensafely-output-review"
     assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
     assert comment.body == f"Issue closed: Closed for reasons by {user.username}"
+
+
+def test_update_output_checking_request(github_api):
+    org = OrgFactory(pk=settings.BENNETT_ORG_PK)
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+    assert (
+        update_output_checking_issue(
+            "01AAA1AAAAAAA1AAAAA11A1AAA", user, "file added", "Group 1", github_api
+        )
+        == "http://example.com/issues/comment"
+    )
+
+    comment = first(github_api.comments)
+    assert comment.org == "ebmdatalab"
+    assert comment.repo == "opensafely-output-review"
+    assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
+    assert (
+        comment.body == f"Updated by {user.username}: file added (filegroup 'Group 1')"
+    )
