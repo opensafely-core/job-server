@@ -1,0 +1,12 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
+
+Dear {{ request_author }},
+
+Your files for workspace {{ workspace }} have been released.
+
+You can now view your <a href="{{ url }}">released files here.
+
+    {{ url }}
+{% endblock content %}

@@ -1,0 +1,9 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
+
+Dear {{ request_author }},
+
+Release request {{ release_request_id }} for {{ workspace }} has been rejected.
+
+{% endblock content %}

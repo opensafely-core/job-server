@@ -10,6 +10,11 @@ from jobserver.api.authentication import get_backend_from_token
 from jobserver.github import _get_github_api
 from jobserver.models import User, Workspace
 
+from .emails import (
+    send_request_rejected_email,
+    send_request_released_email,
+    send_request_updated_email,
+)
 from .issues import (
     close_output_checking_issue,
     create_output_checking_issue,
@@ -122,7 +127,17 @@ def update_issue(airlock_event: AirlockEvent, github_api=None):
         raise NotificationError("Error creating GitHub issue comment")
 
 
-def email_author(airlock_event: AirlockEvent): ...
+def email_author(airlock_event: AirlockEvent):
+    if airlock_event.request_author == airlock_event.user:
+        return
+    match airlock_event.event_type:
+        case EventType.REQUEST_RELEASED:
+            send_request_released_email(airlock_event)
+        case EventType.REQUEST_REJECTED:
+            send_request_rejected_email(airlock_event)
+        case _:
+            assert airlock_event.event_type == EventType.REQUEST_UPDATED
+            send_request_updated_email(airlock_event)
 
 
 EVENT_NOTIFICATIONS = {
