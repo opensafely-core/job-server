@@ -140,7 +140,9 @@ def test_close_issue(enable_network, github_api, comment):
     assert real is not None
 
     # reset the issue state
-    github_api._change_issue_state(*[args[:3]], "open")
+    github_api._change_issue_state(
+        "opensafely-testing", "github-api-testing-private", real["number"], "open"
+    )
 
 
 def test_create_repo(enable_network, github_api):

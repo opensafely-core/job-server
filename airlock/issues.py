@@ -37,3 +37,14 @@ def create_output_checking_issue(
     )
 
     return data["html_url"]
+
+
+def close_output_checking_issue(release_request_id, user, reason, github_api):
+    data = github_api.close_issue(
+        org="ebmdatalab",
+        repo="opensafely-output-review",
+        title_text=release_request_id,
+        comment=f"Issue closed: {reason} by {user.username}",
+    )
+
+    return data["html_url"]
