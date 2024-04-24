@@ -50,12 +50,12 @@ def close_output_checking_issue(release_request_id, user, reason, github_api):
     return data["html_url"]
 
 
-def update_output_checking_issue(release_request_id, user, update, group, github_api):
+def update_output_checking_issue(release_request_id, user, update, github_api):
     data = github_api.create_issue_comment(
         org="ebmdatalab",
         repo="opensafely-output-review",
         title_text=release_request_id,
-        body=f"Updated by {user.username}: {update} (filegroup '{group}')",
+        body=f"Updated by {user.username}: {update}",
     )
 
     return data["html_url"]

@@ -21,20 +21,20 @@ class NotificationError(Exception): ...
 
 
 class EventType(Enum):
-    REQUEST_SUBMITTED = "REQUEST_SUBMITTED"
-    REQUEST_WITHDRAWN = "REQUEST_WITHDRAWN"
-    REQUEST_APPROVED = "REQUEST_APPROVED"
-    REQUEST_RELEASED = "REQUEST_RELEASED"
-    REQUEST_REJECTED = "REQUEST_REJECTED"
-    REQUEST_UPDATED = "REQUEST_UPDATED"
+    REQUEST_SUBMITTED = "request submitted"
+    REQUEST_WITHDRAWN = "request withdrawn"
+    REQUEST_APPROVED = "request approved"
+    REQUEST_RELEASED = "request released"
+    REQUEST_REJECTED = "request rejected"
+    REQUEST_UPDATED = "request updated"
 
 
 class UpdateType(Enum):
-    FILE_ADDED = "FILE_ADDED"
-    FILE_WITHDRAWN = "FILE_WITHDRAWN"
-    CONTEXT_EDITED = "FILE_WITHDRAWN"
-    CONTROLS_EDITED = "CONTROLS_EDITED"
-    COMMENT_ADDED = "COMMENT_ADDED"
+    FILE_ADDED = "file added"
+    FILE_WITHDRAWN = "file withdrawn"
+    CONTEXT_EDITED = "context edited"
+    CONTROLS_EDITED = "controls edited"
+    COMMENT_ADDED = "comment added"
 
 
 @dataclass(frozen=True)
@@ -74,6 +74,12 @@ class AirlockEvent:
             user=user,
         )
 
+    def describe_event(self):
+        return self.event_type.value
+
+    def describe_update(self):
+        return f"{self.update_type.value} (filegroup {self.group})"
+
 
 def create_issue(airlock_event: AirlockEvent, github_api=None):
     github_api = github_api or _get_github_api()
@@ -90,7 +96,7 @@ def create_issue(airlock_event: AirlockEvent, github_api=None):
 
 def close_issue(airlock_event: AirlockEvent, github_api=None):
     github_api = github_api or _get_github_api()
-    reason = airlock_event.event_type.name.lower().replace("_", " ")
+    reason = airlock_event.describe_event()
     try:
         close_output_checking_issue(
             airlock_event.release_request_id,
@@ -104,13 +110,12 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
 
 def update_issue(airlock_event: AirlockEvent, github_api=None):
     github_api = github_api or _get_github_api()
-    update = airlock_event.update_type.name.lower().replace("_", " ")
+    update = airlock_event.describe_update()
     try:
         update_output_checking_issue(
             airlock_event.release_request_id,
             airlock_event.user,
             update,
-            airlock_event.group,
             github_api,
         )
     except HTTPError:

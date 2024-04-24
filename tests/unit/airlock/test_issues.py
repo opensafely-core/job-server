@@ -98,7 +98,10 @@ def test_update_output_checking_request(github_api):
     OrgMembershipFactory(org=org, user=user)
     assert (
         update_output_checking_issue(
-            "01AAA1AAAAAAA1AAAAA11A1AAA", user, "file added", "Group 1", github_api
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            user,
+            "file added (filegroup 'Group 1')",
+            github_api,
         )
         == "http://example.com/issues/comment"
     )
