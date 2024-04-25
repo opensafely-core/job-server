@@ -52,6 +52,7 @@ ALLOWED_HOSTS = ["*"]
 
 # Application definition
 INSTALLED_APPS = [
+    "airlock",
     "applications",
     "interactive",
     "jobserver",

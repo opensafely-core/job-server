@@ -67,6 +67,84 @@ def test_create_issue(enable_network, github_api):
     assert real is not None
 
 
+def test_get_issue_number(enable_network, github_api):
+    # use a private repo to test here so we can mirror what the output checkers
+    # are doing
+    args = ["opensafely-testing", "github-api-testing-private", "Test Issue"]
+
+    real = github_api.get_issue_number_from_title(*args)
+    fake = FakeGitHubAPI().get_issue_number_from_title(*args)
+    compare(fake, real)
+
+    assert real is not None
+
+
+def test_get_issue_number_with_sort_order(enable_network, github_api):
+    # use a private repo to test here so we can mirror what the output checkers
+    # are doing
+    args = ["opensafely-testing", "github-api-testing-private", "Test Issue"]
+
+    default_order = github_api.get_issue_number_from_title(*args)
+    latest = github_api.get_issue_number_from_title(*args, latest=True)
+    oldest = github_api.get_issue_number_from_title(*args, latest=False)
+    assert default_order == latest
+    assert latest > oldest
+
+
+def test_get_issue_number_no_matches(enable_network, github_api):
+    args = ["opensafely-testing", "github-api-testing-private", new_ulid_str()]
+    real = github_api.get_issue_number_from_title(*args)
+    assert real is None
+
+
+def test_create_issue_comment(enable_network, github_api):
+    # use a private repo to test here so we can mirror what the output checkers
+    # are doing
+    # We assume there's at least one existing issue entitled "Test Issue"
+    # (generated in previous test runs)
+    args = [
+        "opensafely-testing",
+        "github-api-testing-private",
+        "Test Issue",
+        "A test comment",
+    ]
+
+    real = github_api.create_issue_comment(*args)
+    fake = FakeGitHubAPI().create_issue_comment(*args)
+
+    compare(fake, real)
+
+    assert real is not None
+
+
+@pytest.mark.parametrize("comment", [None, "Closed with reason"])
+def test_close_issue(enable_network, github_api, comment):
+    # use a private repo to test here so we can mirror what the output checkers
+    # are doing
+    # We assume there's at least one existing open issue entitled "Test Issue"
+    # (generated in previous test runs)
+    args = [
+        "opensafely-testing",
+        "github-api-testing-private",
+        "Test Issue",
+        comment,
+        # Sort ascending, so we close the oldest one
+        "asc",
+    ]
+
+    real = github_api.close_issue(*args)
+    fake = FakeGitHubAPI().close_issue(*args)
+
+    compare(fake, real)
+
+    assert real is not None
+
+    # reset the issue state
+    github_api._change_issue_state(
+        "opensafely-testing", "github-api-testing-private", real["number"], "open"
+    )
+
+
 def test_create_repo(enable_network, github_api):
     try:
         # create a unique ID for this test using our existing ULID function.

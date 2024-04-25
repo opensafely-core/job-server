@@ -16,7 +16,7 @@ def compare(fake, real):
             compare(x, y)
         return
 
-    if isinstance(fake, str):
+    if isinstance(fake, str | int):
         return
 
     for key, value in fake.items():

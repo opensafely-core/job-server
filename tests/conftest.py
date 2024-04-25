@@ -267,6 +267,8 @@ def token_login_user():
 def github_api():
     class CapturingGitHubAPI:
         issues = []
+        closed_issues = []
+        comments = []
 
         def create_issue(self, **kwargs):
             @define
@@ -282,6 +284,37 @@ def github_api():
 
             return {
                 "html_url": "http://example.com",
+            }
+
+        def close_issue(self, **kwargs):
+            @define
+            class Issue:
+                org: str
+                repo: str
+                title_text: str
+                comment: str | None
+
+            # capture all the values so they can interrogated later
+            self.closed_issues.append(Issue(**kwargs))
+            comment_body = kwargs.pop("comment")
+            self.create_issue_comment(**kwargs, body=comment_body)
+            return {
+                "html_url": "http://example.com/closed",
+            }
+
+        def create_issue_comment(self, **kwargs):
+            @define
+            class IssueComment:
+                org: str
+                repo: str
+                title_text: str
+                body: str
+
+            # capture all the values so they can interrogated later
+            self.comments.append(IssueComment(**kwargs))
+
+            return {
+                "html_url": "http://example.com/issues/comment",
             }
 
     return CapturingGitHubAPI()

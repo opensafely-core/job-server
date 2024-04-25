@@ -1,0 +1,12 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
+
+Dear {{ request_author }},
+
+Release request {{ release_request_id }} for {{ workspace }} has been updated. The following updates have been made:
+{% for update in updates %}
+    - {{ update }}
+{% endfor %}
+
+{% endblock content %}
