@@ -48,10 +48,7 @@ def send_request_updated_email(airlock_event):
         "release_request_id": airlock_event.release_request_id,
         "request_author": airlock_event.request_author.name,
         "workspace": airlock_event.workspace.name,
-        # Currently there is only one update event at a time; the template
-        # takes a list of update strings to allow for sending a batch of
-        # updates at once
-        "updates": [airlock_event.describe_update()],
+        "updates": airlock_event.describe_updates(),
     }
 
     send(

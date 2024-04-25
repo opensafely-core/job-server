@@ -50,12 +50,19 @@ def close_output_checking_issue(release_request_id, user, reason, github_api):
     return data["html_url"]
 
 
-def update_output_checking_issue(release_request_id, user, update, github_api):
+def update_output_checking_issue(release_request_id, user, updates, github_api):
+    updates_string = "\n".join([f"- {update}" for update in updates])
+    body = f"""
+        Release request updated:
+        {updates_string}
+    """
+    body = strip_whitespace(body)
+
     data = github_api.create_issue_comment(
         org="ebmdatalab",
         repo="opensafely-output-review",
         title_text=release_request_id,
-        body=f"Updated by {user.username}: {update}",
+        body=body,
     )
 
     return data["html_url"]

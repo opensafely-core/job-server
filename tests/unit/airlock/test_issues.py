@@ -100,7 +100,7 @@ def test_update_output_checking_request(github_api):
         update_output_checking_issue(
             "01AAA1AAAAAAA1AAAAA11A1AAA",
             user,
-            "file added (filegroup 'Group 1')",
+            ["file added (filegroup 'Group 1') by user test"],
             github_api,
         )
         == "http://example.com/issues/comment"
@@ -111,5 +111,6 @@ def test_update_output_checking_request(github_api):
     assert comment.repo == "opensafely-output-review"
     assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
     assert (
-        comment.body == f"Updated by {user.username}: file added (filegroup 'Group 1')"
+        comment.body
+        == "Release request updated:\n- file added (filegroup 'Group 1') by user test"
     )

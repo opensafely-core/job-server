@@ -26,72 +26,57 @@ class FakeGithubApiWithError:
 
 
 @pytest.mark.parametrize(
-    "event_type,group,update_type",
+    "event_type,author_is_user,updates,email_sent",
     [
-        ("request_submitted", None, None),
-        ("request_rejected", None, None),
-        ("request_withdrawn", None, None),
-        ("request_released", None, None),
-        ("request_updated", "Group 1", "file_added"),
-        ("request_updated", "Group 1", "file_withdrawn"),
-        ("request_updated", "Group 1", "context_edited"),
-        ("request_updated", "Group 1", "controls_edited"),
-        ("request_updated", "Group 1", "comment_added"),
-    ],
-)
-@patch("airlock.views._get_github_api", FakeGitHubAPI)
-def test_api_airlock_event_post(api_rf, event_type, group, update_type, mailoutbox):
-    user = UserFactory()
-    WorkspaceFactory(name="test-workspace")
-    backend = BackendFactory(auth_token="test", name="test-backend")
-    BackendMembershipFactory(backend=backend, user=user)
-
-    data = {
-        "event_type": event_type,
-        "update_type": update_type,
-        "group": group,
-        "workspace": "test-workspace",
-        "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
-        "request_author": user.username,
-        "user": user.username,
-    }
-    request = api_rf.post(
-        "/",
-        data=data,
-        format="json",
-        headers={
-            "authorization": "test",
-            "os-user": user.username,
-        },
-    )
-    response = airlock_event_view(request)
-    assert response.status_code == 201
-    assert response.data == {"status": "ok"}
-
-    # request author and user are the same, so no emails sent
-    assert len(mailoutbox) == 0
-
-
-@pytest.mark.parametrize(
-    "event_type,group,update_type,email_sent",
-    [
-        ("request_submitted", None, None, False),
-        ("request_rejected", None, None, True),
-        ("request_withdrawn", None, None, False),
-        ("request_released", None, None, True),
-        ("request_updated", "Group 1", "file_added", True),
-        ("request_updated", "Group 1", "file_withdrawn", True),
-        ("request_updated", "Group 1", "context_edited", True),
-        ("request_updated", "Group 1", "controls_edited", True),
-        ("request_updated", "Group 1", "comment_added", True),
+        # author and user are different; emails are sent for rejected/released
+        ("request_submitted", True, None, False),
+        ("request_rejected", True, None, True),
+        ("request_withdrawn", True, None, False),
+        ("request_released", True, None, True),
+        # author and user are the same; emails are still sent for rejected/released
+        ("request_submitted", True, None, False),
+        ("request_rejected", True, None, True),
+        ("request_withdrawn", True, None, False),
+        ("request_released", True, None, True),
+        # updated; emails are sent if at least one update is not by the author
+        (
+            "request_updated",
+            True,
+            [{"update_type": "file_added", "group": "Group 1", "user": "test_user"}],
+            True,
+        ),
+        (
+            "request_updated",
+            False,
+            [
+                {"update_type": "context_edited", "group": "Group 2", "user": "author"},
+            ],
+            False,
+        ),
+        (
+            "request_updated",
+            False,
+            [
+                {
+                    "update_type": "comment_added",
+                    "group": "Group 1",
+                    "user": "test_user",
+                },
+                {"update_type": "comment_added", "group": "Group 1", "user": "author"},
+            ],
+            True,
+        ),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPI)
 def test_api_post_release_request_post_by_non_author(
-    api_rf, mailoutbox, event_type, group, update_type, email_sent
+    api_rf, mailoutbox, event_type, author_is_user, updates, email_sent
 ):
     author = UserFactory(username="author")
-    user = UserFactory(username="user")
+    if author_is_user:
+        user = author
+    else:
+        user = UserFactory(username="user")
     WorkspaceFactory(name="test-workspace")
     backend = BackendFactory(auth_token="test", name="test-backend")
     BackendMembershipFactory(backend=backend, user=user)
@@ -101,9 +86,8 @@ def test_api_post_release_request_post_by_non_author(
 
     data = {
         "event_type": event_type,
-        "update_type": update_type,
+        "updates": updates,
         "workspace": "test-workspace",
-        "group": group,
         "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
         "request_author": author.username,
         "user": user.username,
@@ -128,20 +112,19 @@ def test_api_post_release_request_post_by_non_author(
 
 
 @pytest.mark.parametrize(
-    "event_type,update_type,group,error",
+    "event_type,updates,error",
     [
-        ("request_submitted", None, None, "Error creating GitHub issue"),
-        ("request_rejected", None, None, "Error closing GitHub issue"),
+        ("request_submitted", None, "Error creating GitHub issue"),
+        ("request_rejected", None, "Error closing GitHub issue"),
         (
             "request_updated",
-            "file_added",
-            "Group 1",
+            [{"update_type": "file_added", "group": "Group 1", "user": "user"}],
             "Error creating GitHub issue comment",
         ),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGithubApiWithError)
-def test_api_airlock_event_error(api_rf, event_type, update_type, group, error):
+def test_api_airlock_event_error(api_rf, event_type, updates, error):
 
     author = UserFactory()
     user = UserFactory()
@@ -151,8 +134,7 @@ def test_api_airlock_event_error(api_rf, event_type, update_type, group, error):
 
     data = {
         "event_type": event_type,
-        "update_type": update_type,
-        "group": group,
+        "updates": updates,
         "workspace": "test-workspace",
         "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
         "request_author": author.username,

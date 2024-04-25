@@ -34,29 +34,19 @@ class EventType(Enum):
     REQUEST_UPDATED = "request updated"
 
 
-class UpdateType(Enum):
-    FILE_ADDED = "file added"
-    FILE_WITHDRAWN = "file withdrawn"
-    CONTEXT_EDITED = "context edited"
-    CONTROLS_EDITED = "controls edited"
-    COMMENT_ADDED = "comment added"
-
-
 @dataclass(frozen=True)
 class AirlockEvent:
     event_type: EventType
-    update_type: UpdateType | None
     workspace: Workspace
+    updates: list
     release_request_id: str
-    group: str | None
     request_author: User
     user: User
 
     @classmethod
     def from_payload(cls, data):
         event_type = EventType[data.get("event_type").upper()]
-        update_type = data.get("update_type")
-
+        updates = data.get("updates") or []
         request_author = User.objects.get(username=data.get("request_author"))
         username = data.get("user")
         if username == request_author.username:
@@ -64,17 +54,13 @@ class AirlockEvent:
         else:
             user = User.objects.get(username=username)
 
-        if update_type:
-            update_type = UpdateType[update_type.upper()]
-
         workspace = Workspace.objects.get(name=data.get("workspace"))
 
         return cls(
             event_type=event_type,
-            update_type=update_type,
+            updates=updates,
             workspace=workspace,
             release_request_id=data.get("request"),
-            group=data.get("group"),
             request_author=request_author,
             user=user,
         )
@@ -82,8 +68,14 @@ class AirlockEvent:
     def describe_event(self):
         return self.event_type.value
 
-    def describe_update(self):
-        return f"{self.update_type.value} (filegroup {self.group})"
+    def describe_updates(self):
+        return [
+            f"{update['update_type']} (filegroup {update['group']}) by user {update['user']}"
+            for update in self.updates
+        ]
+
+    def users_from_updates(self):
+        return {update["user"] for update in self.updates}
 
 
 def create_issue(airlock_event: AirlockEvent, github_api=None):
@@ -115,12 +107,12 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
 
 def update_issue(airlock_event: AirlockEvent, github_api=None):
     github_api = github_api or _get_github_api()
-    update = airlock_event.describe_update()
+    updates = airlock_event.describe_updates()
     try:
         update_output_checking_issue(
             airlock_event.release_request_id,
             airlock_event.user,
-            update,
+            updates,
             github_api,
         )
     except HTTPError:
@@ -128,8 +120,6 @@ def update_issue(airlock_event: AirlockEvent, github_api=None):
 
 
 def email_author(airlock_event: AirlockEvent):
-    if airlock_event.request_author == airlock_event.user:
-        return
     match airlock_event.event_type:
         case EventType.REQUEST_RELEASED:
             send_request_released_email(airlock_event)
@@ -137,6 +127,11 @@ def email_author(airlock_event: AirlockEvent):
             send_request_rejected_email(airlock_event)
         case _:
             assert airlock_event.event_type == EventType.REQUEST_UPDATED
+            # Skip email if ALL updates were made by the request author
+            if airlock_event.users_from_updates() == {
+                airlock_event.request_author.username
+            }:
+                return
             send_request_updated_email(airlock_event)
 
 
