@@ -2,10 +2,13 @@ import json
 from datetime import UTC, datetime
 
 import requests
+import structlog
 from django.conf import settings
 from environs import Env
 from furl import furl
 
+
+logger = structlog.getLogger(__name__)
 
 env = Env()
 
@@ -197,6 +200,7 @@ class GitHubAPI:
 
     def create_issue(self, org, repo, title, body, labels):
         if settings.DEBUG:  # pragma: no cover
+            logger.info("Issue created", title=title)
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title: {title}")
@@ -274,6 +278,7 @@ class GitHubAPI:
         self, org, repo, title_text, body, latest=True, issue_number=None
     ):
         if settings.DEBUG:  # pragma: no cover
+            logger.info("Issue comment created", title_text=title_text, body=body)
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
@@ -316,6 +321,7 @@ class GitHubAPI:
 
     def close_issue(self, org, repo, title_text, comment=None, latest=True):
         if settings.DEBUG:  # pragma: no cover
+            logger.info("Issue closed", title_text=title_text, comment=comment)
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
