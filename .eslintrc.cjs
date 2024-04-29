@@ -45,6 +45,12 @@ module.exports = {
     // workaround for
     // https://github.com/import-js/eslint-plugin-import/issues/1810:
     "import/no-unresolved": ["error", { ignore: ["wouter"] }],
+    "react/require-default-props": [
+      2,
+      {
+        functions: "defaultArguments",
+      },
+    ],
   },
   env: {
     browser: true,
