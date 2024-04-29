@@ -921,9 +921,9 @@ python-ipware==2.0.1 \
     --hash=sha256:1992920ef553165dfa35e6ea5a90762f64f3b943cc22ee6b4ec02e2c86d31178 \
     --hash=sha256:9ba4805152ebb85ad5b53797185cd1ce6231e1db60155834f326c8cd61e8af34
     # via django-ipware
-python-ulid==2.4.0.post0 \
-    --hash=sha256:45779c68b9060beb6fca72338a0620114489e1bbe274935149f14d1f776d4c43 \
-    --hash=sha256:e2c739e27e6d760136e5f411f311cdd3ec9c4c89696932fe803fa09a4dcd6ebe
+python-ulid==2.5.0 \
+    --hash=sha256:d000bc05bf3e7f4a56507f72b02bcbb0cb0170da102cf17af39c59ea946050dc \
+    --hash=sha256:f5abfc3bbab8476abaaf8cec534f2285383586a1e2f8118831eba4d962b4fa55
     # via -r requirements.prod.in
 python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
