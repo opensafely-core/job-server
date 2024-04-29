@@ -54,7 +54,7 @@
     "@tanstack/react-query": "^5.31.0",
     "@tanstack/react-query-devtools": "^5.31.0",
     "@zachleat/details-utils": "^2.0.2",
-    "formik": "^2.4.5",
+    "formik": "^2.4.6",
     "highlight.js": "^11.9.0",
     "html2pdf.js": "^0.10.1",
     "htmx.org": "^1.9.12",
