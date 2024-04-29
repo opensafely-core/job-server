@@ -36,7 +36,13 @@ const queryClient = new QueryClient({
   }),
 });
 
-function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
+function App({
+  authToken,
+  csrfToken,
+  filesUrl,
+  prepareUrl = null,
+  publishUrl = null,
+}) {
   const uuid = Date.now();
   const [listVisible, setListVisible] = useState(true);
   const [selectedFile, setSelectedFile] = useState();
@@ -116,9 +122,4 @@ App.propTypes = {
   filesUrl: datasetProps.filesUrl.isRequired,
   prepareUrl: datasetProps.prepareUrl,
   publishUrl: datasetProps.publishUrl,
-};
-
-App.defaultProps = {
-  prepareUrl: null,
-  publishUrl: null,
 };

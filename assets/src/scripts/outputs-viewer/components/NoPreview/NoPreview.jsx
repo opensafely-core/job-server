@@ -3,7 +3,7 @@ import React from "react";
 import { selectedFileProps } from "../../utils/props";
 import Link from "../Link";
 
-function NoPreview({ error, fileUrl }) {
+function NoPreview({ error = null, fileUrl }) {
   return (
     <>
       {error ? (
@@ -28,8 +28,4 @@ NoPreview.propTypes = {
     message: PropTypes.string,
   }),
   fileUrl: selectedFileProps.url.isRequired,
-};
-
-NoPreview.defaultProps = {
-  error: null,
 };

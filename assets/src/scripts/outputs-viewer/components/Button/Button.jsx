@@ -1,7 +1,14 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-function Button({ children, disabled, type, className, onClick, variant }) {
+function Button({
+  children,
+  className = null,
+  disabled = false,
+  onClick = () => null,
+  type = "button",
+  variant = "primary",
+}) {
   return (
     <button
       className={`
@@ -55,12 +62,4 @@ Button.propTypes = {
   onClick: PropTypes.func,
   type: PropTypes.string,
   variant: PropTypes.string,
-};
-
-Button.defaultProps = {
-  className: null,
-  disabled: false,
-  onClick: () => null,
-  type: "button",
-  variant: "primary",
 };

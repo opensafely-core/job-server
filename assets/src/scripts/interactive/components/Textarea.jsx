@@ -5,20 +5,20 @@ import CharCount from "./CharCount";
 import HintText from "./HintText";
 
 function Textarea({
-  characterCount,
-  children,
-  className,
-  hintText,
+  characterCount = false,
+  children = null,
+  className = null,
+  hintText = null,
   id,
   label,
-  maxlength,
-  minlength,
-  placeholder,
+  maxlength = null,
+  minlength = null,
   name,
+  placeholder = null,
+  required = false,
   resize,
-  rows,
-  required,
-  value,
+  rows = 8,
+  value = "",
 }) {
   const { setFieldValue, values } = useFormikContext();
 
@@ -56,19 +56,6 @@ function Textarea({
 }
 
 export default Textarea;
-
-Textarea.defaultProps = {
-  className: null,
-  children: null,
-  characterCount: false,
-  hintText: null,
-  maxlength: null,
-  minlength: null,
-  placeholder: null,
-  required: false,
-  rows: 8,
-  value: "",
-};
 
 Textarea.propTypes = {
   characterCount: bool,

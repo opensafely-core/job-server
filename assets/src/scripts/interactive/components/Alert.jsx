@@ -36,10 +36,6 @@ export function AlertForm() {
   return null;
 }
 
-AlertForm.defaultProps = {
-  hasForm: false,
-};
-
 export function AlertPage() {
   const { formData } = useFormData();
 

@@ -2,12 +2,12 @@ import { Field } from "formik";
 import { func, node, string } from "prop-types";
 
 function RadioButton({
-  children,
+  children = null,
   id,
   label,
-  labelClassName,
+  labelClassName = null,
   name,
-  onClick,
+  onClick = () => null,
   value,
 }) {
   return (
@@ -43,10 +43,4 @@ RadioButton.propTypes = {
   name: string.isRequired,
   onClick: func,
   value: string.isRequired,
-};
-
-RadioButton.defaultProps = {
-  children: null,
-  labelClassName: null,
-  onClick: () => null,
 };

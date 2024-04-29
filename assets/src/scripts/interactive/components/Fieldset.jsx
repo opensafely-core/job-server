@@ -1,6 +1,6 @@
 import { bool, node, string } from "prop-types";
 
-function Fieldset({ children, legend, hideLegend }) {
+function Fieldset({ children, legend, hideLegend = false }) {
   return (
     <fieldset>
       <legend className={hideLegend ? "sr-only" : "text-2xl font-bold mb-4"}>
@@ -17,8 +17,4 @@ Fieldset.propTypes = {
   children: node.isRequired,
   hideLegend: bool,
   legend: string.isRequired,
-};
-
-Fieldset.defaultProps = {
-  hideLegend: false,
 };

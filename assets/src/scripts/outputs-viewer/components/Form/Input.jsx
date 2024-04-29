@@ -2,22 +2,22 @@ import PropTypes from "prop-types";
 import React from "react";
 
 function FormInput({
-  autocapitalize,
-  autocomplete,
-  autocorrect,
-  className,
-  hideLabel,
-  hintText,
-  id,
-  inputClassName,
-  inputmode,
-  label,
-  labelClass,
-  onChange,
-  placeholder,
-  required,
-  type,
-  value,
+  autocapitalize = null,
+  autocomplete = null,
+  autocorrect = null,
+  className = null,
+  hideLabel = false,
+  hintText = null,
+  id = "inputID",
+  inputClassName = null,
+  inputmode = null,
+  label = null,
+  labelClass = null,
+  onChange = () => null,
+  placeholder = null,
+  required = null,
+  type = "text",
+  value = null,
 }) {
   return (
     <div className={className}>
@@ -105,23 +105,4 @@ FormInput.propTypes = {
   required: PropTypes.bool,
   type: PropTypes.string,
   value: PropTypes.string,
-};
-
-FormInput.defaultProps = {
-  autocapitalize: null,
-  autocomplete: null,
-  autocorrect: null,
-  className: null,
-  hideLabel: false,
-  hintText: null,
-  id: "inputID",
-  inputClassName: null,
-  inputmode: null,
-  label: null,
-  labelClass: null,
-  onChange: () => null,
-  placeholder: null,
-  required: null,
-  type: "text",
-  value: null,
 };

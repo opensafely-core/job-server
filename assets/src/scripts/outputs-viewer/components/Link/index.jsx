@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-function Link({ className, children, href, newTab }) {
+function Link({ children = null, className = null, href, newTab = false }) {
   return (
     <a
       className={`
@@ -26,10 +26,4 @@ Link.propTypes = {
   className: PropTypes.string,
   href: PropTypes.string.isRequired,
   newTab: PropTypes.bool,
-};
-
-Link.defaultProps = {
-  children: null,
-  className: null,
-  newTab: false,
 };

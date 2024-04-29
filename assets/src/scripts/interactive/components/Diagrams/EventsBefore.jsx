@@ -1,6 +1,6 @@
 import { number, string } from "prop-types";
 
-function EventsBefore({ timeOption, timeScale, timeValue }) {
+function EventsBefore({ timeOption, timeScale = null, timeValue = null }) {
   const timeText =
     timeOption === "at any time prior."
       ? `Any time`
@@ -66,9 +66,4 @@ EventsBefore.propTypes = {
   timeOption: string.isRequired,
   timeScale: string,
   timeValue: number,
-};
-
-EventsBefore.defaultProps = {
-  timeScale: null,
-  timeValue: null,
 };
