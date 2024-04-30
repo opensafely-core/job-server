@@ -7,10 +7,10 @@ import Button from "../../../components/Button/Button";
 describe("<Button />", () => {
   it("triggers function on click", async () => {
     const user = userEvent.setup();
-    vi.spyOn(Button.defaultProps, "onClick");
+    const handleClick = vi.fn();
 
-    render(<Button>Primary button</Button>);
+    render(<Button onClick={handleClick}>Primary button</Button>);
     await user.click(screen.getByRole("button"));
-    expect(Button.defaultProps.onClick).toHaveBeenCalled();
+    expect(handleClick).toHaveBeenCalled();
   });
 });

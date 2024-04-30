@@ -5,12 +5,12 @@ import { classNames } from "../utils";
 
 function Button({
   children,
-  className,
-  disabled,
-  onClick,
-  size,
-  type,
-  variant,
+  className = "",
+  disabled = false,
+  onClick = () => null,
+  size = "md",
+  type = "button",
+  variant = "primary",
 }) {
   return (
     <button
@@ -52,13 +52,4 @@ Button.propTypes = {
   size: oneOf(["sm", "md", "lg"]),
   type: oneOf(["button", "submit", "reset"]),
   variant: oneOf(["primary", "danger", "danger-outline"]),
-};
-
-Button.defaultProps = {
-  className: "",
-  disabled: false,
-  onClick: () => null,
-  size: "md",
-  type: "button",
-  variant: "primary",
 };

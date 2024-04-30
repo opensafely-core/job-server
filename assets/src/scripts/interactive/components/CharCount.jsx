@@ -2,7 +2,7 @@ import { useFormikContext } from "formik";
 import { number, string } from "prop-types";
 import React from "react";
 
-function CharCount({ field, min, max }) {
+function CharCount({ field, min = null, max = null }) {
   const { values } = useFormikContext();
   const current = values?.[field].length;
 
@@ -24,11 +24,6 @@ function CharCount({ field, min, max }) {
 
   return <p className="text-sm"> chars remaining</p>;
 }
-
-CharCount.defaultProps = {
-  min: null,
-  max: null,
-};
 
 CharCount.propTypes = {
   field: string.isRequired,

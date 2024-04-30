@@ -2,7 +2,7 @@ import { Field } from "formik";
 import { func, string } from "prop-types";
 import React from "react";
 
-function Checkbox({ id, label, name, value, onClick }) {
+function Checkbox({ id, label, name, value, onClick = () => null }) {
   return (
     <div className="flex flex-row place-items-baseline gap-x-3 text-lg leading-tight">
       <Field
@@ -31,8 +31,4 @@ Checkbox.propTypes = {
   name: string.isRequired,
   onClick: func,
   value: string.isRequired,
-};
-
-Checkbox.defaultProps = {
-  onClick: () => null,
 };

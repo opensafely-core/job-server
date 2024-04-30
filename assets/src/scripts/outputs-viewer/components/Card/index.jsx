@@ -1,7 +1,13 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-function Card({ className, container, header, innerClassName, children }) {
+function Card({
+  children,
+  className = "",
+  container = false,
+  header = null,
+  innerClassName = "",
+}) {
   return (
     <div className={`bg-white shadow ${className}`}>
       {header ? (
@@ -30,11 +36,4 @@ Card.propTypes = {
   container: PropTypes.bool,
   header: PropTypes.element,
   innerClassName: PropTypes.string,
-};
-
-Card.defaultProps = {
-  className: "",
-  container: false,
-  header: null,
-  innerClassName: "",
 };
