@@ -34,7 +34,7 @@ def notify_impending_copilot_windows_closing(days=5):
 
     if not projects:
         logger.info(
-            "No projects with copilot support windows closing within %s days" % days
+            f"No projects with copilot support windows closing within {days} days"
         )
         return
 
