@@ -9,7 +9,7 @@ def get_issue_title(workspace_name, release_request_id):
 
 
 def create_output_checking_issue(
-    workspace, release_request_id, request_author, github_api
+    workspace, release_request_id, request_author, org, repo, github_api
 ):
     is_internal = request_author.orgs.filter(pk=settings.BENNETT_ORG_PK).exists()
 
@@ -29,8 +29,8 @@ def create_output_checking_issue(
     body = strip_whitespace(body)
 
     data = github_api.create_issue(
-        org="ebmdatalab",
-        repo="opensafely-output-review",
+        org=org,
+        repo=repo,
         title=get_issue_title(workspace.name, release_request_id),
         body=body,
         labels=["internal" if is_internal else "external"],
@@ -39,10 +39,12 @@ def create_output_checking_issue(
     return data["html_url"]
 
 
-def close_output_checking_issue(release_request_id, user, reason, github_api):
+def close_output_checking_issue(
+    release_request_id, user, reason, org, repo, github_api
+):
     data = github_api.close_issue(
-        org="ebmdatalab",
-        repo="opensafely-output-review",
+        org=org,
+        repo=repo,
         title_text=release_request_id,
         comment=f"Issue closed: {reason} by {user.username}",
     )
@@ -50,7 +52,7 @@ def close_output_checking_issue(release_request_id, user, reason, github_api):
     return data["html_url"]
 
 
-def update_output_checking_issue(release_request_id, user, updates, github_api):
+def update_output_checking_issue(release_request_id, updates, org, repo, github_api):
     updates_string = "\n".join([f"- {update}" for update in updates])
     body = f"""
         Release request updated:
@@ -59,8 +61,8 @@ def update_output_checking_issue(release_request_id, user, updates, github_api):
     body = strip_whitespace(body)
 
     data = github_api.create_issue_comment(
-        org="ebmdatalab",
-        repo="opensafely-output-review",
+        org=org,
+        repo=repo,
         title_text=release_request_id,
         body=body,
     )

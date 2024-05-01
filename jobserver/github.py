@@ -200,7 +200,7 @@ class GitHubAPI:
 
     def create_issue(self, org, repo, title, body, labels):
         if settings.DEBUG:  # pragma: no cover
-            logger.info("Issue created", title=title)
+            logger.info("Issue created", title=title, org=org, repo=repo, body=body)
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title: {title}")
@@ -208,7 +208,6 @@ class GitHubAPI:
             print(body)
             print("")
             return {"html_url": "http://example.com"}
-
         path_segments = [
             "repos",
             org,
@@ -278,7 +277,13 @@ class GitHubAPI:
         self, org, repo, title_text, body, latest=True, issue_number=None
     ):
         if settings.DEBUG:  # pragma: no cover
-            logger.info("Issue comment created", title_text=title_text, body=body)
+            logger.info(
+                "Issue comment created",
+                title_text=title_text,
+                org=org,
+                repo=repo,
+                body=body,
+            )
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
@@ -321,7 +326,13 @@ class GitHubAPI:
 
     def close_issue(self, org, repo, title_text, comment=None, latest=True):
         if settings.DEBUG:  # pragma: no cover
-            logger.info("Issue closed", title_text=title_text, comment=comment)
+            logger.info(
+                "Issue closed",
+                title_text=title_text,
+                comment=comment,
+                org=org,
+                repo=repo,
+            )
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
