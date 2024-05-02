@@ -54,11 +54,7 @@ def close_output_checking_issue(
 
 def update_output_checking_issue(release_request_id, updates, org, repo, github_api):
     updates_string = "\n".join([f"- {update}" for update in updates])
-    body = f"""
-        Release request updated:
-        {updates_string}
-    """
-    body = strip_whitespace(body)
+    body = f"Release request updated:\n{updates_string}"
 
     data = github_api.create_issue_comment(
         org=org,
