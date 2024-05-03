@@ -4,7 +4,7 @@ ADMIN_USERS=
 
 # Note: this assumes docker dev db. You will need to change it if you want to
 # point another postgres
-DATABASE_URL=postgres://user:pass@localhost:6534/jobserver
+DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
 
 # Turn on debug
 DEBUG=1

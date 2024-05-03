@@ -25,7 +25,7 @@
       padding: 0.5rem;
     }
 
-    & input {
+    & input.datatable-input {
       display: block;
       width: 100%;
       border-radius: 0.375rem;
