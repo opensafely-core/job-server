@@ -89,6 +89,7 @@ class Copiloting(TemplateView):
         # these orgs are not copiloted so we can ignore them here
         excluded_org_pks = [
             settings.BENNETT_ORG_PK,
+            settings.GRAPHNET_ORG_PK,
             settings.LSHTM_ORG_PK,
             settings.UNIVERSITY_OF_BRISTOL_ORG_PK,
         ]
