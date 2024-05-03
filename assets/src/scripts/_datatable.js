@@ -134,3 +134,5 @@ const initCustomTable = async () => {
 };
 
 initCustomTable();
+// expose to external callers, useful when partially loading a datatable over HTMX
+window.initCustomTable = initCustomTable;
