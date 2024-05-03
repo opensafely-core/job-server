@@ -82,23 +82,29 @@ function setPaginationButtons(currentPage, table) {
         const tHead = table.childNodes?.[0];
         const filterHeaders = {
           nodeName: "TR",
-          childNodes: tHead?.childNodes?.[0].childNodes?.map((_th, index) => ({
-            nodeName: "TH",
-            childNodes: [
-              {
-                nodeName: "INPUT",
-                attributes: {
-                  class: "datatable-input",
-                  "data-columns": `[${index}]`,
-                  // @ts-ignore
-                  placeholder: `Filter ${_data.headings[index].text
-                    .trim()
-                    .toLowerCase()}`,
-                  type: "search",
-                },
-              },
-            ],
-          })),
+          childNodes: tHead?.childNodes?.[0].childNodes?.map((_th, index) => {
+            const showSearch = _th.attributes["data-searchable"] !== "false";
+
+            return {
+              nodeName: "TH",
+              childNodes: showSearch
+                ? [
+                    {
+                      nodeName: "INPUT",
+                      attributes: {
+                        class: "datatable-input",
+                        "data-columns": `[${index}]`,
+                        // @ts-ignore
+                        placeholder: `Filter ${_data.headings[index].text
+                          .trim()
+                          .toLowerCase()}`,
+                        type: "search",
+                      },
+                    },
+                  ]
+                : [],
+            };
+          }),
         };
         tHead?.childNodes?.push(filterHeaders);
         return table;
