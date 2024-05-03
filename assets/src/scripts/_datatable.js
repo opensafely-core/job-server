@@ -64,7 +64,7 @@ function setPaginationButtons(currentPage, table) {
   pageButtonState(previousPageBtn, pagination.previousPage, table);
 }
 
-(async () => {
+const initCustomTable = async () => {
   /** @type {HTMLTableElement | null} */
   const tableEl = document.querySelector("table#customTable");
 
@@ -131,4 +131,6 @@ function setPaginationButtons(currentPage, table) {
     dataTable.on("datatable.sort", () => setPaginationButtons(1, dataTable));
     dataTable.on("datatable.search", () => setPaginationButtons(1, dataTable));
   }
-})();
+};
+
+initCustomTable();
