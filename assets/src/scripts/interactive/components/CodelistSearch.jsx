@@ -1,4 +1,4 @@
-import { Tab } from "@headlessui/react";
+import { TabGroup, TabPanels } from "@headlessui/react";
 import { useFormikContext } from "formik";
 import { number, string } from "prop-types";
 import { useState } from "react";
@@ -16,7 +16,7 @@ function CodelistSearch({ id, label }) {
   );
 
   return (
-    <Tab.Group
+    <TabGroup
       as="div"
       defaultIndex={defaultIndex !== -1 ? defaultIndex : 0}
       onChange={() => {
@@ -28,7 +28,7 @@ function CodelistSearch({ id, label }) {
         {label}
       </h2>
       <TabList />
-      <Tab.Panels>
+      <TabPanels>
         {codelistGroups.map((codelistGroup) => (
           <TabPanel
             key={codelistGroup.id}
@@ -38,8 +38,8 @@ function CodelistSearch({ id, label }) {
             setQuery={setQuery}
           />
         ))}
-      </Tab.Panels>
-    </Tab.Group>
+      </TabPanels>
+    </TabGroup>
   );
 }
 

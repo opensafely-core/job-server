@@ -1,4 +1,9 @@
-import { Combobox, Tab } from "@headlessui/react";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOptions,
+  TabPanel,
+} from "@headlessui/react";
 import { ArrowUpRightIcon } from "@heroicons/react/20/solid";
 import { Field, useFormikContext } from "formik";
 import { func, shape, string } from "prop-types";
@@ -8,7 +13,7 @@ import { classNames, isObject } from "../../utils";
 import ComboboxItem from "../ComboboxItem";
 import InputError from "../InputError";
 
-function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
+function Panel({ codelistGroup, codelistID, query, setQuery }) {
   const { errors, setFieldValue, setTouched, touched } = useFormikContext();
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -24,7 +29,7 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
   }, [errors, touched, codelistID]);
 
   return (
-    <Tab.Panel key={codelistGroup.id}>
+    <TabPanel key={codelistGroup.id}>
       <Field name={codelistID}>
         {({ field }) => (
           <div className="mt-2">
@@ -37,7 +42,7 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
               }}
             >
               <div className="relative w-full max-w-prose">
-                <Combobox.Input
+                <ComboboxInput
                   autoComplete="off"
                   autoCorrect="false"
                   className={classNames(
@@ -48,13 +53,13 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Type 3 or more characters to find a codelist"
                 />
-                <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <ComboboxItem
                     codelistGroup={codelistGroup}
                     codelistID={codelistID}
                     query={query}
                   />
-                </Combobox.Options>
+                </ComboboxOptions>
               </div>
             </Combobox>
             {errorMsg ? <InputError>{errorMsg}</InputError> : null}
@@ -80,13 +85,13 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
           </div>
         )}
       </Field>
-    </Tab.Panel>
+    </TabPanel>
   );
 }
 
-export default TabPanel;
+export default Panel;
 
-TabPanel.propTypes = {
+Panel.propTypes = {
   codelistGroup: shape(codelistGroupProps).isRequired,
   codelistID: string.isRequired,
   query: string.isRequired,
