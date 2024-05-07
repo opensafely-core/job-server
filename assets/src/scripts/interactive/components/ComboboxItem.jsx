@@ -1,4 +1,4 @@
-import { Combobox } from "@headlessui/react";
+import { ComboboxOption } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { useFormikContext } from "formik";
 import { shape, string } from "prop-types";
@@ -48,7 +48,7 @@ function ComboboxItem({ codelistGroup, codelistID, query }) {
       {filteredCodelists(
         codelistGroup.codelists.sort((a, b) => a.label.localeCompare(b.label)),
       ).map((codelist) => (
-        <Combobox.Option
+        <ComboboxOption
           key={codelist.value}
           className={({ active }) =>
             classNames(
@@ -98,7 +98,7 @@ function ComboboxItem({ codelistGroup, codelistID, query }) {
               ) : null}
             </>
           )}
-        </Combobox.Option>
+        </ComboboxOption>
       ))}
     </>
   );

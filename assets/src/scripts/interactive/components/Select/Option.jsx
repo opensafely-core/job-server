@@ -1,4 +1,4 @@
-import { Listbox } from "@headlessui/react";
+import { ListboxOption } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { shape, string } from "prop-types";
 import { singleCodelistProps } from "../../props";
@@ -6,7 +6,7 @@ import { classNames } from "../../utils";
 
 function SelectOption({ label, value }) {
   return (
-    <Listbox.Option
+    <ListboxOption
       className={({ active }) =>
         classNames(
           "relative cursor-pointer select-none py-2 pl-10 pr-4",
@@ -37,7 +37,7 @@ function SelectOption({ label, value }) {
           ) : null}
         </>
       )}
-    </Listbox.Option>
+    </ListboxOption>
   );
 }
 

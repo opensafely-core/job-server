@@ -1,4 +1,9 @@
-import { Listbox, Transition } from "@headlessui/react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  Transition,
+} from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { func, shape, string } from "prop-types";
 import { Fragment } from "react";
@@ -17,7 +22,7 @@ function SelectContainer({ defaultValue, handleChange, name }) {
       value={defaultValue}
     >
       <div className="relative mt-1">
-        <Listbox.Button
+        <ListboxButton
           className={classNames(
             "relative w-fit max-w-prose rounded-md border-gray-400 border-2 bg-white py-2 pl-3 pr-10 text-left shadow-sm",
             "focus:outline-none",
@@ -35,14 +40,14 @@ function SelectContainer({ defaultValue, handleChange, name }) {
               </span>
             </>
           )}
-        </Listbox.Button>
+        </ListboxButton>
         <Transition
           as={Fragment}
           leave="transition ease-in duration-100"
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-fit max-w-prose overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-fit max-w-prose overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             {formData.codelist0 ? (
               <SelectOption
                 label={formData.codelist0.label}
@@ -55,7 +60,7 @@ function SelectContainer({ defaultValue, handleChange, name }) {
                 value={formData.codelist1}
               />
             ) : null}
-          </Listbox.Options>
+          </ListboxOptions>
         </Transition>
       </div>
     </Listbox>

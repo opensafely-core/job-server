@@ -1,12 +1,12 @@
-import { Tab } from "@headlessui/react";
+import { TabList, Tab } from "@headlessui/react";
 import { useAppData } from "../../context";
 import { classNames } from "../../utils";
 
-function TabList() {
+function Tabs() {
   const { codelistGroups } = useAppData();
 
   return (
-    <Tab.List className="flex space-x-1 rounded bg-gray-100 p-1 max-w-prose">
+    <TabList className="flex space-x-1 rounded bg-gray-100 p-1 max-w-prose">
       {codelistGroups.map((codelistGroup) => (
         <Tab
           key={codelistGroup.id}
@@ -23,8 +23,8 @@ function TabList() {
           {codelistGroup.name}
         </Tab>
       ))}
-    </Tab.List>
+    </TabList>
   );
 }
 
-export default TabList;
+export default Tabs;
