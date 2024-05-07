@@ -111,6 +111,47 @@ def test_api_post_release_request_post_by_non_author(
         assert len(mailoutbox) == 0
 
 
+@patch("airlock.views._get_github_api", FakeGitHubAPI)
+@patch("airlock.views.create_output_checking_issue")
+def test_api_post_release_request_custom_org_and_repo(mock_create_issue, api_rf):
+    mock_create_issue.return_value = "http://example.com"
+    author = UserFactory(username="author")
+    workspace = WorkspaceFactory(name="test-workspace")
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=author)
+
+    data = {
+        "event_type": "request_submitted",
+        "updates": None,
+        "workspace": "test-workspace",
+        "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
+        "request_author": author.username,
+        "user": author.username,
+        "org": "foo",
+        "repo": "bar",
+    }
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": "test",
+            "os-user": author.username,
+        },
+    )
+    response = airlock_event_view(request)
+    assert response.status_code == 201
+    assert response.data == {"status": "ok"}
+
+    assert list(mock_create_issue.call_args.args[:-1]) == [
+        workspace,
+        "01AAA1AAAAAAA1AAAAA11A1AAA",
+        author,
+        "foo",
+        "bar",
+    ]
+
+
 @pytest.mark.parametrize(
     "event_type,updates,error",
     [

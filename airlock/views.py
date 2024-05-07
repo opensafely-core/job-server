@@ -42,6 +42,8 @@ class AirlockEvent:
     release_request_id: str
     request_author: User
     user: User
+    org: str
+    repo: str
 
     @classmethod
     def from_payload(cls, data):
@@ -63,6 +65,8 @@ class AirlockEvent:
             release_request_id=data.get("request"),
             request_author=request_author,
             user=user,
+            org=data.get("org"),
+            repo=data.get("repo"),
         )
 
     def describe_event(self):
@@ -85,6 +89,8 @@ def create_issue(airlock_event: AirlockEvent, github_api=None):
             airlock_event.workspace,
             airlock_event.release_request_id,
             airlock_event.request_author,
+            airlock_event.org,
+            airlock_event.repo,
             github_api,
         )
     except HTTPError:
@@ -99,6 +105,8 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
             airlock_event.release_request_id,
             airlock_event.user,
             reason,
+            airlock_event.org,
+            airlock_event.repo,
             github_api,
         )
     except HTTPError:
@@ -111,8 +119,9 @@ def update_issue(airlock_event: AirlockEvent, github_api=None):
     try:
         update_output_checking_issue(
             airlock_event.release_request_id,
-            airlock_event.user,
             updates,
+            airlock_event.org,
+            airlock_event.repo,
             github_api,
         )
     except HTTPError:

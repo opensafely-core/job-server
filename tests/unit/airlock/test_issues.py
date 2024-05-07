@@ -21,7 +21,12 @@ def test_create_output_checking_request_external(github_api):
 
     assert (
         create_output_checking_issue(
-            workspace, "01AAA1AAAAAAA1AAAAA11A1AAA", user, github_api
+            workspace,
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            user,
+            "ebmdatalab",
+            "opensafely-output-review",
+            github_api,
         )
         == "http://example.com"
     )
@@ -48,7 +53,12 @@ def test_create_output_checking_request_internal(github_api):
 
     assert (
         create_output_checking_issue(
-            workspace, "01AAA1AAAAAAA1AAAAA11A1AAA", user, github_api
+            workspace,
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            user,
+            "ebmdatalab",
+            "opensafely-output-review",
+            github_api,
         )
         == "http://example.com"
     )
@@ -73,7 +83,12 @@ def test_close_output_checking_request(github_api):
     OrgMembershipFactory(org=org, user=user)
     assert (
         close_output_checking_issue(
-            "01AAA1AAAAAAA1AAAAA11A1AAA", user, "Closed for reasons", github_api
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            user,
+            "Closed for reasons",
+            "ebmdatalab",
+            "opensafely-output-review",
+            github_api,
         )
         == "http://example.com/closed"
     )
@@ -99,8 +114,9 @@ def test_update_output_checking_request(github_api):
     assert (
         update_output_checking_issue(
             "01AAA1AAAAAAA1AAAAA11A1AAA",
-            user,
             ["file added (filegroup 'Group 1') by user test"],
+            "ebmdatalab",
+            "opensafely-output-review",
             github_api,
         )
         == "http://example.com/issues/comment"
