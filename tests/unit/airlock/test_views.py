@@ -28,6 +28,8 @@ class FakeGithubApiWithError:
 @pytest.mark.parametrize(
     "event_type,author_is_user,updates,email_sent",
     [
+        # No action for request_approved
+        ("request_approved", True, None, False),
         # author and user are different; emails are sent for rejected/released
         ("request_submitted", True, None, False),
         ("request_rejected", True, None, True),
@@ -162,6 +164,7 @@ def test_api_post_release_request_custom_org_and_repo(mock_create_issue, api_rf)
             [{"update_type": "file_added", "group": "Group 1", "user": "user"}],
             "Error creating GitHub issue comment",
         ),
+        ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'"),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGithubApiWithError)
