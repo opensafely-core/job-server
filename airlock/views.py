@@ -47,7 +47,11 @@ class AirlockEvent:
 
     @classmethod
     def from_payload(cls, data):
-        event_type = EventType[data.get("event_type").upper()]
+        event_type = data.get("event_type").upper()
+        try:
+            event_type = EventType[event_type]
+        except KeyError:
+            raise NotificationError(f"Unknown event type '{event_type}'")
         updates = data.get("updates") or []
         request_author = User.objects.get(username=data.get("request_author"))
         username = data.get("user")
@@ -147,6 +151,7 @@ def email_author(airlock_event: AirlockEvent):
 EVENT_NOTIFICATIONS = {
     EventType.REQUEST_SUBMITTED: [create_issue],
     EventType.REQUEST_WITHDRAWN: [close_issue],
+    EventType.REQUEST_APPROVED: [],
     EventType.REQUEST_RELEASED: [email_author, close_issue],
     EventType.REQUEST_REJECTED: [email_author, close_issue],
     EventType.REQUEST_UPDATED: [email_author, update_issue],
@@ -160,9 +165,8 @@ def airlock_event_view(request):
     # do token authentication
     get_backend_from_token(token)
 
-    airlock_event = AirlockEvent.from_payload(request.data)
-
     try:
+        airlock_event = AirlockEvent.from_payload(request.data)
         handle_notifications(airlock_event)
     except NotificationError as e:
         return Response({"status": "error", "message": str(e)}, status=201)
