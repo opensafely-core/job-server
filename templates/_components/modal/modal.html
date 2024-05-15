@@ -27,4 +27,10 @@
     e.preventDefault();
     modal.close();
   });
+
+  // useful for loading and imediately showing modals over htmx
+  {% if autoshow %}
+  modal.showModal();
+  {% endif %}
+
 </script>
