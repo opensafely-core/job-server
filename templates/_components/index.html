@@ -163,6 +163,8 @@
         <li><code>type</code>: [string] - if "link", button will display as an anchor tag</li>
         <li><code>value</code>: [string] - add a value</li>
         <li><code>variant</code>: [string] - select styling colour for component</li>
+        <li><code>form</code>: [string] - form id to link button to, as per HTML</li>
+        <li><code>hx-*</code>: [string] - HTMX attributes</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col md:flex-row gap-8 items-center">
@@ -696,6 +698,7 @@
         <li><code>modal_class</code>: [string] - add HTML classes to the dialog HTML component</li>
         <li><code>modal_container_class</code>: [string] - add HTML classes to the container wrapping the children and modal</li>
         <li><code>request</code>: [Request] - pass the current request into the component. It does not have access by default, and needs access to <code>request.csp_nonce</code> for inline scripting.</li>
+        <li><code>autoshow</code>: [bool] - open the modal immeadiately. Useful for HTMX use cases.</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">

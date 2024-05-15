@@ -7,7 +7,8 @@
     {% endif %}
 {% else %}
   <button
-    {% attrs data-expander-button data-modal data-title disabled id name type=type|default:"button" value %}
+    {% attrs data-expander-button data-modal data-title disabled id name type=type|default:"button" value form hx-post hx-get hx-trigger hx-swap hx-target %}
+
 {% endif %}
 
     class="
