@@ -411,9 +411,9 @@ django-permissions-policy==4.12.0 \
     --hash=sha256:1f10fc354110fef9270fbabbbf8d5358a6d6f5380c79f0dfba56dd41e45b1936 \
     --hash=sha256:88ee9cb345898414a6ad3f2eb0d8284c67decdfc43c6fc5331531b7c39809d8c
     # via -r requirements.prod.in
-django-structlog==8.0.0 \
-    --hash=sha256:8431db72e9093850f4ec952a74768619667ff43987e1559526de39a82e5869a7 \
-    --hash=sha256:e439ae173d8d852b5f991ff7528d8ce5b0ae003cc6ea513215334b3204aee09c
+django-structlog==8.1.0 \
+    --hash=sha256:0229b9a2efbd24a4e3500169788e53915c2429521e34e41dd58ccc56039bef3f \
+    --hash=sha256:1072564bd6f36e8d3ba9893e7b31c1c46e94301189fedaecc0fb8a46525a3214
     # via -r requirements.prod.in
 django-vite==3.0.4 \
     --hash=sha256:043ab5068b4c66eb33cb26c5215a6dfe275d3c4de15d59b0b7b97b4567912fb0 \
