@@ -132,9 +132,7 @@ class ProjectDeveloper:
     """
 
     display_name = "Project Developer"
-    description = (
-        "Run and cancel Jobs, publish released outputs, and manage workspaces."
-    )
+    description = "Run and cancel Jobs, and manage workspaces."
     models = [
         "jobserver.models.project_membership.ProjectMembership",
         "jobserver.models.user.User",
