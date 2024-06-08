@@ -19,29 +19,29 @@ build env="dev": _dotenv
     export NODE_VERSION=$(cat ../.node-version)
 
     # build the thing
-    docker-compose build --pull {{ env }}
+    docker compose build --pull {{ env }}
 
 
 # run tests in dev container
 test *pytest_args="": _dotenv build
     #!/bin/bash
     # Note, we do *not* run coverage in docker, as we want to use xdist, and coverage does not seem to work reliably.
-    docker-compose run --rm test pytest {{ pytest_args }}
+    docker compose run --rm test pytest {{ pytest_args }}
 
 # run as service in dev|prod container
 serve env="dev" *args="": _dotenv
     {{ just_executable() }} build {{ env }}
-    docker-compose up {{ args }} {{ env }}
+    docker compose up {{ args }} {{ env }}
 
 
 # run command in dev|prod container, runserver by default
 run env="dev" *args="": (build env)
-    docker-compose run --service-ports --rm {{ env }} {{ args }}
+    docker compose run --service-ports --rm {{ env }} {{ args }}
 
 
 # exec command in existing dev|prod container
 exec env="dev" *args="bash": (build env)
-    docker-compose exec {{ env }} {{ args }}
+    docker compose exec {{ env }} {{ args }}
 
 
 # run a basic functional smoke test against a running job-server
@@ -53,7 +53,7 @@ smoke-test host="http://localhost:8000": _dotenv
 
 # manually run the docker db. Useful if you want to use it but with venv based dev env
 db:
-    docker-compose up -d db
+    docker compose up -d db
 
 
 # stop and remove all job-server containers
@@ -61,7 +61,7 @@ clean:
     #!/bin/bash
     set -eux
     . .env
-    docker-compose down
+    docker compose down
     docker container prune --force --filter label=com.docker.compose.project=$COMPOSE_PROJECT_NAME
 
 # remove all state
@@ -77,4 +77,4 @@ restore-db dump="jobserver.dump": clean-volumes  db
     #!/bin/bash
     set -eux
     path=$(realpath ../{{ dump }})
-    docker-compose run -v "$path:/tmp/jobserver.dump" --entrypoint bash --rm dev -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL /tmp/jobserver.dump"
+    docker compose run -v "$path:/tmp/jobserver.dump" --entrypoint bash --rm dev -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL /tmp/jobserver.dump"

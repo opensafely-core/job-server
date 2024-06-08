@@ -200,9 +200,9 @@ Access at [localhost:8000](http://localhost:8000)
 
 ### Docker Compose
 
-Run `docker-compose up`.
+Run `just docker-serve`.
 
-_Note:_ The dev server inside the container does not currently reload when changes are saved.
+_Note:_ The dev server inside the container does not currently rebuild the frontend assets when changes to them are made.
 
 ### Frontend development (CSS/JS)
 
