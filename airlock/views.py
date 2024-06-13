@@ -10,6 +10,7 @@ from jobserver.api.authentication import get_backend_from_token
 from jobserver.github import _get_github_api
 from jobserver.models import User, Workspace
 
+from .config import ORG_OUTPUT_CHECKING_REPOS
 from .emails import (
     send_request_rejected_email,
     send_request_released_email,
@@ -61,6 +62,18 @@ class AirlockEvent:
             user = User.objects.get(username=username)
 
         workspace = Workspace.objects.get(name=data.get("workspace"))
+        org = data.get("org")
+        repo = data.get("repo")
+        if org is None:
+            lookup = (
+                workspace.project.slug
+                if workspace.project.slug in ORG_OUTPUT_CHECKING_REPOS
+                else "default"
+            )
+            org = ORG_OUTPUT_CHECKING_REPOS[lookup]["org"]
+            repo = ORG_OUTPUT_CHECKING_REPOS[lookup]["repo"]
+
+        workspace.project
 
         return cls(
             event_type=event_type,
@@ -69,8 +82,8 @@ class AirlockEvent:
             release_request_id=data.get("request"),
             request_author=request_author,
             user=user,
-            org=data.get("org"),
-            repo=data.get("repo"),
+            org=org,
+            repo=repo,
         )
 
     def describe_event(self):
