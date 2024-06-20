@@ -1,0 +1,6 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<p>Dear {{ request_author }},</p>
+<p>Release request {{ release_request_id }} for {{ workspace }} has been returned.</p>
+{% endblock content %}

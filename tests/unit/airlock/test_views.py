@@ -30,16 +30,20 @@ class FakeGithubApiWithError:
     [
         # No action for request_approved
         ("request_approved", True, None, False),
-        # author and user are different; emails are sent for rejected/released
+        # author and user are different; emails are sent for rejected/released/returned
+        ("request_submitted", False, None, False),
+        ("request_rejected", False, None, True),
+        ("request_withdrawn", False, None, False),
+        ("request_released", False, None, True),
+        ("request_returned", False, None, True),
+        ("request_resubmitted", False, None, False),
+        # author and user are the same; emails are still sent for rejected/released/returned
         ("request_submitted", True, None, False),
         ("request_rejected", True, None, True),
         ("request_withdrawn", True, None, False),
         ("request_released", True, None, True),
-        # author and user are the same; emails are still sent for rejected/released
-        ("request_submitted", True, None, False),
-        ("request_rejected", True, None, True),
-        ("request_withdrawn", True, None, False),
-        ("request_released", True, None, True),
+        ("request_returned", True, None, True),
+        ("request_resubmitted", True, None, False),
         # updated; emails are sent if at least one update is not by the author
         (
             "request_updated",
@@ -201,6 +205,16 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
         (
             "request_updated",
             [{"update_type": "file_added", "group": "Group 1", "user": "user"}],
+            "Error creating GitHub issue comment",
+        ),
+        (
+            "request_returned",
+            None,
+            "Error creating GitHub issue comment",
+        ),
+        (
+            "request_resubmitted",
+            None,
             "Error creating GitHub issue comment",
         ),
         ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'"),
