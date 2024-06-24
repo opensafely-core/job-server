@@ -2,7 +2,6 @@ import concurrent
 import itertools
 import operator
 
-import nh3
 import requests
 from django.core.exceptions import PermissionDenied
 from django.db.models import Min, OuterRef, Subquery
@@ -16,6 +15,7 @@ from opentelemetry import trace
 from zen_queries import TemplateResponse as zTemplateResponse
 from zen_queries import fetch
 
+from jobserver import html_utils
 from jobserver.utils import set_from_qs
 
 from ..authorization import has_permission, permissions
@@ -35,7 +35,9 @@ class ProjectDetail(View):
 
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
-        project.status_description = nh3.clean(markdown(project.status_description))
+        project.status_description = html_utils.clean_html(
+            markdown(project.status_description)
+        )
 
         can_create_workspaces = has_permission(
             request.user, permissions.workspace_create, project=project
