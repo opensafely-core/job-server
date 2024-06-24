@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from django.utils.safestring import mark_safe
-from lxml.html.clean import Cleaner
+
+from jobserver import html_utils
 
 
 def process_html(html):
@@ -10,9 +11,7 @@ def process_html(html):
     if "<html>" not in html:
         html = f"<html><body>{html}</body></head>"
 
-    cleaned = Cleaner(page_structure=False, style=True, kill_tags=["head"]).clean_html(
-        html
-    )
+    cleaned = html_utils.clean_html(html)
 
     soup = BeautifulSoup(cleaned, "html.parser")
 
