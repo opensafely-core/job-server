@@ -1,4 +1,3 @@
-import nh3
 from django.contrib import messages
 from django.db import transaction
 from django.db.models.functions import Lower
@@ -21,6 +20,7 @@ from zen_queries import fetch
 
 from applications.models import Application
 from interactive.commands import create_repo, create_workspace
+from jobserver import html_utils
 from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
@@ -215,7 +215,7 @@ class ProjectDetail(DetailView):
             ),
             "orgs": self.object.orgs.order_by(Lower("name")),
             "redirects": self.object.redirects.order_by("old_url"),
-            "status_description_html": nh3.clean(
+            "status_description_html": html_utils.clean_html(
                 markdown(self.object.status_description)
             ),
             "workspaces": self.object.workspaces.order_by("name"),
