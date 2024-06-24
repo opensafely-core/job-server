@@ -14,6 +14,7 @@ from .config import ORG_OUTPUT_CHECKING_REPOS
 from .emails import (
     send_request_rejected_email,
     send_request_released_email,
+    send_request_returned_email,
     send_request_updated_email,
 )
 from .issues import (
@@ -32,6 +33,8 @@ class EventType(Enum):
     REQUEST_APPROVED = "request approved"
     REQUEST_RELEASED = "request released"
     REQUEST_REJECTED = "request rejected"
+    REQUEST_RETURNED = "request returned"
+    REQUEST_RESUBMITTED = "request resubmitted"
     REQUEST_UPDATED = "request updated"
 
 
@@ -90,6 +93,11 @@ class AirlockEvent:
         return self.event_type.value
 
     def describe_updates(self):
+        if self.event_type in [
+            EventType.REQUEST_RESUBMITTED,
+            EventType.REQUEST_RETURNED,
+        ]:
+            return self.describe_event()
         return [
             f"{update['update_type']} (filegroup {update['group']}) by user {update['user']}"
             for update in self.updates
@@ -151,6 +159,8 @@ def email_author(airlock_event: AirlockEvent):
             send_request_released_email(airlock_event)
         case EventType.REQUEST_REJECTED:
             send_request_rejected_email(airlock_event)
+        case EventType.REQUEST_RETURNED:
+            send_request_returned_email(airlock_event)
         case _:
             assert airlock_event.event_type == EventType.REQUEST_UPDATED
             # Skip email if ALL updates were made by the request author
@@ -167,6 +177,8 @@ EVENT_NOTIFICATIONS = {
     EventType.REQUEST_APPROVED: [],
     EventType.REQUEST_RELEASED: [email_author, close_issue],
     EventType.REQUEST_REJECTED: [email_author, close_issue],
+    EventType.REQUEST_RETURNED: [email_author, update_issue],
+    EventType.REQUEST_RESUBMITTED: [update_issue],
     EventType.REQUEST_UPDATED: [email_author, update_issue],
 }
 
