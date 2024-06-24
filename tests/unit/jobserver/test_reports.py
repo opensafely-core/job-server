@@ -98,13 +98,13 @@ def test_html_processing_extracts_body(html):
         (
             """
             <table>
-                <tr><td>something</td></tr>
+                <tbody><tr><td>something</td></tr></tbody>
             </table>
             """,
             """
             <div class="overflow-wrapper">
                 <table>
-                    <tr><td>something</td></tr>
+                    <tbody><tr><td>something</td></tr></tbody>
                 </table>
             </div>
             """,
@@ -114,7 +114,7 @@ def test_html_processing_extracts_body(html):
             <html>
                 <body>
                     <table>
-                        <tr><td>something</td></tr>
+                        <tbody><tr><td>something</td></tr></tbody>
                     </table>
                 </body>
             </html>
@@ -122,7 +122,7 @@ def test_html_processing_extracts_body(html):
             """
             <div class="overflow-wrapper">
                 <table>
-                    <tr><td>something</td></tr>
+                    <tbody><tr><td>something</td></tr></tbody>
                 </table>
             </div>
             """,
@@ -130,7 +130,7 @@ def test_html_processing_extracts_body(html):
         (
             """
             <table>
-                <tr><td>something</td></tr>
+                <tbody><tr><td>something</td></tr></tbody>
             </table>
             <table>
                 <tr><td>something else</td></tr>
@@ -139,12 +139,12 @@ def test_html_processing_extracts_body(html):
             """
             <div class="overflow-wrapper">
                 <table>
-                    <tr><td>something</td></tr>
+                    <tbody><tr><td>something</td></tr></tbody>
                 </table>
             </div>
             <div class="overflow-wrapper">
                 <table>
-                    <tr><td>something else</td></tr>
+                    <tbody><tr><td>something else</td></tr></tbody>
                 </table>
             </div>
             """,
