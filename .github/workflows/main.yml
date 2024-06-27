@@ -136,13 +136,14 @@ jobs:
 
       - name: Save docker image
         run: |
-          docker save job-server | gzip > /tmp/job-server.tar.gz
+          docker save job-server | zstd --fast -o /tmp/job-server.tar.zst
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
         with:
             name: job-server-image
-            path: /tmp/job-server.tar.gz
+            path: /tmp/job-server.tar.zst
+            compression-level: 0
 
   deploy:
     needs: [check, test, docker-test, lint-dockerfile]
@@ -170,7 +171,7 @@ jobs:
             path: /tmp/image
 
       - name: Import docker image
-        run: gunzip -c /tmp/image/job-server.tar.gz | docker load
+        run: docker image load --input /tmp/image/job-server.tar.zst
 
       - name: Test image we imported from previous job works
         run: |
