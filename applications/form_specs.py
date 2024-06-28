@@ -132,7 +132,7 @@ form_specs = [
                         label="Provide a short lay description of your study purpose for the general public",
                         help_text=snippet("description-help_text"),
                         template_name="form_textarea",
-                        attributes=Attributes(maxlength=1500),
+                        attributes=Attributes(maxlength=2500),
                     ),
                 ],
             ),
