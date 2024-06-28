@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from requests.exceptions import HTTPError
 
-from airlock.views import airlock_event_view
+from airlock.views import AirlockEvent, EventType, airlock_event_view
 from tests.factories import (
     BackendFactory,
     BackendMembershipFactory,
@@ -37,6 +37,8 @@ class FakeGithubApiWithError:
         ("request_released", False, None, True),
         ("request_returned", False, None, True),
         ("request_resubmitted", False, None, False),
+        ("request_partially_reviewed", False, None, False),
+        ("request_reviewed", False, None, False),
         # author and user are the same; emails are still sent for rejected/released/returned
         ("request_submitted", True, None, False),
         ("request_rejected", True, None, True),
@@ -44,6 +46,8 @@ class FakeGithubApiWithError:
         ("request_released", True, None, True),
         ("request_returned", True, None, True),
         ("request_resubmitted", True, None, False),
+        ("request_partially_reviewed", True, None, False),
+        ("request_reviewed", True, None, False),
         # updated; emails are sent if at least one update is not by the author
         (
             "request_updated",
@@ -252,3 +256,63 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
         "status": "error",
         "message": error,
     }
+
+
+@pytest.mark.parametrize(
+    "event_type,user,updates,descriptions",
+    [
+        (EventType.REQUEST_SUBMITTED, "author", [], []),
+        (EventType.REQUEST_WITHDRAWN, "author", [], []),
+        (EventType.REQUEST_APPROVED, "user1", [], []),
+        (EventType.REQUEST_RELEASED, "user1", [], []),
+        (EventType.REQUEST_REJECTED, "user1", [], []),
+        (EventType.REQUEST_RETURNED, "user1", [], ["request returned by user user1"]),
+        (
+            EventType.REQUEST_RESUBMITTED,
+            "author",
+            [],
+            ["request resubmitted by user author"],
+        ),
+        (
+            EventType.REQUEST_PARTIALLY_REVIEWED,
+            "user1",
+            [],
+            ["request reviewed by user user1"],
+        ),
+        (EventType.REQUEST_REVIEWED, "user2", [], ["request reviewed by user user2"]),
+        (
+            EventType.REQUEST_UPDATED,
+            "author",
+            [
+                {"update_type": "file_added", "group": "Group 1", "user": "author"},
+                {"update_type": "context_edited", "group": "Group 2", "user": "author"},
+            ],
+            [
+                "file_added (filegroup Group 1) by user author",
+                "context_edited (filegroup Group 2) by user author",
+            ],
+        ),
+    ],
+)
+def test_airlock_event_describe_updates(event_type, user, updates, descriptions):
+    users = {
+        "author": UserFactory(username="author"),
+        "user1": UserFactory(username="user1"),
+        "user2": UserFactory(username="user2"),
+    }
+
+    workspace = WorkspaceFactory(name="test-workspace")
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=users["user1"])
+
+    airlock_event = AirlockEvent(
+        event_type=event_type,
+        workspace=workspace,
+        updates=updates,
+        release_request_id="request-id",
+        request_author=users["author"],
+        user=users[user],
+        org="org",
+        repo="repo",
+    )
+    assert airlock_event.describe_updates() == descriptions
