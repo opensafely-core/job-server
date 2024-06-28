@@ -55,5 +55,6 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             add_redirects_to_remove_org_from_orgs,
             reverse_code=remove_redirects_for_orgs,
+            elidable=True,
         )
     ]
