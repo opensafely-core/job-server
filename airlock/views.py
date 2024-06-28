@@ -36,6 +36,8 @@ class EventType(Enum):
     REQUEST_RETURNED = "request returned"
     REQUEST_RESUBMITTED = "request resubmitted"
     REQUEST_UPDATED = "request updated"
+    REQUEST_PARTIALLY_REVIEWED = "request reviewed"
+    REQUEST_REVIEWED = "request reviewed"
 
 
 @dataclass(frozen=True)
@@ -96,8 +98,11 @@ class AirlockEvent:
         if self.event_type in [
             EventType.REQUEST_RESUBMITTED,
             EventType.REQUEST_RETURNED,
+            EventType.REQUEST_PARTIALLY_REVIEWED,
+            EventType.REQUEST_REVIEWED,
         ]:
-            return self.describe_event()
+            return [f"{self.describe_event()} by user {self.user.username}"]
+
         return [
             f"{update['update_type']} (filegroup {update['group']}) by user {update['user']}"
             for update in self.updates
@@ -180,6 +185,8 @@ EVENT_NOTIFICATIONS = {
     EventType.REQUEST_RETURNED: [email_author, update_issue],
     EventType.REQUEST_RESUBMITTED: [update_issue],
     EventType.REQUEST_UPDATED: [email_author, update_issue],
+    EventType.REQUEST_PARTIALLY_REVIEWED: [update_issue],
+    EventType.REQUEST_REVIEWED: [update_issue],
 }
 
 
