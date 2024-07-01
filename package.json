@@ -45,7 +45,7 @@
   "dependencies": {
     "@fontsource/public-sans": "^5.0.18",
     "@github/filter-input-element": "^0.1.1",
-    "@headlessui/react": "^2.1.0",
+    "@headlessui/react": "^2.1.1",
     "@heroicons/react": "^2.1.4",
     "@remotedevforce/tom-select": "^2.2.8",
     "@sentry/react": "^8.11.0",
