@@ -107,17 +107,19 @@ def test_close_output_checking_request(github_api):
     assert comment.body == f"Issue closed: Closed for reasons by {user.username}"
 
 
-def test_update_output_checking_request(github_api):
+def test_update_output_checking_request(github_api, slack_messages):
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)
     assert (
         update_output_checking_issue(
             "01AAA1AAAAAAA1AAAAA11A1AAA",
+            "workspace",
             ["file added (filegroup 'Group 1') by user test"],
             "ebmdatalab",
             "opensafely-output-review",
             github_api,
+            notify_slack=False,
         )
         == "http://example.com/issues/comment"
     )
@@ -130,3 +132,31 @@ def test_update_output_checking_request(github_api):
         comment.body
         == "Release request updated:\n- file added (filegroup 'Group 1') by user test"
     )
+    assert slack_messages == []
+
+
+def test_update_output_checking_request_with_slack_notification(
+    github_api, slack_messages
+):
+    org = OrgFactory(pk=settings.BENNETT_ORG_PK)
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+    assert (
+        update_output_checking_issue(
+            "01",
+            "workspace",
+            ["request resubmitted by user test"],
+            "ebmdatalab",
+            "opensafely-output-review",
+            github_api,
+            notify_slack=True,
+        )
+        == "http://example.com/issues/comment"
+    )
+    assert len(slack_messages) == 1
+    assert slack_messages == [
+        (
+            "<http://example.com/issues/comment|workspace 01 has been updated>\n- request resubmitted by user test",
+            "test-channel",
+        )
+    ]

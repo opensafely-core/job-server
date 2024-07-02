@@ -3,6 +3,8 @@ from furl import furl
 
 from jobserver.utils import strip_whitespace
 
+from .slack import post_slack_update
+
 
 def get_issue_title(workspace_name, release_request_id):
     return f"{workspace_name} {release_request_id}"
@@ -52,7 +54,9 @@ def close_output_checking_issue(
     return data["html_url"]
 
 
-def update_output_checking_issue(release_request_id, updates, org, repo, github_api):
+def update_output_checking_issue(
+    release_request_id, workspace_name, updates, org, repo, github_api, notify_slack
+):
     updates_string = "\n".join([f"- {update}" for update in updates])
     body = f"Release request updated:\n{updates_string}"
 
@@ -63,4 +67,13 @@ def update_output_checking_issue(release_request_id, updates, org, repo, github_
         body=body,
     )
 
-    return data["html_url"]
+    comment_url = data["html_url"]
+    if notify_slack:
+        post_slack_update(
+            org,
+            comment_url,
+            get_issue_title(workspace_name, release_request_id),
+            updates_string,
+        )
+
+    return comment_url

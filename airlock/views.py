@@ -143,19 +143,25 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
         raise NotificationError(f"Error closing GitHub issue: {e}")
 
 
-def update_issue(airlock_event: AirlockEvent, github_api=None):
+def update_issue(airlock_event: AirlockEvent, github_api=None, notify_slack=False):
     github_api = github_api or _get_github_api()
     updates = airlock_event.describe_updates()
     try:
         update_output_checking_issue(
             airlock_event.release_request_id,
+            airlock_event.workspace.name,
             updates,
             airlock_event.org,
             airlock_event.repo,
             github_api,
+            notify_slack=notify_slack,
         )
     except HTTPError as e:
         raise NotificationError(f"Error creating GitHub issue comment: {e}")
+
+
+def update_issue_and_slack(airlock_event, github_api=None, notify_slack=False):
+    update_issue(airlock_event, github_api, notify_slack=True)
 
 
 def email_author(airlock_event: AirlockEvent):
@@ -183,10 +189,10 @@ EVENT_NOTIFICATIONS = {
     EventType.REQUEST_RELEASED: [email_author, close_issue],
     EventType.REQUEST_REJECTED: [email_author, close_issue],
     EventType.REQUEST_RETURNED: [email_author, update_issue],
-    EventType.REQUEST_RESUBMITTED: [update_issue],
+    EventType.REQUEST_RESUBMITTED: [update_issue_and_slack],
     EventType.REQUEST_UPDATED: [email_author, update_issue],
-    EventType.REQUEST_PARTIALLY_REVIEWED: [update_issue],
-    EventType.REQUEST_REVIEWED: [update_issue],
+    EventType.REQUEST_PARTIALLY_REVIEWED: [update_issue_and_slack],
+    EventType.REQUEST_REVIEWED: [update_issue_and_slack],
 }
 
 

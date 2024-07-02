@@ -16,3 +16,10 @@ ORG_OUTPUT_CHECKING_REPOS = {
         ),
     },
 }
+
+
+ORG_SLACK_CHANNELS = {
+    "default": env.str(
+        "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", default="opensafely-outputs"
+    ),
+}
