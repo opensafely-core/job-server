@@ -92,5 +92,6 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             set_approval_dates,
             reverse_code=migrations.RunPython.noop,
+            elidable=True,
         )
     ]

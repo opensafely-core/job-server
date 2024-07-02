@@ -32,5 +32,6 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             copy_created_and_updated_fields_from_project_to_collaboration,
             remove_created_at_and_by,
+            elidable=True,
         )
     ]

@@ -17,5 +17,6 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             move_workspaces_to_new_release_flow,
             reverse_code=migrations.RunPython.noop,
+            elidable=True,
         )
     ]
