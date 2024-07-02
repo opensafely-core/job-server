@@ -83,6 +83,7 @@ env = [
   "SECRET_KEY=12345",
   "SOCIAL_AUTH_GITHUB_KEY=test",
   "SOCIAL_AUTH_GITHUB_SECRET=test",
+  "DEFAULT_OUTPUT_CHECKING_REPO=test-repo",
 ]
 filterwarnings = [
     "error",

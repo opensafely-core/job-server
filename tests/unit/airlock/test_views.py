@@ -197,7 +197,7 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
         "01AAA1AAAAAAA1AAAAA11A1AAA",
         author,
         "ebmdatalab",
-        "opensafely-output-review",
+        "test-repo",
     ]
 
 
