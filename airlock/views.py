@@ -123,8 +123,8 @@ def create_issue(airlock_event: AirlockEvent, github_api=None):
             airlock_event.repo,
             github_api,
         )
-    except HTTPError:
-        raise NotificationError("Error creating GitHub issue")
+    except HTTPError as e:
+        raise NotificationError(f"Error creating GitHub issue: {e}")
 
 
 def close_issue(airlock_event: AirlockEvent, github_api=None):
@@ -139,8 +139,8 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
             airlock_event.repo,
             github_api,
         )
-    except HTTPError:
-        raise NotificationError("Error closing GitHub issue")
+    except HTTPError as e:
+        raise NotificationError(f"Error closing GitHub issue: {e}")
 
 
 def update_issue(airlock_event: AirlockEvent, github_api=None):
@@ -154,8 +154,8 @@ def update_issue(airlock_event: AirlockEvent, github_api=None):
             airlock_event.repo,
             github_api,
         )
-    except HTTPError:
-        raise NotificationError("Error creating GitHub issue comment")
+    except HTTPError as e:
+        raise NotificationError(f"Error creating GitHub issue comment: {e}")
 
 
 def email_author(airlock_event: AirlockEvent):

@@ -16,13 +16,13 @@ from tests.fakes import FakeGitHubAPI
 
 class FakeGithubApiWithError:
     def create_issue(*args, **kwargs):
-        raise HTTPError()
+        raise HTTPError("An error occurred")
 
     def create_issue_comment(*args, **kwargs):
-        raise HTTPError()
+        raise HTTPError("An error occurred")
 
     def close_issue(*args, **kwargs):
-        raise HTTPError()
+        raise HTTPError("An error occurred")
 
 
 @pytest.mark.parametrize(
@@ -204,22 +204,22 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
 @pytest.mark.parametrize(
     "event_type,updates,error",
     [
-        ("request_submitted", None, "Error creating GitHub issue"),
-        ("request_rejected", None, "Error closing GitHub issue"),
+        ("request_submitted", None, "Error creating GitHub issue: An error occurred"),
+        ("request_rejected", None, "Error closing GitHub issue: An error occurred"),
         (
             "request_updated",
             [{"update_type": "file_added", "group": "Group 1", "user": "user"}],
-            "Error creating GitHub issue comment",
+            "Error creating GitHub issue comment: An error occurred",
         ),
         (
             "request_returned",
             None,
-            "Error creating GitHub issue comment",
+            "Error creating GitHub issue comment: An error occurred",
         ),
         (
             "request_resubmitted",
             None,
-            "Error creating GitHub issue comment",
+            "Error creating GitHub issue comment: An error occurred",
         ),
         ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'"),
     ],
