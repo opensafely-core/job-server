@@ -38,6 +38,7 @@ asgiref==3.7.2 \
     #   django
     #   django-browser-reload
     #   django-htmx
+    #   django-permissions-policy
     #   django-structlog
 attrs==23.2.0 \
     --hash=sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30 \
@@ -407,9 +408,9 @@ django-ipware==6.0.4 \
     --hash=sha256:09c502ee3b1f8ae08d197d5e1f4397e965d0b201c83de7b5721db1fc460e6ab6 \
     --hash=sha256:614d0f0a911f8a765e55b6d358b1715bb85eeb63d1ebb77447d09d645f1343e8
     # via django-structlog
-django-permissions-policy==4.12.0 \
-    --hash=sha256:1f10fc354110fef9270fbabbbf8d5358a6d6f5380c79f0dfba56dd41e45b1936 \
-    --hash=sha256:88ee9cb345898414a6ad3f2eb0d8284c67decdfc43c6fc5331531b7c39809d8c
+django-permissions-policy==4.20.0 \
+    --hash=sha256:6473a698d04a87eb05bfd86bf7c5aec59afbbd7a5cadcb85a5fc6aa0a26a1639 \
+    --hash=sha256:e56141f7b407d2d220e415f9ceb6a19fadda826fb4460e78b30422536fdd4d42
     # via -r requirements.prod.in
 django-structlog==8.1.0 \
     --hash=sha256:0229b9a2efbd24a4e3500169788e53915c2429521e34e41dd58ccc56039bef3f \
