@@ -30,5 +30,6 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             copy_project_org_to_orgs,
             reverse_code=delete_project_orgs,
+            elidable=True,
         )
     ]
