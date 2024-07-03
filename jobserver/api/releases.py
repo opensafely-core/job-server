@@ -580,8 +580,11 @@ def build_level4_user(user):
     # this is 1 or 2 queries per project, not ideal, but we permissions are not stored in the db
     for project in user.projects.all():
         if has_permission(user, permissions.unreleased_outputs_view, project=project):
-            for workspace in project.workspaces.all().values("name"):
-                workspaces[workspace["name"]] = {"project": project.name}
+            for workspace in project.workspaces.all().values("name", "is_archived"):
+                workspaces[workspace["name"]] = {
+                    "project": project.name,
+                    "archived": workspace["is_archived"],
+                }
 
     # using a DRF serializer for now, so we've *some* schema definition
     level4_user = Level4AuthenticatedUser(

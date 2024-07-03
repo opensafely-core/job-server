@@ -1618,7 +1618,7 @@ def test_level4tokenauthenticationapi_success(
 ):
     # give user correct permissions on this project
     project1 = ProjectFactory()
-    workspace1 = WorkspaceFactory(project=project1)
+    workspace1 = WorkspaceFactory(project=project1, is_archived=True)
     workspace2 = WorkspaceFactory(project=project1)
     project_membership(
         user=token_login_user,
@@ -1647,8 +1647,8 @@ def test_level4tokenauthenticationapi_success(
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
         "workspaces": {
-            workspace1.name: {"project": project1.name},
-            workspace2.name: {"project": project1.name},
+            workspace1.name: {"project": project1.name, "archived": True},
+            workspace2.name: {"project": project1.name, "archived": False},
         },  # should not include workspace3
         "output_checker": False,
         "staff": False,
@@ -1689,8 +1689,8 @@ def test_level4tokenauthenticationapi_success_privileged(
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
         "workspaces": {
-            workspace1.name: {"project": project.name},
-            workspace2.name: {"project": project.name},
+            workspace1.name: {"project": project.name, "archived": False},
+            workspace2.name: {"project": project.name, "archived": False},
         },  # should not include workspace3
         "output_checker": True,
         "staff": True,
@@ -1826,8 +1826,8 @@ def test_level4authorisationapi_success(
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
         "workspaces": {
-            workspace1.name: {"project": project1.name},
-            workspace2.name: {"project": project1.name},
+            workspace1.name: {"project": project1.name, "archived": False},
+            workspace2.name: {"project": project1.name, "archived": False},
         },  # should not include workspace3
         "output_checker": False,
         "staff": False,
