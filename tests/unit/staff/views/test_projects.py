@@ -360,6 +360,7 @@ def test_projectedit_get_unauthorized(rf):
 
 def test_projectedit_post_success(rf, core_developer):
     project = ProjectFactory(name="test", number=123, orgs=[OrgFactory()])
+    old_project_url = project.get_absolute_url()
 
     new_copilot = UserFactory()
     new_org = OrgFactory()
@@ -390,6 +391,7 @@ def test_projectedit_post_success(rf, core_developer):
     assert set_from_qs(project.orgs.all()) == {new_org.pk}
     assert project.updated_by == core_developer
     assert project.redirects.count() == 1
+    assert project.redirects.first().old_url == old_project_url
 
 
 def test_projectedit_post_success_when_not_changing_slug(rf, core_developer):
