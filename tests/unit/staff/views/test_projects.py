@@ -421,6 +421,7 @@ def test_projectedit_post_success_when_not_changing_slug(rf, core_developer):
     assert project.slug == "test"
     assert project.number == 456
     assert project.copilot == new_copilot
+    assert project.redirects.count() == 0
 
 
 def test_projectedit_post_unauthorized(rf):
