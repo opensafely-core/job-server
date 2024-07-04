@@ -31,6 +31,7 @@ from jobserver.authorization import (
 )
 from jobserver.commands.users import generate_login_token
 from jobserver.models import (
+    Project,
     PublishRequest,
     Release,
     ReleaseFileReview,
@@ -1613,11 +1614,22 @@ def test_workspacestatusapi_success(api_rf):
     assert not response.data["uses_new_release_flow"]
 
 
+@pytest.mark.parametrize(
+    "project_status,ongoing",
+    [
+        (Project.Statuses.ONGOING, True),
+        (Project.Statuses.ONGOING_LINKED, True),
+        (Project.Statuses.POSTPONED, False),
+        (Project.Statuses.RETIRED, False),
+        (Project.Statuses.COMPLETED_LINKED, False),
+        (Project.Statuses.COMPLETED_AWAITING, False),
+    ],
+)
 def test_level4tokenauthenticationapi_success(
-    api_rf, project_membership, token_login_user, role_factory
+    api_rf, project_membership, token_login_user, role_factory, project_status, ongoing
 ):
     # give user correct permissions on this project
-    project1 = ProjectFactory()
+    project1 = ProjectFactory(status=project_status)
     workspace1 = WorkspaceFactory(project=project1, is_archived=True)
     workspace2 = WorkspaceFactory(project=project1)
     project_membership(
@@ -1647,8 +1659,16 @@ def test_level4tokenauthenticationapi_success(
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
         "workspaces": {
-            workspace1.name: {"project": project1.name, "archived": True},
-            workspace2.name: {"project": project1.name, "archived": False},
+            workspace1.name: {
+                "project": project1.name,
+                "project_details": {"name": project1.name, "ongoing": ongoing},
+                "archived": True,
+            },
+            workspace2.name: {
+                "project": project1.name,
+                "project_details": {"name": project1.name, "ongoing": ongoing},
+                "archived": False,
+            },
         },  # should not include workspace3
         "output_checker": False,
         "staff": False,
@@ -1689,8 +1709,16 @@ def test_level4tokenauthenticationapi_success_privileged(
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
         "workspaces": {
-            workspace1.name: {"project": project.name, "archived": False},
-            workspace2.name: {"project": project.name, "archived": False},
+            workspace1.name: {
+                "project": project.name,
+                "project_details": {"name": project.name, "ongoing": True},
+                "archived": False,
+            },
+            workspace2.name: {
+                "project": project.name,
+                "project_details": {"name": project.name, "ongoing": True},
+                "archived": False,
+            },
         },  # should not include workspace3
         "output_checker": True,
         "staff": True,
@@ -1826,8 +1854,16 @@ def test_level4authorisationapi_success(
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
         "workspaces": {
-            workspace1.name: {"project": project1.name, "archived": False},
-            workspace2.name: {"project": project1.name, "archived": False},
+            workspace1.name: {
+                "project": project1.name,
+                "project_details": {"name": project1.name, "ongoing": True},
+                "archived": False,
+            },
+            workspace2.name: {
+                "project": project1.name,
+                "project_details": {"name": project1.name, "ongoing": True},
+                "archived": False,
+            },
         },  # should not include workspace3
         "output_checker": False,
         "staff": False,

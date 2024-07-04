@@ -31,6 +31,7 @@ from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import OutputChecker, has_permission, has_role, permissions
 from jobserver.commands import users
 from jobserver.models import (
+    Project,
     PublishRequest,
     Release,
     ReleaseFile,
@@ -576,13 +577,22 @@ class Level4AuthenticatedUser(serializers.Serializer):
 
 
 def build_level4_user(user):
+    ongoing_project_statuses = {
+        Project.Statuses.ONGOING,
+        Project.Statuses.ONGOING_LINKED,
+    }
+
     workspaces = {}
     # this is 1 or 2 queries per project, not ideal, but we permissions are not stored in the db
     for project in user.projects.all():
         if has_permission(user, permissions.unreleased_outputs_view, project=project):
             for workspace in project.workspaces.all().values("name", "is_archived"):
                 workspaces[workspace["name"]] = {
-                    "project": project.name,
+                    "project": project.name,  # for backwards compatibility with Airlock
+                    "project_details": {
+                        "name": project.name,
+                        "ongoing": project.status in ongoing_project_statuses,
+                    },
                     "archived": workspace["is_archived"],
                 }
 
