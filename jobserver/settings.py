@@ -407,6 +407,33 @@ BACKEND_IP_MAP = {
     # "127.0.0.1": "tpp",
 }
 
+
+# SLACK CHANNELS
+RELEASES_SLACK_CHANNEL = env.str(
+    "RELEASES_SLACK_CHANNEL", default="opensafely-releases"
+)
+REGISTRATIONS_SLACK_CHANNEL = env.str(
+    "REGISTRATIONS_SLACK_CHANNEL", default="job-server-registrations"
+)
+APPLICATIONS_SLACK_CHANNEL = env.str(
+    "RELEASES_SLACK_CHANNEL", default="job-server-applications"
+)
+COPILOT_SUPPORT_SLACK_CHANNEL = env.str(
+    "COPILOT_SUPPORT_SLACK_CHANNEL", default="co-pilot-support"
+)
+# for Airlock
+DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL = env.str(
+    "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", "opensafely-outputs"
+)
+
+# OUTPUT_CHECKING_REPOS
+DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = env.str(
+    "DEFAULT_OUTPUT_CHECKING_GITHUB_ORG", "ebmdatalab"
+)
+DEFAULT_OUTPUT_CHECKING_REPO = env.str(
+    "DEFAULT_OUTPUT_CHECKING_REPO", "opensafely-output-review"
+)
+
 # These orgs are not copiloted
 BENNETT_ORG_PK = 3
 GRAPHNET_ORG_PK = 12

@@ -43,8 +43,8 @@ def create_output_checking_request(job_request, github_api):
     body = strip_whitespace(body)
 
     return github_api.create_issue(
-        org="ebmdatalab",
-        repo="opensafely-output-review",
+        org=settings.DEFAULT_OUTPUT_CHECKING_GITHUB_ORG,
+        repo=settings.DEFAULT_OUTPUT_CHECKING_REPO,
         title=f"Review request: {job_request.workspace.project.name} [{job_request.analysis_request.pk}]",
         body=body,
         labels=["interactive"],

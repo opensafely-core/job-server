@@ -15,7 +15,7 @@ from .utils import strip_whitespace
 
 
 def notify_github_release(
-    path, created_by, files, backend, channel="opensafely-releases"
+    path, created_by, files, backend, channel=settings.RELEASES_SLACK_CHANNEL
 ):
     """
     path: path on level 4 server
@@ -34,7 +34,7 @@ def notify_github_release(
     slack.post(text="\n".join(message), channel=channel)
 
 
-def notify_release_created(release, channel="opensafely-releases"):
+def notify_release_created(release, channel=settings.RELEASES_SLACK_CHANNEL):
     workspace_url = slack.link(
         release.workspace.get_absolute_url(), release.workspace.name
     )
@@ -46,7 +46,7 @@ def notify_release_created(release, channel="opensafely-releases"):
     slack.post(message, channel)
 
 
-def notify_release_file_uploaded(rfile, channel="opensafely-releases"):
+def notify_release_file_uploaded(rfile, channel=settings.RELEASES_SLACK_CHANNEL):
     release = rfile.release
     user = rfile.created_by
 
@@ -65,14 +65,16 @@ def notify_release_file_uploaded(rfile, channel="opensafely-releases"):
     slack.post(message, channel)
 
 
-def notify_new_user(user, channel="job-server-registrations"):
+def notify_new_user(user, channel=settings.REGISTRATIONS_SLACK_CHANNEL):
     slack.post(
         text=f"New user ({user.username}) registered: {slack.link(user.get_staff_url())}",
         channel=channel,
     )
 
 
-def notify_application(application, user, msg, channel="job-server-applications"):
+def notify_application(
+    application, user, msg, channel=settings.APPLICATIONS_SLACK_CHANNEL
+):
     """
     Send a message to slack about an Application instance
 
@@ -85,7 +87,9 @@ def notify_application(application, user, msg, channel="job-server-applications"
     )
 
 
-def notify_copilot_windows_closing(projects, channel="co-pilot-support"):
+def notify_copilot_windows_closing(
+    projects, channel=settings.COPILOT_SUPPORT_SLACK_CHANNEL
+):
     def build_line(p):
         end_date = naturalday(p.copilot_support_ends_at)
         return f"\n * {slack.link(p.get_staff_url(), p.name)} ({end_date})"
@@ -96,7 +100,9 @@ def notify_copilot_windows_closing(projects, channel="co-pilot-support"):
     slack.post(text=message, channel=channel)
 
 
-def notify_copilots_of_repo_sign_off(repo, channel="co-pilot-support"):
+def notify_copilots_of_repo_sign_off(
+    repo, channel=settings.COPILOT_SUPPORT_SLACK_CHANNEL
+):
     repo_link = slack.link(repo.get_staff_url(), repo.name)
 
     user_link = slack.link(
@@ -130,7 +136,7 @@ def notify_copilots_of_repo_sign_off(repo, channel="co-pilot-support"):
 
 
 def notify_copilots_of_publish_request(
-    publish_request, report, issue_url, channel="co-pilot-support"
+    publish_request, report, issue_url, channel=settings.COPILOT_SUPPORT_SLACK_CHANNEL
 ):
     report_url = furl(settings.BASE_URL) / report.get_absolute_url()
 

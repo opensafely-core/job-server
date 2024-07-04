@@ -32,3 +32,17 @@ VITE_SENTRY_DSN=
 
 # To send to honecomb in dev, create a token for the development and set it here.
 # OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=TOKEN34"
+
+
+# For issues and slack notifications in dev
+# If DEBUG is on, job-server will print messages to the console and won't
+# attempt to create issues or post to slack. These variables are only required
+# for testing real slack notifications and GitHub issues with DEBUG off.
+# Note these all have prod defaults in settings.py
+# RELEASES_SLACK_CHANNEL=
+# REGISTRATIONS_SLACK_CHANNEL=
+# APPLICATIONS_SLACK_CHANNEL=
+# COPILOT_SUPPORT_SLACK_CHANNEL=
+# DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL=
+# DEFAULT_OUTPUT_CHECKING_GITHUB_ORG
+# DEFAULT_OUTPUT_CHECKING_REPO=

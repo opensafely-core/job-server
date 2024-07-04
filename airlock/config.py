@@ -1,7 +1,4 @@
-from environs import Env
-
-
-env = Env()
+from django.conf import settings
 
 
 ORG_OUTPUT_CHECKING_REPOS = {
@@ -10,16 +7,10 @@ ORG_OUTPUT_CHECKING_REPOS = {
         "repo": "opensafely-output-review-bristol",
     },
     "default": {
-        "org": "ebmdatalab",
-        "repo": env.str(
-            "DEFAULT_OUTPUT_CHECKING_REPO", default="opensafely-output-review"
-        ),
+        "org": settings.DEFAULT_OUTPUT_CHECKING_GITHUB_ORG,
+        "repo": settings.DEFAULT_OUTPUT_CHECKING_REPO,
     },
 }
 
 
-ORG_SLACK_CHANNELS = {
-    "default": env.str(
-        "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", default="opensafely-outputs"
-    ),
-}
+ORG_SLACK_CHANNELS = {"default": settings.DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL}
