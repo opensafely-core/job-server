@@ -85,13 +85,13 @@ We also provide DRF's testing tools as fixtures to mirror pytest-django.
 We use a fake object, `FakeGitHubAPI`, to test our uses of GitHub's API.
 However, we want to [verify that fake](https://pythonspeed.com/articles/verified-fakes/), so we have a set of verification tests in `tests/verification/`.
 
-`just test` will run those tests, but `just test-dev` will not, this way CI verifies our faster tests are correct.
+`just test-all` will run those tests, but `just test` will not, this way CI verifies our faster tests are correct.
 We have a separate GitHub org, `opensafely-testing`, and bot user, `opensafely-testing-bot`, for performing these tests.
 We use a different env var, `GITHUB_TOKEN_TESTING`, to pass the required PAT in.
 
 
 ## Useful Flows
-`just test` will run the tests as CI does, however as the suite grows this gets slower over time.
+`just test-all` will run the tests as CI does, however as the suite grows this gets slower over time.
 Below is [very!] non-exhaustive list of useful methods we have found to make running tests easier.
 
 * `pytest -k <partial test name>`: working on a new view? `pytest -k yourviewname` is a quick way to only run those tests.

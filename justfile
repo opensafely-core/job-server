@@ -133,15 +133,12 @@ run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
 
 
-test *args: assets
+test-all *args: assets
     COVERAGE_PROCESS_START="pyproject.toml" ./scripts/test-coverage.sh {{ args }}
 
 
-test-dev *args: assets
-    #!/bin/bash
-    export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/integration/test_interactive.py,tests/verification/*,tests/unit/jobserver/models/test_paired_fields.py"
-    export COVERAGE_PROCESS_START="pyproject.toml"
-    ./scripts/test-coverage.sh -m "not verification and not slow_test" {{ args }}
+test *args: assets
+    $BIN/pytest -n auto -m "not verification and not slow_test" {{ args }}
 
 
 black *args=".": devenv

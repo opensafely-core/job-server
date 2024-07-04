@@ -274,16 +274,16 @@ The Bennett Institute job server is deployed to our `dokku4` instance, instructi
 
 ## Testing
 
-Run the tests with:
+Run the unit tests:
 
 ```sh
-just test-dev
+just test
 ```
 
-To run the tests in parallel with using multiple cores, run them with:
+Run all of the tests (including slow tests) and run coverage, as it's done in CI:
 
 ```sh
-just test-dev -n auto
+just test-all
 ```
 
 More details on testing can be found in [TESTING.md](TESTING.md).
