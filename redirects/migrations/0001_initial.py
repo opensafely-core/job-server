@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("jobserver", "0001_initial"),
+        ("jobserver", "0001_squashed_2024_06"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("interactive", "0001_initial"),
     ]
