@@ -5,8 +5,6 @@ export VIRTUAL_ENV  := env_var_or_default("VIRTUAL_ENV", ".venv")
 export BIN := VIRTUAL_ENV + if os_family() == "unix" { "/bin" } else { "/Scripts" }
 export PIP := BIN + if os_family() == "unix" { "/python -m pip" } else { "/python.exe -m pip" }
 
-export COVERAGE_PROCESS_START := "pyproject.toml"
-
 
 # list available commands
 default:
@@ -134,21 +132,25 @@ update-interactive-templates tag="": && prodenv
 run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
 
+
 test *args: assets
-    ./scripts/test-coverage.sh {{ args }}
+    COVERAGE_PROCESS_START="pyproject.toml" ./scripts/test-coverage.sh {{ args }}
 
 
 test-dev *args: assets
     #!/bin/bash
     export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/integration/test_interactive.py,tests/verification/*,tests/unit/jobserver/models/test_paired_fields.py"
+    export COVERAGE_PROCESS_START="pyproject.toml"
     ./scripts/test-coverage.sh -m "not verification and not slow_test" {{ args }}
 
 
 black *args=".": devenv
     $BIN/black --check {{ args }}
 
+
 django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
     $BIN/django-upgrade --target-version=5.0 {{ args }}
+
 
 ruff *args=".": devenv
     $BIN/ruff check --output-format=full {{ args }}
