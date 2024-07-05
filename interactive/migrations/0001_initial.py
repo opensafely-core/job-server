@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("jobserver", "0001_initial"),
+        ("jobserver", "0001_squashed_2024_06"),
     ]
 
     operations = [

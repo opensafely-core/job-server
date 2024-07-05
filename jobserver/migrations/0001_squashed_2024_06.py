@@ -25,42 +25,6 @@ import jobserver.models.user
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        ("jobserver", "0001_initial"),
-        ("jobserver", "0002_ensure_project_slugs_have_a_value"),
-        ("jobserver", "0003_create_redirects_to_remove_org_from_all_urls"),
-        ("jobserver", "0004_ensure_workspace_name_format"),
-        ("jobserver", "0005_add_job_run_command"),
-        ("jobserver", "0006_move_to_new_release_flow"),
-        ("jobserver", "0007_add_User_order_by_name"),
-        ("jobserver", "0008_remove_workspace_db"),
-        ("jobserver", "0009_remove_user_is_approved"),
-        ("jobserver", "0010_jobrequest_codelists_ok"),
-        ("jobserver", "0011_add_application_approval_dates"),
-        ("jobserver", "0012_job_metrics"),
-        ("jobserver", "0013_add_project_orgs"),
-        ("jobserver", "0014_copy_project_org_to_orgs"),
-        ("jobserver", "0015_remove_project_org"),
-        (
-            "jobserver",
-            "0016_ensure_project_and_org_combinations_are_unique_for_projectcollaborations",
-        ),
-        ("jobserver", "0017_ensure_only_one_lead_org_for_a_project"),
-        ("jobserver", "0018_switch_project_created_by_to_non_nullable"),
-        ("jobserver", "0019_switch_project_updated_by_to_non_nullable"),
-        ("jobserver", "0020_add_created_and_updated_at_and_by_to_projectcollaboration"),
-        (
-            "jobserver",
-            "0021_copy_created_and_updated_fields_from_project_to_project_collaborations",
-        ),
-        ("jobserver", "0022_fix_projectcollaboration_project_and_org_related_names"),
-        ("jobserver", "0023_require_projectcollaboration_created_and_updated_fields"),
-        ("jobserver", "0024_add_auditable_event_model"),
-        ("jobserver", "0025_require_repo_for_workspace"),
-        ("jobserver", "0026_add_custom_manager_to_JobRequest"),
-        ("jobserver", "0027_add_custom_manager_to_JobRequest"),
-    ]
-
     initial = True
 
     dependencies = []
