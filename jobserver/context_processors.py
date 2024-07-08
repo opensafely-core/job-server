@@ -28,30 +28,6 @@ def disable_creating_jobs(request):
     return {"disable_creating_jobs": settings.DISABLE_CREATING_JOBS}
 
 
-@queries_dangerously_enabled()
-def staff_nav(request):
-    if not has_role(request.user, CoreDeveloper):
-        return {"staff_nav": []}
-
-    is_active = functools.partial(_is_active, request)
-
-    items = [
-        NavItem(name="Analysis Requests", url_name="staff:analysis-request-list"),
-        NavItem(name="Applications", url_name="staff:application-list"),
-        NavItem(name="Backends", url_name="staff:backend-list"),
-        NavItem(name="Dashboards", url_name="staff:dashboard:index"),
-        NavItem(name="Orgs", url_name="staff:org-list"),
-        NavItem(name="Redirects", url_name="staff:redirect-list"),
-        NavItem(name="Projects", url_name="staff:project-list"),
-        NavItem(name="Reports", url_name="staff:report-list"),
-        NavItem(name="Repos", url_name="staff:repo-list"),
-        NavItem(name="Users", url_name="staff:user-list"),
-        NavItem(name="Workspaces", url_name="staff:workspace-list"),
-    ]
-
-    return {"staff_nav": list(iter_nav(items, request, is_active))}
-
-
 def nav(request):
     is_active = functools.partial(_is_active, request)
 
