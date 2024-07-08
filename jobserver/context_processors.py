@@ -4,7 +4,6 @@ import structlog
 from django.conf import settings
 from django.urls import reverse
 from furl import furl
-from zen_queries import queries_dangerously_enabled
 
 from .authorization import CoreDeveloper, has_role
 from .nav import NavItem, iter_nav
@@ -17,7 +16,6 @@ def _is_active(request, prefix):
     return request.path.startswith(prefix)
 
 
-@queries_dangerously_enabled()
 def can_view_staff_area(request):
     can_view_staff_area = has_role(request.user, CoreDeveloper)
 
