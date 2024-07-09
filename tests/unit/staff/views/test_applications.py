@@ -35,11 +35,25 @@ def test_applicationapprove_already_approved(rf, core_developer, complete_applic
     assert response.url == complete_application.get_staff_url()
 
 
-def test_applicationapprove_get_success(
-    rf, django_assert_num_queries, core_developer, complete_application
-):
+def test_applicationapprove_get_success(rf, core_developer, complete_application):
     ProjectFactory(number=7)  # check default is set via Form.initial
 
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["application"] == complete_application
+    assert response.context_data["form"]["org"].initial is None
+    assert response.context_data["form"]["project_number"].initial == 8
+
+
+def test_applicationapprove_count_queries(
+    client, rf, django_assert_num_queries, core_developer, complete_application
+):
     request = rf.get("/")
     request.user = core_developer
 
@@ -47,11 +61,12 @@ def test_applicationapprove_get_success(
         response = ApplicationApprove.as_view()(
             request, pk_hash=complete_application.pk_hash
         )
+        assert response.status_code == 200
 
-    assert response.status_code == 200
-    assert response.context_data["application"] == complete_application
-    assert response.context_data["form"]["org"].initial is None
-    assert response.context_data["form"]["project_number"].initial == 8
+    client.force_login(core_developer)
+    with django_assert_num_queries(7):
+        response = client.get(complete_application.get_approve_url())
+        assert response.status_code == 200
 
 
 def test_applicationapprove_get_with_org_slug(rf, core_developer, complete_application):
