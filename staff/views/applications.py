@@ -122,13 +122,13 @@ class ApplicationDetail(View):
 
         ctx = {
             "application": self.application,
-            "researchers": fetch(
-                self.application.researcher_registrations.order_by("created_at")
+            "researchers": self.application.researcher_registrations.order_by(
+                "created_at"
             ),
             "pages": pages,
         }
 
-        return zTemplateResponse(request, "staff/application/detail.html", ctx)
+        return TemplateResponse(request, "staff/application/detail.html", ctx)
 
     def post(self, request, *args, **kwargs):
         wizard = Wizard(self.application, form_specs)
