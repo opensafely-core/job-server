@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Max, Q, Value
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
@@ -26,7 +27,7 @@ from ..forms import ApplicationApproveForm
 class ApplicationApprove(FormView):
     form_class = ApplicationApproveForm
     model = Application
-    response_class = zTemplateResponse
+    response_class = TemplateResponse
     template_name = "staff/application/approve.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -73,7 +74,7 @@ class ApplicationApprove(FormView):
 
     def get_form_kwargs(self):
         return super().get_form_kwargs() | {
-            "orgs": fetch(Org.objects.order_by("name")),
+            "orgs": Org.objects.order_by("name"),
         }
 
     def get_initial(self):
