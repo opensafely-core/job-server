@@ -7,7 +7,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
-from zen_queries import TemplateResponse, fetch
+from zen_queries import TemplateResponse as zTemplateResponse
+from zen_queries import fetch
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -25,7 +26,7 @@ from ..forms import ApplicationApproveForm
 class ApplicationApprove(FormView):
     form_class = ApplicationApproveForm
     model = Application
-    response_class = TemplateResponse
+    response_class = zTemplateResponse
     template_name = "staff/application/approve.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -126,7 +127,7 @@ class ApplicationDetail(View):
             "pages": pages,
         }
 
-        return TemplateResponse(request, "staff/application/detail.html", ctx)
+        return zTemplateResponse(request, "staff/application/detail.html", ctx)
 
     def post(self, request, *args, **kwargs):
         wizard = Wizard(self.application, form_specs)
@@ -151,7 +152,7 @@ class ApplicationEdit(UpdateView):
         "status_comment",
     ]
     model = Application
-    response_class = TemplateResponse
+    response_class = zTemplateResponse
     template_name = "staff/application/edit.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -178,7 +179,7 @@ class ApplicationEdit(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
-    response_class = TemplateResponse
+    response_class = zTemplateResponse
     ordering = "-created_at"
     paginate_by = 25
     template_name = "staff/application/list.html"
