@@ -113,7 +113,6 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
                 "jobserver.context_processors.can_view_staff_area",
-                "jobserver.context_processors.staff_nav",
                 "jobserver.context_processors.nav",
                 "jobserver.context_processors.disable_creating_jobs",
                 "jobserver.context_processors.login_url",
