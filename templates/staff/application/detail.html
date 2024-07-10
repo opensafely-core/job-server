@@ -1,7 +1,5 @@
 {% extends "staff/base.html" %}
 
-{% load zen_queries %}
-
 {% block metatitle %}Application {{ application.pk_hash }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -224,12 +222,10 @@
                   &mdash;
                 {% endif %}
               </li>
-              {% queries_dangerously_enabled %}
               <li>
                 <strong>Last reviewed by:</strong>
                 {{ page.wizard_page.page_instance.reviewed_by|default_if_none:"Not yet reviewed"}}</li>
               </li>
-              {% end_queries_dangerously_enabled %}
             </ul>
           {% /card_footer %}
 
