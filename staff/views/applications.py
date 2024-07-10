@@ -8,8 +8,6 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
-from zen_queries import TemplateResponse as zTemplateResponse
-from zen_queries import fetch
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -180,7 +178,7 @@ class ApplicationEdit(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
-    response_class = zTemplateResponse
+    response_class = TemplateResponse
     ordering = "-created_at"
     paginate_by = 25
     template_name = "staff/application/list.html"
@@ -231,7 +229,7 @@ class ApplicationList(ListView):
         if user := self.request.GET.get("user"):
             qs = qs.filter(created_by__username=user)
 
-        return fetch(qs.distinct())
+        return list(qs.distinct())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
