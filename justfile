@@ -117,7 +117,7 @@ update-interactive-templates tag="": && prodenv
 
     # pick the tag to work with, defaulting to what's passed in
     tag="{{ tag }}"
-    test "$tag" == "" && tag=$(git ls-remote --tags https://github.com/opensafely-core/interactive-templates | awk '{print $2}' | sed s#refs/tags/##)
+    test "$tag" == "" && tag=$(git ls-remote --tags --sort=version:refname https://github.com/opensafely-core/interactive-templates | awk 'END {print $2}' | sed s#refs/tags/##)
 
     # update the spec in requirements.prod.in
     prefix="interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/refs/tags"
