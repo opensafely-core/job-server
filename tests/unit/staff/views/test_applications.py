@@ -382,16 +382,31 @@ def test_applicationdetail_post_with_incomplete_application(
         application.researcherdetailspage
 
 
-def test_applicationedit_get_success(rf, django_assert_num_queries, core_developer):
+def test_applicationedit_get_success(rf, core_developer):
     application = ApplicationFactory()
 
     request = rf.get("/")
     request.user = core_developer
 
-    with django_assert_num_queries(1):
-        response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
+    response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 200
+
+
+def test_applicationedit_num_queries(
+    rf, django_assert_num_queries, core_developer, complete_application
+):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_num_queries(1):
+        response = ApplicationEdit.as_view()(
+            request, pk_hash=complete_application.pk_hash
+        )
+        assert response.status_code == 200
+
+    with django_assert_num_queries(1):
+        response.render()
 
 
 def test_applicationedit_post_success(rf, django_assert_num_queries, core_developer):
