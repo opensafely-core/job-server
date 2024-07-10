@@ -533,6 +533,23 @@ def test_applicationlist_success(rf, django_assert_num_queries, core_developer):
     assert len(response.context_data["object_list"]) == 5
 
 
+def test_applicationlist_count_queries(
+    client, rf, django_assert_num_queries, core_developer
+):
+    ApplicationFactory.create_batch(5)
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_num_queries(2):
+        response = ApplicationList.as_view()(request)
+        assert response.status_code == 200
+
+    client.force_login(core_developer)
+    with django_assert_num_queries(5):
+        response = client.get(reverse("staff:application-list"))
+        assert response.status_code == 200
+
+
 def test_applicationremove_already_approved(rf, core_developer):
     application = ApplicationFactory(
         approved_at=timezone.now(), approved_by=core_developer
