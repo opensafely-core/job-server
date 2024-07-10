@@ -153,7 +153,7 @@ class ApplicationEdit(UpdateView):
         "status_comment",
     ]
     model = Application
-    response_class = zTemplateResponse
+    response_class = TemplateResponse
     template_name = "staff/application/edit.html"
 
     def dispatch(self, request, *args, **kwargs):
