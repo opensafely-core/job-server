@@ -513,18 +513,29 @@ def test_applicationlist_search(rf, core_developer):
     assert set_from_list(response.context_data["object_list"]) == {app1.pk, app2.pk}
 
 
-def test_applicationlist_success(rf, django_assert_num_queries, core_developer):
+def test_applicationlist_success(rf, core_developer):
     ApplicationFactory.create_batch(5)
 
     request = rf.get("/")
     request.user = core_developer
 
-    with django_assert_num_queries(2):
-        response = ApplicationList.as_view()(request)
+    response = ApplicationList.as_view()(request)
 
     assert response.status_code == 200
-
     assert len(response.context_data["object_list"]) == 5
+
+
+def test_applicationlist_num_queries(rf, django_assert_num_queries, core_developer):
+    ApplicationFactory.create_batch(5)
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_num_queries(2):
+        response = ApplicationList.as_view()(request)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(1):
+        response.render()
 
 
 def test_applicationremove_already_approved(rf, core_developer):
