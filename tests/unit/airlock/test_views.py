@@ -50,37 +50,6 @@ class FakeGithubApiWithError:
         ("request_resubmitted", True, None, False, True),
         ("request_partially_reviewed", True, None, False, True),
         ("request_reviewed", True, None, False, True),
-        # updated; emails are sent if at least one update is not by the author
-        (
-            "request_updated",
-            True,
-            [{"update_type": "file_added", "group": "Group 1", "user": "test_user"}],
-            True,
-            False,
-        ),
-        (
-            "request_updated",
-            False,
-            [
-                {"update_type": "context_edited", "group": "Group 2", "user": "author"},
-            ],
-            False,
-            False,
-        ),
-        (
-            "request_updated",
-            False,
-            [
-                {
-                    "update_type": "comment_added",
-                    "group": "Group 1",
-                    "user": "test_user",
-                },
-                {"update_type": "comment_added", "group": "Group 1", "user": "author"},
-            ],
-            True,
-            False,
-        ),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPI)
@@ -224,11 +193,6 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
         ("request_submitted", None, "Error creating GitHub issue: An error occurred"),
         ("request_rejected", None, "Error closing GitHub issue: An error occurred"),
         (
-            "request_updated",
-            [{"update_type": "file_added", "group": "Group 1", "user": "user"}],
-            "Error creating GitHub issue comment: An error occurred",
-        ),
-        (
             "request_returned",
             None,
             "Error creating GitHub issue comment: An error occurred",
@@ -297,18 +261,6 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
             ["request reviewed by user user1"],
         ),
         (EventType.REQUEST_REVIEWED, "user2", [], ["request reviewed by user user2"]),
-        (
-            EventType.REQUEST_UPDATED,
-            "author",
-            [
-                {"update_type": "file_added", "group": "Group 1", "user": "author"},
-                {"update_type": "context_edited", "group": "Group 2", "user": "author"},
-            ],
-            [
-                "file_added (filegroup Group 1) by user author",
-                "context_edited (filegroup Group 2) by user author",
-            ],
-        ),
     ],
 )
 def test_airlock_event_describe_updates(event_type, user, updates, descriptions):

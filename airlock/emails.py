@@ -43,24 +43,6 @@ def send_request_rejected_email(airlock_event):
     )
 
 
-def send_request_updated_email(airlock_event):
-    context = {
-        "release_request_id": airlock_event.release_request_id,
-        "request_author": airlock_event.request_author.name,
-        "workspace": airlock_event.workspace.name,
-        "updates": airlock_event.describe_updates(),
-    }
-
-    send(
-        to=airlock_event.request_author.email,
-        sender="notifications@jobs.opensafely.org",
-        subject=f"Release request updated: {airlock_event.workspace.name} ({airlock_event.release_request_id})",
-        template_name="airlock/emails/request_updated.txt",
-        html_template_name="airlock/emails/request_updated.html",
-        context=context,
-    )
-
-
 def send_request_returned_email(airlock_event):
     context = {
         "release_request_id": airlock_event.release_request_id,

@@ -15,7 +15,6 @@ from .emails import (
     send_request_rejected_email,
     send_request_released_email,
     send_request_returned_email,
-    send_request_updated_email,
 )
 from .issues import (
     close_output_checking_issue,
@@ -35,7 +34,6 @@ class EventType(Enum):
     REQUEST_REJECTED = "request rejected"
     REQUEST_RETURNED = "request returned"
     REQUEST_RESUBMITTED = "request resubmitted"
-    REQUEST_UPDATED = "request updated"
     REQUEST_PARTIALLY_REVIEWED = "request reviewed"
     REQUEST_REVIEWED = "request reviewed"
 
@@ -108,9 +106,6 @@ class AirlockEvent:
             for update in self.updates
         ]
 
-    def users_from_updates(self):
-        return {update["user"] for update in self.updates}
-
 
 def create_issue(airlock_event: AirlockEvent, github_api=None):
     github_api = github_api or _get_github_api()
@@ -172,14 +167,8 @@ def email_author(airlock_event: AirlockEvent):
             send_request_rejected_email(airlock_event)
         case EventType.REQUEST_RETURNED:
             send_request_returned_email(airlock_event)
-        case _:
-            assert airlock_event.event_type == EventType.REQUEST_UPDATED
-            # Skip email if ALL updates were made by the request author
-            if airlock_event.users_from_updates() == {
-                airlock_event.request_author.username
-            }:
-                return
-            send_request_updated_email(airlock_event)
+        case _:  # pragma: no cover
+            assert False
 
 
 EVENT_NOTIFICATIONS = {
@@ -190,7 +179,6 @@ EVENT_NOTIFICATIONS = {
     EventType.REQUEST_REJECTED: [email_author, close_issue],
     EventType.REQUEST_RETURNED: [email_author, update_issue],
     EventType.REQUEST_RESUBMITTED: [update_issue_and_slack],
-    EventType.REQUEST_UPDATED: [email_author, update_issue],
     EventType.REQUEST_PARTIALLY_REVIEWED: [update_issue_and_slack],
     EventType.REQUEST_REVIEWED: [update_issue_and_slack],
 }
