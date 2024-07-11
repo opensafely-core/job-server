@@ -242,11 +242,21 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
 @pytest.mark.parametrize(
     "event_type,user,updates,descriptions",
     [
-        (EventType.REQUEST_SUBMITTED, "author", [], []),
-        (EventType.REQUEST_WITHDRAWN, "author", [], []),
-        (EventType.REQUEST_APPROVED, "user1", [], []),
-        (EventType.REQUEST_RELEASED, "user1", [], []),
-        (EventType.REQUEST_REJECTED, "user1", [], []),
+        (
+            EventType.REQUEST_SUBMITTED,
+            "author",
+            [],
+            ["request submitted by user author"],
+        ),
+        (
+            EventType.REQUEST_WITHDRAWN,
+            "author",
+            [],
+            ["request withdrawn by user author"],
+        ),
+        (EventType.REQUEST_APPROVED, "user1", [], ["request approved by user user1"]),
+        (EventType.REQUEST_RELEASED, "user1", [], ["request released by user user1"]),
+        (EventType.REQUEST_REJECTED, "user1", [], ["request rejected by user user1"]),
         (EventType.REQUEST_RETURNED, "user1", [], ["request returned by user user1"]),
         (
             EventType.REQUEST_RESUBMITTED,
@@ -261,6 +271,23 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
             ["request reviewed by user user1"],
         ),
         (EventType.REQUEST_REVIEWED, "user2", [], ["request reviewed by user user2"]),
+        (
+            EventType.REQUEST_RETURNED,
+            "user1",
+            [
+                {"update_type": "comment added", "user": "user_a", "group": "group"},
+                {"update": "a thing was updated"},
+                {"update": "another thing updated", "user": "user_b"},
+                {"update": "thing X updated", "user": "user_b", "group": "group"},
+            ],
+            [
+                "request returned by user user1",
+                "comment added (filegroup group) by user user_a",
+                "a thing was updated",
+                "another thing updated by user user_b",
+                "thing X updated (filegroup group) by user user_b",
+            ],
+        ),
     ],
 )
 def test_airlock_event_describe_updates(event_type, user, updates, descriptions):

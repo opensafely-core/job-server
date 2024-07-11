@@ -92,19 +92,23 @@ class AirlockEvent:
     def describe_event(self):
         return self.event_type.value
 
-    def describe_updates(self):
-        if self.event_type in [
-            EventType.REQUEST_RESUBMITTED,
-            EventType.REQUEST_RETURNED,
-            EventType.REQUEST_PARTIALLY_REVIEWED,
-            EventType.REQUEST_REVIEWED,
-        ]:
-            return [f"{self.describe_event()} by user {self.user.username}"]
+    def _update_dict_to_string(self, update_dict):
+        user = update_dict.get("user")
+        group = update_dict.get("group")
+        update = update_dict.get("update_type") or update_dict.get("update")
 
-        return [
-            f"{update['update_type']} (filegroup {update['group']}) by user {update['user']}"
-            for update in self.updates
-        ]
+        update_string = update
+        if group:
+            update_string = f"{update_string} (filegroup {group})"
+        if user:
+            update_string = f"{update_string} by user {user}"
+        return update_string
+
+    def describe_updates(self):
+        updates = [f"{self.describe_event()} by user {self.user.username}"]
+        for update_dict in self.updates:
+            updates.append(self._update_dict_to_string(update_dict))
+        return updates
 
 
 def create_issue(airlock_event: AirlockEvent, github_api=None):
