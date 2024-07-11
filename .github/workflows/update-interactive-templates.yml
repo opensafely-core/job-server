@@ -1,0 +1,47 @@
+---
+name: "Create PR to update job-server"
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
+
+jobs:
+  create_job_server_pr:
+    if: ${{ (github.event.workflow_run.conclusion == 'success') || (github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: opensafely-core/job-server
+
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: "3.12"
+
+      - name: Update requirement to latest
+        run: just update-interactive-templates "$GITHUB_SHA"
+
+      - name: Create a Pull Request if there are any changes
+        id: create_pr
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+        with:
+          token: "${{ secrets.JOB_SERVER_PR_TOKEN }}"
+          branch: bot/update-interactive-templates
+          commit-message: "feat: Update interactive templates to latest version"
+          title: "Update interactive templates to latest version"
+          body: "Update interative-templates to ${{ github.sha }}"
+
+      # untested
+      #- name: Enable automerge
+      #  if: steps.create_pr.outputs.pull-request-operation == 'created'
+      #  env:
+      #    GH_TOKEN: "${{ secrets.JOB_SERVER_PR_TOKEN }} "
+      #  run: gh pr merge --merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
