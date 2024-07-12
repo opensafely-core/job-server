@@ -3,5 +3,7 @@
 {% block content %}
 <p>Dear {{ request_author }},</p>
 <p>Your files for workspace {{ workspace }} have been released.</p>
+{% include "airlock/emails/includes/updates.html" %}
+
 <p>You can now view your <a href="{{ url }}">released files here</a>.</p>
 {% endblock content %}

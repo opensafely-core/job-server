@@ -5,8 +5,6 @@
 Dear {{ request_author }},
 
 Release request {{ release_request_id }} for {{ workspace }} has been updated. The following updates have been made:
-{% for update in updates %}
-    - {{ update }}
-{% endfor %}
+{% include "airlock/emails/includes/updates.txt" %}
 
 {% endblock content %}
