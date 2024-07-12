@@ -1,0 +1,5 @@
+{% if updates %}
+{% for update in updates %}
+    - {{ update }}
+{% endfor %}
+{% endif %}

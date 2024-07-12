@@ -50,37 +50,6 @@ class FakeGithubApiWithError:
         ("request_resubmitted", True, None, False, True),
         ("request_partially_reviewed", True, None, False, True),
         ("request_reviewed", True, None, False, True),
-        # updated; emails are sent if at least one update is not by the author
-        (
-            "request_updated",
-            True,
-            [{"update_type": "file_added", "group": "Group 1", "user": "test_user"}],
-            True,
-            False,
-        ),
-        (
-            "request_updated",
-            False,
-            [
-                {"update_type": "context_edited", "group": "Group 2", "user": "author"},
-            ],
-            False,
-            False,
-        ),
-        (
-            "request_updated",
-            False,
-            [
-                {
-                    "update_type": "comment_added",
-                    "group": "Group 1",
-                    "user": "test_user",
-                },
-                {"update_type": "comment_added", "group": "Group 1", "user": "author"},
-            ],
-            True,
-            False,
-        ),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPI)
@@ -224,11 +193,6 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
         ("request_submitted", None, "Error creating GitHub issue: An error occurred"),
         ("request_rejected", None, "Error closing GitHub issue: An error occurred"),
         (
-            "request_updated",
-            [{"update_type": "file_added", "group": "Group 1", "user": "user"}],
-            "Error creating GitHub issue comment: An error occurred",
-        ),
-        (
             "request_returned",
             None,
             "Error creating GitHub issue comment: An error occurred",
@@ -278,11 +242,21 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
 @pytest.mark.parametrize(
     "event_type,user,updates,descriptions",
     [
-        (EventType.REQUEST_SUBMITTED, "author", [], []),
-        (EventType.REQUEST_WITHDRAWN, "author", [], []),
-        (EventType.REQUEST_APPROVED, "user1", [], []),
-        (EventType.REQUEST_RELEASED, "user1", [], []),
-        (EventType.REQUEST_REJECTED, "user1", [], []),
+        (
+            EventType.REQUEST_SUBMITTED,
+            "author",
+            [],
+            ["request submitted by user author"],
+        ),
+        (
+            EventType.REQUEST_WITHDRAWN,
+            "author",
+            [],
+            ["request withdrawn by user author"],
+        ),
+        (EventType.REQUEST_APPROVED, "user1", [], ["request approved by user user1"]),
+        (EventType.REQUEST_RELEASED, "user1", [], ["request released by user user1"]),
+        (EventType.REQUEST_REJECTED, "user1", [], ["request rejected by user user1"]),
         (EventType.REQUEST_RETURNED, "user1", [], ["request returned by user user1"]),
         (
             EventType.REQUEST_RESUBMITTED,
@@ -298,15 +272,20 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
         ),
         (EventType.REQUEST_REVIEWED, "user2", [], ["request reviewed by user user2"]),
         (
-            EventType.REQUEST_UPDATED,
-            "author",
+            EventType.REQUEST_RETURNED,
+            "user1",
             [
-                {"update_type": "file_added", "group": "Group 1", "user": "author"},
-                {"update_type": "context_edited", "group": "Group 2", "user": "author"},
+                {"update_type": "comment added", "user": "user_a", "group": "group"},
+                {"update": "a thing was updated"},
+                {"update": "another thing updated", "user": "user_b"},
+                {"update": "thing X updated", "user": "user_b", "group": "group"},
             ],
             [
-                "file_added (filegroup Group 1) by user author",
-                "context_edited (filegroup Group 2) by user author",
+                "request returned by user user1",
+                "comment added (filegroup group) by user user_a",
+                "a thing was updated",
+                "another thing updated by user user_b",
+                "thing X updated (filegroup group) by user user_b",
             ],
         ),
     ],
