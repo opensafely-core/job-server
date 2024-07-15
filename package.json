@@ -48,7 +48,7 @@
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^2.1.4",
     "@remotedevforce/tom-select": "^2.2.8",
-    "@sentry/react": "^8.15.0",
+    "@sentry/react": "^8.17.0",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.13",
     "@tanstack/react-query": "^5.50.1",
