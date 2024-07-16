@@ -34,7 +34,7 @@ jobs:
           branch: bot/update-interactive-templates
           author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
-          commit-message: "feat: Update interactive templates to ${{ env.UPDATED_VERSION }}"
+          commit-message: "Bump interactive-templates to ${{ env.UPDATED_VERSION }}"
           title: "Update interactive templates to ${{ env.UPDATED_VERSION }}"
           body: |
             To get tests to run on this PR there's an odd workflow:
