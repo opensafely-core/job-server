@@ -476,6 +476,17 @@ def test_applicationedit_without_core_dev_role(rf):
         ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
 
+def test_applicationlist_context_object_name(rf, core_developer):
+    ApplicationFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ApplicationList.as_view()(request)
+    assert "object_list" in response.context_data
+    assert "application_list" in response.context_data
+
+
 def test_applicationlist_filter_by_status(rf, core_developer):
     ApplicationFactory(status=Application.Statuses.APPROVED_FULLY)
 
