@@ -24,9 +24,7 @@ We will remove Zen Queries and add tests to check the number of database queries
 We will use `django_assert_num_queries` to check the view and rendered template. For example this test will fail if the number of database queries in the view changes from the expected eight or 10 when including the rendered template:
 
 ```python
-def test_jobrequestdetail_count_db_queries(
-    client, rf, django_assert_num_queries
-):
+def test_jobrequestdetail_num_db_queries(rf, django_assert_num_queries):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, updated_at=minutes_ago(timezone.now(), 31))
     request = rf.get("/")
@@ -41,15 +39,13 @@ def test_jobrequestdetail_count_db_queries(
         )
 
     with django_assert_num_queries(10):
-        response = client.get(job_request.get_absolute_url())
-        assert response.status_code == 200
-        assert job_request.identifier in response.rendered_content
+        response.render()
 ```
 
 ## Consequences
 
 We now have one less dependency. We've already using `django_assert_num_queries` as it comes with pytest-django, which we use as standard with our Django projects.
 
-This approach is more transparent. It's easy to see from the above code the number of database queries being made and where they're being made. If something changes, then the developer receives a clear error message, with an option to see the generated queries, and the affected code doesn't make it into production.
-
 This removes extraneous (and somewhat mysterious) code from our views and templates. e.g the decorator `@queries_dangerously_enabled()` and `{% queries_dangerously_enabled %}` codeblocks.
+
+This approach is more transparent. It's easy to see from the above code the number of database queries being made and where they're being made. If something changes, then the developer receives a clear error message, with an option to see the generated queries, and the affected code doesn't make it into production. Using `response.render()` rather than the Django test client reduces the scope of the test to the rendered Template and its context. While we are by necessity including the context processors, we aren't testing the middleware as a side effect, which would be the case with the Django test client.
