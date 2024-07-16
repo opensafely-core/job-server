@@ -35,11 +35,25 @@ def test_applicationapprove_already_approved(rf, core_developer, complete_applic
     assert response.url == complete_application.get_staff_url()
 
 
-def test_applicationapprove_get_success(
-    rf, django_assert_num_queries, core_developer, complete_application
-):
+def test_applicationapprove_get_success(rf, core_developer, complete_application):
     ProjectFactory(number=7)  # check default is set via Form.initial
 
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["application"] == complete_application
+    assert response.context_data["form"]["org"].initial is None
+    assert response.context_data["form"]["project_number"].initial == 8
+
+
+def test_applicationapprove_num_queries(
+    rf, django_assert_num_queries, core_developer, complete_application
+):
     request = rf.get("/")
     request.user = core_developer
 
@@ -47,11 +61,10 @@ def test_applicationapprove_get_success(
         response = ApplicationApprove.as_view()(
             request, pk_hash=complete_application.pk_hash
         )
+        assert response.status_code == 200
 
-    assert response.status_code == 200
-    assert response.context_data["application"] == complete_application
-    assert response.context_data["form"]["org"].initial is None
-    assert response.context_data["form"]["project_number"].initial == 8
+    with django_assert_num_queries(1):
+        response.render()
 
 
 def test_applicationapprove_get_with_org_slug(rf, core_developer, complete_application):
@@ -177,7 +190,7 @@ def test_applicationapprove_without_study_information_page(rf, core_developer):
 
 
 def test_applicationdetail_success_with_complete_application(
-    rf, django_assert_max_num_queries, core_developer, complete_application
+    rf, core_developer, complete_application
 ):
     application = complete_application
     page = application.contactdetailspage
@@ -187,14 +200,29 @@ def test_applicationdetail_success_with_complete_application(
     request = rf.get("/")
     request.user = core_developer
 
-    with django_assert_max_num_queries(19):
-        response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
+    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 200
     assert response.context_data["pages"][0]["title"] == "Contact details"
     assert response.context_data["pages"][0]["started"] is True
     assert "Mickey Mouse" in response.rendered_content
     assert "User has not started this page" not in response.rendered_content
+
+
+def test_applicationdetail_num_queries(
+    rf, django_assert_max_num_queries, core_developer, complete_application
+):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_max_num_queries(19):
+        response = ApplicationDetail.as_view()(
+            request, pk_hash=complete_application.pk_hash
+        )
+        assert response.status_code == 200
+
+    with django_assert_max_num_queries(36):
+        response.render()
 
 
 def test_applicationdetail_success_with_incomplete_application(
@@ -354,16 +382,31 @@ def test_applicationdetail_post_with_incomplete_application(
         application.researcherdetailspage
 
 
-def test_applicationedit_get_success(rf, django_assert_num_queries, core_developer):
+def test_applicationedit_get_success(rf, core_developer):
     application = ApplicationFactory()
 
     request = rf.get("/")
     request.user = core_developer
 
-    with django_assert_num_queries(1):
-        response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
+    response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 200
+
+
+def test_applicationedit_num_queries(
+    rf, django_assert_num_queries, core_developer, complete_application
+):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_num_queries(1):
+        response = ApplicationEdit.as_view()(
+            request, pk_hash=complete_application.pk_hash
+        )
+        assert response.status_code == 200
+
+    with django_assert_num_queries(1):
+        response.render()
 
 
 def test_applicationedit_post_success(rf, django_assert_num_queries, core_developer):
@@ -470,18 +513,29 @@ def test_applicationlist_search(rf, core_developer):
     assert set_from_list(response.context_data["object_list"]) == {app1.pk, app2.pk}
 
 
-def test_applicationlist_success(rf, django_assert_num_queries, core_developer):
+def test_applicationlist_success(rf, core_developer):
     ApplicationFactory.create_batch(5)
 
     request = rf.get("/")
     request.user = core_developer
 
-    with django_assert_num_queries(2):
-        response = ApplicationList.as_view()(request)
+    response = ApplicationList.as_view()(request)
 
     assert response.status_code == 200
-
     assert len(response.context_data["object_list"]) == 5
+
+
+def test_applicationlist_num_queries(rf, django_assert_num_queries, core_developer):
+    ApplicationFactory.create_batch(5)
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_num_queries(2):
+        response = ApplicationList.as_view()(request)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(1):
+        response.render()
 
 
 def test_applicationremove_already_approved(rf, core_developer):

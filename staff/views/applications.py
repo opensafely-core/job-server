@@ -4,10 +4,10 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Max, Q, Value
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
-from zen_queries import TemplateResponse, fetch
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -72,7 +72,7 @@ class ApplicationApprove(FormView):
 
     def get_form_kwargs(self):
         return super().get_form_kwargs() | {
-            "orgs": fetch(Org.objects.order_by("name")),
+            "orgs": Org.objects.order_by("name"),
         }
 
     def get_initial(self):
@@ -120,8 +120,8 @@ class ApplicationDetail(View):
 
         ctx = {
             "application": self.application,
-            "researchers": fetch(
-                self.application.researcher_registrations.order_by("created_at")
+            "researchers": self.application.researcher_registrations.order_by(
+                "created_at"
             ),
             "pages": pages,
         }
@@ -229,7 +229,7 @@ class ApplicationList(ListView):
         if user := self.request.GET.get("user"):
             qs = qs.filter(created_by__username=user)
 
-        return fetch(qs.distinct())
+        return list(qs.distinct())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
