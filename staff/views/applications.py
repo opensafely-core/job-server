@@ -182,6 +182,7 @@ class ApplicationList(ListView):
     ordering = "-created_at"
     paginate_by = 25
     template_name = "staff/application/list.html"
+    context_object_name = "application_list"
 
     def get_context_data(self, **kwargs):
         # sort in Python because `User.name` is a property to pick either
