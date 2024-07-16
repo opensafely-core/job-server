@@ -2,7 +2,7 @@ If you need assistance to determine if your work is research, service evaluation
 
 Other helpful resources:
 
-* the [HRA definitions of research, service evaluation and audit](http://www.hra-decisiontools.org.uk/research/docs/DefiningResearchTable_Oct2017-1.pdf)
+* the [HRA definitions of research, service evaluation and audit](https://www.hra-decisiontools.org.uk/research/docs/DefiningResearchTable_Oct2022.pdf)
 * the [HRA “is it research” decision tool](http://www.hra-decisiontools.org.uk/research/)
 * if  you are still unsure, email the HRA directly on <queries@hra.nhs.uk> (please contact OpenSAFELY to discuss further if necessary)
 
