@@ -15,8 +15,6 @@ from django.views.generic import (
 from django_htmx.http import HttpResponseClientRedirect
 from furl import furl
 from markdown import markdown
-from zen_queries import TemplateResponse as zTemplateResponse
-from zen_queries import fetch
 
 from applications.models import Application
 from interactive.commands import create_repo, create_workspace
@@ -95,7 +93,6 @@ class ProjectAddMember(FormView):
 class ProjectAuditLog(ListView):
     paginate_by = 25
     template_name = "staff/project/audit_log.html"
-    response_class = zTemplateResponse
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, slug=self.kwargs["slug"])
@@ -126,7 +123,7 @@ class ProjectAuditLog(ListView):
         if types := self.request.GET.getlist("types"):
             qs = qs.filter(type__in=types)
 
-        return fetch(qs.distinct())
+        return qs.distinct()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
