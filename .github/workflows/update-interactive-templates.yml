@@ -50,4 +50,4 @@ jobs:
         if: steps.create_pr.outputs.pull-request-operation == 'created'
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }} "
-        run: gh pr merge --merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
+        run: gh pr merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
