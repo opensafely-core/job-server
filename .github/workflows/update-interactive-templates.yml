@@ -1,0 +1,54 @@
+---
+name: "Create PR to update interactive-templates"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "25 13 * * *"
+
+jobs:
+  create_job_server_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: "3.12"
+
+      - name: Update requirement to latest
+        run: |
+          just update-interactive-templates
+          updated_version="$(sed -n 's|^interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/refs/tags/\(v[0-9.].*\).zip$|\1|p' requirements.prod.in)"
+          echo "UPDATED_VERSION=$updated_version" >> "$GITHUB_ENV"
+
+      - name: Create a Pull Request if there are any changes
+        id: create_pr
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+        with:
+          token: "${{ secrets.JOB_SERVER_PR_TOKEN }}"
+          add-paths: requirements.*
+          base: main
+          branch: bot/update-interactive-templates
+          author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
+          committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
+          commit-message: "Bump interactive-templates to ${{ env.UPDATED_VERSION }}"
+          title: "Update interactive templates to ${{ env.UPDATED_VERSION }}"
+          body: |
+            To get tests to run on this PR there's an odd workflow:
+             - Approve it
+             - Close it
+             - Re-open it
+             - Re-enable automerge
+
+            You can read more on why this is needed in the `create-pull-request` [docs][1].
+
+            [1]: https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+
+      - name: Enable automerge
+        if: steps.create_pr.outputs.pull-request-operation == 'created'
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }} "
+        run: gh pr merge --merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
