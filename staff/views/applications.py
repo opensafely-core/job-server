@@ -229,7 +229,7 @@ class ApplicationList(ListView):
         if user := self.request.GET.get("user"):
             qs = qs.filter(created_by__username=user)
 
-        return list(qs.distinct())
+        return qs.distinct()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
