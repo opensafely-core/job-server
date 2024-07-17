@@ -28,7 +28,6 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
-          token: "${{ secrets.JOB_SERVER_PR_TOKEN }}"
           add-paths: requirements.*
           base: main
           branch: bot/update-interactive-templates
@@ -50,5 +49,5 @@ jobs:
       - name: Enable automerge
         if: steps.create_pr.outputs.pull-request-operation == 'created'
         env:
-          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }} "
-        run: gh pr merge --merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        run: gh pr merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
