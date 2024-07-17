@@ -148,6 +148,33 @@ def test_projectauditlog_unauthorized(rf):
         ProjectAuditLog.as_view()(request, slug=project.slug)
 
 
+def test_projectauditlog_num_queries(
+    rf, django_assert_num_queries, core_developer, project_membership
+):
+    project = ProjectFactory()
+    project_membership(
+        project=project,
+        user=UserFactory(),
+        roles=[ProjectCollaborator],
+        by=UserFactory(),
+    )
+    project_members.update_roles(
+        membership=project.memberships.first(),
+        by=UserFactory(),
+        roles=[ProjectCollaborator, ProjectDeveloper],
+    )
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_num_queries(11):
+        response = ProjectAuditLog.as_view()(request, slug=project.slug)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(1):
+        response.render()
+
+
 def test_projectauditlog_unknown_project(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer

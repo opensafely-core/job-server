@@ -10,8 +10,6 @@ from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
 from django.views.generic.detail import SingleObjectMixin
 from social_django.models import UserSocialAuth
-from zen_queries import TemplateResponse as zTemplateResponse
-from zen_queries import fetch
 
 from interactive.commands import create_user
 from interactive.emails import send_welcome_email
@@ -43,7 +41,6 @@ logger = structlog.get_logger(__name__)
 class UserAuditLog(ListView):
     paginate_by = 25
     template_name = "staff/user/audit_log.html"
-    response_class = zTemplateResponse
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, username=self.kwargs["username"])
@@ -84,7 +81,7 @@ class UserAuditLog(ListView):
         if types := self.request.GET.getlist("types"):
             qs = qs.filter(type__in=types)
 
-        return fetch(qs.distinct())
+        return qs.distinct()
 
 
 @method_decorator(require_permission(permissions.user_manage), name="dispatch")
