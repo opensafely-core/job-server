@@ -182,7 +182,6 @@ class ApplicationList(ListView):
     ordering = "-created_at"
     paginate_by = 25
     template_name = "staff/application/list.html"
-    context_object_name = "application_list"
 
     def get_context_data(self, **kwargs):
         # sort in Python because `User.name` is a property to pick either
@@ -230,7 +229,7 @@ class ApplicationList(ListView):
         if user := self.request.GET.get("user"):
             qs = qs.filter(created_by__username=user)
 
-        return list(qs.distinct())
+        return qs.distinct()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

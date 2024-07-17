@@ -484,7 +484,7 @@ def test_applicationlist_filter_by_status(rf, core_developer):
 
     response = ApplicationList.as_view()(request)
 
-    assert len(response.context_data["object_list"]) == 1
+    assert len(response.context_data["application_list"]) == 1
 
 
 def test_applicationlist_filter_by_user(rf, core_developer):
@@ -496,7 +496,7 @@ def test_applicationlist_filter_by_user(rf, core_developer):
 
     response = ApplicationList.as_view()(request)
 
-    assert list(response.context_data["object_list"]) == [application]
+    assert list(response.context_data["application_list"]) == [application]
 
 
 def test_applicationlist_search(rf, core_developer):
@@ -510,7 +510,10 @@ def test_applicationlist_search(rf, core_developer):
     response = ApplicationList.as_view()(request)
 
     assert response.status_code == 200
-    assert set_from_list(response.context_data["object_list"]) == {app1.pk, app2.pk}
+    assert set_from_list(response.context_data["application_list"]) == {
+        app1.pk,
+        app2.pk,
+    }
 
 
 def test_applicationlist_success(rf, core_developer):
@@ -522,7 +525,7 @@ def test_applicationlist_success(rf, core_developer):
     response = ApplicationList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 5
+    assert len(response.context_data["application_list"]) == 5
 
 
 def test_applicationlist_num_queries(rf, django_assert_num_queries, core_developer):
@@ -534,7 +537,7 @@ def test_applicationlist_num_queries(rf, django_assert_num_queries, core_develop
         response = ApplicationList.as_view()(request)
         assert response.status_code == 200
 
-    with django_assert_num_queries(1):
+    with django_assert_num_queries(2):
         response.render()
 
 
