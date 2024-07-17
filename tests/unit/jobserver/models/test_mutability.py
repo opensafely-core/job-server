@@ -90,7 +90,7 @@ def test_mutable_model_methods(Model, method):
     try:
         getattr(Model(), method)()
     except Exception as e:
-        assert type(e) != ImmutableError
+        assert type(e) is not ImmutableError
     else:
         assert True
 
@@ -108,7 +108,7 @@ def test_mutable_queryset_methods(Model, method):
     try:
         getattr(Model.objects.all(), method)()
     except Exception as e:
-        assert type(e) != ImmutableError
+        assert type(e) is not ImmutableError
     else:
         assert True
 
