@@ -9,7 +9,7 @@ def compare(fake, real):
     values.
     """
 
-    assert type(fake) == type(real)
+    assert type(fake) is type(real)
 
     if isinstance(fake, list):
         for x, y in zip(fake, real):
