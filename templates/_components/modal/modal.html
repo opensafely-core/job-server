@@ -2,8 +2,8 @@
   {% if custom_button %}
     {{ custom_button }}
   {% else %}
-    {% #button class="flex-shrink-0" variant=button_variant|default:"primary" data-modal=id %}
-      {{ button_text }}
+    {% #button class=button_class|default:"flex-shrink-0" small=button_small|default:False variant=button_variant|default:"primary" data-modal=id %}
+    {{ button_text }}
     {% /button %}
   {% endif %}
 
