@@ -64,9 +64,10 @@ function setPaginationButtons(currentPage, table) {
   pageButtonState(previousPageBtn, pagination.previousPage, table);
 }
 
-const initCustomTable = async () => {
+const initCustomTable = async (perPage) => {
   /** @type {HTMLTableElement | null} */
   const tableEl = document.querySelector("table#customTable");
+  const paginationPerPage = perPage || 25;
 
   if (tableEl) {
     const { DataTable } = await import("simple-datatables");
@@ -75,7 +76,7 @@ const initCustomTable = async () => {
 
     const dataTable = new DataTable(tableEl, {
       paging: true,
-      perPage: 25,
+      perPage: paginationPerPage,
       searchable: true,
       sortable: true,
       tableRender: (_data, table) => {
