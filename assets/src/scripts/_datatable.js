@@ -75,7 +75,7 @@ const initCustomTable = async () => {
 
     const dataTable = new DataTable(tableEl, {
       paging: true,
-      perPage: tableEl.dataset.perpage ? tableEl.dataset.perpage : 25,
+      perPage: 25,
       searchable: true,
       sortable: true,
       tableRender: (_data, table) => {
