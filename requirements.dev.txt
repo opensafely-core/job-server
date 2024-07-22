@@ -4,6 +4,12 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements.dev.txt --strip-extras requirements.dev.in
 #
+asgiref==3.7.2 \
+    --hash=sha256:89b2ef2247e3b562a16eef663bc0e2e703ec6468e2fa8a5cd61cd449786d4f6e \
+    --hash=sha256:9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed
+    # via
+    #   -c requirements.prod.txt
+    #   django
 attrs==23.2.0 \
     --hash=sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30 \
     --hash=sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1
@@ -212,6 +218,16 @@ distlib==0.3.8 \
     --hash=sha256:034db59a0b96f8ca18035f36290806a9a6e6bd9d1ff91e45a7f172eb17e51784 \
     --hash=sha256:1530ea13e350031b6312d8580ddb6b27a104275a31106523b8f123787f494f64
     # via virtualenv
+django==5.0.7 \
+    --hash=sha256:bd4505cae0b9bd642313e8fb71810893df5dc2ffcacaa67a33af2d5cd61888f2 \
+    --hash=sha256:f216510ace3de5de01329463a315a629f33480e893a9024fc93d8c32c22913da
+    # via
+    #   -c requirements.prod.txt
+    #   django-debug-toolbar
+django-debug-toolbar==4.4.6 \
+    --hash=sha256:36e421cb908c2f0675e07f9f41e3d1d8618dc386392ec82d23bcfcd5d29c7044 \
+    --hash=sha256:3beb671c9ec44ffb817fad2780667f172bd1c067dbcabad6268ce39a81335f45
+    # via -r requirements.dev.in
 django-upgrade==1.20.0 \
     --hash=sha256:47aa2133972b600a8d935bab8d58d69b2e426bfc985d4c4f4c2fefecd754dd88 \
     --hash=sha256:938afa1a531399a12904eb71ffacad0c997ddbe0c45ec38bc0883a1cdcfd99ef
@@ -441,6 +457,13 @@ six==1.16.0 \
     # via
     #   -c requirements.prod.txt
     #   python-dateutil
+sqlparse==0.5.0 \
+    --hash=sha256:714d0a4932c059d16189f58ef5411ec2287a4360f17cdd0edd2d09d4c5087c93 \
+    --hash=sha256:c204494cd97479d0e39f28c93d46c0b2d5959c7b9ab904762ea6c7af211c8663
+    # via
+    #   -c requirements.prod.txt
+    #   django
+    #   django-debug-toolbar
 stamina==24.2.0 \
     --hash=sha256:4dbd8076d2cb4e228046833e4507af3406cc31b9b6046e8a6729ffde934b2526 \
     --hash=sha256:8db72126f2342e428b153cbcf837f8a90f89b783aa55e19d4a17193116ee35ee

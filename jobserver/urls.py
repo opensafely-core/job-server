@@ -1,4 +1,3 @@
-import debug_toolbar
 import social_django.views as social_django_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -294,6 +293,11 @@ user_urls = [
     path("<str:username>/logs/", UserEventLog.as_view(), name="user-event-log"),
 ]
 
+if settings.DEBUG_TOOLBAR:  # pragma: no cover
+    debug_toolbar_urls = [path("__debug__/", include("debug_toolbar.urls"))]
+else:
+    debug_toolbar_urls = []
+
 urlpatterns = [
     path("", Index.as_view(), name="home"),
     path(
@@ -337,7 +341,7 @@ urlpatterns = [
     path("ui-components/", components),
     path("users/", include(user_urls)),
     path("workspaces/", yours.WorkspaceList.as_view(), name="your-workspaces"),
-    path("__debug__/", include(debug_toolbar.urls)),
+    *debug_toolbar_urls,
     path("<str:project_slug>/", include(project_urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

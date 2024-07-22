@@ -45,6 +45,8 @@ if OLD_SECRET_KEY is not None:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
+DEBUG_TOOLBAR = env.bool("DJANGO_DEBUG_TOOLBAR", default=False)
+
 BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
 
 ALLOWED_HOSTS = ["*"]
@@ -59,7 +61,6 @@ INSTALLED_APPS = [
     "redirects",
     "staff",
     "anymail",
-    "debug_toolbar",
     "django_extensions",
     "django_htmx",
     "django_vite",
@@ -80,7 +81,6 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django_permissions_policy.PermissionsPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -95,6 +95,10 @@ MIDDLEWARE = [
     "jobserver.middleware.ClientAddressIdentification",
     "jobserver.middleware.TemplateNameMiddleware",
 ]
+
+if DEBUG_TOOLBAR:
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "jobserver.urls"
 
