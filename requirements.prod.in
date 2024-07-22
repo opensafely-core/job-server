@@ -3,7 +3,6 @@ attrs
 bs4
 django
 django-anymail[mailgun]
-django-browser-reload
 django-csp
 django-debug-toolbar
 django-extensions

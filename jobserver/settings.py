@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     "staff",
     "anymail",
     "debug_toolbar",
-    "django_browser_reload",
     "django_extensions",
     "django_htmx",
     "django_vite",
@@ -78,7 +77,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "redirects.middleware.RedirectsMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django_permissions_policy.PermissionsPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",

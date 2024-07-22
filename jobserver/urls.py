@@ -338,7 +338,6 @@ urlpatterns = [
     path("users/", include(user_urls)),
     path("workspaces/", yours.WorkspaceList.as_view(), name="your-workspaces"),
     path("__debug__/", include(debug_toolbar.urls)),
-    path("__reload__/", include("django_browser_reload.urls")),
     path("<str:project_slug>/", include(project_urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
