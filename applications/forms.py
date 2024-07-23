@@ -12,6 +12,7 @@ class PageFormBase(forms.ModelForm):
         # which uses choices.
         radio_fields = [
             "all_applicants_completed_getting_started",
+            "read_analytic_methods_policy",
             "need_record_level_data",
             "is_approved",
         ]

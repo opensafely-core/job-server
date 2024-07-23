@@ -75,6 +75,7 @@ class StudyInformationPageFactory(AbstractPageFactory):
 
     study_name = factory.Sequence(lambda n: f"study {n}")
     study_purpose = factory.Sequence(lambda n: f"purpose {n}")
+    read_analytic_methods_policy = factory.fuzzy.FuzzyChoice([True, False])
 
 
 class StudyPurposePageFactory(AbstractPageFactory):

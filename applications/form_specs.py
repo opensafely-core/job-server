@@ -113,6 +113,11 @@ form_specs = [
                         help_text=snippet("study_purpose-help_text"),
                         template_name="form_textarea",
                     ),
+                    Field(
+                        name="read_analytic_methods_policy",
+                        label="Have all applicants for OpenSAFELY read and agreed to the OpenSAFELY Analytic Methods Policy?",
+                        help_text=snippet("read_analytic_methods_policy-help_text"),
+                    ),
                 ],
             ),
         ],
