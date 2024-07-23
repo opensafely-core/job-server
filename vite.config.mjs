@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import react from "@vitejs/plugin-react-swc";
+import liveReload from "vite-plugin-live-reload";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 /**
@@ -33,6 +34,7 @@ const config = {
   },
   clearScreen: false,
   plugins: [
+    liveReload("templates/**/*.html"),
     react(),
     viteStaticCopy({
       targets: [
