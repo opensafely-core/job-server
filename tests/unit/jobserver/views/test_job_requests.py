@@ -1131,7 +1131,7 @@ def test_jobrequestdetail_num_queries(rf, django_assert_num_queries):
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(9):
+    with django_assert_num_queries(8):
         response = JobRequestDetail.as_view()(
             request,
             project_slug=job_request.workspace.project.slug,
@@ -1140,7 +1140,7 @@ def test_jobrequestdetail_num_queries(rf, django_assert_num_queries):
         )
         assert response.status_code == 200
 
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response.render()
 
 
@@ -1161,7 +1161,7 @@ def test_jobrequestdetail_with_permission_num_queries(
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(10):
+    with django_assert_num_queries(9):
         response = JobRequestDetail.as_view()(
             request,
             project_slug=job_request.workspace.project.slug,
@@ -1170,7 +1170,7 @@ def test_jobrequestdetail_with_permission_num_queries(
         )
         assert response.status_code == 200
 
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response.render()
 
 
