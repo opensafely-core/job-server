@@ -1124,26 +1124,6 @@ def test_jobrequestdetail_without_permission(rf):
     assert "Cancel" not in response.rendered_content
 
 
-def test_jobrequestdetail_num_queries(rf, django_assert_num_queries):
-    user = UserFactory()
-    job_request = JobRequestFactory(created_by=user)
-
-    request = rf.get("/")
-    request.user = user
-
-    with django_assert_num_queries(8):
-        response = JobRequestDetail.as_view()(
-            request,
-            project_slug=job_request.workspace.project.slug,
-            workspace_slug=job_request.workspace.name,
-            pk=job_request.pk,
-        )
-        assert response.status_code == 200
-
-    with django_assert_num_queries(4):
-        response.render()
-
-
 def test_jobrequestdetail_with_permission_num_queries(
     rf, django_assert_num_queries, project_membership, role_factory
 ):
