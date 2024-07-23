@@ -1,12 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
 import liveReload from "vite-plugin-live-reload";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
-/**
- * @type {import('vite').UserConfig}
- */
-const config = {
+export default defineConfig(({ mode }) => ({
   base: "/static/",
   build: {
     manifest: true,
@@ -34,7 +32,7 @@ const config = {
   },
   clearScreen: false,
   plugins: [
-    liveReload("templates/**/*.html"),
+    mode !== "test" ? liveReload("templates/**/*.html") : undefined,
     react(),
     viteStaticCopy({
       targets: [
@@ -46,6 +44,7 @@ const config = {
     }),
   ],
   test: {
+    env: "test",
     globals: true,
     environment: "jsdom",
     root: "./assets/src/scripts/outputs-viewer/",
@@ -58,6 +57,4 @@ const config = {
       statements: -10,
     },
   },
-};
-
-export default config;
+}));
