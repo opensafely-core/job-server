@@ -91,6 +91,18 @@ def test_login_get_unsafe_path(rf):
     assert response.context_data["next_url"] == ""
 
 
+def test_login_get_num_queries(rf, django_assert_num_queries):
+    request = rf.get("/?next=/")
+    request.user = AnonymousUser()
+
+    with django_assert_num_queries(0):
+        response = Login.as_view()(request)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(0):
+        response.render()
+
+
 def test_login_from_backend(rf):
     request = rf.get("/login")
     request.user = AnonymousUser()
@@ -180,6 +192,20 @@ def test_login_post_unknown_user(rf_messages):
     assert len(messages) == 1
     msg = "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
+
+
+def test_login_post_num_queries(rf_messages, django_assert_num_queries):
+    social = UserSocialAuthFactory()
+
+    request = rf_messages.post("/", {"email": social.user.email})
+    request.user = AnonymousUser()
+
+    with django_assert_num_queries(2):
+        response = Login.as_view()(request)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(0):
+        response.render()
 
 
 def test_loginwithurl_bad_token(rf_messages):
