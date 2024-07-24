@@ -4,7 +4,6 @@ bs4
 django
 django-anymail[mailgun]
 django-csp
-django-debug-toolbar
 django-extensions
 django-htmx
 django-permissions-policy

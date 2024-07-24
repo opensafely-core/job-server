@@ -175,7 +175,7 @@ load-dev-data: devenv
 # Run the dev project
 run bind="localhost:8000": devenv
     $BIN/python manage.py migrate
-    $BIN/python manage.py runserver {{ bind }}
+    DJANGO_DEBUG_TOOLBAR=1 $BIN/python manage.py runserver {{ bind }}
 
 
 run-prod: prodenv

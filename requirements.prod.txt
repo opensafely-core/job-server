@@ -364,7 +364,6 @@ django==5.0.7 \
     #   dj-database-url
     #   django-anymail
     #   django-csp
-    #   django-debug-toolbar
     #   django-extensions
     #   django-htmx
     #   django-permissions-policy
@@ -385,10 +384,6 @@ django-cache-url==3.4.5 \
 django-csp==3.8 \
     --hash=sha256:19b2978b03fcd73517d7d67acbc04fbbcaec0facc3e83baa502965892d1e0719 \
     --hash=sha256:ef0f1a9f7d8da68ae6e169c02e9ac661c0ecf04db70e0d1d85640512a68471c0
-    # via -r requirements.prod.in
-django-debug-toolbar==4.4.6 \
-    --hash=sha256:36e421cb908c2f0675e07f9f41e3d1d8618dc386392ec82d23bcfcd5d29c7044 \
-    --hash=sha256:3beb671c9ec44ffb817fad2780667f172bd1c067dbcabad6268ce39a81335f45
     # via -r requirements.prod.in
 django-extensions==3.2.3 \
     --hash=sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a \
@@ -906,9 +901,7 @@ soupsieve==2.5 \
 sqlparse==0.5.0 \
     --hash=sha256:714d0a4932c059d16189f58ef5411ec2287a4360f17cdd0edd2d09d4c5087c93 \
     --hash=sha256:c204494cd97479d0e39f28c93d46c0b2d5959c7b9ab904762ea6c7af211c8663
-    # via
-    #   django
-    #   django-debug-toolbar
+    # via django
 structlog==24.4.0 \
     --hash=sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610 \
     --hash=sha256:b27bfecede327a6d2da5fbc96bd859f114ecc398a6389d664f62085ee7ae6fc4
