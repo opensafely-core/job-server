@@ -95,7 +95,13 @@ class GitHubAPI:
         if self.token and "Authorization" not in headers:
             headers = headers | {"Authorization": f"bearer {self.token}"}
 
-        return self.session.request(method, *args, headers=headers, **kwargs)
+        response = self.session.request(method, *args, headers=headers, **kwargs)
+        response_json = response.json()
+        logger.info(
+            f'rate limit limit: {response_json["x-ratelimit-limit"]}\nrate limit remaining: {response_json["x-ratelimit-remaining"]}\nrate limit used: {response_json["x-ratelimit-remaining"]}\nrate limit resource: {response_json["x-ratelimit-resource"]}'
+        )
+
+        return response
 
     def _get_query_page(self, *, query, session, cursor, **kwargs):
         """
