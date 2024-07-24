@@ -1,8 +1,10 @@
 from django.db import transaction
 from django_extensions.management.jobs import DailyJob
+from sentry_sdk.crons.decorator import monitor
 
 from jobserver.github import _get_github_api
 from jobserver.models import Repo
+from services.sentry import monitor_config
 
 
 def topics(data):
@@ -15,6 +17,10 @@ def topics(data):
 class Job(DailyJob):
     help = "Dump the database to storage for copying to local dev environments"  # noqa: A003
 
+    @monitor(
+        monitor_slug="update_repo_has_github_outputs",
+        monitor_config=monitor_config("daily"),
+    )
     def execute(self):
         query = """
         query reposWithTopics($cursor: String, $org_name: String!) {
