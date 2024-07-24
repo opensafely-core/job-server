@@ -218,6 +218,9 @@ class CommercialInvolvementPage(AbstractPage):
 class StudyInformationPage(AbstractPage):
     study_name = models.TextField(blank=True)
     study_purpose = models.TextField(blank=True)
+    read_analytic_methods_policy = models.BooleanField(
+        null=True, choices=YES_NO_CHOICES
+    )
 
 
 class StudyPurposePage(AbstractPage):

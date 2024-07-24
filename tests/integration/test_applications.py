@@ -82,6 +82,7 @@ def test_successful_application(client, mailoutbox, slack_messages):
     data = {
         "study_name": "Title for this study",
         "study_purpose": "Long form technical message about what this study is about",
+        "read_analytic_methods_policy": "True",
     }
     response = client.post(url("study-information"), data, follow=True)
     assert response.status_code == 200
