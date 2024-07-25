@@ -48,6 +48,10 @@ def test_parse_without_envvar(event):
 
     data1 = event("sentry_event.json")
     data2 = event("sentry_event2.json")
+    data3 = event("sentry_event_cron_in_progress.json")
+    data4 = event("sentry_event_cron_error.json")
 
     assert parse(data1) == data1
     assert parse(data2) == data2
+    assert parse(data3) == data3
+    assert parse(data4) == data4

@@ -1,0 +1,20 @@
+{
+    "type": "check_in",
+    "monitor_slug": "test",
+    "check_in_id": "d5f18c7d46bc42068d109f81ed149ee6",
+    "status": "in_progress",
+    "duration": null,
+    "environment": "localhost",
+    "release": "7be872829421abebd71efd523162dbd65585eadf",
+    "monitor_config": {
+        "schedule": {
+            "type": "crontab",
+            "value": "@daily"
+        },
+        "timezone": "Etc/UTC",
+        "checkin_margin": 30,
+        "max_runtime": 10,
+        "failure_issue_threshold": 1,
+        "recovery_threshold": 1
+    }
+}

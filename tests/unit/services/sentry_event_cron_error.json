@@ -1,0 +1,58 @@
+{
+    "type": "check_in",
+    "monitor_slug": "test",
+    "check_in_id": "b0d6ba4d6c434e3cbb13180c010aae4d",
+    "status": "error",
+    "duration": 9.877637122001033,
+    "environment": "localhost",
+    "release": "7be872829421abebd71efd523162dbd65585eadf",
+    "monitor_config": {
+        "schedule": {
+            "type": "crontab",
+            "value": "@daily"
+        },
+        "timezone": "Etc/UTC",
+        "checkin_margin": 30,
+        "max_runtime": 10,
+        "failure_issue_threshold": 1,
+        "recovery_threshold": 1
+    },
+    "event_id": "2d6a2c3cb1c243eb827cac3277196df6",
+    "timestamp": "2024-07-25T14:05:16.788099Z",
+    "contexts": {
+        "trace": {
+            "trace_id": "89a57a1acce2426fb1cda60ef6962587",
+            "span_id": "9afd1a11ffcd62cd",
+            "parent_span_id": null,
+            "dynamic_sampling_context": {
+                "trace_id": "89a57a1acce2426fb1cda60ef6962587",
+                "environment": "localhost",
+                "release": "7be872829421abebd71efd523162dbd65585eadf",
+                "public_key": "f11c01639e084ed3aead0bae7981ebd2"
+            }
+        }
+    },
+    "server_name": "test",
+    "sdk": {
+        "name": "sentry.python.django",
+        "version": "2.10.0",
+        "packages": [
+            {
+                "name": "pypi:sentry-sdk",
+                "version": "2.10.0"
+            }
+        ],
+        "integrations": [
+            "argv",
+            "atexit",
+            "dedupe",
+            "django",
+            "excepthook",
+            "logging",
+            "modules",
+            "stdlib",
+            "threading"
+        ]
+    },
+    "platform": "python"
+}
