@@ -3,7 +3,7 @@ import pathlib
 
 import pytest
 
-from services.sentry import parse
+from services.sentry import monitor_config, parse
 
 
 @pytest.fixture
@@ -14,6 +14,12 @@ def event():
         return json.load(path.open("r"))
 
     return loader
+
+
+def test_monitor_config():
+    schedule = "daily"
+    config = monitor_config(schedule)
+    assert config["schedule"]["value"] == f"@{schedule}"
 
 
 def test_parse_with_envvar(monkeypatch, event):
