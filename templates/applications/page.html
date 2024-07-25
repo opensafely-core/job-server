@@ -62,6 +62,13 @@
       {% csrf_token %}
 
       {% for fieldset in fieldsets %}
+        {% if application.status == "ongoing" and fieldset.fields.0.name == "is_member_of_bennett_or_lshtm" %}
+          {% comment %}
+            We wish to remove the `is_member_of_bennett_or_lshtm` field from the form for
+            ongoing applications, but not for other applications. For more information,
+            see: https://github.com/opensafely-core/job-server/issues/4486
+          {% endcomment %}
+        {% else %}
         <fieldset class="flex flex-col gap-6 mb-3">
           {% if fieldset.label %}
             <legend class="text-xl font-semibold leading-tight float-left -mb-3">
@@ -104,6 +111,7 @@
             {% endif %}
           {% endfor %}
         </fieldset>
+        {% endif %}
       {% endfor %}
 
       {% if footer %}
