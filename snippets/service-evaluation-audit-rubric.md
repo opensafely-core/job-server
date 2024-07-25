@@ -1,9 +1,6 @@
 We will need the following information:
 
-1. evidence that your study is a service evaluation or audit (e.g. from your [NHS R&D office](https://rdforum.nhs.uk/rd-contacts-directory/); from your institutional ethics committee agreeing it is a service evaluation/audit; by using the [HRA “is it research” decision tool](http://www.hra-decisiontools.org.uk/research/); or if you are still unsure, please contact the HRA for advice);
-
-2. evidence of a favourable opinion from your institutional ethics review process/committee (not required by NHSE applicants);
-
-3. evidence of support from a senior sponsor, usually an NHSE individual, such as a national clinical lead, band 9, director, or the sponsor might be a member of SAGE, JCVI, etc.
-
-Note: for the existing approved Bennett Institute/LSHTM Service Restoration Observatory and Aftershocks workstream, sponsorship is not required, but may be requested on a case-by-case basis by the OpenSAFELY team.
+1. Universities and hospital trusts, and other national organisations (e.g. NICE, ONS, etc.), and many healthcare related organisations and charities, will typically have access to a local institutional ethics committee. Please provide evidence that the committee has assessed your project as being a service evaluation, audit or health surveillance.
+2. If you do not have access to a local institutional ethics committee, you can obtain supportive evidence from your [NHS R&D office](https://rdforum.nhs.uk/rd-contacts-directory/), or by using the [HRA “is it research” decision tool](http://www.hra-decisiontools.org.uk/research/) (please save the outcome of the tool and send it to us); or if you are still unsure, please [contact the HRA for advice](https://www.hra.nhs.uk/about-us/contact-us/)).
+3. When using the HRA decision tool, please note the information supplied on their [Defining Research](https://www.hra-decisiontools.org.uk/research/docs/DefiningResearchTable_Oct2022.pdf) table on page 3: “for the purpose of this policy framework, research is defined as the attempt to derive generalisable or transferable new knowledge to answer or refine relevant questions with scientifically sound methods. **This excludes audits of practice and service evaluations**".
+4. Evidence of support from a senior sponsor, usually an NHSE individual, such as a national clinical lead, band 9, director, or the sponsor might be a member of SAGE, JCVI, etc.
