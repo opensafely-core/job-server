@@ -57,7 +57,7 @@ def parse(data):
     if data is None:
         return
 
-    if isinstance(data, bool | int):
+    if isinstance(data, bool | int | float):
         return data
 
     if isinstance(data, dict):
