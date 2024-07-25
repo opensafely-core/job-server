@@ -981,9 +981,7 @@ def test_jobrequestdetail_with_invalid_job_request(rf, django_assert_num_queries
     assert response.context_data["is_invalid"]
 
 
-def test_jobrequestdetail_with_permission(
-    rf, django_assert_num_queries, project_membership, role_factory
-):
+def test_jobrequestdetail_with_permission(rf, project_membership, role_factory):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, updated_at=minutes_ago(timezone.now(), 31))
 
@@ -998,13 +996,12 @@ def test_jobrequestdetail_with_permission(
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(10):
-        response = JobRequestDetail.as_view()(
-            request,
-            project_slug=job_request.workspace.project.slug,
-            workspace_slug=job_request.workspace.name,
-            pk=job_request.pk,
-        )
+    response = JobRequestDetail.as_view()(
+        request,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
     assert not response.context_data["is_invalid"]
@@ -1125,6 +1122,36 @@ def test_jobrequestdetail_without_permission(rf):
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
+
+
+def test_jobrequestdetail_with_permission_num_queries(
+    rf, django_assert_num_queries, project_membership, role_factory
+):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, updated_at=minutes_ago(timezone.now(), 31))
+
+    user = UserFactory()
+
+    project_membership(
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permission=permissions.job_cancel)],
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with django_assert_num_queries(9):
+        response = JobRequestDetail.as_view()(
+            request,
+            project_slug=job_request.workspace.project.slug,
+            workspace_slug=job_request.workspace.name,
+            pk=job_request.pk,
+        )
+        assert response.status_code == 200
+
+    with django_assert_num_queries(4):
+        response.render()
 
 
 def test_jobrequestdetailredirect_success(rf):

@@ -7,11 +7,11 @@ from django.db import transaction
 from django.db.models import Max, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from pipeline import load_pipeline
-from zen_queries import TemplateResponse, fetch
 
 from .. import honeycomb
 from ..authorization import CoreDeveloper, has_permission, has_role, permissions
@@ -210,7 +210,7 @@ class JobRequestDetail(View):
         except (JobRequest.DoesNotExist, MultipleObjectsReturned):
             raise Http404
 
-        jobs = fetch(job_request.jobs.order_by("started_at"))
+        jobs = job_request.jobs.order_by("started_at")
 
         # we encode errors raised by job-runner when processing a JobRequest by
         # misusing a Job, since that's our only method of returning messages
