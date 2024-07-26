@@ -62,48 +62,56 @@
       {% csrf_token %}
 
       {% for fieldset in fieldsets %}
-        <fieldset class="flex flex-col gap-6 mb-3">
-          {% if fieldset.label %}
-            <legend class="text-xl font-semibold leading-tight float-left -mb-3">
-              {{ fieldset.label }}
-            </legend>
-          {% endif %}
-
-          {% for field in fieldset.fields %}
-            {% if field.template_name == "form_input" %}
-              {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_below=True hint_text=field.field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
-            {% elif field.template_name == "form_textarea" %}
-              {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_below=True hint_text=field.field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
-            {% elif field.template_name == "form_radio" %}
-              {% #form_fieldset %}
-                {% form_legend text=field.label %}
-
-                {% for value, label in field.field.field.choices %}
-                  {% var countStr=forloop.counter0|stringformat:"s" %}
-                  {% var valueStr=value|stringformat:"s"|lower %}
-                  {% var id="id"|add:valueStr|add:countStr %}
-
-                  {% if value == field.field.value %}
-                  {% var checked=True %}
-                  {% else %}
-                  {% var checked=False %}
-                  {% endif %}
-                  {% form_radio id=id label=label name=field.name value=value errors=field.errors checked=checked %}
-                {% endfor %}
-
-                {% if field.field.help_text %}
-                  <div class="mt-2 prose prose-sm prose-oxford">
-                    {{ field.field.help_text }}
-                  </div>
-                {% endif %}
-              {% /form_fieldset %}
-            {% elif field.template_name == "form_checkbox" %}
-              <div class="flex flex-col -mb-3">
-                {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_below=True hint_text=field.field.help_text checked=field.field.value %}
-              </div>
+        {% if application.status == "ongoing" and fieldset.fields.0.name == "is_member_of_bennett_or_lshtm" %}
+          {% comment %}
+            We wish to remove the `is_member_of_bennett_or_lshtm` field from the form for
+            ongoing applications, but not for other applications. For more information,
+            see: https://github.com/opensafely-core/job-server/issues/4486
+          {% endcomment %}
+        {% else %}
+          <fieldset class="flex flex-col gap-6 mb-3">
+            {% if fieldset.label %}
+              <legend class="text-xl font-semibold leading-tight float-left -mb-3">
+                {{ fieldset.label }}
+              </legend>
             {% endif %}
-          {% endfor %}
-        </fieldset>
+
+            {% for field in fieldset.fields %}
+              {% if field.template_name == "form_input" %}
+                {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_below=True hint_text=field.field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
+              {% elif field.template_name == "form_textarea" %}
+                {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_below=True hint_text=field.field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
+              {% elif field.template_name == "form_radio" %}
+                {% #form_fieldset %}
+                  {% form_legend text=field.label %}
+
+                  {% for value, label in field.field.field.choices %}
+                    {% var countStr=forloop.counter0|stringformat:"s" %}
+                    {% var valueStr=value|stringformat:"s"|lower %}
+                    {% var id="id"|add:valueStr|add:countStr %}
+
+                    {% if value == field.field.value %}
+                    {% var checked=True %}
+                    {% else %}
+                    {% var checked=False %}
+                    {% endif %}
+                    {% form_radio id=id label=label name=field.name value=value errors=field.errors checked=checked %}
+                  {% endfor %}
+
+                  {% if field.field.help_text %}
+                    <div class="mt-2 prose prose-sm prose-oxford">
+                      {{ field.field.help_text }}
+                    </div>
+                  {% endif %}
+                {% /form_fieldset %}
+              {% elif field.template_name == "form_checkbox" %}
+                <div class="flex flex-col -mb-3">
+                  {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_below=True hint_text=field.field.help_text checked=field.field.value %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </fieldset>
+        {% endif %}
       {% endfor %}
 
       {% if footer %}
