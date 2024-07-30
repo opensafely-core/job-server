@@ -11,7 +11,6 @@ from interactive_templates import git
 from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import CoreDeveloper, InteractiveReporter, permissions
-from jobserver.first import first
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
 
@@ -246,7 +245,7 @@ def test_interactive_publishing_report_success(
         string=re.compile(".*Created by.*")
     )
     spans = [s.parent for s in strings]
-    span = first(spans, key=lambda span: "on" in span.text)
+    span = next((sp for sp in spans if "on" in sp.text), None)
 
     created_by_url = span.a["href"]
     assert created_by_url == user.get_staff_url()

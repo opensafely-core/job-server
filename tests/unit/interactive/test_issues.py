@@ -1,5 +1,4 @@
 from interactive.issues import create_output_checking_request
-from jobserver.first import first
 
 from ...factories import AnalysisRequestFactory, JobRequestFactory
 
@@ -10,7 +9,7 @@ def test_create_output_checking_request(github_api):
 
     create_output_checking_request(job_request, github_api)
 
-    lines = first(github_api.issues).body.split("\n")
+    lines = next((i for i in github_api.issues if i), None).body.split("\n")
 
     assert lines[0] == "### GitHub repo"
     assert lines[1] == job_request.workspace.repo.url

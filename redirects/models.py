@@ -6,8 +6,6 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.first import first
-
 
 def default_expires_at():
     return timezone.now() + timedelta(days=365)
@@ -133,7 +131,8 @@ class Redirect(models.Model):
     @property
     def obj(self):
         """Work out which object we're pointing to"""
-        return first([getattr(self, f.name, None) for f in self.targets()])
+        field_names = [getattr(self, f.name, None) for f in self.targets()]
+        return next((f for f in field_names if f), None)
 
     @classmethod
     def targets(cls):

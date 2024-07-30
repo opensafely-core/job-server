@@ -1,6 +1,5 @@
 from django.conf import settings
 
-from jobserver.first import first
 from jobserver.issues import (
     _size_formatter,
     create_copilot_publish_report_request,
@@ -40,7 +39,7 @@ def test_create_copilot_publish_report_request(github_api):
 
     create_copilot_publish_report_request(report, github_api)
 
-    issue = first(github_api.issues)
+    issue = next((i for i in github_api.issues if i), None)
 
     assert issue.labels == ["publication-copiloted"]
     assert issue.org == "ebmdatalab"
@@ -62,7 +61,7 @@ def test_create_github_issue_external_success(build_release_with_files, github_a
 
     create_output_checking_request(release, github_api=github_api)
 
-    issue = first(github_api.issues)
+    issue = next((i for i in github_api.issues if i), None)
 
     assert issue.title == release.workspace.name
 
@@ -98,7 +97,7 @@ def test_create_github_issue_internal_success(build_release_with_files, github_a
 
     create_output_checking_request(release, github_api=github_api)
 
-    issue = first(github_api.issues)
+    issue = next((i for i in github_api.issues if i), None)
 
     assert issue.title == release.workspace.name
 

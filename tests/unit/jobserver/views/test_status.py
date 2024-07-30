@@ -5,7 +5,6 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from django.utils import timezone
 
-from jobserver.first import first
 from jobserver.utils import set_from_list
 from jobserver.views.status import DBAvailability, PerBackendStatus, Status
 
@@ -90,7 +89,7 @@ def test_status_healthy(rf):
     request = rf.get("/")
     response = Status.as_view()(request)
 
-    output = first(response.context_data["backends"])
+    output = next((d for d in response.context_data["backends"] if d), None)
 
     assert output["last_seen"] == last_seen
     assert output["queue"]["acked"] == 3
@@ -104,7 +103,7 @@ def test_status_no_last_seen(rf):
     request = rf.get("/")
     response = Status.as_view()(request)
 
-    output = first(response.context_data["backends"])
+    output = next((d for d in response.context_data["backends"] if d), None)
     assert output["last_seen"] is None
     assert not output["show_warning"]
 
@@ -118,7 +117,7 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
     request = rf.get("/")
     response = Status.as_view()(request)
 
-    output = first(response.context_data["backends"])
+    output = next((d for d in response.context_data["backends"] if d), None)
 
     assert output["last_seen"] == last_seen
     assert not output["show_warning"]
@@ -139,7 +138,7 @@ def test_status_unhealthy(rf):
     request = rf.get("/")
     response = Status.as_view()(request)
 
-    output = first(response.context_data["backends"])
+    output = next((d for d in response.context_data["backends"] if d), None)
     assert output["last_seen"] == last_seen
     assert output["queue"]["acked"] == 2
     assert output["queue"]["unacked"] == 1
@@ -157,7 +156,7 @@ def test_status_counts_all_running_jobs(rf):
     request = rf.get("/")
     response = Status.as_view()(request)
 
-    output = first(response.context_data["backends"])
+    output = next((d for d in response.context_data["backends"] if d), None)
     assert output["queue"]["running"] == 3
 
 
@@ -172,7 +171,7 @@ def test_status_counts_all_pending_jobs(rf):
     request = rf.get("/")
     response = Status.as_view()(request)
 
-    output = first(response.context_data["backends"])
+    output = next((d for d in response.context_data["backends"] if d), None)
     assert output["queue"]["pending"] == 3
 
 
