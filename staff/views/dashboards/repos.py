@@ -9,10 +9,10 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
-from first import first
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
+from jobserver.first import first
 from jobserver.github import _get_github_api
 from jobserver.models import Project, Repo, Workspace
 

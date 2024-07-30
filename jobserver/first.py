@@ -30,13 +30,13 @@ first is the function you always missed in Python.
 
 In the simplest case, it returns the first true element from an iterable:
 
->>> from first import first
+>>> from jobserver.first import first
 >>> first([0, False, None, [], (), 42])
 42
 
 Or None if there is none:
 
->>> from first import first
+>>> from jobserver.first import first
 >>> first([]) is None
 True
 >>> first([0, False, None, [], ()]) is None
@@ -45,7 +45,7 @@ True
 It also supports the passing of a key argument to help selecting the first
 match in a more advanced way.
 
->>> from first import first
+>>> from jobserver.first import first
 >>> first([1, 1, 3, 4, 5], key=lambda x: x % 2 == 0)
 4
 

@@ -1,11 +1,11 @@
 from django.conf import settings
-from first import first
 
 from airlock.issues import (
     close_output_checking_issue,
     create_output_checking_issue,
     update_output_checking_issue,
 )
+from jobserver.first import first
 from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,

@@ -5,8 +5,8 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
 from django.urls import reverse
 from django.utils import timezone
-from first import first
 
+from jobserver.first import first
 from redirects.models import Redirect, validate_not_empty
 
 from ... import factories

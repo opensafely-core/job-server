@@ -12,10 +12,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.views.generic import CreateView, FormView, ListView, View
-from first import first
 from furl import furl
 
 from interactive.models import AnalysisRequest
+from jobserver.first import first
 
 from ..authorization import CoreDeveloper, has_permission, has_role, permissions
 from ..forms import (

@@ -1,6 +1,6 @@
 from django.conf import settings
-from first import first
 
+from jobserver.first import first
 from jobserver.models import Backend
 
 

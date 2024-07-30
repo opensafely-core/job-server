@@ -6,12 +6,12 @@ from unittest.mock import patch
 import pytest
 from bs4 import BeautifulSoup
 from django.core.exceptions import PermissionDenied
-from first import first
 from interactive_templates import git
 
 from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import CoreDeveloper, InteractiveReporter, permissions
+from jobserver.first import first
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
 
