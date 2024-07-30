@@ -13,7 +13,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
-from zen_queries import queries_dangerously_enabled
 
 from ..authorization import CoreDeveloper, InteractiveReporter
 from ..authorization.fields import RolesArrayField
@@ -343,7 +342,6 @@ class User(AbstractBaseUser):
         return token
 
     @cached_property
-    @queries_dangerously_enabled()
     def uses_social_auth(self):
         """
         Cache whether this user logs in via GitHub (using social auth)

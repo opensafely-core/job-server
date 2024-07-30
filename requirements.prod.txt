@@ -369,7 +369,6 @@ django==5.0.7 \
     #   django-permissions-policy
     #   django-structlog
     #   django-vite
-    #   django-zen-queries
     #   djangorestframework
     #   slippers
     #   social-auth-app-django
@@ -408,10 +407,6 @@ django-structlog==8.1.0 \
 django-vite==3.0.4 \
     --hash=sha256:043ab5068b4c66eb33cb26c5215a6dfe275d3c4de15d59b0b7b97b4567912fb0 \
     --hash=sha256:e4088e0c79b7c9cf013ebb2ae0117a8fa57646337a40e90209ba916d65f359d3
-    # via -r requirements.prod.in
-django-zen-queries==2.1.0 \
-    --hash=sha256:255f6a1efd94974c5752af2ef60d2d1fa66466d74e7faf32a6ff46141e947e55 \
-    --hash=sha256:624dad6a10f04df4dc188ff4f27a875943c1708738bd9863388dd39861ac9614
     # via -r requirements.prod.in
 djangorestframework==3.15.2 \
     --hash=sha256:2b8871b062ba1aefc2de01f773875441a961fefbf79f5eed1e32b2f096944b20 \

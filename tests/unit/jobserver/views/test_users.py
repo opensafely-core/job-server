@@ -636,16 +636,29 @@ def test_loginwittoken_expired_token(rf_messages, token_login_user):
     )
 
 
-def test_userdetail_success(rf, django_assert_num_queries):
+def test_userdetail_success(rf):
     user = UserFactory()
 
     request = rf.get("/")
     request.user = UserFactory()
 
-    with django_assert_num_queries(2):
-        response = UserDetail.as_view()(request, username=user.username)
+    response = UserDetail.as_view()(request, username=user.username)
 
     assert response.status_code == 200
+
+
+def test_userdetail_num_queries(rf, django_assert_num_queries):
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with django_assert_num_queries(1):
+        response = UserDetail.as_view()(request, username=user.username)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(2):
+        response.render()
 
 
 def test_userdetail_unknown_user(rf):
@@ -656,7 +669,7 @@ def test_userdetail_unknown_user(rf):
         UserDetail.as_view()(request, username="")
 
 
-def test_usereventlog_success(rf, django_assert_num_queries):
+def test_usereventlog_success(rf):
     user = UserFactory()
 
     job_requests = JobRequestFactory.create_batch(5, created_by=user)
@@ -664,13 +677,28 @@ def test_usereventlog_success(rf, django_assert_num_queries):
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(4):
-        response = UserEventLog.as_view()(request, username=user.username)
+    response = UserEventLog.as_view()(request, username=user.username)
 
     assert response.status_code == 200
 
     expected = set_from_list(job_requests)
     assert set_from_list(response.context_data["object_list"]) == expected
+
+
+def test_usereventlog_num_queries(rf, django_assert_num_queries):
+    user = UserFactory()
+
+    JobRequestFactory.create_batch(5, created_by=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with django_assert_num_queries(2):
+        response = UserEventLog.as_view()(request, username=user.username)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(9):
+        response.render()
 
 
 def test_usereventlog_unknown_user(rf):
@@ -681,18 +709,31 @@ def test_usereventlog_unknown_user(rf):
         UserEventLog.as_view()(request, username="")
 
 
-def test_userlist_success(rf, django_assert_num_queries):
+def test_userlist_success(rf):
     users = UserFactory.create_batch(5)
     user = UserFactory()
 
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(1):
-        response = UserList.as_view()(request)
+    response = UserList.as_view()(request)
 
     assert response.status_code == 200
 
     # account for the user attached to the request
     expected = set_from_list(users + [user])
     assert set_from_list(response.context_data["object_list"]) == expected
+
+
+def test_userlist_num_queries(rf, django_assert_num_queries):
+    UserFactory.create_batch(5)
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with django_assert_num_queries(1):
+        response = UserList.as_view()(request)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(2):
+        response.render()

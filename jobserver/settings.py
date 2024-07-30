@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     "slippers",
     "rest_framework",
     "social_django",
-    "zen_queries",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
