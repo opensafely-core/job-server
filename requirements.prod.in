@@ -9,7 +9,6 @@ django-htmx
 django-permissions-policy
 django-structlog
 django-vite
-django-zen-queries
 djangorestframework
 environs[django]
 first
