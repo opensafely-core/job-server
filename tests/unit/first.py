@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import unittest
+
 from first import first
 
 
@@ -60,5 +61,5 @@ class TestFirst(unittest.TestCase):
         assert first(l, key=is_meaning_of_life) is None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

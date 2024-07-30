@@ -1,5 +1,3 @@
-## -*- coding: utf-8 -*-
-
 # Code below taken from
 # https://github.com/hynek/first/blob/b95e3ee504d4fcd735b056c472d35148e341a80a/first.py
 # included under the MIT license as detailed below.
@@ -56,11 +54,11 @@ match in a more advanced way.
 
 """
 
-__title__ = 'first'
-__version__ = '2.0.2'
-__author__ = 'Hynek Schlawack'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2012 Hynek Schlawack'
+__title__ = "first"
+__version__ = "2.0.2"
+__author__ = "Hynek Schlawack"
+__license__ = "MIT"
+__copyright__ = "Copyright 2012 Hynek Schlawack"
 
 
 def first(iterable, default=None, key=None):
