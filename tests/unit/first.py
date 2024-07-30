@@ -36,21 +36,21 @@ is_meaning_of_life = lambda x: x == 42
 class TestFirst(unittest.TestCase):
     def test_empty_iterables(self):
         s = set()
-        l = []
+        l = []  # noqa: E741
         assert first(s) is None
-        assert first(l) is None
+        assert first(l) is None  # noqa: E741
 
     def test_default_value(self):
         s = set()
-        l = []
+        l = []  # noqa: E741
         assert first(s, default=42) == 42
-        assert first(l, default=3.14) == 3.14
+        assert first(l, default=3.14) == 3.14  # noqa: E741
 
-        l = [0, False, []]
-        assert first(l, default=3.14) == 3.14
+        l = [0, False, []]  # noqa: E741
+        assert first(l, default=3.14) == 3.14  # noqa: E741
 
     def test_selection(self):
-        l = [(), 0, False, 3, []]
+        l = [(), 0, False, 3, []]  # noqa: E741
 
         assert first(l, default=42) == 3
         assert first(l, key=isint) == 0
