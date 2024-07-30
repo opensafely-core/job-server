@@ -17,8 +17,6 @@ from django.views.generic import DetailView, FormView, ListView, View
 from furl import furl
 from opentelemetry import trace
 from social_django.utils import load_strategy
-from zen_queries import TemplateResponse as zTemplateResponse
-from zen_queries import fetch
 
 from jobserver.authorization import InteractiveReporter
 from jobserver.commands import users
@@ -316,7 +314,6 @@ class UserDetail(DetailView):
 
 class UserEventLog(ListView):
     paginate_by = 25
-    response_class = zTemplateResponse
     template_name = "user/event_log.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -330,7 +327,7 @@ class UserEventLog(ListView):
         }
 
     def get_queryset(self):
-        return fetch(
+        return (
             JobRequest.objects.with_started_at()
             .filter(created_by=self.user)
             .select_related("backend", "workspace", "workspace__project")
