@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from furl import furl
-from zen_queries import queries_dangerously_enabled
 
 from ..permissions.t1oo import project_is_permitted_to_use_t1oo_data
 from ..runtime import Runtime
@@ -119,11 +118,7 @@ class JobRequest(models.Model):
 
     @cached_property
     def completed_at(self):
-        with queries_dangerously_enabled():
-            # enable querying here because this property needs to use
-            # self.status which we haven't found a way to push down into the
-            # database yet.
-            last_job = self.jobs.order_by("completed_at").last()
+        last_job = self.jobs.order_by("completed_at").last()
 
         if not last_job:
             return
@@ -211,7 +206,6 @@ class JobRequest(models.Model):
         self.save(update_fields=["cancelled_actions"])
 
     @property
-    @queries_dangerously_enabled()
     def runtime(self):
         """
         Combined runtime for all completed Jobs of this JobRequest
