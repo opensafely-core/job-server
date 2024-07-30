@@ -416,10 +416,6 @@ environs==9.5.0 \
     --hash=sha256:1e549569a3de49c05f856f40bce86979e7d5ffbbc4398e7f338574c220189124 \
     --hash=sha256:a76307b36fbe856bdca7ee9161e6c466fd7fcffc297109a118c59b54e27e30c9
     # via -r requirements.prod.in
-first==2.0.2 \
-    --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
-    --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
-    # via -r requirements.prod.in
 furl==2.1.3 \
     --hash=sha256:5a6188fe2666c484a12159c18be97a1977a71d632ef5bb867ef15f54af39cc4e \
     --hash=sha256:9ab425062c4217f9802508e45feb4a83e54324273ac4b202f1850363309666c0
