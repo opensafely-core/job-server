@@ -342,11 +342,10 @@ class UserEventLog(ListView):
 class UserList(ListView):
     model = User
     paginate_by = 25
-    response_class = zTemplateResponse
     template_name = "user/list.html"
 
     def get_queryset(self):
-        return fetch(
+        return (
             super()
             .get_queryset()
             .annotate(project_count=Count("projects"))

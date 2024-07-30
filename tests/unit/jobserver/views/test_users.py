@@ -720,5 +720,5 @@ def test_userlist_num_queries(rf, django_assert_num_queries):
         response = UserList.as_view()(request)
         assert response.status_code == 200
 
-    with django_assert_num_queries(1):
+    with django_assert_num_queries(2):
         response.render()
