@@ -381,11 +381,11 @@ def test_projecteventlog_num_queries(rf, django_assert_num_queries):
     request = rf.get("/")
     request.user = UserFactory()
 
-    with django_assert_num_queries(5):
+    with django_assert_num_queries(2):
         response = ProjectEventLog.as_view()(request, project_slug=project.slug)
         assert response.status_code == 200
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(6):
         response.render()
 
 

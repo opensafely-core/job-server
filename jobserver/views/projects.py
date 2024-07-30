@@ -12,8 +12,6 @@ from django.views.generic import ListView, UpdateView, View
 from markdown import markdown
 from opentelemetry import context as otel_context
 from opentelemetry import trace
-from zen_queries import TemplateResponse as zTemplateResponse
-from zen_queries import fetch
 
 from jobserver import html_utils
 from jobserver.utils import set_from_qs
@@ -226,7 +224,6 @@ class ProjectEdit(UpdateView):
 
 class ProjectEventLog(ListView):
     paginate_by = 25
-    response_class = zTemplateResponse
     template_name = "project/event_log.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -240,7 +237,7 @@ class ProjectEventLog(ListView):
         }
 
     def get_queryset(self):
-        return fetch(
+        return (
             JobRequest.objects.with_started_at()
             .filter(workspace__project=self.project)
             .select_related("backend", "created_by", "workspace")
