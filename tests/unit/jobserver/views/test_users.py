@@ -653,11 +653,11 @@ def test_userdetail_num_queries(rf, django_assert_num_queries):
     request = rf.get("/")
     request.user = UserFactory()
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(1):
         response = UserDetail.as_view()(request, username=user.username)
         assert response.status_code == 200
 
-    with django_assert_num_queries(1):
+    with django_assert_num_queries(2):
         response.render()
 
 

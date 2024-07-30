@@ -304,11 +304,10 @@ class UserDetail(DetailView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-    response_class = zTemplateResponse
     template_name = "user/detail.html"
 
     def get_context_data(self, **kwargs):
-        projects = fetch(self.object.projects.order_by(Lower("name")))
+        projects = self.object.projects.order_by(Lower("name"))
 
         return super().get_context_data(**kwargs) | {
             "projects": projects,
