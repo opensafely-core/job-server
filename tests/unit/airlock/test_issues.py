@@ -5,7 +5,6 @@ from airlock.issues import (
     create_output_checking_issue,
     update_output_checking_issue,
 )
-from jobserver.first import first
 from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,
@@ -31,7 +30,7 @@ def test_create_output_checking_request_external(github_api):
         == "http://example.com"
     )
 
-    issue = first(github_api.issues)
+    issue = next((i for i in github_api.issues if i), None)
 
     assert issue.labels == ["external"]
     assert issue.org == "ebmdatalab"
@@ -63,7 +62,7 @@ def test_create_output_checking_request_internal(github_api):
         == "http://example.com"
     )
 
-    issue = first(github_api.issues)
+    issue = next((i for i in github_api.issues if i), None)
 
     assert issue.labels == ["internal"]
     assert issue.org == "ebmdatalab"
@@ -93,14 +92,14 @@ def test_close_output_checking_request(github_api):
         == "http://example.com/closed"
     )
 
-    issue = first(github_api.closed_issues)
+    issue = next((i for i in github_api.closed_issues if i), None)
 
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
     assert issue.comment == f"Issue closed: Closed for reasons by {user.username}"
 
-    comment = first(github_api.comments)
+    comment = next((c for c in github_api.comments if c), None)
     assert comment.org == "ebmdatalab"
     assert comment.repo == "opensafely-output-review"
     assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -124,7 +123,7 @@ def test_update_output_checking_request(github_api, slack_messages):
         == "http://example.com/issues/comment"
     )
 
-    comment = first(github_api.comments)
+    comment = next((c for c in github_api.comments if c), None)
     assert comment.org == "ebmdatalab"
     assert comment.repo == "opensafely-output-review"
     assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"

@@ -12,7 +12,6 @@ from django.views.generic import View
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.first import first
 from jobserver.github import _get_github_api
 from jobserver.models import Project, Repo, Workspace
 
@@ -72,7 +71,7 @@ class PrivateReposDashboard(View):
                 w for w in all_workspaces if repo["url"].lower() == w.repo.url.lower()
             ]
             workspaces = sorted(workspaces, key=lambda w: w.name.lower())
-            workspace = first(workspaces)
+            workspace = next((w for w in workspaces if w), None)
             contact = workspace.created_by if workspace else None
 
             # build projects using the workspace.project_ids from workspaces

@@ -6,7 +6,6 @@ from django.db import IntegrityError, models
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.first import first
 from redirects.models import Redirect, validate_not_empty
 
 from ... import factories
@@ -18,7 +17,7 @@ def get_factory(model):
     classes = [value for name, value in inspect.getmembers(factories, inspect.isclass)]
     all_factories = [c for c in classes if c.__name__.endswith("Factory")]
 
-    return first(all_factories, key=lambda m: m._meta.model == model)
+    return next((f for f in all_factories if f._meta.model == model), None)
 
 
 def get_target_fields():
