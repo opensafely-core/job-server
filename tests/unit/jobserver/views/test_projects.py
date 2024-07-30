@@ -357,7 +357,7 @@ def test_projectedit_member_does_not_have_project_manage(rf, project_membership)
         ProjectEdit.as_view()(request, project_slug=project.slug)
 
 
-def test_projecteventlog_success(rf, django_assert_num_queries):
+def test_projecteventlog_success(rf):
     project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
 
@@ -366,13 +366,27 @@ def test_projecteventlog_success(rf, django_assert_num_queries):
     request = rf.get("/")
     request.user = UserFactory()
 
-    with django_assert_num_queries(5):
-        response = ProjectEventLog.as_view()(request, project_slug=project.slug)
+    response = ProjectEventLog.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
 
     expected = set_from_list(job_requests)
     assert set_from_list(response.context_data["object_list"]) == expected
+
+
+def test_projecteventlog_num_queries(rf, django_assert_num_queries):
+    project = ProjectFactory()
+    JobRequestFactory.create_batch(5, workspace=WorkspaceFactory(project=project))
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with django_assert_num_queries(2):
+        response = ProjectEventLog.as_view()(request, project_slug=project.slug)
+        assert response.status_code == 200
+
+    with django_assert_num_queries(6):
+        response.render()
 
 
 def test_projecteventlog_unknown_project(rf):
