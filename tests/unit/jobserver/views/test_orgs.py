@@ -80,8 +80,10 @@ def test_orglist_success(rf, user_class):
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 6
 
-    expected = next(  # pragma: no branch
-        (d for d in response.context_data["object_list"] if d.pk == org.pk),
-        None,
-    )
+    try:
+        expected = next(  # pragma: no branch
+            d for d in response.context_data["object_list"] if d.pk == org.pk
+        )
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an object list will be found")
     assert expected and expected.project_count == 3

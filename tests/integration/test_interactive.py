@@ -245,7 +245,10 @@ def test_interactive_publishing_report_success(
         string=re.compile(".*Created by.*")
     )
     spans = [s.parent for s in strings]
-    span = next((sp for sp in spans if "on" in sp.text), None)  # pragma: no branch
+    try:
+        span = next(sp for sp in spans if "on" in sp.text)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts a span will be found")
 
     created_by_url = span.a["href"]
     assert created_by_url == user.get_staff_url()

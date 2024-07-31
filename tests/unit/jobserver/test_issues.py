@@ -1,3 +1,4 @@
+import pytest
 from django.conf import settings
 
 from jobserver.issues import (
@@ -39,7 +40,10 @@ def test_create_copilot_publish_report_request(github_api):
 
     create_copilot_publish_report_request(report, github_api)
 
-    issue = next((i for i in github_api.issues if i), None)  # pragma: no branch
+    try:
+        issue = next(i for i in github_api.issues if i)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an issue will be found")
 
     assert issue.labels == ["publication-copiloted"]
     assert issue.org == "ebmdatalab"
@@ -61,7 +65,10 @@ def test_create_github_issue_external_success(build_release_with_files, github_a
 
     create_output_checking_request(release, github_api=github_api)
 
-    issue = next((i for i in github_api.issues if i), None)  # pragma: no branch
+    try:
+        issue = next(i for i in github_api.issues if i)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an issue will be found")
 
     assert issue.title == release.workspace.name
 
@@ -97,7 +104,10 @@ def test_create_github_issue_internal_success(build_release_with_files, github_a
 
     create_output_checking_request(release, github_api=github_api)
 
-    issue = next((i for i in github_api.issues if i), None)  # pragma: no branch
+    try:
+        issue = next(i for i in github_api.issues if i)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an issue will be found")
 
     assert issue.title == release.workspace.name
 

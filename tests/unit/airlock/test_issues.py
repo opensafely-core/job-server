@@ -1,3 +1,4 @@
+import pytest
 from django.conf import settings
 
 from airlock.issues import (
@@ -30,7 +31,10 @@ def test_create_output_checking_request_external(github_api):
         == "http://example.com"
     )
 
-    issue = next((i for i in github_api.issues if i), None)  # pragma: no branch
+    try:
+        issue = next(i for i in github_api.issues if i)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an issue will be found")
 
     assert issue.labels == ["external"]
     assert issue.org == "ebmdatalab"
@@ -62,7 +66,10 @@ def test_create_output_checking_request_internal(github_api):
         == "http://example.com"
     )
 
-    issue = next((i for i in github_api.issues if i), None)  # pragma: no branch
+    try:
+        issue = next(i for i in github_api.issues if i)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an issue will be found")
 
     assert issue.labels == ["internal"]
     assert issue.org == "ebmdatalab"
@@ -92,14 +99,21 @@ def test_close_output_checking_request(github_api):
         == "http://example.com/closed"
     )
 
-    issue = next((i for i in github_api.closed_issues if i), None)  # pragma: no branch
+    try:
+        issue = next(i for i in github_api.closed_issues if i)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an issue will be found")
 
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
     assert issue.comment == f"Issue closed: Closed for reasons by {user.username}"
 
-    comment = next((c for c in github_api.comments if c), None)  # pragma: no branch
+    try:
+        comment = next(c for c in github_api.comments if c)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts a comment will be found")
+
     assert comment.org == "ebmdatalab"
     assert comment.repo == "opensafely-output-review"
     assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -123,7 +137,11 @@ def test_update_output_checking_request(github_api, slack_messages):
         == "http://example.com/issues/comment"
     )
 
-    comment = next((c for c in github_api.comments if c), None)  # pragma: no branch
+    try:
+        comment = next(c for c in github_api.comments if c)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts a comment will be found")
+
     assert comment.org == "ebmdatalab"
     assert comment.repo == "opensafely-output-review"
     assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"

@@ -1,3 +1,5 @@
+import pytest
+
 from interactive.issues import create_output_checking_request
 
 from ...factories import AnalysisRequestFactory, JobRequestFactory
@@ -9,7 +11,11 @@ def test_create_output_checking_request(github_api):
 
     create_output_checking_request(job_request, github_api)
 
-    issue = next((i for i in github_api.issues if i), None)  # pragma: no branch
+    try:
+        issue = next(i for i in github_api.issues if i)  # pragma: no branch
+    except StopIteration:  # pragma: no cover
+        pytest.fail("This test currently asserts an issue will be found")
+
     lines = issue.body.split("\n")
 
     assert lines[0] == "### GitHub repo"
