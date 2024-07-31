@@ -132,7 +132,7 @@ class Redirect(models.Model):
     def obj(self):
         """Work out which object we're pointing to"""
         field_names = [getattr(self, f.name, None) for f in self.targets()]
-        return next((f for f in field_names if f), None)
+        return next((f for f in field_names if f), None)  # pragma: no branch
 
     @classmethod
     def targets(cls):

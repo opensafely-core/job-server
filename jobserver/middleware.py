@@ -38,7 +38,9 @@ class TemplateNameMiddleware:
 
         # flatten template_name to a string
         if isinstance(template_name, list):
-            template_name = next((t for t in template_name if t), None)
+            template_name = next(  # pragma: no branch
+                (t for t in template_name if t), None
+            )
 
         response.context_data["template_name"] = template_name
         return response

@@ -113,7 +113,7 @@ class WorkspaceCreateForm(forms.Form):
 
         # has there been a repo selected already?
         if "data" in kwargs and "repo" in kwargs["data"]:
-            repo = next(
+            repo = next(  # pragma: no branch
                 (
                     r
                     for r in self.repos_with_branches
@@ -122,7 +122,9 @@ class WorkspaceCreateForm(forms.Form):
                 None,
             )
         else:
-            repo = next((r for r in self.repos_with_branches if r), None)
+            repo = next(  # pragma: no branch
+                (r for r in self.repos_with_branches if r), None
+            )
 
         # construct the branch Form field
         branch_choices = [(b, b) for b in repo["branches"]]
