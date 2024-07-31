@@ -95,7 +95,7 @@
 
   {% #card title="Orgs" %}
     {% #list_group %}
-      {% for membership in org %}
+      {% for membership in orgs %}
         {% #list_group_item href=membership.get_staff_edit_url|add:"?next="|add:request.path %}
           {{ membership.org.name }}
           {% for role in membership.roles %}
