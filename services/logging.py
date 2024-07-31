@@ -80,6 +80,12 @@ class MissingVariableErrorFilter(logging.Filter):
         # are missing when pages are requested by a `RequestFactory` instance.
         "csp_nonce",  # csp.middleware.CSPMiddleware
         "template_name",  # jobserver.middleware.TemplateNameMiddleware
+        # And some template variables are just a pain, because of how we use them.
+        "name",  # jobserver.context_processors.nav
+        "q",
+        # The following is a property on User but not AnonymousUser. It's non-trivial to
+        # extend the latter to provide it, so we ignore it.
+        "all_roles",
     }
 
     def filter(self, record):  # pragma: no cover
