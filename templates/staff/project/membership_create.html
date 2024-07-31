@@ -60,7 +60,7 @@
                 <span class="font-bold block text-base">{{ label }}</span>
                 <span class="text-sm">{{ value|role_description|linebreaksbr }}</span>
               {% endfragment %}
-              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=checked %}
+              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=False %}
             {% endwith %}
           {% endfor %}
         {% /form_fieldset %}
