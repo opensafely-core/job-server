@@ -245,7 +245,7 @@ def test_interactive_publishing_report_success(
         string=re.compile(".*Created by.*")
     )
     spans = [s.parent for s in strings]
-    span = next((sp for sp in spans if "on" in sp.text), None)
+    span = next((sp for sp in spans if "on" in sp.text), None)  # pragma: no branch
 
     created_by_url = span.a["href"]
     assert created_by_url == user.get_staff_url()
