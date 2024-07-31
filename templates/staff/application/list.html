@@ -85,6 +85,8 @@
       <form method="GET" class="flex flex-row gap-x-2 items-center">
         {% if request.GET.q %}
           {% var value=request.GET.q|stringformat:"s" %}
+        {% else %}
+          {% var value="" %}
         {% endif %}
         {% form_input custom_field=True type="search" id="applicationSearch" name="q" value=value label="Search for an application" label_class="sr-only" class="w-full" input_class="!m-0" %}
         {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
