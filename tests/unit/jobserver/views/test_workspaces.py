@@ -1287,7 +1287,7 @@ def test_workspaceoutputlist_success(
 def test_workspaceoutputlist_without_permission(
     rf, time_machine, build_release_with_files
 ):
-    workspace = WorkspaceFactory()
+    workspace = WorkspaceFactory(project__org=OrgFactory())
 
     now = timezone.now()
 
@@ -1326,7 +1326,7 @@ def test_workspaceoutputlist_without_permission(
 
 
 def test_workspaceoutputlist_without_snapshots(rf, time_machine, role_factory):
-    workspace = WorkspaceFactory()
+    workspace = WorkspaceFactory(project__org=OrgFactory())
 
     request = rf.get("/")
     request.user = UserFactory(
