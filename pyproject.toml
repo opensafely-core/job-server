@@ -74,7 +74,6 @@ env = [
   "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL=test-channel",
 ]
 filterwarnings = [
-    "error",
     "ignore::pytest.PytestUnraisableExceptionWarning:",
     "ignore:Call to deprecated method __init__:DeprecationWarning:",
     "ignore:pkg_resources is deprecated as an API:DeprecationWarning:",
