@@ -21,6 +21,7 @@
     "web": [
       {
         "name": "Web health check",
+        "type": "startup",
         "description": "Check if the app responds to the /health-check endpoint",
         "path": "/health-check",
         "port": 8000,
