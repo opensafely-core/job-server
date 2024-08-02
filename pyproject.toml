@@ -78,7 +78,7 @@ show_contexts = true
 addopts = "--disable-network --tb=native --no-migrations --ignore=./release-hatch --maxprocesses=6"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
-  "GITHUB_TOKEN=empty",
+  "JOBSERVER_GITHUB_TOKEN=empty",
   "PASSWORD_HASHERS=django.contrib.auth.hashers.MD5PasswordHasher",
   "SECRET_KEY=12345",
   "SOCIAL_AUTH_GITHUB_KEY=test",

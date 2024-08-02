@@ -50,7 +50,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      - GITHUB_TOKEN=
+      - JOBSERVER_GITHUB_TOKEN=
       - GITHUB_WRITEABLE_TOKEN=
       - SECRET_KEY=12345
       - SOCIAL_AUTH_GITHUB_KEY=test

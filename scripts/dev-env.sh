@@ -29,6 +29,6 @@ write() {
 # ensure we have latest passwords
 bw sync
 
-write GITHUB_TOKEN "$(bw get password $GH_DEV_TOKEN_BW_ID)"
+write JOBSERVER_GITHUB_TOKEN "$(bw get password $GH_DEV_TOKEN_BW_ID)"
 write SOCIAL_AUTH_GITHUB_KEY "$(bw get username $SOCIAL_AUTH_BW_ID)"
 write SOCIAL_AUTH_GITHUB_SECRET "$(bw get password $SOCIAL_AUTH_BW_ID)"

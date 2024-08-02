@@ -13,7 +13,7 @@ logger = structlog.getLogger(__name__)
 env = Env()
 
 
-GITHUB_TOKEN = env.str("GITHUB_TOKEN")
+JOBSERVER_GITHUB_TOKEN = env.str("JOBSERVER_GITHUB_TOKEN")
 
 
 session = requests.Session()
@@ -691,4 +691,4 @@ class GitHubAPI:
 
 def _get_github_api():
     """Simple invocation wrapper of GitHubAPI"""
-    return GitHubAPI(_session=session, token=GITHUB_TOKEN)  # pragma: no cover
+    return GitHubAPI(_session=session, token=JOBSERVER_GITHUB_TOKEN)  # pragma: no cover
