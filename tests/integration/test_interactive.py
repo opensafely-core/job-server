@@ -10,7 +10,7 @@ from interactive_templates import git
 
 from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
-from jobserver.authorization import CoreDeveloper, InteractiveReporter
+from jobserver.authorization import CoreDeveloper, InteractiveReporter, permissions
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
 
@@ -68,7 +68,7 @@ def assert_edit_and_publish_pages_are_locked(analysis, client):
 
 @pytest.mark.slow_test
 def test_interactive_submission_success(
-    rf, local_repo, enable_network, project_membership
+    rf, local_repo, enable_network, project_membership, role_factory
 ):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
@@ -81,7 +81,11 @@ def test_interactive_submission_success(
     assert project.interactive_workspace
 
     user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permission=permissions.analysis_request_create)],
+    )
 
     # hit the submission view with form data
     data = {
