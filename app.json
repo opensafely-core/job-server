@@ -16,5 +16,19 @@
       "command": "python manage.py runjobs monthly",
       "schedule": "@monthly"
     }
-  ]
+  ],
+  "healthchecks": {
+    "web": [
+      {
+        "name": "Web health check",
+        "type": "startup",
+        "description": "Check if the app responds to the /health-check endpoint",
+        "path": "/health-check",
+        "port": 8000,
+        "attempts": 5,
+        "initialDelay": 30,
+        "timeout": 60
+      }
+    ]
+  }
 }
