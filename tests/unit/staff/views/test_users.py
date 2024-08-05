@@ -782,7 +782,7 @@ def test_userlist_success(rf, core_developer):
 
 
 def test_userrolelist_get_success(rf, core_developer):
-    user = UserFactory()
+    user = UserFactory(roles=[ProjectDeveloper])
 
     request = rf.get("/")
     request.user = core_developer
@@ -790,6 +790,8 @@ def test_userrolelist_get_success(rf, core_developer):
     response = UserRoleList.as_view()(request, username=user.username)
 
     assert response.status_code == 200
+
+    response.render()
 
 
 def test_userrolelist_post_success(rf, core_developer):

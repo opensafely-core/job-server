@@ -92,22 +92,5 @@
       {% endfor %}
     {% /list_group %}
   {% /card %}
-
-  {% #card title="Orgs" %}
-    {% #list_group %}
-      {% for membership in orgs %}
-        {% #list_group_item href=membership.get_staff_edit_url|add:"?next="|add:request.path %}
-          {{ membership.org.name }}
-          {% for role in membership.roles %}
-            <span class="block text-sm text-slate-700">
-              {{ role.display_name }}
-            </span>
-          {% endfor %}
-        {% /list_group_item %}
-      {% empty %}
-        {% list_group_empty icon=True title="No orgs" description="No organisation memberships with roles" %}
-      {% endfor %}
-    {% /list_group %}
-  {% /card %}
 </div>
 {% endblock content %}
