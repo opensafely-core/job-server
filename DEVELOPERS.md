@@ -349,7 +349,7 @@ This has allowed us some benefits:
 1. Set the expiry to 90 days.
 1. Copy the new token.
 1. ssh into `dokku4.ebmdatalab.net`
-1. Run: `dokku config:set job-server GITHUB_WRITEABLE_TOKEN=<the new token>`
+1. Run: `dokku config:set job-server INTERACTIVE_GITHUB_TOKEN=<the new token>`
 
 
 ## Interactive Testing

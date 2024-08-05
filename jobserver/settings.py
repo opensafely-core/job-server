@@ -381,7 +381,7 @@ DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
 
 # GitHub token with write permissions
 # TODO: remove default when we're happy with setting up CI with this token
-GITHUB_WRITEABLE_TOKEN = env.str("GITHUB_WRITEABLE_TOKEN", default="")
+INTERACTIVE_GITHUB_TOKEN = env.str("INTERACTIVE_GITHUB_TOKEN", default="")
 
 # path to where local git repos live, used when developing locally, for the
 # interactive functionality

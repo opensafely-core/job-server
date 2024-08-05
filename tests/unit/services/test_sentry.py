@@ -23,7 +23,7 @@ def test_monitor_config():
 
 
 def test_parse_with_envvar(monkeypatch, event):
-    monkeypatch.setenv("GITHUB_WRITEABLE_TOKEN", "ghp_testing")
+    monkeypatch.setenv("INTERACTIVE_GITHUB_TOKEN", "ghp_testing")
 
     data = event()
 
