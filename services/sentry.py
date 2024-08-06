@@ -73,6 +73,8 @@ def parse(data):
         "GITHUB_TOKEN",
         "GITHUB_TOKEN_TESTING",
         "GITHUB_WRITEABLE_TOKEN",
+        "INTERACTIVE_GITHUB_TOKEN",
+        "JOBSERVER_GITHUB_TOKEN",
         "SECRET_KEY",
         "SENTRY_DSN",
         "SOCIAL_AUTH_GITHUB_KEY",

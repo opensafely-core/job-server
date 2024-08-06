@@ -48,7 +48,7 @@ def submit_analysis(
 
     sha, project_yaml = create_commit(
         analysis,
-        token=settings.GITHUB_WRITEABLE_TOKEN,
+        token=settings.INTERACTIVE_GITHUB_TOKEN,
         force=force,
     )
 

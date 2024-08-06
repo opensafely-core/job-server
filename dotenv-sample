@@ -13,10 +13,10 @@ DEBUG=1
 SECRET_KEY=12345
 
 # A GitHub API token, we use a PAT for this
-GITHUB_TOKEN=dummy
+JOBSERVER_GITHUB_TOKEN=dummy
 
 # A GitHub API token, we use a PAT from our writeable user for this
-GITHUB_WRITEABLE_TOKEN=dummy
+INTERACTIVE_GITHUB_TOKEN=dummy
 
 # Get these from a GitHub Org admin, you want the Dev application credentials
 SOCIAL_AUTH_GITHUB_KEY=dummy
