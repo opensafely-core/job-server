@@ -13,7 +13,7 @@ from jobserver.api.jobs import (
     get_backend_from_token,
     update_stats,
 )
-from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectDeveloper
+from jobserver.authorization import CoreDeveloper, ProjectDeveloper
 from jobserver.models import Job, JobRequest, Stats
 from tests.factories import (
     AnalysisRequestFactory,
@@ -884,7 +884,7 @@ def test_userapidetail_success(api_rf, project_membership):
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[CoreDeveloper])
 
-    OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
+    OrgMembershipFactory(org=org, user=user, roles=[])
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = api_rf.get("/", headers={"authorization": backend.auth_token})
@@ -901,7 +901,6 @@ def test_userapidetail_success(api_rf, project_membership):
         "user_manage",
     ]
     assert permissions["orgs"] == [
-        # we have no permissions for OrgCoordinator yet
         {
             "slug": org.slug,
             "permissions": [],
@@ -926,7 +925,7 @@ def test_userapidetail_success(api_rf, project_membership):
     # roles
     roles = response.data["roles"]
     assert roles["global"] == ["CoreDeveloper"]
-    assert roles["orgs"] == [{"slug": org.slug, "roles": ["OrgCoordinator"]}]
+    assert roles["orgs"] == [{"slug": org.slug, "roles": []}]
     assert roles["projects"] == [{"slug": project.slug, "roles": ["ProjectDeveloper"]}]
 
 

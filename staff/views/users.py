@@ -334,15 +334,11 @@ class UserRoleList(FormView):
         return redirect(self.user.get_staff_roles_url())
 
     def get_context_data(self, **kwargs):
-        org_memberships_with_roles = self.user.org_memberships.exclude(
-            roles=[]
-        ).order_by(Lower("org__name"))
         project_memberships_with_roles = self.user.project_memberships.exclude(
             roles=[]
         ).order_by("project__number", Lower("project__name"))
 
         return super().get_context_data(**kwargs) | {
-            "orgs": org_memberships_with_roles,
             "projects": project_memberships_with_roles,
             "user": self.user,
         }

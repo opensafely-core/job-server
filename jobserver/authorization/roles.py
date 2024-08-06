@@ -60,19 +60,6 @@ class InteractiveReporter:
     ]
 
 
-class OrgCoordinator:
-    """
-    A responsible party for an Org
-    """
-
-    display_name = "Organisation Coordinator"
-    description = ""
-    models = [
-        "jobserver.models.org_membership.OrgMembership",
-    ]
-    permissions = []
-
-
 class OutputChecker:
     """
     Review output folders that have been proposed for release.
