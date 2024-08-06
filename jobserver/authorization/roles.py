@@ -1,5 +1,4 @@
 from .permissions import (
-    analysis_request_create,
     analysis_request_view,
     application_manage,
     backend_manage,
@@ -56,7 +55,6 @@ class InteractiveReporter:
         "jobserver.models.user.User",
     ]
     permissions = [
-        analysis_request_create,
         analysis_request_view,
         release_file_view,
     ]

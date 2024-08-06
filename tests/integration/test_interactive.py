@@ -5,12 +5,13 @@ from unittest.mock import patch
 
 import pytest
 from bs4 import BeautifulSoup
+from django.core.exceptions import PermissionDenied
 from first import first
 from interactive_templates import git
 
 from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
-from jobserver.authorization import CoreDeveloper, InteractiveReporter
+from jobserver.authorization import CoreDeveloper, InteractiveReporter, permissions
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
 
@@ -67,7 +68,7 @@ def assert_edit_and_publish_pages_are_locked(analysis, client):
 
 
 @pytest.mark.slow_test
-def test_interactive_submission_success(
+def test_interactive_submission_fails_for_interactivereporter(
     rf, local_repo, enable_network, project_membership
 ):
     BackendFactory(slug="tpp")
@@ -82,6 +83,55 @@ def test_interactive_submission_success(
 
     user = UserFactory()
     project_membership(project=project, user=user, roles=[InteractiveReporter])
+
+    # hit the submission view with form data
+    data = {
+        "title": "Asthma Inhaler Salbutamol Medication & Asthma",
+        "codelistA": {
+            "label": "Asthma Inhaler Salbutamol Medication",
+            "organisation": "OpenSAFELY",
+            "type": "medication",
+            "value": "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15",
+        },
+        "codelistB": {
+            "label": "Asthma",
+            "organisation": "PINCER",
+            "type": "event",
+            "value": "pincer/ast/v1.8",
+        },
+        "filterPopulation": "all",
+        "purpose": "For… science!",
+    }
+    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
+    request.user = user
+
+    # InteractiveReporter has had permission to run interactive reports removed
+    with pytest.raises(PermissionDenied):
+        AnalysisRequestCreate.as_view(get_opencodelists_api=AsthmaOpenCodelistsAPI)(
+            request, project_slug=project.slug
+        )
+
+
+@pytest.mark.slow_test
+def test_interactive_submission_success(
+    rf, local_repo, enable_network, project_membership, role_factory
+):
+    BackendFactory(slug="tpp")
+    project = ProjectFactory()
+    repo = RepoFactory(url=local_repo)
+    workspace = WorkspaceFactory(
+        project=project, repo=repo, name=project.interactive_slug
+    )
+
+    assert workspace.is_interactive
+    assert project.interactive_workspace
+
+    user = UserFactory()
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permission=permissions.analysis_request_create)],
+    )
 
     # hit the submission view with form data
     data = {
