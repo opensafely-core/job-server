@@ -4,8 +4,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 from django.utils import timezone
-from first import first
 
+from jobserver.first import first
 from jobserver.utils import set_from_list
 from jobserver.views.status import DBAvailability, PerBackendStatus, Status
 

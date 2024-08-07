@@ -1,8 +1,8 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
-from first import first
 
+from jobserver.first import first
 from jobserver.utils import set_from_qs
 from jobserver.views.orgs import OrgDetail, OrgEventLog, OrgList
 

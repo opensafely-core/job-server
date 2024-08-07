@@ -1,6 +1,5 @@
-from first import first
-
 from interactive.issues import create_output_checking_request
+from jobserver.first import first
 
 from ...factories import AnalysisRequestFactory, JobRequestFactory
 

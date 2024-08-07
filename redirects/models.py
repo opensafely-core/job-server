@@ -5,7 +5,8 @@ from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
-from first import first
+
+from jobserver.first import first
 
 
 def default_expires_at():

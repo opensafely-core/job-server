@@ -1,6 +1,6 @@
 from django.conf import settings
-from first import first
 
+from jobserver.first import first
 from jobserver.issues import (
     _size_formatter,
     create_copilot_publish_report_request,

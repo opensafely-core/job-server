@@ -1,5 +1,6 @@
 from django import forms
-from first import first
+
+from jobserver.first import first
 
 from .authorization.forms import RolesForm
 from .models import JobRequest, Project, Workspace
