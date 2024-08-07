@@ -106,7 +106,7 @@
         <div class="flex flex-col gap-y-4 text-slate-700">
           <p>
             This page shows the technical details of what happened when
-            authorised researcher
+            the authorised researcher
             <strong>{{ job_request.created_by.name }}</strong>
             requested one or more actions to be run against real patient data
             in the
@@ -115,13 +115,14 @@
             {% endspaceless %}, within a secure environment.
           </p>
           <p>
-            By cross-referencing the indicated Requested Actions with the
-            Pipeline section below, you can infer what
+            By cross-referencing the list of jobs with the
+            pipeline section below, you can infer what
             {% link text="security level" href="https://docs.opensafely.org/security-levels/" %}
-            various outputs were written to. Outputs marked as
-            {% #code %}highly_sensitive{% /code %}
-            can never be viewed directly by a researcher; they can only
-            request that code runs against them. Outputs marked as
+            various outputs were written to. Researchers can never directly
+            view outputs marked as
+            {% #code %}highly_sensitive{% /code %};
+            they can only request that code runs against them. Outputs
+            marked as
             {% #code %}moderately_sensitive{% /code %}
             can be viewed by an approved researcher by logging into a highly
             secure environment. Only outputs marked as
