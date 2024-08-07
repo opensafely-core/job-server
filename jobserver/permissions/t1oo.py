@@ -1,6 +1,15 @@
-# ****************************************************************************
-# ANY ADDITIONS TO THE LIST BELOW MUST BE EXPLICITLY APPROVED BY THE IG TEAM *
-# ****************************************************************************
+# *******************
+#   IMPORTANT NOTE  *
+# *******************
+#
+# Only the IG team are authorised to make modifications to the list of projects below.
+# Any PRs which update this list should be reviewed and approved by a member of the IG
+# team so as to create the appropriate audit trail.
+#
+# Note also that this file is linked to in the documentation. If you move or restructure
+# this file you should ensure the documentation is updated appropriately.
+# https://github.com/opensafely/documentation/blob/af88baf1/docs/type-one-opt-outs.md
+
 
 # From Appendix 3 of DPIA document linked here:
 # https://digital.nhs.uk/about-nhs-digital/corporate-information-and-documents/directions-and-data-provision-notices/data-provision-notices-dpns/opensafely-covid-19-service-data-provision-notice

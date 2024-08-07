@@ -1,2 +1,9 @@
-# The IG team need to review any changes files in this directory
+# This is intended to help enforce the policy that changes to certain
+# permissions file should be approved by IG before merging.
+#
+# If CODEOWNERS turns out not to be the most practical mechanism for this then
+# we may chose to remove this file. But if so, we must update the documentation
+# which references it:
+# https://github.com/opensafely/documentation/blob/af88baf1/docs/type-one-opt-outs.md
+
 jobserver/permissions/*    @opensafely-core/ig-team
