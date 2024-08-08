@@ -1,0 +1,60 @@
+---
+name: Verification Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  "47 0 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: jobserver
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: "opensafely-core/setup-action@v1"
+        with:
+          python-version: "3.12"
+          install-just: true
+
+      - name: Install venv
+        run: just devenv
+
+      - name: Run verification tests
+        env:
+          DATABASE_URL: postgres://user:password@localhost/jobserver
+          GITHUB_TOKEN: empty
+          GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
+          SECRET_KEY: 12345
+          SOCIAL_AUTH_GITHUB_KEY: test
+          SOCIAL_AUTH_GITHUB_SECRET: test
+        run: |
+          just check-migrations
+          # hardcode n because auto=2 in CI for some reason
+          just test-verification --migrations -n 4
+
+      - name: Upload HTML coverage report if tests failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage-report
+          path: htmlcov
+          # don't fail the job because no files were found, we expect this when
+          #  * the tests passed with 100% coverage
+          #  * a test failed and coverage didn't run
+          if-no-files-found: ignore
+        if: ${{ failure() }}  # only upload when the previous step, run tests, fails
