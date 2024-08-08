@@ -15,7 +15,6 @@ from django.views.generic import CreateView, FormView, ListView, View
 from furl import furl
 
 from interactive.models import AnalysisRequest
-from jobserver.first import first
 
 from ..authorization import CoreDeveloper, has_permission, has_role, permissions
 from ..forms import (
@@ -183,7 +182,7 @@ class WorkspaceCreate(CreateView):
             )
 
         org = self.request.user.orgs.first()
-        gh_org = first(org.github_orgs)
+        gh_org = next((o for o in org.github_orgs if o), None)
         if gh_org is None:
             message = (
                 f"Your organisation, {org.name}, has no GitHub organisations"
