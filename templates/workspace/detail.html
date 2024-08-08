@@ -232,11 +232,11 @@
         <p class="mb-1">
           This is an OpenSAFELY workspace.  It represents a working directory for the
           {% link text=workspace.project.title href=workspace.project.get_absolute_url %}
-          project on all of the secure services ("backends") supported by
+          project on all of the secure environments supported by
           OpenSAFELY.
         </p>
         <p>
-          On each backend, the directory includes code from the
+          On each secure environment, the directory includes code from the
           {% spaceless %}
             {% link text="repository" href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
           {% endspaceless %},
