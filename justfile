@@ -140,6 +140,13 @@ test-all *args: assets
     ./scripts/test-coverage.sh -m "not verification" {{ args }}
 
 
+test-verification *args: devenv
+    #!/bin/bash
+    export COVERAGE_PROCESS_START="pyproject.toml"
+    export COVERAGE_REPORT_ARGS="--include=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*"
+    ./scripts/test-coverage.sh -m "verification" {{ args }}
+
+
 test *args: assets
     $BIN/pytest -n auto -m "not verification and not slow_test" {{ args }}
 
