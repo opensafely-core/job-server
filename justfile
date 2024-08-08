@@ -134,7 +134,10 @@ run-telemetry: devenv
 
 
 test-all *args: assets
-    COVERAGE_PROCESS_START="pyproject.toml" ./scripts/test-coverage.sh {{ args }}
+    #!/bin/bash
+    export COVERAGE_PROCESS_START="pyproject.toml"
+    export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*"
+    ./scripts/test-coverage.sh -m "not verification" {{ args }}
 
 
 test *args: assets
