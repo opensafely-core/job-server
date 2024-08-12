@@ -55,8 +55,14 @@ def get_trace():
 
 
 @pytest.fixture(autouse=True)
-def enable_db_access_for_all_tests(db):
-    pass
+def enable_db_access_for_all_tests(request):
+    disable_db = request.node.get_closest_marker("disable_db")
+    if disable_db:
+        # e.g. verification tests don't need the db
+        # CI tests won't hit this line so no cover
+        yield  # pragma: no cover
+    else:
+        yield request.getfixturevalue("db")
 
 
 @pytest.fixture(autouse=True)

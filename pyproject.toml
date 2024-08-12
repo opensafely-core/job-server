@@ -102,6 +102,7 @@ filterwarnings = [
 markers = [
   "slow_test: mark test as being slow running",
   "verification: tests that verify fakes",
+  "disable_db: test that do not require a database",
 ]
 
 [tool.ruff]
