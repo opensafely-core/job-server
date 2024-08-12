@@ -280,10 +280,10 @@ Run the unit tests:
 just test
 ```
 
-Run all of the tests (including slow tests) and run coverage, as it's done in CI:
+Run all of the tests (including slow tests) apart from verification tests (that hit external APIs) and run coverage, as it's done in CI:
 
 ```sh
-just test-all
+just test-ci
 ```
 
 More details on testing can be found in [TESTING.md](TESTING.md).
