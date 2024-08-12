@@ -40,3 +40,13 @@ jobs:
           #  * a test failed and coverage didn't run
           if-no-files-found: ignore
         if: ${{ failure() }}  # only upload when the previous step, run tests, fails
+
+      - name: "Notify Slack on Failure"
+        if: failure() && github.ref_name == 'main'
+        uses: zuplo/github-action-slack-notify-build@cf8e7e66a21d76a8125ea9648979c30920195552 # v2
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel_id: C069SADHP1Q
+          status: "Verification Test Failure"
+          color: danger
