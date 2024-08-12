@@ -133,7 +133,7 @@ run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
 
 
-test-all *args: assets
+test-ci *args: assets
     #!/bin/bash
     export COVERAGE_PROCESS_START="pyproject.toml"
     export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*"
