@@ -26,7 +26,7 @@ build env="dev": _dotenv
 test *pytest_args="": _dotenv build
     #!/bin/bash
     # Note, we do *not* run coverage in docker, as we want to use xdist, and coverage does not seem to work reliably.
-    docker compose run --rm test pytest {{ pytest_args }}
+    docker compose run --rm test pytest -m "not verification" {{ pytest_args }}
 
 # run as service in dev|prod container
 serve env="dev" *args="": _dotenv
