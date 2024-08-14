@@ -1,0 +1,52 @@
+---
+name: Verification Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  "47 0 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: "opensafely-core/setup-action@v1"
+        with:
+          python-version: "3.12"
+          install-just: true
+
+      - name: Install venv
+        run: just devenv
+
+      - name: Run verification tests
+        env:
+          GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
+          SECRET_KEY: 12345
+          SOCIAL_AUTH_GITHUB_KEY: test
+          SOCIAL_AUTH_GITHUB_SECRET: test
+        run: |
+          # hardcode n because auto=2 in CI for some reason
+          just test-verification -n 4
+
+      - name: Upload HTML coverage report if tests failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage-report
+          path: htmlcov
+          # don't fail the job because no files were found, we expect this when
+          #  * the tests passed with 100% coverage
+          #  * a test failed and coverage didn't run
+          if-no-files-found: ignore
+        if: ${{ failure() }}  # only upload when the previous step, run tests, fails
+
+      - name: "Notify Slack on Failure"
+        if: failure() && github.ref_name == 'main'
+        uses: zuplo/github-action-slack-notify-build@cf8e7e66a21d76a8125ea9648979c30920195552 # v2
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel_id: C069SADHP1Q
+          status: "Verification Test Failure"
+          color: danger

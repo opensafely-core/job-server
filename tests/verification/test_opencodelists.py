@@ -6,9 +6,7 @@ from ..fakes import FakeOpenCodelistsAPI
 from .utils import compare
 
 
-pytestmark = [
-    pytest.mark.verification,
-]
+pytestmark = [pytest.mark.verification, pytest.mark.disable_db]
 
 
 @pytest.fixture
