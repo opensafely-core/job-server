@@ -84,7 +84,7 @@ def test_pipeline_with_new_user(slack_messages, strategy):
 
     social = output["social"]
     assert social.user == user
-    assert social.extra_data["access_token"] == "sekret"
+    assert "sekret" not in social.extra_data.values()
 
     url = f"http://localhost:8000{user.get_staff_url()}"
 
