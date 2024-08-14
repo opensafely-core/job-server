@@ -73,6 +73,7 @@ class OutputChecker:
     permissions = [
         release_file_delete,
         release_file_upload,
+        release_file_view,
         unreleased_outputs_view,
     ]
 
