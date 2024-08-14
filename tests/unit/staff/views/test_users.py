@@ -380,7 +380,7 @@ def test_userdetailwithoauth_get_success(rf, core_developer, project_membership)
     org = OrgFactory()
     project1 = ProjectFactory()
     project2 = ProjectFactory()
-    user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
+    user = UserFactory(roles=[OutputPublisher, ProjectCollaborator])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
@@ -408,7 +408,7 @@ def test_userdetailwithoauth_post_success(rf, core_developer, project_membership
 
     project1 = ProjectFactory()
     project2 = ProjectFactory()
-    user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
+    user = UserFactory(roles=[OutputPublisher, ProjectCollaborator])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
@@ -436,7 +436,7 @@ def test_userdetailwithoauth_post_with_unknown_backend(
 ):
     project1 = ProjectFactory()
     project2 = ProjectFactory()
-    user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
+    user = UserFactory(roles=[OutputPublisher, ProjectCollaborator])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
@@ -581,7 +581,7 @@ def test_userlist_filter_by_invalid_org(rf, core_developer):
 
 def test_userlist_filter_by_role(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[ProjectDeveloper])
+    UserFactory(roles=[ProjectCollaborator])
 
     request = rf.get("/?role=OutputPublisher")
     request.user = core_developer
@@ -658,7 +658,7 @@ def test_userlist_filter_by_any_roles_yes_includes_org(
 
 def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[ProjectDeveloper])
+    UserFactory(roles=[ProjectCollaborator])
     user = UserFactory()
 
     request = rf.get("/?any_roles=no")
@@ -674,7 +674,7 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(
 ):
     user = UserFactory()
 
-    actor = UserFactory(roles=[ProjectDeveloper])
+    actor = core_developer
 
     # set up projects so the creator can have roles
     project1 = ProjectFactory(created_by=actor, updated_by=actor)
@@ -715,7 +715,7 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(
 
 def test_userlist_filter_by_any_roles_no_excludes_org_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[ProjectDeveloper])
+    UserFactory(roles=[ProjectCollaborator])
     user = UserFactory()
 
     user_with_project = UserFactory()
@@ -782,7 +782,7 @@ def test_userlist_success(rf, core_developer):
 
 
 def test_userrolelist_get_success(rf, core_developer):
-    user = UserFactory(roles=[ProjectDeveloper])
+    user = UserFactory(roles=[ProjectCollaborator])
 
     request = rf.get("/")
     request.user = core_developer
@@ -795,12 +795,12 @@ def test_userrolelist_get_success(rf, core_developer):
 
 
 def test_userrolelist_post_success(rf, core_developer):
-    user = UserFactory(roles=[ProjectDeveloper])
+    user = UserFactory(roles=[ProjectCollaborator])
 
     data = {
         "roles": [
             "jobserver.authorization.roles.OutputPublisher",
-            "jobserver.authorization.roles.ProjectDeveloper",
+            "jobserver.authorization.roles.ProjectCollaborator",
         ]
     }
     request = rf.post("/", data=data)
@@ -811,7 +811,7 @@ def test_userrolelist_post_success(rf, core_developer):
     assert response.status_code == 302, response.context_data["form"].errors
 
     user.refresh_from_db()
-    assert set(user.roles) == {OutputPublisher, ProjectDeveloper}
+    assert set(user.roles) == {OutputPublisher, ProjectCollaborator}
 
 
 def test_userrolelist_post_with_unknown_role(rf, core_developer):
