@@ -63,7 +63,6 @@ def pipeline(response, strategy, *args, **kwargs):
             "id": uid,
             "expires": response.get("expires", None),
             "login": response["login"],
-            "access_token": response["access_token"],
             "token_type": response["token_type"],
         }
 
