@@ -119,12 +119,9 @@ class WorkspaceCreateForm(forms.Form):
                     for r in self.repos_with_branches
                     if r["url"] == kwargs["data"]["repo"]
                 ),
-                None,
             )
         else:
-            repo = next(  # pragma: no branch
-                (r for r in self.repos_with_branches if r), None
-            )
+            repo = self.repos_with_branches[0]
 
         # construct the branch Form field
         branch_choices = [(b, b) for b in repo["branches"]]
