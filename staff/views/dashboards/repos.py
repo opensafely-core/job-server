@@ -71,7 +71,7 @@ class PrivateReposDashboard(View):
                 w for w in all_workspaces if repo["url"].lower() == w.repo.url.lower()
             ]
             workspaces = sorted(workspaces, key=lambda w: w.name.lower())
-            workspace = next((w for w in workspaces if w), None)
+            workspace = workspaces[0] if workspaces else None
             contact = workspace.created_by if workspace else None
 
             # build projects using the workspace.project_ids from workspaces
