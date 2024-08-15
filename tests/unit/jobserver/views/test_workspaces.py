@@ -48,6 +48,12 @@ from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
+# this is what defines "private"
+class AnotherFakeGitHubAPI:
+    def get_repo_is_private(self, owner, name):
+        return name.startswith("private")
+
+
 def test_workspacearchivetoggle_success(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory(is_archived=False)
@@ -427,11 +433,6 @@ def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(
         roles=[role_factory(permission=permissions.workspace_archive)],
     )
 
-    # this is what defines "private"
-    class AnotherFakeGitHubAPI:
-        def get_repo_is_private(self, owner, name):
-            return name.startswith("private")
-
     request = rf.get("/")
     request.user = user
 
@@ -470,11 +471,6 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(
         roles=[role_factory(permission=permissions.workspace_archive)],
     )
 
-    # this is what defines "private"
-    class AnotherFakeGitHubAPI:
-        def get_repo_is_private(self, owner, name):
-            return name.startswith("private")
-
     request = rf.get("/")
     request.user = user
 
@@ -486,6 +482,37 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(
 
     assert response.status_code == 200
     assert response.context_data["show_publish_repo_warning"]
+
+
+def test_workspacedetail_authorized_private_repo_show_workspace_admin_panel(
+    rf, project_membership, role_factory
+):
+    project = ProjectFactory()
+
+    # a workspace with a "private" repo
+    workspace = WorkspaceFactory(
+        project=project, repo=RepoFactory(url="http://example.com/repo/private1")
+    )
+
+    user = UserFactory()
+    BackendMembershipFactory(user=user)
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permission=permissions.workspace_archive)],
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=AnotherFakeGitHubAPI)(
+        request,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["show_admin"]
 
 
 def test_workspacedetail_authorized_toggle_notifications(rf, role_factory):
@@ -683,6 +710,37 @@ def test_workspacedetail_unauthorized(rf):
     # this is false because only a user with ProjectDeveloper should be able
     # to do this
     assert not response.context_data["user_can_toggle_notifications"]
+
+
+def test_workspacedetail_unauthorized_private_repo_show_workspace_admin_panel(
+    rf, project_membership, role_factory
+):
+    project = ProjectFactory()
+
+    # a workspace with a "private" repo
+    workspace = WorkspaceFactory(
+        project=project, repo=RepoFactory(url="http://example.com/repo/private1")
+    )
+
+    user = UserFactory()
+    BackendMembershipFactory(user=user)
+    project_membership(
+        project=project,
+        user=user,
+        roles=[],
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=AnotherFakeGitHubAPI)(
+        request,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert not response.context_data["show_admin"]
 
 
 def test_workspacedetail_unknown_workspace(rf):

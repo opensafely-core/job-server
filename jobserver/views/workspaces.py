@@ -305,9 +305,7 @@ class WorkspaceDetail(View):
         has_backends = request.user.is_authenticated and request.user.backends.exists()
 
         # should we show the admin section in the UI?
-        show_admin = (
-            can_archive_workspace or repo_is_private or can_toggle_notifications
-        )
+        show_admin = can_archive_workspace or can_toggle_notifications
 
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
