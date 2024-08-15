@@ -48,6 +48,12 @@ from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
+# this is what defines "private"
+class AnotherFakeGitHubAPI:
+    def get_repo_is_private(self, owner, name):
+        return name.startswith("private")
+
+
 def test_workspacearchivetoggle_success(rf, project_membership, role_factory):
     user = UserFactory()
     workspace = WorkspaceFactory(is_archived=False)
@@ -427,11 +433,6 @@ def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(
         roles=[role_factory(permission=permissions.workspace_archive)],
     )
 
-    # this is what defines "private"
-    class AnotherFakeGitHubAPI:
-        def get_repo_is_private(self, owner, name):
-            return name.startswith("private")
-
     request = rf.get("/")
     request.user = user
 
@@ -470,11 +471,6 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(
         roles=[role_factory(permission=permissions.workspace_archive)],
     )
 
-    # this is what defines "private"
-    class AnotherFakeGitHubAPI:
-        def get_repo_is_private(self, owner, name):
-            return name.startswith("private")
-
     request = rf.get("/")
     request.user = user
 
@@ -505,11 +501,6 @@ def test_workspacedetail_authorized_private_repo_show_workspace_admin_panel(
         user=user,
         roles=[role_factory(permission=permissions.workspace_archive)],
     )
-
-    # this is what defines "private"
-    class AnotherFakeGitHubAPI:
-        def get_repo_is_private(self, owner, name):
-            return name.startswith("private")
 
     request = rf.get("/")
     request.user = user
@@ -738,11 +729,6 @@ def test_workspacedetail_unauthorized_private_repo_show_workspace_admin_panel(
         user=user,
         roles=[],
     )
-
-    # this is what defines "private"
-    class AnotherFakeGitHubAPI:
-        def get_repo_is_private(self, owner, name):
-            return name.startswith("private")
 
     request = rf.get("/")
     request.user = user
