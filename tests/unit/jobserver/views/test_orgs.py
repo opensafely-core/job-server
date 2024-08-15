@@ -81,7 +81,6 @@ def test_orglist_success(rf, user_class):
     assert len(response.context_data["object_list"]) == 6
 
     expected = next(  # pragma: no branch
-        (d for d in response.context_data["object_list"] if d.pk == org.pk),
-        None,
+        d for d in response.context_data["object_list"] if d.pk == org.pk
     )
     assert expected and expected.project_count == 3

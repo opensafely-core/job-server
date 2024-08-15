@@ -90,7 +90,7 @@ def test_status_healthy(rf):
     response = Status.as_view()(request)
 
     output = next(  # pragma: no branch
-        (d for d in response.context_data["backends"] if d), None
+        d for d in response.context_data["backends"] if d
     )
 
     assert output["last_seen"] == last_seen
@@ -106,7 +106,7 @@ def test_status_no_last_seen(rf):
     response = Status.as_view()(request)
 
     output = next(  # pragma: no branch
-        (d for d in response.context_data["backends"] if d), None
+        d for d in response.context_data["backends"] if d
     )
     assert output["last_seen"] is None
     assert not output["show_warning"]
@@ -122,7 +122,7 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
     response = Status.as_view()(request)
 
     output = next(  # pragma: no branch
-        (d for d in response.context_data["backends"] if d), None
+        d for d in response.context_data["backends"] if d
     )
 
     assert output["last_seen"] == last_seen
@@ -145,7 +145,7 @@ def test_status_unhealthy(rf):
     response = Status.as_view()(request)
 
     output = next(  # pragma: no branch
-        (d for d in response.context_data["backends"] if d), None
+        d for d in response.context_data["backends"] if d
     )
     assert output["last_seen"] == last_seen
     assert output["queue"]["acked"] == 2
@@ -165,7 +165,7 @@ def test_status_counts_all_running_jobs(rf):
     response = Status.as_view()(request)
 
     output = next(  # pragma: no branch
-        (d for d in response.context_data["backends"] if d), None
+        d for d in response.context_data["backends"] if d
     )
     assert output["queue"]["running"] == 3
 
@@ -182,7 +182,7 @@ def test_status_counts_all_pending_jobs(rf):
     response = Status.as_view()(request)
 
     output = next(  # pragma: no branch
-        (d for d in response.context_data["backends"] if d), None
+        d for d in response.context_data["backends"] if d
     )
     assert output["queue"]["pending"] == 3
 

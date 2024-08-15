@@ -9,7 +9,7 @@ def test_create_output_checking_request(github_api):
 
     create_output_checking_request(job_request, github_api)
 
-    issue = next((i for i in github_api.issues if i), None)  # pragma: no branch
+    issue = next(i for i in github_api.issues if i)  # pragma: no branch
     lines = issue.body.split("\n")
 
     assert lines[0] == "### GitHub repo"

@@ -17,9 +17,7 @@ def get_factory(model):
     classes = [value for name, value in inspect.getmembers(factories, inspect.isclass)]
     all_factories = [c for c in classes if c.__name__.endswith("Factory")]
 
-    return next(  # pragma: no branch
-        (f for f in all_factories if f._meta.model == model), None
-    )
+    return next(f for f in all_factories if f._meta.model == model)  # pragma: no branch
 
 
 def get_target_fields():
