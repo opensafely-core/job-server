@@ -182,17 +182,7 @@ class WorkspaceCreate(CreateView):
             )
 
         org = self.request.user.orgs.first()
-        gh_org = next((o for o in org.github_orgs if o), None)
-        if gh_org is None:
-            message = (
-                f"Your organisation, {org.name}, has no GitHub organisations"
-                "associated with it, please contact support."
-            )
-            return TemplateResponse(
-                request,
-                "workspace/create_error.html",
-                context={"message": message, "project": self.project},
-            )
+        gh_org = org.github_orgs[0]
 
         try:
             self.repos_with_branches = list(
