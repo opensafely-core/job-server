@@ -31,7 +31,6 @@ omit = [
   "interactive/management/commands/osi_run.py",
   "interactive/management/commands/osi_run_and_release.py",
   "jobserver/management/commands/count_rows.py",
-  "jobserver/management/commands/ensure_admins.py",
   "jobserver/management/commands/ensure_backends.py",
   "jobserver/management/commands/get_all_projects.py",
   "jobserver/management/commands/get_transitional_projects.py",
