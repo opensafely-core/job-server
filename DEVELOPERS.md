@@ -171,22 +171,6 @@ just devenv
 python manage.py migrate
 ```
 
-Optionally give 1 or more administrators access to the Staff Area by setting `ADMIN_USERS` to a list of strings.
-For example: `ADMIN_USERS=ghickman,ingelsp`.
-
-_Note:_ this can only contain usernames which exist in the database.
-If necessary, you can create the required user(s) first with:
-
-```sh
-python manage.py createsuperuser
-```
-
-Then update their User records with:
-
-```sh
-python manage.py ensure_admins
-```
-
 **Build the assets:**
 
 See the [Compiling assets](#compiling-assets) section.
