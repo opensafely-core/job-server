@@ -188,7 +188,6 @@ class User(AbstractBaseUser):
         membership_roles = list(
             itertools.chain.from_iterable(
                 [m.roles for m in self.project_memberships.all()]
-                + [m.roles for m in self.org_memberships.all()]
             )
         )
 
@@ -217,14 +216,6 @@ class User(AbstractBaseUser):
             permissions = itertools.chain.from_iterable(r.permissions for r in roles)
             return list(sorted(set(permissions)))
 
-        orgs = [
-            {
-                "slug": m.org.slug,
-                "permissions": flatten_perms(m.roles),
-            }
-            for m in self.org_memberships.all()
-        ]
-
         projects = [
             {
                 "slug": m.project.slug,
@@ -235,7 +226,6 @@ class User(AbstractBaseUser):
 
         return {
             "global": flatten_perms(self.roles),
-            "orgs": orgs,
             "projects": projects,
         }
 
@@ -250,11 +240,6 @@ class User(AbstractBaseUser):
         def role_names(roles):
             return list(sorted(r.__name__ for r in roles))
 
-        orgs = [
-            {"slug": m.org.slug, "roles": role_names(m.roles)}
-            for m in self.org_memberships.all()
-        ]
-
         projects = [
             {"slug": m.project.slug, "roles": role_names(m.roles)}
             for m in self.project_memberships.all()
@@ -262,7 +247,6 @@ class User(AbstractBaseUser):
 
         return {
             "global": role_names(self.roles),
-            "orgs": orgs,
             "projects": projects,
         }
 
