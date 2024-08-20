@@ -9,7 +9,6 @@ from jobserver.models import AuditableEvent
 
 from ....factories import (
     BackendMembershipFactory,
-    OrgMembershipFactory,
     ProjectFactory,
     UserFactory,
     UserSocialAuthFactory,
@@ -100,13 +99,11 @@ def test_clear_all_roles(project_membership):
     project = ProjectFactory()
     user = UserFactory(roles=[ProjectDeveloper])
 
-    OrgMembershipFactory(user=user, roles=[ProjectDeveloper])
     membership = project_membership(
         project=project, user=user, roles=[ProjectDeveloper]
     )
 
     assert len(user.roles) == 1
-    assert len(user.org_memberships.get().roles) == 1
     assert len(user.project_memberships.get().roles) == 1
 
     # these are the "user added" and the "user's roles updated" events
@@ -116,7 +113,6 @@ def test_clear_all_roles(project_membership):
 
     user.refresh_from_db()
     assert len(user.roles) == 0
-    assert len(user.org_memberships.get().roles) == 0
     assert len(user.project_memberships.get().roles) == 0
 
     # this is the "user's roles updated" event
