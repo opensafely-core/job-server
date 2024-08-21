@@ -14,6 +14,7 @@ pip-tools
 pre-commit
 pytest-django
 pytest-env
+pytest-freezer
 pytest-icdiff
 pytest-mock
 pytest-network
@@ -22,4 +23,3 @@ pytest-xdist[psutil]
 responses
 ruff
 stamina
-time-machine
