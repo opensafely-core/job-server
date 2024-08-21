@@ -1,11 +1,11 @@
 from collections.abc import Callable
+from dataclasses import dataclass
 
-from attrs import define
 from django.http import HttpRequest
 from django.urls import reverse
 
 
-@define
+@dataclass
 class NavItem:
     name: str
     url_name: str

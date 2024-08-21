@@ -1,8 +1,8 @@
+from dataclasses import dataclass
 from datetime import timedelta
 from urllib.parse import unquote
 
 import structlog
-from attrs import define
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Min
@@ -27,7 +27,7 @@ from .qwargs_tools import qwargs
 logger = structlog.get_logger(__name__)
 
 
-@define
+@dataclass
 class Disabled:
     already_signed_off: bool
     no_permission: bool

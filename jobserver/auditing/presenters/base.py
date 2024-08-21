@@ -1,7 +1,7 @@
-from attrs import define
+from dataclasses import dataclass
 
 
-@define
+@dataclass
 class LinkableObject:
     display_value: str
     link: str
@@ -39,7 +39,7 @@ class LinkableObject:
         return cls(display_value=display_value, link=link)
 
 
-@define
+@dataclass
 class PresentableAuditableEvent:
     context: dict[str, str]
     template_name: str

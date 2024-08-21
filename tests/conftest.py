@@ -2,11 +2,11 @@ import hashlib
 import os
 import random
 import string
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 import structlog
-from attrs import define
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
@@ -277,7 +277,7 @@ def github_api():
         comments = []
 
         def create_issue(self, **kwargs):
-            @define
+            @dataclass
             class Issue:
                 org: str
                 repo: str
@@ -293,7 +293,7 @@ def github_api():
             }
 
         def close_issue(self, **kwargs):
-            @define
+            @dataclass
             class Issue:
                 org: str
                 repo: str
@@ -309,7 +309,7 @@ def github_api():
             }
 
         def create_issue_comment(self, **kwargs):
-            @define
+            @dataclass
             class IssueComment:
                 org: str
                 repo: str
