@@ -1305,7 +1305,7 @@ def test_workspacenotificationstoggle_unknown_workspace(
 
 
 def test_workspaceoutputlist_success(
-    rf, time_machine, build_release_with_files, role_factory
+    rf, freezer, build_release_with_files, role_factory
 ):
     workspace = WorkspaceFactory()
 
@@ -1342,9 +1342,7 @@ def test_workspaceoutputlist_success(
     assert len(response.context_data["snapshots"]) == 2
 
 
-def test_workspaceoutputlist_without_permission(
-    rf, time_machine, build_release_with_files
-):
+def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_files):
     workspace = WorkspaceFactory()
 
     now = timezone.now()
@@ -1383,7 +1381,7 @@ def test_workspaceoutputlist_without_permission(
     assert "Current" not in response.rendered_content
 
 
-def test_workspaceoutputlist_without_snapshots(rf, time_machine, role_factory):
+def test_workspaceoutputlist_without_snapshots(rf, freezer, role_factory):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")

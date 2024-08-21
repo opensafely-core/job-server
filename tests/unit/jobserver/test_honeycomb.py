@@ -18,8 +18,8 @@ def test_format_trace_id_hexadecimal_leading_zeros():
     assert honeycomb.format_trace_id(decimal_trace_id) == hex_trace_id
 
 
-def test_format_honeycomb_timestamps_job(time_machine):
-    time_machine.move_to("2022-06-15 13:00", tick=False)
+def test_format_honeycomb_timestamps_job(freezer):
+    freezer.move_to("2022-06-15 13:00")
 
     job = JobFactory(completed_at=timezone.now(), status="succeeded")
     start, end = honeycomb.format_honeycomb_timestamps(job)
@@ -27,8 +27,8 @@ def test_format_honeycomb_timestamps_job(time_machine):
     assert end == 1655298060
 
 
-def test_format_honeycomb_timestamps_jobrequest(time_machine):
-    time_machine.move_to("2022-06-15 13:00", tick=False)
+def test_format_honeycomb_timestamps_jobrequest(freezer):
+    freezer.move_to("2022-06-15 13:00")
 
     job_request = JobRequestFactory()
     job = JobFactory(  # noqa: F841
@@ -44,8 +44,8 @@ def test_format_honeycomb_timestamps_jobrequest(time_machine):
     assert end == 1655298060
 
 
-def test_honeycomb_timestamps_jobrequest_unfinished(time_machine):
-    time_machine.move_to("2022-06-15 13:00", tick=False)
+def test_honeycomb_timestamps_jobrequest_unfinished(freezer):
+    freezer.move_to("2022-06-15 13:00")
 
     job_request = JobRequestFactory()
     job = JobFactory(job_request=job_request, status="executing")  # noqa: F841
@@ -59,16 +59,16 @@ def test_honeycomb_timestamps_jobrequest_unfinished(time_machine):
     assert end == 1655301600
 
 
-def test_trace_link(time_machine):
-    time_machine.move_to("2022-06-15 13:00", tick=False)
+def test_trace_link(freezer):
+    freezer.move_to("2022-06-15 13:00")
     job = JobFactory(completed_at=timezone.now())
     url = honeycomb.trace_link(job)
     assert "trace_start_ts=1655297940&trace_end_ts=1655298060" in url
     assert "bennett-institute-for-applied-data-science" in url
 
 
-def test_status_link(time_machine):
-    time_machine.move_to("2022-10-12 17:00", tick=False)
+def test_status_link(freezer):
+    freezer.move_to("2022-10-12 17:00")
 
     job = JobFactory(completed_at=timezone.now(), identifier="test_identifier")
     url = honeycomb.status_link(job)
@@ -96,8 +96,8 @@ def test_status_link(time_machine):
     }
 
 
-def test_jobrequest_link(time_machine):
-    time_machine.move_to("2022-10-12 17:00", tick=False)
+def test_jobrequest_link(freezer):
+    freezer.move_to("2022-10-12 17:00")
 
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
     job = JobFactory(  # noqa: F841
@@ -134,8 +134,8 @@ def test_jobrequest_link(time_machine):
     }
 
 
-def test_previous_actions_link(time_machine):
-    time_machine.move_to("2022-10-12 17:00", tick=False)
+def test_previous_actions_link(freezer):
+    freezer.move_to("2022-10-12 17:00")
 
     workspace = WorkspaceFactory(name="my_test_workspace")
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg", workspace=workspace)
@@ -167,8 +167,8 @@ def test_previous_actions_link(time_machine):
     }
 
 
-def test_jobrequest_concurrency_link_unfinished(time_machine):
-    time_machine.move_to("2022-10-12 17:00", tick=False)
+def test_jobrequest_concurrency_link_unfinished(freezer):
+    freezer.move_to("2022-10-12 17:00")
 
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
     job = JobFactory(job_request=job_request, status="executing")  # noqa: F841

@@ -242,14 +242,14 @@ def test_user_is_interactive_only(project_membership):
     assert not UserFactory().is_interactive_only
 
 
-def test_user_rotate_token(time_machine):
+def test_user_rotate_token(freezer):
     user = UserFactory()
 
     assert user.pat_token is None
     assert user.pat_expires_at is None
 
     # shift time to a date in the past
-    time_machine.move_to("2022-04-07")
+    freezer.move_to("2022-04-07")
 
     # set the user's pat_token and pat_expires_at
     token = user.rotate_token()
@@ -264,7 +264,7 @@ def test_user_rotate_token(time_machine):
     assert token1
 
     # shift time forward a couple of days and update pat_* fields
-    time_machine.move_to("2022-04-09")
+    freezer.move_to("2022-04-09")
     user.rotate_token()
 
     assert user.pat_expires_at > expires_at1
@@ -285,7 +285,7 @@ def test_user_valid_pat_with_empty_token():
     assert not user.has_valid_pat(None)
 
 
-def test_user_valid_pat_with_expired_token(time_machine):
+def test_user_valid_pat_with_expired_token(freezer):
     user = UserFactory()
     token = user.rotate_token()
     user.pat_expires_at = timezone.now() - timedelta(days=1)

@@ -57,8 +57,8 @@ def test_dbavailability_out_of_db_maintenance(rf):
     ],
     ids=["missing", "not_missing"],
 )
-def test_perbackendstatus(rf, time_machine, alert_timeout, last_seen, expected_status):
-    time_machine.move_to("2022-3-23", tick=False)  # set a fixed time to work against
+def test_perbackendstatus(rf, freezer, alert_timeout, last_seen, expected_status):
+    freezer.move_to("2022-3-23")  # set a fixed time to work against
 
     backend = BackendFactory(alert_timeout=alert_timeout)
     StatsFactory(backend=backend, api_last_seen=last_seen)
