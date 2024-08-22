@@ -15,7 +15,6 @@ from tests.factories import (
 
 
 def test_create_output_checking_request_external(github_api):
-
     user = UserFactory()
     workspace = WorkspaceFactory(name="test-workspace")
 

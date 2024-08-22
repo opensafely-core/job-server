@@ -207,7 +207,6 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
 )
 @patch("airlock.views._get_github_api", FakeGithubApiWithError)
 def test_api_airlock_event_error(api_rf, event_type, updates, error):
-
     author = UserFactory()
     user = UserFactory()
     WorkspaceFactory(name="test-workspace")

@@ -389,7 +389,8 @@ LOCAL_GIT_REPOS = BASE_DIR / "repos"
 
 # Released files per-file size limit
 RELEASE_FILE_SIZE_LIMIT = env.int(
-    "RELEASE_FILE_SIZE_LIMIT", default=16 * 1024 * 1024  # 16Mb
+    "RELEASE_FILE_SIZE_LIMIT",
+    default=16 * 1024 * 1024,  # 16Mb
 )
 
 # Released files storage location
