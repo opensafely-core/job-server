@@ -1,7 +1,5 @@
 from django import forms
 
-from jobserver.first import first
-
 from .authorization.forms import RolesForm
 from .models import JobRequest, Project, Workspace
 
@@ -115,12 +113,15 @@ class WorkspaceCreateForm(forms.Form):
 
         # has there been a repo selected already?
         if "data" in kwargs and "repo" in kwargs["data"]:
-            repo = first(
-                self.repos_with_branches,
-                key=lambda r: r["url"] == kwargs["data"]["repo"],
+            repo = next(  # pragma: no branch
+                (
+                    r
+                    for r in self.repos_with_branches
+                    if r["url"] == kwargs["data"]["repo"]
+                ),
             )
         else:
-            repo = first(self.repos_with_branches)
+            repo = self.repos_with_branches[0]
 
         # construct the branch Form field
         branch_choices = [(b, b) for b in repo["branches"]]
@@ -137,7 +138,10 @@ class WorkspaceCreateForm(forms.Form):
         if not (repo_url and branch):
             return
 
-        repo = first(self.repos_with_branches, key=lambda r: r["url"] == repo_url)
+        repo = next(
+            (r for r in self.repos_with_branches if r["url"] == repo_url),
+            None,
+        )
         if repo is None:
             msg = "Unknown repo, please reload the page and try again"
             raise forms.ValidationError(msg)

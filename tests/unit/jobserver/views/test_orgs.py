@@ -2,7 +2,6 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 
-from jobserver.first import first
 from jobserver.utils import set_from_qs
 from jobserver.views.orgs import OrgDetail, OrgEventLog, OrgList
 
@@ -81,5 +80,7 @@ def test_orglist_success(rf, user_class):
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 6
 
-    expected = first(response.context_data["object_list"], key=lambda o: o.pk == org.pk)
+    expected = next(  # pragma: no branch
+        d for d in response.context_data["object_list"] if d.pk == org.pk
+    )
     assert expected and expected.project_count == 3
