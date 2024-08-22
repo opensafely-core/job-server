@@ -137,7 +137,7 @@ test-ci *args: assets
     #!/bin/bash
     export COVERAGE_PROCESS_START="pyproject.toml"
     export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*"
-    ./scripts/test-coverage.sh -m "not verification" {{ args }}
+    ./scripts/test-coverage.sh -m "not verification" --migrations {{ args }}
 
 
 test-verification *args: devenv
