@@ -1009,8 +1009,8 @@ def test_jobrequestdetail_with_permission(rf, project_membership, role_factory):
     assert "Cancel" in response.rendered_content
 
 
-def test_jobrequestdetail_with_permission_core_developer(rf, time_machine):
-    time_machine.move_to("2022-06-16 12:00", tick=False)
+def test_jobrequestdetail_with_permission_core_developer(rf, freezer):
+    freezer.move_to("2022-06-16 12:00")
     job_request = JobRequestFactory()
     job = JobFactory(  # noqa: F841
         job_request=job_request, completed_at=timezone.now(), status="succeeded"

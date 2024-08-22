@@ -1195,7 +1195,7 @@ def test_reviewapi_success(api_rf):
     assert review2.comments == {"test": "bar"}
 
 
-def test_snapshotapi_published_with_anonymous_user(api_rf, time_machine):
+def test_snapshotapi_published_with_anonymous_user(api_rf, freezer):
     snapshot = SnapshotFactory()
     PublishRequestFactory(
         snapshot=snapshot,

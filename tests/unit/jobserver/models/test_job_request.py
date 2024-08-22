@@ -231,7 +231,7 @@ def test_jobrequest_request_cancellation():
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
 
 
-def test_jobrequest_runtime_one_job_missing_completed_at(time_machine):
+def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -261,7 +261,7 @@ def test_jobrequest_runtime_one_job_missing_completed_at(time_machine):
     assert jr.runtime.seconds == 0
 
 
-def test_jobrequest_runtime_one_job_missing_started_at(time_machine):
+def test_jobrequest_runtime_one_job_missing_started_at(freezer):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -296,7 +296,7 @@ def test_jobrequest_runtime_no_jobs():
     assert not JobRequest.objects.with_started_at().first().runtime
 
 
-def test_jobrequest_runtime_not_completed(time_machine):
+def test_jobrequest_runtime_not_completed(freezer):
     jr = JobRequestFactory()
 
     now = timezone.now()

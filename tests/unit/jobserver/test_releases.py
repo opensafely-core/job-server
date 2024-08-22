@@ -309,7 +309,7 @@ def test_workspace_files_one_release(build_release):
     }
 
 
-def test_workspace_files_many_releases(time_machine, build_release_with_files):
+def test_workspace_files_many_releases(freezer, build_release_with_files):
     now = timezone.now()
 
     backend1 = BackendFactory(slug="backend1")

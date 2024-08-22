@@ -318,9 +318,9 @@ def test_releasefiledelete_no_file_on_disk(rf, role_factory):
         )
 
 
-def test_releasefiledelete_success(rf, time_machine, release, role_factory):
+def test_releasefiledelete_success(rf, freezer, release, role_factory):
     now = timezone.now()
-    time_machine.move_to(now, tick=False)
+    freezer.move_to(now)
 
     rfile = release.files.first()
     user = UserFactory(roles=[role_factory(permission=permissions.release_file_delete)])

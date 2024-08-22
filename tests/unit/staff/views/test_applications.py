@@ -296,10 +296,10 @@ def test_applicationdetail_post_with_complete_application(
     django_assert_max_num_queries,
     core_developer,
     complete_application,
-    time_machine,
+    freezer,
 ):
     now = timezone.now()
-    time_machine.move_to(now, tick=False)
+    freezer.move_to(now)
 
     application = complete_application
 
@@ -340,10 +340,10 @@ def test_applicationdetail_post_with_incomplete_application(
     rf,
     core_developer,
     incomplete_application,
-    time_machine,
+    freezer,
 ):
     now = timezone.now()
-    time_machine.move_to(now, tick=False)
+    freezer.move_to(now)
 
     application = incomplete_application
 

@@ -1,13 +1,13 @@
 from datetime import timedelta
 
 import pytest
-import time_machine
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.signing import TimestampSigner
 from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
+from freezegun import freeze_time
 
 from jobserver.authorization import InteractiveReporter
 from jobserver.commands import users
@@ -282,7 +282,7 @@ def test_loginwithurl_with_expired_token(rf_messages):
     user = UserFactory()
 
     new_time = timezone.now() - timedelta(hours=1, seconds=1)
-    with time_machine.travel(new_time):
+    with freeze_time(new_time):
         signed_pk = TimestampSigner(salt="login").sign(user.pk)
     pk, _, token = signed_pk.partition(":")
 
