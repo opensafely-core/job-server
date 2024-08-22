@@ -151,20 +151,20 @@ test *args: assets
     $BIN/pytest -n auto -m "not verification and not slow_test" {{ args }}
 
 
-black *args=".": devenv
-    $BIN/black --check {{ args }}
+format *args=".": devenv
+    $BIN/ruff format --check {{ args }}
 
 
 django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
     $BIN/django-upgrade --target-version=5.0 {{ args }}
 
 
-ruff *args=".": devenv
+lint *args=".": devenv
     $BIN/ruff check --output-format=full {{ args }}
 
 
 # run the various dev checks but does not change any files
-check: black django-upgrade ruff
+check: format django-upgrade lint
 
 
 check-migrations: devenv
@@ -174,8 +174,8 @@ check-migrations: devenv
 
 # fix formatting and import sort ordering
 fix: devenv
-    $BIN/black .
     $BIN/ruff check --fix .
+    $BIN/ruff format .
 
 
 load-dev-data: devenv
