@@ -2,11 +2,9 @@ import hashlib
 import os
 import random
 import string
-import traceback
 from pathlib import Path
 
 import pytest
-import pytest_django.fixtures
 import structlog
 from attrs import define
 from django.conf import settings
@@ -54,31 +52,6 @@ provider.add_span_processor(SimpleSpanProcessor(test_exporter))
 def get_trace():
     """Return all spans traced during this test."""
     return test_exporter.get_finished_spans()  # pragma: no cover
-
-
-@pytest.fixture(scope="session")
-def django_db_setup(
-    request,
-    django_test_environment,
-    django_db_blocker,
-    django_db_use_migrations,
-    django_db_keepdb,
-    django_db_createdb,
-    django_db_modify_db_settings,
-):
-    try:
-        yield from pytest_django.fixtures.django_db_setup.__wrapped__(
-            request,
-            django_test_environment,
-            django_db_blocker,
-            django_db_use_migrations,
-            django_db_keepdb,
-            django_db_createdb,
-            django_db_modify_db_settings,
-        )
-    except:  # noqa: E722
-        exc = traceback.format_exc(-1)
-        pytest.exit(f"Error when setting up the test database: {exc}", 1)
 
 
 @pytest.fixture(autouse=True)
