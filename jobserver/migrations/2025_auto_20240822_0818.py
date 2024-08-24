@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def fun(apps, schema_editor):
-    assert False
+    raise AttributeError
 
 
 class Migration(migrations.Migration):
