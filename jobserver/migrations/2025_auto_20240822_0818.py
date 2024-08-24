@@ -4,7 +4,10 @@ from django.db import migrations
 
 
 def fun(apps, schema_editor):
-    raise AttributeError
+    User = apps.get_model("jobserver", "User")
+    for user in User.objects.all():
+        if user.roles__contains("ProjectDeveloper"):
+            pass
 
 
 class Migration(migrations.Migration):
