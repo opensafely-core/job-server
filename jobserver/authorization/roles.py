@@ -121,7 +121,6 @@ class ProjectDeveloper:
     description = "Run and cancel Jobs, and manage workspaces."
     models = [
         "jobserver.models.project_membership.ProjectMembership",
-        "jobserver.models.user.User",
     ]
     permissions = [
         job_cancel,
@@ -145,4 +144,25 @@ class SignOffRepoWithOutputs:
     ]
     permissions = [
         repo_sign_off_with_outputs,
+    ]
+
+
+class DeploymentAdministrator:
+    """
+    Run and cancel Jobs on any project, for development and maintenance purposes
+    including technical support for Approved Projects.
+    See Developer Permissions Log for the list of individuals who are approved for this role.
+    """
+
+    display_name = "Deployment Administrator"
+    description = """
+    Run and cancel Jobs on any project, for development and maintenance purposes including technical support for Approved Projects.
+    See Developer Permissions Log for the list of individuals who are approved for this role.
+    """
+    models = [
+        "jobserver.models.user.User",
+    ]
+    permissions = [
+        job_cancel,
+        job_run,
     ]
