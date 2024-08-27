@@ -4,7 +4,7 @@ Date: 2024-08-27
 
 ## Status
 
-Draft
+Accepted
 
 ## Context
 
@@ -64,12 +64,25 @@ And *again*, `django_db_setup` will terminate abnormally and the next test in th
 [3]: https://pytest-django.readthedocs.io/en/latest/database.html#django-db-setup
 [4]: https://docs.djangoproject.com/en/5.1/topics/testing/advanced/#django.test.utils.setup_databases
 
-Thankfully, because migrations run inside transactions,
+The relevant Django management commands
+(`makemigrations --check` and `migrate --check`)
+don't load and run migrations.
+Even if they did,
+a test database wouldn't be populated,
+so any new code paths wouldn't be followed.
+We could use [Django fixtures][5] to populate a test database,
+but they are hard to maintain.
+
+[5]: https://docs.djangoproject.com/en/5.1/topics/db/fixtures/
+
+Thankfully, because [migrations run inside transactions][6],
 a new migration that raises an exception won't leave the database in an inconsistent state,
-should it be deployed.
+should it reach the `deploy` job of the `CI` GitHub action.
 Nevertheless, it's not surprising that migrations
 -- especially data migrations --
-can be very hard to reason about.
+can be hard to test.
+
+[6]: https://docs.djangoproject.com/en/5.1/howto/writing-migrations/#non-atomic-migrations
 
 ## Decision
 
@@ -82,11 +95,11 @@ when creating, and reviewing the creation of, a new migration.
 Doing so will follow many new code paths,
 and it will alert us to the less obvious errors, sooner.
 
-**We will spike [django-test-migrations][5] when we next create a new data migration.**
+**We will spike [django-test-migrations][7] when we next create a new data migration.**
 There are several trade-offs associated with introducing django-test-migrations (or a similar dependency).
 We should consider them in a spike, the outcome of which should be an ADR.
 
-[5]: https://github.com/wemake-services/django-test-migrations
+[7]: https://github.com/wemake-services/django-test-migrations
 
 ## Consequences
 
