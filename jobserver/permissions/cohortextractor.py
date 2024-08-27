@@ -114,6 +114,7 @@ PROJECTS_WITH_COHORT_EXTRACTOR_PERMISSION = {
     153,  # https://jobs.opensafely.org/what-was-the-impact-of-covid-19-on-mortality-related-to-venous-thromboembolism-in-england/
     154,  # https://jobs.opensafely.org/validation-of-isaric-sus-phosp-data-for-covid-related-hospital-admissions/
     155,  # https://jobs.opensafely.org/the-effect-of-long-covid-on-quality-adjusted-life-years-using-openprompt/
+    171,  # This is a continuation of 137.  See https://bennettoxford.slack.com/archives/C068NDYALSF/p1723466360078629 for approval.
 }
 
 
