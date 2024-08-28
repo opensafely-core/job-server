@@ -1,7 +1,7 @@
 from django import forms
 
 from .authorization.forms import RolesForm
-from .models import JobRequest, Project, Workspace
+from .models import JobRequest, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -135,7 +135,7 @@ class WorkspaceCreateForm(forms.Form):
         repo_url = cleaned_data.get("repo")
         branch = cleaned_data.get("branch")
 
-        if not (repo_url and branch):
+        if not (repo_url and branch):  # pragma: no cover
             return
 
         repo = next(
@@ -160,21 +160,6 @@ class WorkspaceCreateForm(forms.Form):
             )
 
         return name
-
-    def clean_repo(self):
-        repo = self.cleaned_data["repo"]
-
-        projects = Project.objects.filter(workspaces__repo__url=repo)
-        if not projects.exists():
-            # if the repo isn't used by any projects then we're good to go
-            return repo
-
-        if self.project not in projects:
-            raise forms.ValidationError(
-                "This repo has already been used in another project, please pick a different one"
-            )
-
-        return repo
 
 
 class WorkspaceEditForm(forms.Form):
