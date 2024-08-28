@@ -5,7 +5,6 @@ from django.template.response import TemplateResponse
 
 
 class ExampleForm(forms.Form):
-
     example_select = forms.ChoiceField(
         choices=[
             ["", "Please select a language"],

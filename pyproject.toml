@@ -17,18 +17,6 @@ dynamic = ["version"]
 [tool.setuptools.packages.find]
 exclude = ["tests*"]  # exclude packages matching these glob patterns (empty by default)
 
-[tool.black]
-extend-exclude = '''
-(
-  /(
-      assets
-    | outputs
-    | snippets
-    | static
-  )/
-)
-'''
-
 [tool.coverage.run]
 branch = true
 relative_files = true
@@ -121,6 +109,7 @@ exclude = [
   "docs",
   "htmlcov",
   "node_modules",
+  "outputs",
   "release-hatch",
   "releases",
   "snippets",
@@ -143,6 +132,8 @@ extend-select = [
 extend-ignore = [
   "E501",
   "E731",
+  # Remove ISC001 when https://github.com/astral-sh/ruff/issues/8272 is resolved.
+  "ISC001",
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -32,7 +32,6 @@ class Command(BaseCommand):
 
     @transaction.atomic()
     def handle(self, *args, **options):
-
         try:
             user = User.objects.get(username=options["username"])
         except User.DoesNotExist:
