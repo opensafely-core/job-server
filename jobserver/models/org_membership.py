@@ -2,8 +2,6 @@ import structlog
 from django.db import models
 from django.utils import timezone
 
-from ..authorization.fields import RolesArrayField
-
 
 logger = structlog.get_logger(__name__)
 
@@ -27,8 +25,6 @@ class OrgMembership(models.Model):
         on_delete=models.CASCADE,
         related_name="org_memberships",
     )
-
-    roles = RolesArrayField()
 
     created_at = models.DateTimeField(default=timezone.now)
 

@@ -3,7 +3,7 @@ import itertools
 
 from ..utils import dotted_path
 from . import roles
-from .mappers import get_org_roles_for_user, get_project_roles_for_user
+from .mappers import get_project_roles_for_user
 
 
 def _validate_context(allowed_keys, context):
@@ -77,7 +77,6 @@ def _get_roles(user, **context):
 
     # map mappers to keys
     mappers_lut = {
-        "org": get_org_roles_for_user,
         "project": get_project_roles_for_user,
     }
 

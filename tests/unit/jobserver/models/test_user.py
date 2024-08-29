@@ -16,7 +16,6 @@ from jobserver.models.user import User, get_or_create_user
 
 from ....factories import (
     OrgFactory,
-    OrgMembershipFactory,
     ProjectFactory,
     UserFactory,
 )
@@ -27,7 +26,6 @@ def test_user_all_roles(project_membership):
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[OutputChecker])
 
-    OrgMembershipFactory(org=org, user=user, roles=[OutputChecker])
     project_membership(project=project, user=user, roles=[ProjectCollaborator])
 
     expected = {OutputChecker, ProjectCollaborator}
@@ -69,9 +67,6 @@ def test_user_get_all_permissions(role_factory, project_membership):
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[role_factory(permission="a_global_permission")])
 
-    OrgMembershipFactory(
-        org=org, user=user, roles=[role_factory(permission="an_org_permission")]
-    )
     project_membership(
         project=project,
         user=user,
@@ -81,7 +76,6 @@ def test_user_get_all_permissions(role_factory, project_membership):
     output = user.get_all_permissions()
     expected = {
         "global": ["a_global_permission"],
-        "orgs": [{"slug": org.slug, "permissions": ["an_org_permission"]}],
         "projects": [{"slug": project.slug, "permissions": ["a_project_permission"]}],
     }
 
@@ -96,7 +90,6 @@ def test_user_get_all_permissions_empty():
     expected = {
         "global": [],
         "projects": [],
-        "orgs": [],
     }
     assert output == expected
 
@@ -110,7 +103,6 @@ def test_user_get_all_roles(project_membership):
     output = user.get_all_roles()
     expected = {
         "global": ["OutputChecker"],
-        "orgs": [],
         "projects": [
             {
                 "slug": project.slug,
@@ -130,7 +122,6 @@ def test_user_get_all_roles_empty():
     expected = {
         "global": [],
         "projects": [],
-        "orgs": [],
     }
     assert output == expected
 

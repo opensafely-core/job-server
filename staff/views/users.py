@@ -157,7 +157,6 @@ class UserDetailWithEmail(UpdateView):
         orgs = [
             {
                 "name": m.org.name,
-                "roles": sorted(r.display_name for r in m.roles),
                 "staff_url": m.org.get_staff_url(),
             }
             for m in self.object.org_memberships.order_by("org__name")
@@ -303,12 +302,10 @@ class UserList(ListView):
             # to check for the presence of the *_memberships relations as well
             # as traversing to their roles fields
             qs = qs.annotate(
-                org_roles_count=Sum("org_memberships__roles__len"),
                 project_roles_count=Sum("project_memberships__roles__len"),
             )
-            org_roles = Q(org_memberships=None) | Q(org_roles_count=0)
             project_roles = Q(project_memberships=None) | Q(project_roles_count=0)
-            query = Q(roles=[]) & org_roles & project_roles
+            query = Q(roles=[]) & project_roles
 
             if any_roles == "yes":
                 qs = qs.exclude(query)

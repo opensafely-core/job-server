@@ -884,7 +884,7 @@ def test_userapidetail_success(api_rf, project_membership):
     project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[CoreDeveloper])
 
-    OrgMembershipFactory(org=org, user=user, roles=[])
+    OrgMembershipFactory(org=org, user=user)
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = api_rf.get("/", headers={"authorization": backend.auth_token})
@@ -900,12 +900,7 @@ def test_userapidetail_success(api_rf, project_membership):
         "org_create",
         "user_manage",
     ]
-    assert permissions["orgs"] == [
-        {
-            "slug": org.slug,
-            "permissions": [],
-        },
-    ]
+
     assert permissions["projects"] == [
         {
             "slug": project.slug,
@@ -925,7 +920,6 @@ def test_userapidetail_success(api_rf, project_membership):
     # roles
     roles = response.data["roles"]
     assert roles["global"] == ["CoreDeveloper"]
-    assert roles["orgs"] == [{"slug": org.slug, "roles": []}]
     assert roles["projects"] == [{"slug": project.slug, "roles": ["ProjectDeveloper"]}]
 
 
