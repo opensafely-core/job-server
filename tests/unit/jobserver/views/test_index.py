@@ -71,7 +71,7 @@ def test_index_authenticated_client(client, django_assert_num_queries):
     user = UserFactory()
     JobRequestFactory.create_batch(10)
 
-    with django_assert_num_queries(43):
+    with django_assert_num_queries(42):
         client.force_login(user)
         response = client.get("/")
         assert response.status_code == 200
