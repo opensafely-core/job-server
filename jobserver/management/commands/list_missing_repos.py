@@ -1,7 +1,7 @@
 import csv
 import re
+from dataclasses import dataclass
 
-from attrs import define
 from django.core.management.base import BaseCommand
 
 from jobserver.models import Repo
@@ -10,7 +10,7 @@ from jobserver.models import Repo
 url_pat = re.compile(r".*(?P<url>https://github.com/opensafely/.*)[/]?")
 
 
-@define
+@dataclass
 class Data:
     number: int
     url: str
