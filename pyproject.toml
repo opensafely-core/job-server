@@ -80,7 +80,6 @@ filterwarnings = [
     "ignore:Call to deprecated method __init__:DeprecationWarning:",
     "ignore:pkg_resources is deprecated as an API:DeprecationWarning:",
     "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning:",
-    "ignore:CheckConstraint.check is deprecated in favor of `.condition`.:django.utils.deprecation.RemovedInDjango60Warning:",
     "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.:django.utils.deprecation.RemovedInDjango60Warning:",
 
     # this is actually in protobuf, via the opentelemetry stack vendored into
