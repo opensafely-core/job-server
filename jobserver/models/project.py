@@ -80,7 +80,7 @@ class Project(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         created_at__isnull=False,
                         created_by__isnull=False,
@@ -89,7 +89,7 @@ class Project(models.Model):
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         updated_at__isnull=False,
                         updated_by__isnull=False,
@@ -104,7 +104,7 @@ class Project(models.Model):
                 condition=Q(number__isnull=False),
             ),
             models.CheckConstraint(
-                check=~Q(slug=""),
+                condition=~Q(slug=""),
                 name="slug_is_not_empty",
             ),
         ]

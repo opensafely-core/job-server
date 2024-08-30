@@ -59,7 +59,7 @@ class PublishRequest(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         created_at__isnull=True,
                         created_by__isnull=True,
@@ -74,7 +74,7 @@ class PublishRequest(models.Model):
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         decision_at__isnull=True,
                         decision_by__isnull=True,
@@ -91,7 +91,7 @@ class PublishRequest(models.Model):
                 name="%(app_label)s_%(class)s_both_decision_at_decision_by_and_decision_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         updated_at__isnull=True,
                         updated_by__isnull=True,

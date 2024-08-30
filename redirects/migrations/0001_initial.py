@@ -101,7 +101,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="redirect",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("deleted_at__isnull", True), ("deleted_by__isnull", True)
                     ),
@@ -116,7 +116,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="redirect",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("analysis_request__isnull", False),
                         ("org__isnull", True),

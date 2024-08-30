@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="analysisrequest",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -98,7 +98,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="analysisrequest",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     ("updated_at__isnull", False), ("updated_by__isnull", False)
                 ),
                 name="interactive_analysisrequest_both_updated_at_and_updated_by_set",

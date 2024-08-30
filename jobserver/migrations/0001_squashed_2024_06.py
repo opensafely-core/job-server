@@ -977,7 +977,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="workspace",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -992,7 +992,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="workspace",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("signed_off_at__isnull", True), ("signed_off_by__isnull", True)
                     ),
@@ -1008,7 +1008,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="workspace",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     ("updated_at__isnull", False), ("updated_by__isnull", False)
                 ),
                 name="jobserver_workspace_both_updated_at_and_updated_by_set",
@@ -1021,7 +1021,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="snapshot",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -1036,7 +1036,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="report",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -1051,7 +1051,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="report",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("updated_at__isnull", True), ("updated_by__isnull", True)
                     ),
@@ -1066,7 +1066,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="repo",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("internal_signed_off_at__isnull", True),
                         ("internal_signed_off_by__isnull", True),
@@ -1083,7 +1083,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="repo",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("researcher_signed_off_at__isnull", True),
                         ("researcher_signed_off_by__isnull", True),
@@ -1100,7 +1100,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="releasefilereview",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -1115,7 +1115,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="releasefile",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -1130,7 +1130,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="releasefile",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("deleted_at__isnull", True), ("deleted_by__isnull", True)
                     ),
@@ -1145,7 +1145,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="release",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -1160,7 +1160,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="publishrequest",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -1175,7 +1175,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="publishrequest",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("decision__isnull", True),
                         ("decision_at__isnull", True),
@@ -1194,7 +1194,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="publishrequest",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("updated_at__isnull", True), ("updated_by__isnull", True)
                     ),
@@ -1225,7 +1225,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="jobrequest",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("created_at__isnull", True), ("created_by__isnull", True)
                     ),
@@ -1244,7 +1244,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="user",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("pat_expires_at__isnull", True), ("pat_token__isnull", True)
                     ),
@@ -1259,7 +1259,8 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="project",
             constraint=models.CheckConstraint(
-                check=models.Q(("slug", ""), _negated=True), name="slug_is_not_empty"
+                condition=models.Q(("slug", ""), _negated=True),
+                name="slug_is_not_empty",
             ),
         ),
         migrations.AlterField(
@@ -1270,7 +1271,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="workspace",
             constraint=models.CheckConstraint(
-                check=models.Q(("name__regex", "^[-a-zA-Z0-9_]+\\Z")),
+                condition=models.Q(("name__regex", "^[-a-zA-Z0-9_]+\\Z")),
                 name="name_is_valid",
             ),
         ),
@@ -1370,7 +1371,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="project",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     ("created_at__isnull", False), ("created_by__isnull", False)
                 ),
                 name="jobserver_project_both_created_at_and_created_by_set",
@@ -1388,7 +1389,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="project",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     ("updated_at__isnull", False), ("updated_by__isnull", False)
                 ),
                 name="jobserver_project_both_updated_at_and_updated_by_set",

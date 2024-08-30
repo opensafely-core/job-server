@@ -156,7 +156,7 @@ class User(AbstractBaseUser):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         pat_expires_at__isnull=True,
                         pat_token__isnull=True,

@@ -33,7 +33,7 @@ class Repo(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         internal_signed_off_at__isnull=True,
                         internal_signed_off_by__isnull=True,
@@ -48,7 +48,7 @@ class Repo(models.Model):
                 name="%(app_label)s_%(class)s_both_internal_signed_off_at_and_internal_signed_off_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         researcher_signed_off_at__isnull=True,
                         researcher_signed_off_by__isnull=True,
