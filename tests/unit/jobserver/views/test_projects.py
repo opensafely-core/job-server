@@ -103,7 +103,7 @@ def test_projectdetail_for_interactive_button(
 
 
 def test_projectdetail_with_multiple_releases(rf, freezer):
-    project = ProjectFactory()
+    project = ProjectFactory(org=OrgFactory())
 
     now = timezone.now()
 
