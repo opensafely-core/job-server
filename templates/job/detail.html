@@ -142,13 +142,10 @@
 
             {% if log_path %}
               <p class="text-slate-600">
-                You can check the log output in the {% link text="outputs viewer" href=log_path_url %}
-                {% pill text="VPN Required" variant="primary" %}
+                If you have VPN access you can view the log output in {% link text="Airlock" href="https://docs.opensafely.org/using-opensafely/releasing-research-outputs/releasing-with-airlock/" append_after="," %} in the workspace file:
+                <pre class="text-slate-500 break-all whitespace-pre-wrap">{{ log_path }}</pre>
               </p>
-              <p class="text-slate-600">
-                Alternatively, view the file on the {{ job.job_request.backend.name }} server at: <pre class="text-slate-500 break-all whitespace-pre-wrap">{{ log_path }}</pre>
-              </p>
-              {% endif %}
+            {% endif %}
           </div>
         {% /description_item %}
 

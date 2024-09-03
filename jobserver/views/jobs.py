@@ -1,12 +1,9 @@
-import os
-
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
-from furl import furl
 
 from .. import honeycomb
 from ..authorization import CoreDeveloper, has_permission, has_role, permissions
@@ -69,22 +66,10 @@ class JobDetail(View):
         # (previously status_tools).  It isn't ideal to have here but until we
         # have more than one backend-specific error code it makes sense to keep
         # things together.
-        log_path = ""
-        log_path_url = ""
-        if job.job_request.backend.slug == "tpp" and job.status_code == "nonzero_exit":
-            log_path = os.path.join(
-                job.job_request.backend.parent_directory,
-                job.job_request.workspace.name,
-                "metadata",
-                f"{job.action}.log",
-            )
-            url = (
-                furl(job.job_request.workspace.get_files_url())
-                / "metadata"
-                / f"{job.action}.log"
-            )
-            url.path.normalize()
-            log_path_url = url.url
+        if job.status_code == "nonzero_exit":
+            log_path = f"metadata/{job.action}.log"
+        else:
+            log_path = ""
 
         honeycomb_links = {}
         if honeycomb_can_view_links:
@@ -128,7 +113,6 @@ class JobDetail(View):
             "cancellation_requested": job.action in job.job_request.cancelled_actions,
             "job": job,
             "log_path": log_path,
-            "log_path_url": log_path_url,
             "object": job,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
