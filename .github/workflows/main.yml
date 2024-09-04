@@ -86,7 +86,7 @@ jobs:
         run: |
           just check-migrations
           # hardcode n because auto=2 in CI for some reason
-          just test-ci --migrations --exitfirst -n 4
+          just test-ci -n 4
 
       - name: Upload HTML coverage report if tests failed
         uses: actions/upload-artifact@v4
