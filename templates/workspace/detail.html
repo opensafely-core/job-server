@@ -256,11 +256,6 @@
 
       {% #card title="Releases" %}
         {% #list_group small=True %}
-          {% #list_group_item href=workspace.get_files_url disabled=outputs.level_4.disabled %}
-            <span class="mr-2">Level 4 Outputs</span>
-            {% pill text="VPN Required" variant="primary" %}
-          {% /list_group_item%}
-
           {% #list_group_item href=workspace.get_releases_url disabled=outputs.released.disabled %}
             Released Outputs
           {% /list_group_item%}
