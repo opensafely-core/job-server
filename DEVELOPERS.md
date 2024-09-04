@@ -20,6 +20,7 @@
 - [Deployment](#deployment)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
+- [`django-upgrade`](#django-upgrade)
 - [Components](#components)
 - [Backends](#backends)
 - [Rotating the GitHub token](#rotating-the-github-token)
@@ -287,6 +288,23 @@ just test-ci
 ```
 
 More details on testing can be found in [TESTING.md](TESTING.md).
+
+## `django-upgrade`
+
+[`django-upgrade`](https://github.com/adamchainz/django-upgrade) is used
+to migrate Django code from older versions to the current version in use.
+
+`django-upgrade` is run via `just django-upgrade`.
+
+`django-upgrade` also gets run via `just check`
+and is also runs via the `pre-commit` checks.
+
+When upgrading to a new Django minor or major version:
+
+* Ensure `django-upgrade` has been run,
+  and any changes `django-upgrade` makes committed.
+* Update the Django version used for the invocation of `django-upgrade`
+  in the `django-upgrade` recipe in the `justfile`.
 
 ### Slack Testing
 
