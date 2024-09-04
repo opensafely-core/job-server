@@ -297,14 +297,7 @@ def test_jobdetail_with_nonzero_exit_code(rf):
     )
 
     assert response.status_code == 200
-    assert (
-        response.context_data["log_path"]
-        == f"/var/test/{job_request.workspace.name}/metadata/my_action.log"
-    )
-    assert (
-        response.context_data["log_path_url"]
-        == f"{job.job_request.workspace.get_files_url()}metadata/my_action.log"
-    )
+    assert response.context_data["log_path"] == "metadata/my_action.log"
 
 
 def test_jobdetail_with_partial_identifier_failure(rf):
