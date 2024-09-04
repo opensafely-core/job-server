@@ -17,14 +17,14 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="redirect",
             constraint=models.CheckConstraint(
-                check=models.Q(("old_url", ""), _negated=True),
+                condition=models.Q(("old_url", ""), _negated=True),
                 name="old_url_is_not_empty",
             ),
         ),
         migrations.AddConstraint(
             model_name="redirect",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     ("old_url__endswith", "/"), ("old_url__startswith", "/")
                 ),
                 name="old_url_endswith_and_startswith_slash",

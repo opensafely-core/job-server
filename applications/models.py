@@ -67,7 +67,7 @@ class Application(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         approved_at__isnull=True,
                         approved_by__isnull=True,
@@ -82,7 +82,7 @@ class Application(models.Model):
                 name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         deleted_at__isnull=True,
                         deleted_by__isnull=True,
@@ -97,7 +97,7 @@ class Application(models.Model):
                 name="%(app_label)s_%(class)s_both_deleted_at_and_deleted_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         submitted_at__isnull=True,
                         submitted_by__isnull=True,

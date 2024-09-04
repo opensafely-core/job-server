@@ -66,15 +66,15 @@ class Redirect(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=~Q(old_url=""),
+                condition=~Q(old_url=""),
                 name="old_url_is_not_empty",
             ),
             models.CheckConstraint(
-                check=Q(old_url__endswith="/") & Q(old_url__startswith="/"),
+                condition=Q(old_url__endswith="/") & Q(old_url__startswith="/"),
                 name="old_url_endswith_and_startswith_slash",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         deleted_at__isnull=True,
                         deleted_by__isnull=True,
@@ -89,7 +89,7 @@ class Redirect(models.Model):
                 name="%(app_label)s_%(class)s_both_deleted_at_and_deleted_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         analysis_request__isnull=False,
                         org__isnull=True,

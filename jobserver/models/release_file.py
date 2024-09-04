@@ -75,7 +75,7 @@ class ReleaseFile(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         created_at__isnull=True,
                         created_by__isnull=True,
@@ -90,7 +90,7 @@ class ReleaseFile(models.Model):
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         deleted_at__isnull=True,
                         deleted_by__isnull=True,

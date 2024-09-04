@@ -901,7 +901,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="application",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("approved_at__isnull", True), ("approved_by__isnull", True)
                     ),
@@ -916,7 +916,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="application",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("deleted_at__isnull", True), ("deleted_by__isnull", True)
                     ),
@@ -931,7 +931,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="application",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("submitted_at__isnull", True), ("submitted_by__isnull", True)
                     ),

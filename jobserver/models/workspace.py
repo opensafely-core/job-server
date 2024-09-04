@@ -78,11 +78,11 @@ class Workspace(models.Model):
         constraints = [
             # mirror Django's validate_slug validator into the database
             models.CheckConstraint(
-                check=Q(name__regex=r"^[-a-zA-Z0-9_]+\Z"),
+                condition=Q(name__regex=r"^[-a-zA-Z0-9_]+\Z"),
                 name="name_is_valid",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         created_at__isnull=True,
                         created_by__isnull=True,
@@ -97,7 +97,7 @@ class Workspace(models.Model):
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
             ),
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         signed_off_at__isnull=True,
                         signed_off_by__isnull=True,
@@ -112,7 +112,7 @@ class Workspace(models.Model):
                 name="%(app_label)s_%(class)s_both_signed_off_at_and_signed_off_by_set",
             ),
             models.CheckConstraint(
-                check=Q(updated_at__isnull=False, updated_by__isnull=False),
+                condition=Q(updated_at__isnull=False, updated_by__isnull=False),
                 name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
         ]

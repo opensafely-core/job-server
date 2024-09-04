@@ -427,7 +427,7 @@ Your CheckConstraint which covers both states looks like this:
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         frobbed_at__isnull=True,
                         frobbed_by__isnull=True,
@@ -476,7 +476,7 @@ This is very similar to the pattern above, except we use `auto_now=True` and don
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=Q(updated_at__isnull=False, updated_by__isnull=False),
+                condition=Q(updated_at__isnull=False, updated_by__isnull=False),
                 name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
         ]

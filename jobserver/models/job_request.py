@@ -97,7 +97,7 @@ class JobRequest(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(
+                condition=(
                     Q(
                         created_at__isnull=True,
                         created_by__isnull=True,
