@@ -56,7 +56,7 @@
           {% if request.GET.q %}
             {% var value=request.GET.q|stringformat:"s" %}
           {% endif %}
-          {% form_input custom_field=True type="search" id="redirectSearch" name="q" value=value label="Search for a redirect" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by old url, analysis, creator, org, project, or workspace" show_placeholder=True %}
+          {% form_input custom_field=True type="search" id="redirectSearch" name="q" value=value label="Search for a redirect" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by old url, analysis, creator, org, project, or workspace" %}
           {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
         </form>
         {% if request.GET.q %}

@@ -398,7 +398,6 @@
         <li><code>name</code>: [string] - set the HTML name for the input element</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder"><code>placeholder</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
-        <li><code>show_placeholder</code>: [boolean] - if true, display the placeholder text</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types"><code>type</code></a></li>
         <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
@@ -534,11 +533,10 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/readonly"><code>readonly</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea#attr-rows"><code>rows</code></a></li>
-        <li><code>show_placeholder</code>: [boolean] - if true, display the placeholder text</li>
         <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
-        {% form_textarea class="max-w-lg w-full mx-auto" field=example_form.example_textarea label="Enter a short description of the project" resize=True rows=8 %}
+        {% form_textarea class="max-w-lg w-full mx-auto" field=example_form.example_textarea label="Enter a short description of the project" resize=True rows=8 required=True %}
         <pre><code class="language-django">{% verbatim %}{% form_textarea class="max-w-lg w-full mx-auto" field=example_form.example_textarea label="Enter a short description of the project" resize=True rows=8 %}{% endverbatim %}</code></pre>
       </div>
     </section>

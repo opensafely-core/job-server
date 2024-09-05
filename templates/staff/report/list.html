@@ -68,7 +68,7 @@
           {% if request.GET.q %}
             {% var value=request.GET.q|stringformat:"s" %}
           {% endif %}
-          {% form_input custom_field=True type="search" id="reportSearch" name="q" value=value label="Search for a report" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by report name or author name" show_placeholder=True %}
+          {% form_input custom_field=True type="search" id="reportSearch" name="q" value=value label="Search for a report" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by report name or author name" %}
           {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
         </form>
         {% if request.GET.q %}

@@ -64,7 +64,7 @@
         <input type="hidden" name="next" value="{{ next_url }}" />
 
         {% form_input type="text" field=token_form.user label="GitHub username or Email address" required=True class="mb-3" placeholder="opensafely" input_class="max-w-md" %}
-        {% form_input type="text" field=token_form.token label="Single Use Token" required=True placeholder="three random words" show_placeholder=True class="mb-3" input_class="max-w-md" %}
+        {% form_input type="text" field=token_form.token label="Single Use Token" required=True placeholder="three random words" class="mb-3" input_class="max-w-md" %}
 
         {% #button type="submit" variant="primary-outline" %}
             Log in with token
