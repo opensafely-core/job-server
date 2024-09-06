@@ -207,6 +207,7 @@ def test_projectdetail_with_timed_out_github(rf):
     WorkspaceFactory(
         project=project, repo=RepoFactory(url="https://github.com/owner/repo")
     )
+    WorkspaceFactory(project=project, repo=RepoFactory(url="/path/on/disk/to/repo"))
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -230,7 +231,11 @@ def test_projectdetail_with_timed_out_github(rf):
     # check there is no public/private badge when GitHub returns an
     # unsuccessful response
     assert not response.context_data["public_repos"]
-    assert response.context_data["private_repos"][0]["is_private"] is None
+    assert response.context_data["private_repos"][0] == {
+        "name": "GitHub API Unavailable",
+        "is_private": None,
+        "url": "",
+    }
     assert "Public" not in response.rendered_content
 
 
