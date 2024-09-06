@@ -32,9 +32,9 @@
       {% endif %}
 
       <div class="max-w-prose grid gap-y-6">
-        {% form_input field=form.name label="Workspace name" required=True placeholder="Workspace name" %}
+        {% form_input field=form.name label="Workspace name" required=True %}
 
-        {% form_textarea field=form.purpose label="Workspace purpose" required=True placeholder="Workspace purpose" %}
+        {% form_textarea field=form.purpose label="Workspace purpose" required=True %}
 
         {% form_select field=form.repo label="GitHub repo" choices=form.repo.field.choices hint_text="If your repo doesn’t show up here, reach out to the OpenSAFELY team on Slack." required=True %}
 
