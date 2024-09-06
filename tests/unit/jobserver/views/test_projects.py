@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import requests
 from django.contrib.auth.models import AnonymousUser
@@ -186,6 +188,38 @@ def test_projectdetail_with_no_github(rf):
     class BrokenGitHubAPI:
         def get_repo_is_private(self, *args):
             raise requests.HTTPError
+
+    response = ProjectDetail.as_view(get_github_api=BrokenGitHubAPI)(
+        request, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    # check there is no public/private badge when GitHub returns an
+    # unsuccessful response
+    assert not response.context_data["public_repos"]
+    assert response.context_data["private_repos"][0]["is_private"] is None
+    assert "Public" not in response.rendered_content
+
+
+def test_projectdetail_with_timed_out_github(rf):
+    project = ProjectFactory(org=OrgFactory())
+    WorkspaceFactory(
+        project=project, repo=RepoFactory(url="https://github.com/owner/repo")
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    class BrokenGitHubAPI:
+        def get_repo_is_private(self, *args):
+            response = requests.Response()
+            response.status_code = 504
+            time.sleep(31)
+            raise requests.HTTPError(
+                "504 Server Error: Gateway Timeout for url: https://api.github.com/user",
+                response=response,
+            )
 
     response = ProjectDetail.as_view(get_github_api=BrokenGitHubAPI)(
         request, project_slug=project.slug
