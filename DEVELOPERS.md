@@ -171,22 +171,6 @@ just devenv
 python manage.py migrate
 ```
 
-Optionally give 1 or more administrators access to the Staff Area by setting `ADMIN_USERS` to a list of strings.
-For example: `ADMIN_USERS=ghickman,ingelsp`.
-
-_Note:_ this can only contain usernames which exist in the database.
-If necessary, you can create the required user(s) first with:
-
-```sh
-python manage.py createsuperuser
-```
-
-Then update their User records with:
-
-```sh
-python manage.py ensure_admins
-```
-
 **Build the assets:**
 
 See the [Compiling assets](#compiling-assets) section.
@@ -245,9 +229,19 @@ In that situation you can follow the steps below to set up your local copy of th
    * The other fields don't matter too much for local development.
 1. Register a user account on your local version of job-server by clicking Login
 1. Set the `SOCIAL_AUTH_GITHUB_KEY` (aka "Client ID") and `SOCIAL_AUTH_GITHUB_SECRET` environment variables with values from that OAuth application.
-1. Give your user the `CoreDeveloper` role by:
-   * Setting the `ADMIN_USERS` environment variable to include your username.
-   * Running `python manage.py ensure_admins`.
+1. Give your user the `CoreDeveloper` role by running:
+   ```sh
+   > python3 manage.py shell_plus
+   ```
+
+   and then running in the `shell_plus` shell:
+
+   ```
+   >>> from jobserver.authorization import CoreDeveloper
+   >>> user = User.objects.get(username="<your_username>")
+   >>> user.roles.append(CoreDeveloper)
+   >>> user.save()
+   ```
 1. Click on your avatar in the top right-hand corner of the site to access the Staff Area.
 1. Create an Org, Project, and Backend in the Staff Area.
 1. On your User page in the Staff Area link it to the Backend and Org you created.
