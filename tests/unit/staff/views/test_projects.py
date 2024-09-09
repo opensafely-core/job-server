@@ -362,7 +362,7 @@ def test_projectdetail_success(rf, core_developer):
 
 
 def test_projectedit_get_success(rf, core_developer):
-    project = ProjectFactory()
+    project = ProjectFactory(orgs=[OrgFactory()])
 
     UserFactory(username="beng", fullname="Ben Goldacre")
 

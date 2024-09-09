@@ -33,6 +33,7 @@ from ....factories import (
     BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
     ProjectFactory,
     PublishRequestFactory,
     ReleaseFactory,
@@ -1319,7 +1320,7 @@ def test_workspaceoutputlist_success(
 
 
 def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_files):
-    workspace = WorkspaceFactory()
+    workspace = WorkspaceFactory(project__org=OrgFactory())
 
     now = timezone.now()
 
@@ -1358,7 +1359,7 @@ def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_
 
 
 def test_workspaceoutputlist_without_snapshots(rf, freezer, role_factory):
-    workspace = WorkspaceFactory()
+    workspace = WorkspaceFactory(project__org=OrgFactory())
 
     request = rf.get("/")
     request.user = UserFactory(

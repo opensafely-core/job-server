@@ -19,6 +19,7 @@ from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
     ProjectFactory,
     RepoFactory,
     ReportFactory,
@@ -181,7 +182,7 @@ def test_interactive_publishing_report_success(
     client, project_membership, release, slack_messages
 ):
     # set up the project…
-    project = ProjectFactory()
+    project = ProjectFactory(org=OrgFactory())
     workspace = WorkspaceFactory(project=project, name=project.interactive_slug)
 
     # … and the user
@@ -193,8 +194,18 @@ def test_interactive_publishing_report_success(
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request, status="succeeded")
 
+    # The release fixture (eventually) creates an instance of Workspace. However, this
+    # instance is different to the instance that is created by WorkspaceFactory.
+    # This is a problem, because we need a workspace such that workspace.project.org
+    # points to an Org; it doesn't by the release fixture route, but it does by the
+    # WorkspaceFactory route. To fix the problem, we take the unusual step of switching
+    # the workspace.
+    release_file = release.files.first()
+    release_file.workspace = workspace
+    release_file.save()
+
     report = ReportFactory(
-        release_file=release.files.first(), project=project, title="My report title"
+        release_file=release_file, project=project, title="My report title"
     )
     analysis = AnalysisRequestFactory(
         job_request=job_request, project=project, report=report
