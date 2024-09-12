@@ -200,3 +200,18 @@ def test_workspacecreateform_with_duplicate_name():
             'A workspace with the name "test" already exists, please choose a unique one.'
         ]
     }
+
+
+def test_workspacecreateform_with_no_repo_match():
+    project = ProjectFactory()
+    WorkspaceFactory(name="test")
+
+    data = {
+        "name": "test",
+        "repo": "different",
+        "branch": "test",
+        "purpose": "test",
+    }
+    repos_with_branches = [{"name": "test", "url": "test", "branches": ["test"]}]
+    with pytest.raises(ValidationError):
+        WorkspaceCreateForm(project, repos_with_branches, data=data)
