@@ -18,6 +18,7 @@ from jobserver.views.projects import (
 from ....factories import (
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
     ProjectFactory,
     PublishRequestFactory,
     RepoFactory,
@@ -67,7 +68,7 @@ def test_projectdetail_success(rf, user):
 def test_projectdetail_for_interactive_button(
     rf, user, project_membership, role_factory
 ):
-    project = ProjectFactory()
+    project = ProjectFactory(org=OrgFactory())
     user = UserFactory(
         roles=[role_factory(permission=permissions.analysis_request_create)]
     )
@@ -102,7 +103,7 @@ def test_projectdetail_for_interactive_button(
 
 
 def test_projectdetail_with_multiple_releases(rf, freezer):
-    project = ProjectFactory()
+    project = ProjectFactory(org=OrgFactory())
 
     now = timezone.now()
 
@@ -173,7 +174,7 @@ def test_projectdetail_with_multiple_releases(rf, freezer):
 
 
 def test_projectdetail_with_no_github(rf):
-    project = ProjectFactory()
+    project = ProjectFactory(org=OrgFactory())
     WorkspaceFactory(
         project=project, repo=RepoFactory(url="https://github.com/owner/repo")
     )
@@ -215,7 +216,7 @@ def test_projectdetail_with_no_jobs(rf):
 
 
 def test_projectdetail_with_no_releases(rf):
-    project = ProjectFactory()
+    project = ProjectFactory(org=OrgFactory())
 
     request = rf.get("/")
     request.user = UserFactory()

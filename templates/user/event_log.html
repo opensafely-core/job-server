@@ -109,9 +109,13 @@
 
       {% if page_obj.has_previous %}
         {% url_with_querystring page=page_obj.previous_page_number as prev_url %}
+      {% else %}
+        {% var prev_url="" %}
       {% endif %}
       {% if page_obj.has_next %}
         {% url_with_querystring page=page_obj.next_page_number as next_url %}
+      {% else %}
+        {% var next_url="" %}
       {% endif %}
       {% table_pagination paginator=page_obj next_url=next_url prev_url=prev_url %}
     {% /card %}
