@@ -62,7 +62,6 @@ def pipeline(response, strategy, *args, **kwargs):
             "auth_time": int(time.time()),
             "id": uid,
             "login": response["login"],
-            "token_type": response["token_type"],
         }
 
         social = UserSocialAuth.objects.create(
