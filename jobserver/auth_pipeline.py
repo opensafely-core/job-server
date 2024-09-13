@@ -61,7 +61,6 @@ def pipeline(response, strategy, *args, **kwargs):
         extra_data = {
             "auth_time": int(time.time()),
             "id": uid,
-            "expires": response.get("expires", None),
             "login": response["login"],
             "token_type": response["token_type"],
         }
