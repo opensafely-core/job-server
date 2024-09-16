@@ -37,6 +37,6 @@ social-auth-core
 structlog
 # 2.1.0 appears to be causing some problems with exporting
 # https://github.com/opensafely-core/job-server/issues/3955
-urllib3<=2.2.2
+urllib3<=2.2.3
 whitenoise[brotli]
 xkcdpass
