@@ -30,6 +30,9 @@
   - [Common patterns](#common-patterns)
 - [Auditing events](#auditing-events)
   - [Presenters](#presenters)
+- [Interfaces](#interfaces)
+  - [job-runner](#job-runner)
+  - [airlock](#airlock)
 
 ## Local development
 
@@ -523,3 +526,61 @@ inversion of control so the calling view can decide the context in which
 presenters are used.
 This will most likely affect the template used for each event, and where each
 object links to, if anywhere.
+
+## Interfaces
+
+Descriptions of interfaces between this repo or container and others. These
+interfaces can be changed, through coordination with the relevant teams.
+
+Except where mentioned otherwise, URLs are relative to the root of the
+job-server API endpoint (https://jobs.opensafely.org/api/v2 in production).
+
+### [job-runner]
+
+[job-runner] is the container that runs in a secure backend and executes
+[JobRequest]s initiated by users of job-server.
+
+This interacts with [jobserver/api/jobs.py] It uses the `JobRequestAPIList`
+endpoint (`GET /job-requests/`) for reading `JobRequests`. It uses the
+`JobAPIUpdate` endpoint (`POST /jobs/`) for updating the `Jobs` table.
+(Current as of 2024-09.)
+
+ Refer to the documentation of [jobrunner.sync] for job-runner's documentation
+ of this interface.
+
+[job-runner]: https://github.com/opensafely-core/job-runner
+[jobrunner.sync]: https://github.com/opensafely-core/job-runner/blob/main/DEVELOPERS.md#jobrunnersync
+[JobRequest]: jobserver/models/job_request.py
+[jobserver/api/jobs.py]: jobserver/api/jobs.py
+
+### [airlock]
+
+[airlock] is the container that [OutputCheckers] interact with to check and
+manage release requests for the outputs of [job-runner]. When approved, outputs
+are released to job-server.
+
+airlock refers to job-server's permissions model to determine what users can
+do. The code it needs is in [jobserver/api/releases.py]. The endpoints it uses
+are `Level4TokenAuthenticationAPI` (`GET /releases/authenticate/`) and
+`Level4AuthorisationAPI` (`GET /releases/authorise/`). It receives the results
+of `build_level4_user` to determine whether a user is an output checker, and
+what workspaces they can see. (Current as of 2024-09.)
+
+When releases are approved, airlock triggers creation of a [Release] for the
+associated [Workspace] on job-server through the [jobserver/api/releases.py]
+`ReleaseWorkspaceAPI` endpoint (`POST /releases/workspace/{workspace_name}`).
+Files are uploaded through the `ReleaseAPI`endpoint (`POST
+releases/release/{release_id}`).
+
+Notifications upon release via e-mail/Slack are triggered through the
+[airlock_event_view] endpoint (`POST /airlock/events/`), which is currently the
+only responsibility of the [airlock app] within job-server.  (Current as of
+2024-09.)
+
+[airlock]: https://github.com/opensafely-core/airlock
+[OutputCheckers]: jobserver/authorization/roles.py
+[jobserver/api/releases.py]: jobserver/api/releases.py
+[Release]: (jobserver/models/release.py)
+[Workspace]: (jobserver/models/workspace.py)
+[airlock_event_view]: (airlock/views.py)
+[airlock app]: (airlock/)
