@@ -181,16 +181,16 @@ jobs:
 
       - name: Publish image
         run: |
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
-            docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
-            docker push $PUBLIC_IMAGE_NAME:latest
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login "$REGISTRY" -u "${{ github.actor }}" --password-stdin
+            docker tag "$IMAGE_NAME" "$PUBLIC_IMAGE_NAME:latest"
+            docker push "$PUBLIC_IMAGE_NAME:latest"
 
       - name: Deploy image
         run: |
-            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+            ssh-agent -a "$SSH_AUTH_SOCK" > /dev/null
             ssh-add - <<< "${{ secrets.DOKKU4_DEPLOY_SSH_KEY }}"
-            SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku4.ebmdatalab.net git:from-image job-server $SHA
+            SHA=$(docker inspect --format='{{index .RepoDigests 0}}' "$PUBLIC_IMAGE_NAME:latest")
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku4.ebmdatalab.net git:from-image job-server "$SHA"
 
       - name: Create Honeycomb Marker
         env:
