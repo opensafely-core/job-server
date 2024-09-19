@@ -113,13 +113,18 @@ class WorkspaceCreateForm(forms.Form):
 
         # has there been a repo selected already?
         if "data" in kwargs and "repo" in kwargs["data"]:
-            repo = next(  # pragma: no branch
-                (
-                    r
-                    for r in self.repos_with_branches
-                    if r["url"] == kwargs["data"]["repo"]
-                ),
-            )
+            try:
+                repo = next(
+                    (
+                        r
+                        for r in self.repos_with_branches
+                        if r["url"] == kwargs["data"]["repo"]
+                    ),
+                )
+            except StopIteration:
+                raise forms.ValidationError(
+                    "No matching repos found, please reload the page and try again"
+                )
         else:
             repo = self.repos_with_branches[0]
 
