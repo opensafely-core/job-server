@@ -29,7 +29,7 @@ test *pytest_args="": _dotenv build
     docker compose run --rm test pytest -m "not verification" {{ pytest_args }}
 
 # run as service in dev|prod container
-serve env="dev" *args="": _dotenv
+serve env="dev" *args="": _dotenv (build env)
     {{ just_executable() }} build {{ env }}
     docker compose up {{ args }} {{ env }}
 
@@ -52,7 +52,7 @@ smoke-test host="http://localhost:8000": _dotenv
 
 
 # manually run the docker db. Useful if you want to use it but with venv based dev env
-db:
+db: build
     docker compose up -d db
 
 
