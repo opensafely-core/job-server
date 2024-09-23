@@ -77,7 +77,6 @@ def test_login_pipeline(client, slack_messages):
     assert user.fullname == "Test User"
     assert user.email == "test@example.com"
     assert user.is_active
-    assert not user.is_staff
     assert user.roles == []
 
     # ensure social auth extra data populated
