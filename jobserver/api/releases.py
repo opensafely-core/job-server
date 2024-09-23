@@ -608,7 +608,6 @@ def build_level4_user(user):
             # list the explicit workspaces that the user has this permission
             # for.
             output_checker=has_role(user, OutputChecker),
-            staff=user.is_staff,
         )
     )
     # we must validate this or DRF will refuse to serializer it.

@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
 
-from ..authorization import CoreDeveloper, InteractiveReporter
+from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesArrayField
 from ..hash_utils import hash_user_pat
 
@@ -25,9 +25,9 @@ logger = structlog.get_logger(__name__)
 class UserQuerySet(models.QuerySet):
     def order_by_name(self):
         """
-        Order Users by their "name"
+        Order Users by their "name".
 
-        we don't have fullname populated for all users yet and having some
+        Re don't have fullname populated for all users yet and having some
         users at the top of the list with just usernames looks fairly odd.
         We've modelled our text fields in job-server such that they're not
         nullable because we treat empty string as the only empty case.  The
@@ -47,11 +47,22 @@ class UserQuerySet(models.QuerySet):
 class UserManager(DjangoUserManager.from_queryset(UserQuerySet)):
     use_in_migrations = True
 
-    def create_superuser(self, email, password, **extra_fields):
-        username = email
-        return super().create_superuser(
-            username, email, password, roles=[CoreDeveloper]
-        )
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        # User extends AbstractBaseUser and doesn't have is_staff or
+        # is_superuser fields as UserManager expects. So we call the private
+        # UserManager._create_user method to bypass UserManager.create_user
+        # accessing those fields. This may now break if the UserManager
+        # implementation changes. It would hopefully break loudly, at least.
+        #
+        # Why have a manager at all? We think we want the special handling from
+        # UserManager_create_user that normalizes the username and email and
+        # hashes the password.  Possibly, we don't need some or all of those.
+        # Possibly, we could extend BaseUserManager instead and do some of
+        # those transformations in our code. Or, possibly, we don't need
+        # create_user or get_or_create_user at all and could just do those
+        # transformations in User.create, if they're needed. Ref #4627.
+        # https://github.com/opensafely-core/job-server/issues/4627
+        return super()._create_user(username, email, password, **extra_fields)
 
 
 def get_or_create_user(username, email, fullname, update_fields=None):
@@ -124,8 +135,6 @@ class User(AbstractBaseUser):
     fullname = models.TextField(default="")
 
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField("date joined", default=timezone.now)
 
     # PATs are generated for bot users.  They can only be generated via a shell

@@ -1671,7 +1671,6 @@ def test_level4tokenauthenticationapi_success(
             },
         },  # should not include workspace3
         "output_checker": False,
-        "staff": False,
     }
 
 
@@ -1681,7 +1680,6 @@ def test_level4tokenauthenticationapi_success_privileged(
     # enable privileges for user
     token_login_user.roles.append(OutputChecker)
     token_login_user.roles.append(CoreDeveloper)
-    token_login_user.is_staff = True
     token_login_user.save()
 
     project = ProjectFactory()
@@ -1721,7 +1719,6 @@ def test_level4tokenauthenticationapi_success_privileged(
             },
         },  # should not include workspace3
         "output_checker": True,
-        "staff": True,
     }
 
 
@@ -1866,7 +1863,6 @@ def test_level4authorisationapi_success(
             },
         },  # should not include workspace3
         "output_checker": False,
-        "staff": False,
     }
 
 

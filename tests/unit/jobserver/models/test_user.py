@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.authorization.roles import (
-    CoreDeveloper,
     InteractiveReporter,
     OutputChecker,
     ProjectCollaborator,
@@ -334,10 +333,21 @@ def test_get_or_create_user_update_fields(update_fields):
     assert user.fullname == expected_fullname
 
 
-def test_create_superuser():
-    su = User.objects.create_superuser(email="test@test.test", password="hunter2")
-    assert su.username == "test@test.test"
-    assert su.email == "test@test.test"
-    assert su.is_staff
-    assert su.is_superuser
-    assert CoreDeveloper in su.roles
+def test_create_user():
+    """Test of the custom UserManager.create_user() method."""
+    username = "Ⅳan"  # Note unicode character.
+    email = "test@TeSt.TEST"  # Note uppercase in domain.
+    password = "hunter2"
+    user = User.objects.create_user(username=username, email=email, password=password)
+
+    # It's not completely clear that we need all of these behaviours from
+    # django.contrib.auth.models.UserManager for our Users. Ref #4627.
+    # https://github.com/opensafely-core/job-server/issues/4627
+    # But we should test them, as the function does them (for now?).
+
+    # Username unicode gets normalized.
+    assert user.username == "IVan"
+    # E-mail gets normalized by lower-casing the domain.
+    assert user.email == "test@test.test"
+    # Password is not stored in plaintext.
+    assert user.password != password
