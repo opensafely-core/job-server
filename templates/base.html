@@ -22,9 +22,12 @@
       });
     </script>
 
+    {# The following <meta> tags are for Plausible stats collection.  Internal Bennett Institute reference: https://plausible.io/jobs.opensafely.org #}
     <meta name="is_logged_in" content="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+    {# Note that the name is_staff has no direct relationship to the User.is_staff flag in a django.contrib.admin context, which we no longer use. For more detail, see: https://github.com/opensafely-core/job-server/issues/4590 #}
     <meta name="is_staff" content="{% if user_can_view_staff_area %}true{% else %}false{% endif %}">
     {% if template_name %}<meta name="template" content="{{ template_name }}">{% endif %}
+    {# End of stats-collecting <meta> tags. #}
 
     {% vite_hmr_client %}
     {% vite_asset "assets/src/scripts/base.js" %}
