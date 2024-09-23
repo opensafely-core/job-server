@@ -81,8 +81,6 @@ describe("<PublishButton />", () => {
       "Create a public published output",
     );
 
-    screen.debug();
-
     await user.click(screen.getByRole("button"));
     expect(screen.getByRole("alert")).toHaveTextContent("Error");
   });
