@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import { ToastContainer } from "react-toastify";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import PrepareButton from "../../../components/Button/PrepareButton";
 import * as useFileList from "../../../hooks/use-file-list";
-import * as toast from "../../../utils/toast";
 import { fileList } from "../../helpers/files";
 import props, { prepareUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
@@ -112,24 +112,24 @@ describe("<PrepareButton />", () => {
 
   it("show the JSON error message", async () => {
     const user = userEvent.setup();
-    const toastError = vi.fn();
     console.error = vi.fn();
 
     vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
-    vi.spyOn(toast, "toastError").mockImplementation(toastError);
-
     fetch.mockRejectOnce(new Error("Invalid user token"));
 
     render(
-      <PrepareButton
-        authToken={authToken}
-        csrfToken={csrfToken}
-        filesUrl={filesUrl}
-        prepareUrl={prepareUrl}
-      />,
+      <>
+        <ToastContainer />
+        <PrepareButton
+          authToken={authToken}
+          csrfToken={csrfToken}
+          filesUrl={filesUrl}
+          prepareUrl={prepareUrl}
+        />
+      </>,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent(
@@ -137,37 +137,31 @@ describe("<PrepareButton />", () => {
     );
 
     await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith({
-        message: "Error: Invalid user token",
-        prepareUrl,
-        toastId: "PrepareButton",
-        url: "http://localhost:3000/",
-      }),
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Error: Invalid user token",
     );
   });
 
   it("show the server error message", async () => {
     const user = userEvent.setup();
-    const toastError = vi.fn();
     console.error = vi.fn();
 
     vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
-    vi.spyOn(toast, "toastError").mockImplementation(toastError);
-
     fetch.mockRejectOnce(new Error());
 
     render(
-      <PrepareButton
-        authToken={authToken}
-        csrfToken={csrfToken}
-        filesUrl={filesUrl}
-        prepareUrl={prepareUrl}
-      />,
+      <>
+        <ToastContainer />
+        <PrepareButton
+          authToken={authToken}
+          csrfToken={csrfToken}
+          filesUrl={filesUrl}
+          prepareUrl={prepareUrl}
+        />
+      </>,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent(
@@ -175,14 +169,6 @@ describe("<PrepareButton />", () => {
     );
 
     await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith({
-        message: "Error",
-        prepareUrl,
-        toastId: "PrepareButton",
-        url: "http://localhost:3000/",
-      }),
-    );
+    expect(screen.getByRole("alert")).toHaveTextContent("Error");
   });
 });
