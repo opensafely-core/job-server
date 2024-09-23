@@ -1,5 +1,3 @@
-import time
-
 import pytest
 import requests
 from django.contrib.auth.models import AnonymousUser
@@ -214,13 +212,7 @@ def test_projectdetail_with_timed_out_github(rf):
 
     class BrokenGitHubAPI:
         def get_repo_is_private(self, *args):
-            response = requests.Response()
-            response.status_code = 504
-            time.sleep(31)
-            raise requests.HTTPError(
-                "504 Server Error: Gateway Timeout for url: https://api.github.com/user",
-                response=response,
-            )
+            raise TimeoutError
 
     response = ProjectDetail.as_view(get_github_api=BrokenGitHubAPI)(
         request, project_slug=project.slug
