@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import { ToastContainer } from "react-toastify";
 import { describe, expect, it, vi } from "vitest";
 import PublishButton from "../../../components/Button/PublishButton";
-import * as toast from "../../../utils/toast";
 import props, { publishUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
 
@@ -43,55 +43,45 @@ describe("<PublishButton />", () => {
 
   it("show the JSON error message", async () => {
     const user = userEvent.setup();
-    const toastError = vi.fn();
     console.error = vi.fn();
-
-    vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     fetch.mockRejectOnce(new Error("Invalid user token"));
 
-    render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
+    render(
+      <>
+        <ToastContainer />
+        <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
+      </>,
+    );
 
     expect(screen.getByRole("button")).toHaveTextContent(
       "Create a public published output",
     );
 
     await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith({
-        message: "Error: Invalid user token",
-        publishUrl,
-        toastId: "PublishButton",
-        url: "http://localhost:3000/",
-      }),
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Error: Invalid user token",
     );
   });
 
   it("show the server error message", async () => {
     const user = userEvent.setup();
-    const toastError = vi.fn();
     console.error = vi.fn();
-
-    vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     fetch.mockRejectOnce(new Error());
 
-    render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
+    render(
+      <>
+        <ToastContainer />
+        <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
+      </>,
+    );
 
     expect(screen.getByRole("button")).toHaveTextContent(
       "Create a public published output",
     );
 
     await user.click(screen.getByRole("button"));
-
-    await waitFor(() =>
-      expect(toastError).toHaveBeenCalledWith({
-        message: "Error",
-        publishUrl,
-        toastId: "PublishButton",
-        url: "http://localhost:3000/",
-      }),
-    );
+    expect(screen.getByRole("alert")).toHaveTextContent("Error");
   });
 });
