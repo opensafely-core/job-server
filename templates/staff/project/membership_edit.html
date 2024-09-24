@@ -59,10 +59,9 @@
               {% endif %}
 
               {% fragment as form_label %}
-                <span class="font-bold block text-base">{{ label }}</span>
-                <span class="text-sm">{{ value|role_description|linebreaksbr }}</span>
+                <span class="block font-bold text-base">{{ label }}</span>
+                <span class="block text-sm">{{ value|role_description|linebreaksbr }}</span>
               {% endfragment %}
-
               {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=checked %}
             {% endwith %}
           {% endfor %}

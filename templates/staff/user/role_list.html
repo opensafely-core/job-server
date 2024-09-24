@@ -32,7 +32,7 @@
   <form method="POST">
     {% csrf_token %}
 
-    {% #card title="Global Roles" container=True %}
+    {% #card title="Assign global roles" subtitle="These roles should only be used for applying permissions to Bennett Institute employees." container=True %}
       {% if form.non_field_errors %}
         {% for error in form.non_field_errors %}
           {% #alert variant="danger" class="mb-6" %}
@@ -51,20 +51,21 @@
             {% endfor %}
           {% endif %}
 
-          {% form_legend text="Assign roles site-wide (Note: this should usually only be used for internal staff users)" %}
+          {% form_legend text="Assign roles site-wide" class="sr-only" %}
 
           {% for value, label in form.roles.field.choices %}
             {% with id=forloop.counter0|stringformat:"s" %}
-              {% fragment as rich_label %}
-                <span class="block">{{ label }}</span>
-                <span class="text-sm mt-0.5">{{ value|role_description|linebreaksbr }}</span>
-              {% endfragment %}
               {% if value in form.roles.value %}
                 {% var checked=True %}
               {% else %}
                 {% var checked=False %}
               {% endif %}
-              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:label|add:"_"|add:id|slugify label=rich_label value=value checked=checked %}
+
+              {% fragment as form_label %}
+                <span class="block font-bold text-base">{{ label }}</span>
+                <span class="block text-sm">{{ value|role_description|linebreaksbr }}</span>
+              {% endfragment %}
+              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:label|add:"_"|add:id|slugify label=form_label value=value checked=checked %}
             {% endwith %}
           {% endfor %}
         {% /form_fieldset %}
