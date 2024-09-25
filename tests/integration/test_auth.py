@@ -1,6 +1,7 @@
 import responses
 from django.urls import reverse
 from furl import furl
+from social_django.models import UserSocialAuth
 
 from jobserver.models import User
 
@@ -78,6 +79,12 @@ def test_login_pipeline(client, slack_messages):
     assert user.is_active
     assert not user.is_staff
     assert user.roles == []
+
+    # ensure social auth extra data populated
+    social = UserSocialAuth.objects.get(user=user)
+    assert social.extra_data["id"] == "1234"
+    assert social.extra_data["login"] == "dummy-user"
+    assert "auth_time" in social.extra_data
 
 
 def test_login_pipeline_without_gitub_token(client, slack_messages):
