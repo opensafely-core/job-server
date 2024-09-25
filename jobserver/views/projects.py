@@ -173,7 +173,7 @@ class ProjectDetail(View):
                     is_private = self.get_github_api().get_repo_is_private(
                         repo.owner, repo.name
                     )
-                except requests.HTTPError:
+                except (requests.HTTPError, requests.Timeout, requests.ConnectionError):
                     is_private = None
                 span = trace.get_current_span()
                 span.set_attribute("repo_owner", repo.owner)
@@ -187,9 +187,12 @@ class ProjectDetail(View):
                 }
 
         # use the threadpool to parallelise the repo requests
-        yield from repo_thread_pool.map(
-            get_repo, repos, itertools.repeat(ctx), timeout=30
-        )
+        try:
+            yield from repo_thread_pool.map(
+                get_repo, repos, itertools.repeat(ctx), timeout=30
+            )
+        except TimeoutError:
+            yield {"name": "GitHub API Unavailable", "is_private": None, "url": ""}
 
 
 class ProjectEdit(UpdateView):
