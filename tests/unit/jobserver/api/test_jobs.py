@@ -908,6 +908,7 @@ def test_userapidetail_success(api_rf, project_membership):
                 "job_cancel",
                 "job_run",
                 "project_manage",
+                "release_file_view",
                 "snapshot_create",
                 "unreleased_outputs_view",
                 "workspace_archive",
