@@ -20,20 +20,17 @@ from .permissions import (
 )
 
 
-class CoreDeveloper:
+class StaffAreaAdministrator:
     """
     Bennett staff member with administrator access to Job Server.
 
     Note the name is misleading here as this does not imply what we generally mean by
-    "core developer". We plan to rename this role as part of a more general permissions
+    "Staff Area Administrator". We plan to rename this role as part of a more general permissions
     revamp.
     """
 
-    display_name = "Core Developer"
-    description = (
-        "Bennett staff member with administrator access to Job Server. "
-        "(Not necessarily a developer – this role will be renamed eventually.)"
-    )
+    display_name = "Staff Area Administrator"
+    description = "Bennett staff member with administrator access to Job Server."
     models = [
         "jobserver.models.user.User",
     ]
