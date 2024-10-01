@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
 from jobserver.models import Project, Repo, Workspace
@@ -19,7 +19,7 @@ from jobserver.models import Project, Repo, Workspace
 logger = structlog.get_logger(__name__)
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class PrivateReposDashboard(View):
     get_github_api = staticmethod(_get_github_api)
 
@@ -141,7 +141,7 @@ class PrivateReposDashboard(View):
         )
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ReposWithMultipleProjects(View):
     @csp_exempt
     def get(self, request, *args, **kwargs):
