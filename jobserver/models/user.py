@@ -27,7 +27,7 @@ class UserQuerySet(models.QuerySet):
         """
         Order Users by their "name".
 
-        Re don't have fullname populated for all users yet and having some
+        We don't have fullname populated for all users yet and having some
         users at the top of the list with just usernames looks fairly odd.
         We've modelled our text fields in job-server such that they're not
         nullable because we treat empty string as the only empty case.  The
