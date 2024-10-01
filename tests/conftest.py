@@ -22,7 +22,7 @@ from structlog.testing import LogCapture
 import jobserver.authorization.roles
 import services.slack
 from applications.form_specs import form_specs
-from jobserver.authorization.roles import CoreDeveloper
+from jobserver.authorization.roles import StaffAreaAdministrator
 from jobserver.commands import project_members
 
 from .factories import (
@@ -79,7 +79,7 @@ def api_rf():
 
 @pytest.fixture
 def core_developer():
-    return UserFactory(roles=[CoreDeveloper])
+    return UserFactory(roles=[StaffAreaAdministrator])
 
 
 @pytest.fixture(name="log_output")

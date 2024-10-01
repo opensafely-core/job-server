@@ -13,7 +13,7 @@ from jobserver.api.jobs import (
     get_backend_from_token,
     update_stats,
 )
-from jobserver.authorization import CoreDeveloper, ProjectDeveloper
+from jobserver.authorization import ProjectDeveloper, StaffAreaAdministrator
 from jobserver.models import Job, JobRequest, Stats
 from tests.factories import (
     AnalysisRequestFactory,
@@ -882,7 +882,7 @@ def test_userapidetail_success(api_rf, project_membership):
     backend = BackendFactory()
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
-    user = UserFactory(roles=[CoreDeveloper])
+    user = UserFactory(roles=[StaffAreaAdministrator])
 
     OrgMembershipFactory(org=org, user=user)
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
@@ -920,7 +920,7 @@ def test_userapidetail_success(api_rf, project_membership):
 
     # roles
     roles = response.data["roles"]
-    assert roles["global"] == ["CoreDeveloper"]
+    assert roles["global"] == ["StaffAreaAdministrator"]
     assert roles["projects"] == [{"slug": project.slug, "roles": ["ProjectDeveloper"]}]
 
 

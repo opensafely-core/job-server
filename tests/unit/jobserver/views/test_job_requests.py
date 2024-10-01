@@ -6,7 +6,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver import honeycomb
-from jobserver.authorization import CoreDeveloper, permissions
+from jobserver.authorization import StaffAreaAdministrator, permissions
 from jobserver.models import JobRequest
 from jobserver.utils import set_from_qs
 from jobserver.views.job_requests import (
@@ -1016,9 +1016,9 @@ def test_jobrequestdetail_with_permission_core_developer(rf, freezer):
         job_request=job_request, completed_at=timezone.now(), status="succeeded"
     )
 
-    # it's important that the user is associated with the CoreDeveloper role, rather
-    # than with a permission that's associated with the CoreDeveloper role
-    user = UserFactory(roles=[CoreDeveloper])
+    # it's important that the user is associated with the StaffAreaAdministrator role, rather
+    # than with a permission that's associated with the StaffAreaAdministrator role
+    user = UserFactory(roles=[StaffAreaAdministrator])
 
     request = rf.get("/")
     request.user = user

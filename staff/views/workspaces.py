@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, UpdateView
 
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
 from jobserver.models import Org, Project, Workspace
 
@@ -12,7 +12,7 @@ from ..forms import WorkspaceEditForm
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class WorkspaceDetail(DetailView):
     model = Workspace
     slug_field = "name"
@@ -30,7 +30,7 @@ class WorkspaceDetail(DetailView):
         }
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class WorkspaceEdit(UpdateView):
     form_class = WorkspaceEditForm
     model = Workspace
@@ -58,7 +58,7 @@ class WorkspaceEdit(UpdateView):
         return redirect(self.object.get_staff_url())
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class WorkspaceList(ListView):
     model = Workspace
     ordering = "name"
