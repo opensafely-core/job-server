@@ -14,11 +14,11 @@ on:
 concurrency: deploy-production
 
 jobs:
-  run-main:
+  test-and-build-docker-image:
     uses: ./.github/workflows/main.yml
 
   deploy:
-    needs: [run-main]
+    needs: [test-and-build-docker-image]
 
     runs-on: ubuntu-22.04
 
