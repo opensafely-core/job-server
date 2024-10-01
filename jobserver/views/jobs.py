@@ -6,7 +6,12 @@ from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
 
 from .. import honeycomb
-from ..authorization import CoreDeveloper, has_permission, has_role, permissions
+from ..authorization import (
+    StaffAreaAdministrator,
+    has_permission,
+    has_role,
+    permissions,
+)
 from ..models import Job, JobRequest
 
 
@@ -59,7 +64,7 @@ class JobDetail(View):
             project=job.job_request.workspace.project,
         )
 
-        honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
+        honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)
 
         # we need all HTML to be in HTML files, so we built this here and make
         # use of it in the template rather than looking it up with a templatetag

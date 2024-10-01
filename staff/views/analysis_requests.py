@@ -5,7 +5,7 @@ from django.views.generic import DetailView, ListView, View
 
 from interactive.models import AnalysisRequest
 from interactive.submit import resubmit_analysis
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
 from jobserver.models import Project, User
@@ -13,7 +13,7 @@ from jobserver.models import Project, User
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class AnalysisRequestDetail(DetailView):
     context_object_name = "analysis_request"
     model = AnalysisRequest
@@ -32,7 +32,7 @@ class AnalysisRequestDetail(DetailView):
         return super().get_queryset().select_related("created_by", "project")
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class AnalysisRequestResubmit(View):
     get_github_api = staticmethod(_get_github_api)
 
@@ -42,7 +42,7 @@ class AnalysisRequestResubmit(View):
         return redirect(analysis_request.get_staff_url())
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class AnalysisRequestList(ListView):
     context_object_name = "analysis_request"
     model = AnalysisRequest

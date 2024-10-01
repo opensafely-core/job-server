@@ -15,7 +15,12 @@ from django.views.generic import CreateView, FormView, ListView, View
 
 from interactive.models import AnalysisRequest
 
-from ..authorization import CoreDeveloper, has_permission, has_role, permissions
+from ..authorization import (
+    StaffAreaAdministrator,
+    has_permission,
+    has_role,
+    permissions,
+)
 from ..forms import (
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -237,7 +242,7 @@ class WorkspaceDetail(View):
         # should we show the admin section in the UI?
         show_admin = can_archive_workspace or can_toggle_notifications
 
-        honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
+        honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)
 
         is_interactive_user = has_permission(
             request.user, permissions.analysis_request_create, project=workspace.project
