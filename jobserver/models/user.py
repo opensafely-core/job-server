@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
 
-from ..authorization import CoreDeveloper, InteractiveReporter
+from ..authorization import InteractiveReporter, StaffAreaAdministrator
 from ..authorization.fields import RolesArrayField
 from ..hash_utils import hash_user_pat
 
@@ -50,7 +50,7 @@ class UserManager(DjangoUserManager.from_queryset(UserQuerySet)):
     def create_superuser(self, email, password, **extra_fields):
         username = email
         return super().create_superuser(
-            username, email, password, roles=[CoreDeveloper]
+            username, email, password, roles=[StaffAreaAdministrator]
         )
 
 

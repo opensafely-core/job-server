@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import CoreDeveloper, permissions
+from jobserver.authorization import StaffAreaAdministrator, permissions
 from jobserver.models import Project, PublishRequest, Snapshot
 from jobserver.utils import set_from_list, set_from_qs
 from jobserver.views.projects import (
@@ -150,7 +150,7 @@ def test_projectdetail_with_multiple_releases(rf, freezer):
 
     request = rf.get("/")
     # FIXME: remove this role when releases is deployed to all users
-    request.user = UserFactory(roles=[CoreDeveloper])
+    request.user = UserFactory(roles=[StaffAreaAdministrator])
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, project_slug=project.slug
