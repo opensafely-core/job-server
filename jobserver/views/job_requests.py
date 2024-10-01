@@ -14,12 +14,7 @@ from django.views.generic import CreateView, ListView, RedirectView, View
 from pipeline import load_pipeline
 
 from .. import honeycomb
-from ..authorization import (
-    StaffAreaAdministrator,
-    has_permission,
-    has_role,
-    permissions,
-)
+from ..authorization import CoreDeveloper, has_permission, has_role, permissions
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm
 from ..github import _get_github_api
@@ -226,7 +221,7 @@ class JobRequestDetail(View):
         can_cancel_jobs = job_request.created_by == request.user or has_permission(
             request.user, permissions.job_cancel, project=job_request.workspace.project
         )
-        honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)
+        honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
         # build up is_missing_updates to define if we've not seen the backend
         # running this JobRequest for a while.

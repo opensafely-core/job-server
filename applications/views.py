@@ -8,12 +8,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, RedirectView, UpdateView, View
 
-from jobserver.authorization import (
-    StaffAreaAdministrator,
-    has_permission,
-    has_role,
-    permissions,
-)
+from jobserver.authorization import CoreDeveloper, has_permission, has_role, permissions
 from jobserver.hash_utils import unhash_or_404
 from jobserver.slacks import notify_application
 
@@ -192,7 +187,7 @@ def page(request, pk_hash, key):
     # check the user can access this application
     validate_application_access(request.user, application)
 
-    if application.approved_at and not has_role(request.user, StaffAreaAdministrator):
+    if application.approved_at and not has_role(request.user, CoreDeveloper):
         messages.warning(
             request, "This application has been approved and can no longer be edited"
         )

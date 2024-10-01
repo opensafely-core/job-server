@@ -10,7 +10,7 @@ from django.db.models.functions import Greatest, Least, Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
-from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
 from jobserver.models import Project, ReleaseFile, Repo
@@ -79,7 +79,7 @@ def build_repos_by_project(projects, get_github_api=_get_github_api):
     return {p.pk: [r for r in repos if r["pk"] in p.repo_ids] for p in projects}
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 @method_decorator(csp_exempt, name="dispatch")
 class Copiloting(TemplateView):
     get_github_api = staticmethod(_get_github_api)

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
 
-from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.emails import send_report_published_email
 from jobserver.models import (
@@ -18,7 +18,7 @@ from jobserver.models import (
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportDetail(DetailView):
     model = Report
     template_name = "staff/report/detail.html"
@@ -44,7 +44,7 @@ class ReportDetail(DetailView):
         )
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportList(ListView):
     model = Report
     ordering = "-created_at"
@@ -142,7 +142,7 @@ class ReportList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportPublishRequestApprove(View):
     def post(self, request, *args, **kwargs):
         publish_request = get_object_or_404(
@@ -157,7 +157,7 @@ class ReportPublishRequestApprove(View):
         return redirect(publish_request.report.get_staff_url())
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportPublishRequestReject(View):
     def post(self, request, *args, **kwargs):
         publish_request = get_object_or_404(

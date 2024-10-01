@@ -6,11 +6,11 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.authorization.roles import (
+    CoreDeveloper,
     InteractiveReporter,
     OutputChecker,
     ProjectCollaborator,
     ProjectDeveloper,
-    StaffAreaAdministrator,
 )
 from jobserver.models.user import User, get_or_create_user
 
@@ -340,4 +340,4 @@ def test_create_superuser():
     assert su.email == "test@test.test"
     assert su.is_staff
     assert su.is_superuser
-    assert StaffAreaAdministrator in su.roles
+    assert CoreDeveloper in su.roles

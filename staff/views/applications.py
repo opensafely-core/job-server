@@ -12,7 +12,7 @@ from django.views.generic import FormView, ListView, UpdateView, View
 from applications.form_specs import form_specs
 from applications.models import Application
 from applications.wizard import Wizard
-from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.commands import projects
 from jobserver.hash_utils import unhash, unhash_or_404
@@ -21,7 +21,7 @@ from jobserver.models import Org, Project, User
 from ..forms import ApplicationApproveForm
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationApprove(FormView):
     form_class = ApplicationApproveForm
     model = Application
@@ -97,7 +97,7 @@ class ApplicationApprove(FormView):
         return initial
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationDetail(View):
     def dispatch(self, request, *args, **kwargs):
         self.application = get_object_or_404(
@@ -144,7 +144,7 @@ class ApplicationDetail(View):
         return redirect("staff:application-detail", self.application.pk_hash)
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationEdit(UpdateView):
     fields = [
         "status",
@@ -176,7 +176,7 @@ class ApplicationEdit(UpdateView):
         return self.object.get_staff_url()
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
     response_class = TemplateResponse
     ordering = "-created_at"
@@ -232,7 +232,7 @@ class ApplicationList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationRemove(View):
     def post(self, request, *args, **kwargs):
         application = get_object_or_404(
@@ -255,7 +255,7 @@ class ApplicationRemove(View):
         return redirect("staff:application-list")
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationRestore(View):
     def post(self, request, *args, **kwargs):
         application = get_object_or_404(

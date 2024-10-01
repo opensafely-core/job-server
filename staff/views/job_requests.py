@@ -5,14 +5,14 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
 
-from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.models import Backend, JobRequest, Org, Project, User, Workspace
 
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class JobRequestCancel(View):
     def post(self, request, *args, **kwargs):
         try:
@@ -30,14 +30,14 @@ class JobRequestCancel(View):
         return redirect(job_request.get_staff_url())
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class JobRequestDetail(DetailView):
     context_object_name = "job_request"
     model = JobRequest
     template_name = "staff/job_request/detail.html"
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class JobRequestList(ListView):
     ordering = "-created_at"
     paginate_by = 25

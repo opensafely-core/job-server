@@ -8,7 +8,7 @@ from django.views.generic import View
 
 from applications.models import Application
 from interactive.models import AnalysisRequest
-from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.models import Backend, Org, Project, User, Workspace
 
@@ -106,7 +106,7 @@ def get_results(q):
     return list(itertools.chain.from_iterable(queries))
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class Index(View):
     def get(self, request, *args, **kwargs):
         q = self.request.GET.get("q")

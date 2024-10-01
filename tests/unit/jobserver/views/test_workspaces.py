@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import StaffAreaAdministrator, permissions
+from jobserver.authorization import CoreDeveloper, permissions
 from jobserver.models import PublishRequest, Workspace
 from jobserver.utils import set_from_qs
 from jobserver.views.workspaces import (
@@ -606,7 +606,7 @@ def test_workspacedetail_authorized_honeycomb(rf):
     )
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[StaffAreaAdministrator])
+    request.user = UserFactory(roles=[CoreDeveloper])
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,

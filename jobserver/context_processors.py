@@ -5,7 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from furl import furl
 
-from .authorization import StaffAreaAdministrator, has_role
+from .authorization import CoreDeveloper, has_role
 from .nav import NavItem, iter_nav
 
 
@@ -17,7 +17,7 @@ def _is_active(request, prefix):
 
 
 def can_view_staff_area(request):
-    can_view_staff_area = has_role(request.user, StaffAreaAdministrator)
+    can_view_staff_area = has_role(request.user, CoreDeveloper)
 
     return {"user_can_view_staff_area": can_view_staff_area}
 

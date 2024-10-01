@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from ulid import ULID
 
-from jobserver.authorization import StaffAreaAdministrator, has_role
+from jobserver.authorization import CoreDeveloper, has_role
 from jobserver.models.common import new_ulid_str
 
 
@@ -173,4 +173,4 @@ class AnalysisRequest(models.Model):
         return ULID.from_str(self.id)
 
     def visible_to(self, user):
-        return self.created_by == user or has_role(user, StaffAreaAdministrator)
+        return self.created_by == user or has_role(user, CoreDeveloper)
