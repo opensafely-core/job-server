@@ -1,6 +1,6 @@
 import pytest
 
-from jobserver.authorization import StaffAreaAdministrator, has_role
+from jobserver.authorization import CoreDeveloper, has_role
 from jobserver.nav import NavItem, iter_nav
 
 from ...factories import UserFactory
@@ -35,7 +35,7 @@ def test_iter_nav_all_items(rf):
     "roles,expected",
     [
         (
-            [StaffAreaAdministrator],
+            [CoreDeveloper],
             [
                 {
                     "name": "Always Shown",
@@ -71,7 +71,7 @@ def test_iter_nav_optional_items(rf, roles, expected):
         NavItem(
             name="Only Shown for CoreDevs",
             url_name="staff:user-list",
-            predicate=lambda request: has_role(request.user, StaffAreaAdministrator),
+            predicate=lambda request: has_role(request.user, CoreDeveloper),
         ),
     ]
 

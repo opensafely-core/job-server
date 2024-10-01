@@ -2,8 +2,8 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from jobserver.authorization.roles import (
+    CoreDeveloper,
     OutputChecker,
-    StaffAreaAdministrator,
 )
 from jobserver.models import get_or_create_user
 
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--core-developer",
             action="store_true",
-            help="Make user global StaffAreaAdministrator",
+            help="Make user global CoreDeveloper",
         )
 
     @transaction.atomic()
@@ -53,7 +53,7 @@ class Command(BaseCommand):
         if options["output_checker"]:
             roles.append(OutputChecker)
         if options["core_developer"]:
-            roles.append(StaffAreaAdministrator)
+            roles.append(CoreDeveloper)
 
         updated = False
         for role in roles:

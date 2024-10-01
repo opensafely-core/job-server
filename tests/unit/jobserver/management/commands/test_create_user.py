@@ -1,8 +1,8 @@
 from django.core.management import call_command
 
 from jobserver.authorization.roles import (
+    CoreDeveloper,
     OutputChecker,
-    StaffAreaAdministrator,
 )
 from jobserver.models import User
 
@@ -34,7 +34,7 @@ def test_create_user_args(capsys):
 
     assert user.email == "foo@bar.com"
     assert user.fullname == "fullname"
-    assert set(user.roles) == set([OutputChecker, StaffAreaAdministrator])
+    assert set(user.roles) == set([OutputChecker, CoreDeveloper])
 
     # test idempotency
     call_command(

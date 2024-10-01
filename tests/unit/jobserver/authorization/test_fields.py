@@ -1,6 +1,6 @@
 from django.db import connection
 
-from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.fields import RoleField
 from jobserver.models import User
 
@@ -8,13 +8,13 @@ from ....factories import UserFactory
 
 
 def test_roles_field_db_values():
-    user = UserFactory(roles=[StaffAreaAdministrator])
+    user = UserFactory(roles=[CoreDeveloper])
 
     with connection.cursor() as c:
         c.execute("SELECT roles FROM jobserver_user WHERE id = %s", [user.pk])
         row = c.fetchone()
 
-    assert row[0] == ["jobserver.authorization.roles.StaffAreaAdministrator"]
+    assert row[0] == ["jobserver.authorization.roles.CoreDeveloper"]
 
 
 def test_roles_field_default_empty_list():
@@ -36,53 +36,53 @@ def test_roles_field_empty():
 def test_roles_field_list_append():
     user = UserFactory()
 
-    user.roles.append(StaffAreaAdministrator)
+    user.roles.append(CoreDeveloper)
     user.save()
     user.refresh_from_db()
 
-    assert user.roles == [StaffAreaAdministrator]
+    assert user.roles == [CoreDeveloper]
 
 
 def test_roles_field_list_extend():
     user = UserFactory()
 
-    user.roles.extend([StaffAreaAdministrator])
+    user.roles.extend([CoreDeveloper])
     user.save()
     user.refresh_from_db()
 
-    assert user.roles == [StaffAreaAdministrator]
+    assert user.roles == [CoreDeveloper]
 
 
 def test_roles_field_multiple_roles():
     user = UserFactory()
 
-    user.roles = [StaffAreaAdministrator, StaffAreaAdministrator]
+    user.roles = [CoreDeveloper, CoreDeveloper]
     user.save()
     user.refresh_from_db()
 
-    assert user.roles == [StaffAreaAdministrator]
+    assert user.roles == [CoreDeveloper]
 
 
 def test_roles_field_one_role():
     user = UserFactory()
 
-    user.roles = [StaffAreaAdministrator]
+    user.roles = [CoreDeveloper]
     user.save()
     user.refresh_from_db()
 
-    assert user.roles == [StaffAreaAdministrator]
+    assert user.roles == [CoreDeveloper]
 
 
 def test_rolesarrayfield_to_python_success():
     roles = RoleField()
 
-    output = roles.to_python("jobserver.authorization.roles.StaffAreaAdministrator")
+    output = roles.to_python("jobserver.authorization.roles.CoreDeveloper")
 
-    assert output == StaffAreaAdministrator
+    assert output == CoreDeveloper
 
 
 def test_roles_field_to_python_with_a_role():
-    assert RoleField().to_python([StaffAreaAdministrator]) == [StaffAreaAdministrator]
+    assert RoleField().to_python([CoreDeveloper]) == [CoreDeveloper]
 
 
 def test_roles_field_to_python_with_empty_list():
@@ -95,9 +95,9 @@ def test_roles_field_to_python_with_falsey_value():
 
 
 def test_query_by_roles():
-    user = UserFactory(roles=[StaffAreaAdministrator])
+    user = UserFactory(roles=[CoreDeveloper])
 
-    qs = User.objects.filter(roles__contains=StaffAreaAdministrator)
+    qs = User.objects.filter(roles__contains=CoreDeveloper)
     assert qs.count() == 1
     assert qs.first() == user
 

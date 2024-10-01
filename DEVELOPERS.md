@@ -232,8 +232,7 @@ In that situation you can follow the steps below to set up your local copy of th
    * The other fields don't matter too much for local development.
 1. Register a user account on your local version of job-server by clicking Login
 1. Set the `SOCIAL_AUTH_GITHUB_KEY` (aka "Client ID") and `SOCIAL_AUTH_GITHUB_SECRET` environment variables with values from that OAuth application.
-1. Give your user the `StaffAreaAdministrator` role by running:
-
+1. Give your user the `CoreDeveloper` role by running:
    ```sh
    > python3 manage.py shell_plus
    ```
@@ -241,9 +240,9 @@ In that situation you can follow the steps below to set up your local copy of th
    and then running in the `shell_plus` shell:
 
    ```
-   >>> from jobserver.authorization import StaffAreaAdministrator
+   >>> from jobserver.authorization import CoreDeveloper
    >>> user = User.objects.get(username="<your_username>")
-   >>> user.roles.append(StaffAreaAdministrator)
+   >>> user.roles.append(CoreDeveloper)
    >>> user.save()
    ```
 1. Click on your avatar in the top right-hand corner of the site to access the Staff Area.
