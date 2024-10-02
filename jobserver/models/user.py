@@ -95,9 +95,13 @@ def get_or_create_user(username, email, fullname, update_fields=None):
 
 class User(AbstractBaseUser):
     """
-    A custom User model used throughout the codebase
+    A custom User model used throughout the codebase.
 
     Using a custom Model allows us to add extra fields trivially, eg Roles.
+
+    Changing any fields in the User model may require the corresponding
+    view, used by Grafana, to be regenerated after deployment. More
+    information can be found in https://github.com/ebmdatalab/metrics/blob/main/grafana/README.md
     """
 
     backends = models.ManyToManyField(
