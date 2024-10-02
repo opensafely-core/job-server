@@ -20,12 +20,6 @@ from .permissions import (
 )
 
 
-class CoreDeveloper:
-    """
-    Temporary vestigial CoreDeveloper role to allow migration
-    """
-
-
 class StaffAreaAdministrator:
     """
     Bennett staff member with administrator access to Job Server.
