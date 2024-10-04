@@ -21,19 +21,11 @@ from .permissions import (
 
 
 class CoreDeveloper:
-    """
-    Bennett staff member with administrator access to Job Server.
-
-    Note the name is misleading here as this does not imply what we generally mean by
-    "core developer". We plan to rename this role as part of a more general permissions
-    revamp.
-    """
-
-    display_name = "Core Developer"
-    description = (
-        "Bennett staff member with administrator access to Job Server. "
-        "(Not necessarily a developer – this role will be renamed eventually.)"
-    )
+    display_name = "Staff Area Administrator"
+    description = """Access the Staff Area.
+    View and edit applications, backends, organisations, project, repos, users, and workspaces.
+    View dashboards.
+    See Staff Area Administrator Log for the list of individuals who are approved for this role."""
     models = [
         "jobserver.models.user.User",
     ]
@@ -46,10 +38,8 @@ class CoreDeveloper:
 
 
 class InteractiveReporter:
-    """Use the interactive UI"""
-
     display_name = "Interactive Reporter"
-    description = ""
+    description = """View analysis requests and reports for projects that used OpenSAFELY Interactive."""
     models = [
         "jobserver.models.project_membership.ProjectMembership",
         "jobserver.models.user.User",
@@ -61,12 +51,9 @@ class InteractiveReporter:
 
 
 class OutputChecker:
-    """
-    Review output folders that have been proposed for release.
-    """
-
     display_name = "Output Checker"
-    description = ""
+    description = """View, upload, and delete any outputs that have been released to Job Server.
+    View unreleased files on the Level 4 Server."""
     models = [
         "jobserver.models.user.User",
     ]
@@ -79,13 +66,8 @@ class OutputChecker:
 
 
 class OutputPublisher:
-    """
-    Release approved-only outputs to a public location based on the work of the
-    output checkers and/or an OpenSAFELY Reviewer.
-    """
-
     display_name = "Output Publisher"
-    description = ""
+    description = """Publish released outputs (i.e make visible to the public) as a result of a request by a Project Developer."""
     models = [
         "jobserver.models.user.User",
     ]
@@ -95,12 +77,8 @@ class OutputPublisher:
 
 
 class ProjectCollaborator:
-    """
-    TODO: Define this role.
-    """
-
     display_name = "Project Collaborator"
-    description = "View unpublished outputs released from Level 4 to the Jobs site."
+    description = """View outputs that have been released to Job Server."""
     models = [
         "jobserver.models.project_membership.ProjectMembership",
         "jobserver.models.user.User",
@@ -111,14 +89,12 @@ class ProjectCollaborator:
 
 
 class ProjectDeveloper:
-    """
-    An external user who is developing and executing code to analyse data in
-    OpenSAFELY; they will likely want to review (and flag for release) their
-    own outputs.
-    """
-
     display_name = "Project Developer"
-    description = "Run and cancel Jobs, and manage workspaces."
+    description = """Run and cancel jobs.
+    Edit project status and description.
+    Create and manage workspaces.
+    View unreleased outputs on Level 4 and request their release.
+    Request that released outputs are published."""
     models = [
         "jobserver.models.project_membership.ProjectMembership",
     ]
@@ -135,10 +111,8 @@ class ProjectDeveloper:
 
 
 class SignOffRepoWithOutputs:
-    """Internally sign off repos with outputs hosted on GitHub"""
-
     display_name = "Sign Off Repos with Outputs"
-    description = "Internally sign off repos with outputs hosted on GitHub"
+    description = """Internally sign off repos with outputs hosted on GitHub."""
     models = [
         "jobserver.models.user.User",
     ]
@@ -148,15 +122,8 @@ class SignOffRepoWithOutputs:
 
 
 class DeploymentAdministrator:
-    """
-    Run and cancel Jobs on any project, for development and maintenance purposes
-    including technical support for Approved Projects.
-    See Developer Permissions Log for the list of individuals who are approved for this role.
-    """
-
     display_name = "Deployment Administrator"
-    description = """
-    Run and cancel Jobs on any project, for development and maintenance purposes including technical support for Approved Projects.
+    description = """Run and cancel jobs on any project, for development and maintenance purposes, including technical support for Approved Projects.
     See Developer Permissions Log for the list of individuals who are approved for this role.
     """
     models = [
