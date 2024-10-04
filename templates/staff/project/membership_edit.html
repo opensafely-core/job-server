@@ -2,7 +2,7 @@
 
 {% load roles %}
 
-{% block metatitle %}Edit member: {{ membership.user.name }} &mdash; {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Edit project roles: {{ membership.user.name }} | {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
@@ -11,21 +11,21 @@
     {% breadcrumb title="Staff area" url=staff_url %}
     {% breadcrumb title="Projects" url=staff_project_list_url %}
     {% breadcrumb title=membership.project.title url=membership.project.get_staff_url %}
-    {% breadcrumb title="Edit member: "|add:membership.user.name active=True %}
+    {% breadcrumb title="Edit project roles: "|add:membership.user.name active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">{{ membership.user.name }}</h1>
-    <p class="lead"><span class="sr-only">Username: </span>{{ membership.user.username }}</p>
+  <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+    <div class="container">
+      <h1 class="display-4">{{ membership.user.name }}</h1>
+      <p class="lead"><span class="sr-only">Username: </span>{{ membership.user.username }}</p>
+    </div>
   </div>
-</div>
 {% endblock jumbotron %}
 
 {% block hero %}
-  {% #staff_hero title="Edit member: "|add:membership.user.name %}
+  {% #staff_hero title="Edit project roles: "|add:membership.user.name %}
     {% if membership.user.social_auth.exists %}
       <p><strong>GitHub Username:</strong> {{ membership.user.username }}</p>
     {% endif %}
@@ -34,12 +34,11 @@
 {% endblock hero %}
 
 {% block content %}
-  <div class="flex flex-col gap-8">
+  <div class="flex flex-col gap-y-6 max-w-3xl">
+    <form method="POST">
+      {% csrf_token %}
 
-    {% #card class="max-w-3xl" container=True %}
-      <form method="POST" class="flex flex-col items-stretch gap-y-6">
-        {% csrf_token %}
-
+      {% #card title="Assign project roles" subtitle="Assign roles for "|add:membership.user.name|add:" on project "|add:membership.project.title container=True %}
         {% if form.non_field_errors %}
           {% for error in form.non_field_errors %}
             {% #alert variant="danger" class="mb-6" %}
@@ -48,30 +47,41 @@
           {% endfor %}
         {% endif %}
 
-        {% #form_fieldset %}
-          {% form_legend text="Select project roles to assign to "|add:membership.user.name %}
-          {% for value, label in form.roles.field.choices %}
-            {% with id=forloop.counter0|stringformat:"s" %}
-              {% if value in form.roles.value %}
-                {% var checked=True %}
-              {% else %}
-                {% var checked=False %}
-              {% endif %}
+        <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+          {% #form_fieldset %}
+            {% if form.roles.errors %}
+              {% for error in form.roles.errors %}
+                {% #alert variant="danger" class="mb-6" %}
+                  {{ error }}
+                {% /alert %}
+              {% endfor %}
+            {% endif %}
 
-              {% fragment as form_label %}
-                <span class="block font-bold text-base">{{ label }}</span>
-                <span class="block text-sm">{{ value|role_description|linebreaksbr }}</span>
-              {% endfragment %}
-              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=checked %}
-            {% endwith %}
-          {% endfor %}
-        {% /form_fieldset %}
+            {% form_legend text="Assign roles site-wide" class="sr-only" %}
 
-        {% #button variant="success" type="submit" class="self-start" %}
-          Update member
+            {% for value, label in form.roles.field.choices %}
+              {% with id=forloop.counter0|stringformat:"s" %}
+                {% if value in form.roles.value %}
+                  {% var checked=True %}
+                {% else %}
+                  {% var checked=False %}
+                {% endif %}
+
+                {% fragment as form_label %}
+                  <span class="block font-bold text-base">{{ label }}</span>
+                  <span class="block text-sm">{{ value|role_description|linebreaksbr }}</span>
+                {% endfragment %}
+                {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=checked %}
+              {% endwith %}
+            {% endfor %}
+          {% /form_fieldset %}
+        </div>
+
+        {% #button variant="success" type="submit" %}
+          Update project roles
         {% /button %}
-      </form>
-    {% /card %}
+      {% /card %}
+    </form>
 
     {% #card class="max-w-3xl" container=True %}
       <form
@@ -94,5 +104,5 @@
         {% /form_fieldset %}
       </form>
     {% /card %}
-
+  </div>
 {% endblock %}
