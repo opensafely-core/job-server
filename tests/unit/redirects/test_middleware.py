@@ -39,3 +39,16 @@ def test_redirectsmiddleware_unknown_url(rf):
     response = RedirectsMiddleware(get_response)(request)
 
     assert response == "no match"
+
+
+def test_redirect_with_wildcard_in_path(rf):
+    w1 = WorkspaceFactory()
+    w2 = WorkspaceFactory()
+    RedirectFactory(old_url="/abc/123/test_workspace/", workspace=w1)
+    RedirectFactory(old_url="/abc/123/test-workspace/", workspace=w2)
+
+    request = rf.get("/abc/123/test-workspace/")
+
+    response = RedirectsMiddleware(get_response)(request)
+
+    assert response.url == w2.get_absolute_url()

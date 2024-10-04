@@ -1,3 +1,4 @@
+from django.db.models import CharField, F, Value
 from django.db.models.functions import Length
 from django.shortcuts import redirect
 
@@ -27,11 +28,11 @@ class RedirectsMiddleware:
 
         # look for a direct or prefix match on the current URL
         redirection = (
-            Redirect.objects.extra(
-                where=["%s LIKE concat(old_url, '%%')"],
-                params=[request.path],
+            Redirect.objects.annotate(
+                url_length=Length("old_url"),
+                request_url=Value(request.path, output_field=CharField()),
             )
-            .annotate(url_length=Length("old_url"))
+            .filter(request_url__startswith=F("old_url"))
             .order_by("-url_length")
             .first()
         )
