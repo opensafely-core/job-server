@@ -114,6 +114,7 @@ def test_workspacecreateform_success():
     form = WorkspaceCreateForm(project, repos_with_branches, data)
 
     assert form.is_valid()
+    assert form.cleaned_data["name"] == "test"
 
 
 def test_workspacecreateform_success_with_mixed_case_name():
@@ -134,7 +135,7 @@ def test_workspacecreateform_success_with_mixed_case_name():
     form = WorkspaceCreateForm(project, repos_with_branches, data)
 
     assert form.is_valid()
-    assert form.cleaned_data["name"] == "test", form.cleaned_data["name"]
+    assert form.cleaned_data["name"] == "test"
 
 
 def test_workspacecreateform_unknown_branch():
