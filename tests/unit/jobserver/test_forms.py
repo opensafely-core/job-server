@@ -116,7 +116,7 @@ def test_workspacecreateform_success():
     assert form.is_valid()
 
 
-def test_workspacecreateform_success_with_upper_case_names():
+def test_workspacecreateform_success_with_mixed_case_name():
     project = ProjectFactory()
     data = {
         "name": "TeSt",
