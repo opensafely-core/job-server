@@ -14,7 +14,7 @@ JOBSERVER_GITHUB_TOKEN=dummy
 # A GitHub API token, we use a PAT from our writeable user for this
 INTERACTIVE_GITHUB_TOKEN=dummy
 
-# Get these from a GitHub Org admin, you want the Dev application credentials
+# The dev OAuth application credentials are stored in Bitwarden
 SOCIAL_AUTH_GITHUB_KEY=dummy
 SOCIAL_AUTH_GITHUB_SECRET=dummy
 
