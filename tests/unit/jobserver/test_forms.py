@@ -96,10 +96,17 @@ def test_jobrequestcreateform_with_bad_codelists(
         )
 
 
-def test_workspacecreateform_success():
+@pytest.mark.parametrize(
+    "name,cleaned_name",
+    [
+        pytest.param("test", "test", id="lower_case_name"),
+        pytest.param("TeSt", "test", id="mixed_case_name"),
+    ],
+)
+def test_workspacecreateform_success(name, cleaned_name):
     project = ProjectFactory()
     data = {
-        "name": "test",
+        "name": name,
         "repo": "http://example.com/derp/test-repo",
         "branch": "test-branch",
         "purpose": "test",
@@ -114,27 +121,7 @@ def test_workspacecreateform_success():
     form = WorkspaceCreateForm(project, repos_with_branches, data)
 
     assert form.is_valid()
-
-
-def test_workspacecreateform_success_with_upper_case_names():
-    project = ProjectFactory()
-    data = {
-        "name": "TeSt",
-        "repo": "http://example.com/derp/test-repo",
-        "branch": "test-branch",
-        "purpose": "test",
-    }
-    repos_with_branches = [
-        {
-            "name": "test-repo",
-            "url": "http://example.com/derp/test-repo",
-            "branches": ["test-branch"],
-        }
-    ]
-    form = WorkspaceCreateForm(project, repos_with_branches, data)
-
-    assert form.is_valid()
-    assert form.cleaned_data["name"] == "test", form.cleaned_data["name"]
+    assert form.cleaned_data["name"] == cleaned_name
 
 
 def test_workspacecreateform_unknown_branch():
