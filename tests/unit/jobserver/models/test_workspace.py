@@ -121,20 +121,6 @@ def test_workspace_get_edit_url():
     )
 
 
-def test_workspace_get_files_url():
-    workspace = WorkspaceFactory()
-
-    url = workspace.get_files_url()
-
-    assert url == reverse(
-        "workspace-files-list",
-        kwargs={
-            "project_slug": workspace.project.slug,
-            "workspace_slug": workspace.name,
-        },
-    )
-
-
 def test_workspace_get_jobs_url():
     workspace = WorkspaceFactory()
 

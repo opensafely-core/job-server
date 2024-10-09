@@ -15,12 +15,10 @@ from jobserver.utils import set_from_qs
 from jobserver.views.workspaces import (
     WorkspaceAnalysisRequestList,
     WorkspaceArchiveToggle,
-    WorkspaceBackendFiles,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceEdit,
     WorkspaceEventLog,
-    WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
     WorkspaceLatestOutputsDownload,
     WorkspaceNotificationsToggle,
@@ -104,131 +102,6 @@ def test_workspacearchivetoggle_without_permission(rf):
             request,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
-        )
-
-
-def test_workspacebackendfiles_success(rf, project_membership, role_factory):
-    backend = BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(backend=backend, user=user)
-    project_membership(
-        project=workspace.project,
-        user=user,
-        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceBackendFiles.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-        backend_slug=backend.slug,
-    )
-
-    assert response.status_code == 200
-
-
-def test_workspacebackendfiles_unknown_backend(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        WorkspaceBackendFiles.as_view()(
-            request,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-            backend_slug="unknown",
-        )
-
-
-def test_workspacebackendfiles_unknown_workspace(rf):
-    backend = BackendFactory()
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        WorkspaceBackendFiles.as_view()(
-            request,
-            project_slug=project.slug,
-            workspace_slug="unknown",
-            backend_slug=backend.slug,
-        )
-
-
-def test_workspacebackendfiles_with_permission(rf, project_membership, role_factory):
-    backend = BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(backend=backend, user=user)
-    project_membership(
-        project=workspace.project,
-        user=user,
-        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceBackendFiles.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-        backend_slug=backend.slug,
-    )
-
-    assert response.status_code == 200
-
-
-def test_workspacebackendfiles_without_backend_access(
-    rf, project_membership, role_factory
-):
-    backend = BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    project_membership(
-        project=workspace.project,
-        user=user,
-        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    with pytest.raises(Http404):
-        WorkspaceBackendFiles.as_view()(
-            request,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-            backend_slug=backend.slug,
-        )
-
-
-def test_workspacebackendfiles_without_permission(rf):
-    backend = BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(backend=backend, user=user)
-
-    request = rf.get("/")
-    request.user = user
-
-    with pytest.raises(Http404):
-        WorkspaceBackendFiles.as_view()(
-            request,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-            backend_slug=backend.slug,
         )
 
 
@@ -994,84 +867,6 @@ def test_workspaceeventlog_with_unauthenticated_user(rf):
     )
 
     assert response.status_code == 200
-
-
-def test_workspacefilelist_success(rf, project_membership, role_factory):
-    backend1 = BackendFactory()
-    BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(backend=backend1, user=user)
-    project_membership(
-        project=workspace.project,
-        user=user,
-        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceFileList.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert list(response.context_data["backends"]) == [backend1]
-
-
-def test_workspacefilelist_unknown_workspace(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        WorkspaceFileList.as_view()(
-            request,
-            project_slug=project.slug,
-            workspace_slug="",
-        )
-
-
-def test_workspacefilelist_without_backends(rf, project_membership, role_factory):
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    project_membership(
-        project=workspace.project,
-        user=user,
-        roles=[role_factory(permission=permissions.unreleased_outputs_view)],
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    with pytest.raises(Http404):
-        WorkspaceFileList.as_view()(
-            request,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
-
-
-def test_workspacefilelist_without_permission(rf):
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(user=user)
-
-    request = rf.get("/")
-    request.user = user
-
-    with pytest.raises(Http404):
-        WorkspaceFileList.as_view()(
-            request,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
 
 
 def test_workspacelatestoutputsdetail_success(rf, project_membership, role_factory):
