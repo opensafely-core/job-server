@@ -101,7 +101,6 @@ class Login(FormView):
         return super().get_context_data(**kwargs) | {
             "next_url": self.next_url,
             "token_form": TokenLoginForm(),
-            "show_token_login": getattr(self.request, "backend", None) is not None,
         }
 
 

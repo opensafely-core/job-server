@@ -91,18 +91,6 @@ def test_login_get_unsafe_path(rf):
     assert response.context_data["next_url"] == ""
 
 
-def test_login_from_backend(rf):
-    request = rf.get("/login")
-    request.user = AnonymousUser()
-    request.backend = BackendFactory()
-    response = Login.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.context_data["show_token_login"] is True
-    assert "Login with Single Use Token" in response.rendered_content
-    assert "Sign in with Github" not in response.rendered_content
-
-
 def test_login_post_success_with_email_user(rf_messages, mailoutbox):
     user = UserFactory(roles=[InteractiveReporter])
 
