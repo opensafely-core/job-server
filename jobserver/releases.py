@@ -1,20 +1,18 @@
 import hashlib
 import io
 import zipfile
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
 from django.db import transaction
 from django.http import FileResponse
 from django.utils import timezone
 from django.utils.http import http_date
-from furl import furl
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from .models import Release, ReleaseFile
 from .models.release_file import absolute_file_path
-from .signing import AuthToken
 
 
 class ReleaseFileAlreadyExists(Exception):
@@ -40,26 +38,6 @@ def _build_paths(release, filename, data):
     absolute_path.parent.mkdir(parents=True, exist_ok=True)
 
     return relative_path, absolute_path
-
-
-def build_hatch_token_and_url(*, backend, workspace, user, expiry=None):
-    """Build an auth token and base URL for talking to release hatch"""
-    # build the base URL for which we want the auth token to authenticate,
-    # all paths beneath this one will be valid with the token
-    f = furl(backend.level_4_url)
-    f.path.segments += ["workspace", workspace.name]
-
-    if expiry is None:
-        expiry = timezone.now() + timedelta(minutes=30)
-
-    builder = AuthToken(
-        url=f.url,
-        user=user.username,
-        expiry=expiry,
-    )
-    token = builder.sign(key=backend.auth_token, salt="hatch")
-
-    return token, f.url
 
 
 def build_outputs_zip(release_files, url_builder_func):
