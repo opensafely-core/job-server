@@ -72,12 +72,10 @@ from .views.users import (
 from .views.workspaces import (
     WorkspaceAnalysisRequestList,
     WorkspaceArchiveToggle,
-    WorkspaceBackendFiles,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceEdit,
     WorkspaceEventLog,
-    WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
     WorkspaceLatestOutputsDownload,
     WorkspaceNotificationsToggle,
@@ -146,20 +144,6 @@ api_urls = [
         "releases/authorise",
         Level4AuthorisationAPI.as_view(),
         name="level4-authorise",
-    ),
-]
-
-files_urls = [
-    path("", WorkspaceFileList.as_view(), name="workspace-files-list"),
-    path(
-        "<str:backend_slug>/",
-        WorkspaceBackendFiles.as_view(),
-        name="workspace-backend-files",
-    ),
-    path(
-        "<str:backend_slug>/<path:path>",
-        WorkspaceBackendFiles.as_view(),
-        name="workspace-backend-files",
     ),
 ]
 
@@ -260,7 +244,6 @@ workspace_urls = [
         WorkspaceArchiveToggle.as_view(),
         name="workspace-archive-toggle",
     ),
-    path("files/", include(files_urls)),
     path("logs/", WorkspaceEventLog.as_view(), name="workspace-logs"),
     path(
         "notifications-toggle/",

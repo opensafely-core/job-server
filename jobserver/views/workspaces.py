@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.views.generic import CreateView, FormView, ListView, View
-from furl import furl
 
 from interactive.models import AnalysisRequest
 
@@ -34,7 +33,7 @@ from ..models import (
     Report,
     Workspace,
 )
-from ..releases import build_hatch_token_and_url, build_outputs_zip, workspace_files
+from ..releases import build_outputs_zip, workspace_files
 from ..utils import build_spa_base_url
 
 
@@ -93,64 +92,6 @@ class WorkspaceArchiveToggle(View):
         workspace.save()
 
         return redirect(workspace.project)
-
-
-class WorkspaceBackendFiles(View):
-    """
-    Orchestrate viewing of a Backend's "live" files for a given Workspace
-
-    We consume two URLs with one view, because we want to both do permissions
-    checks on the Workspace but also load the SPA for any given path under the
-    Workspace.
-    """
-
-    @csp_exempt
-    def get(self, request, *args, **kwargs):
-        workspace = get_object_or_404(
-            Workspace,
-            project__slug=self.kwargs["project_slug"],
-            name=self.kwargs["workspace_slug"],
-        )
-
-        backend = get_object_or_404(Backend, slug=self.kwargs["backend_slug"])
-
-        # ensure the user has access to the given Backend
-        if request.user not in backend.members.all():
-            raise Http404
-
-        if not has_permission(
-            request.user,
-            permissions.unreleased_outputs_view,
-            project=workspace.project,
-        ):
-            raise Http404
-
-        auth_token, url = build_hatch_token_and_url(
-            backend=backend,
-            workspace=workspace,
-            user=request.user,
-        )
-
-        # build the relevant URLs for the SPA by adding the necessary paths to
-        # the URL the token was created for.
-        files_url = (furl(url) / "current").url
-        review_url = (furl(url) / "release").url
-
-        base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
-        context = {
-            "auth_token": auth_token,
-            "backend": backend,
-            "base_path": base_path,
-            "files_url": files_url,
-            "review_url": review_url,
-            "workspace": workspace,
-        }
-
-        return TemplateResponse(
-            request,
-            "workspace/backend_files.html",
-            context=context,
-        )
 
 
 class WorkspaceCreate(CreateView):
@@ -446,37 +387,6 @@ class WorkspaceEventLog(ListView):
             qs = qs.filter(backend__slug__in=backends)
 
         return qs
-
-
-class WorkspaceFileList(View):
-    def get(self, request, *args, **kwargs):
-        workspace = get_object_or_404(
-            Workspace,
-            project__slug=self.kwargs["project_slug"],
-            name=self.kwargs["workspace_slug"],
-        )
-
-        if not has_permission(
-            request.user,
-            permissions.unreleased_outputs_view,
-            project=workspace.project,
-        ):
-            raise Http404
-
-        backends = request.user.backends.exclude(level_4_url="").order_by("slug")
-
-        if not backends:
-            raise Http404
-
-        context = {
-            "backends": backends,
-            "workspace": workspace,
-        }
-        return TemplateResponse(
-            request,
-            "workspace/file_list.html",
-            context=context,
-        )
 
 
 class WorkspaceLatestOutputsDetail(View):

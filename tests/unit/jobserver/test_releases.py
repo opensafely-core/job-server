@@ -1,7 +1,6 @@
 import hashlib
 import io
 import zipfile
-from datetime import timedelta
 
 import pytest
 from django.db import DatabaseError
@@ -23,31 +22,6 @@ from ...utils import minutes_ago
 
 def raise_error(**kwargs):
     raise DatabaseError("test error")
-
-
-def test_build_hatch_token_and_url_default():
-    backend = BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    releases.build_hatch_token_and_url(
-        backend=backend,
-        workspace=workspace,
-        user=user,
-    )
-
-
-def test_build_hatch_token_and_url_with_custom_expires():
-    backend = BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    releases.build_hatch_token_and_url(
-        backend=backend,
-        workspace=workspace,
-        user=user,
-        expiry=timezone.now() + timedelta(minutes=3),
-    )
 
 
 def test_build_outputs_zip(release):

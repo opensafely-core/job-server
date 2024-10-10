@@ -159,15 +159,6 @@ class Workspace(models.Model):
             },
         )
 
-    def get_files_url(self):
-        return reverse(
-            "workspace-files-list",
-            kwargs={
-                "project_slug": self.project.slug,
-                "workspace_slug": self.name,
-            },
-        )
-
     def get_jobs_url(self):
         return reverse(
             "job-request-create",
