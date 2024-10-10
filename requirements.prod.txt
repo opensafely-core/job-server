@@ -540,8 +540,8 @@ oauthlib==3.2.2 \
     # via
     #   requests-oauthlib
     #   social-auth-core
-opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2024.03.19.153938.zip \
-    --hash=sha256:f1fb0829c832f4c52a495d7fe167e0656c2a77fde4e58426268c60754a5f6e89
+opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2024.10.08.124104.zip \
+    --hash=sha256:190637a7fb67b3bdfd67e4b14b1b79a5eba3346b2b5ddc4dbb487aa4b130d122
     # via -r requirements.prod.in
 opentelemetry-api==1.22.0 \
     --hash=sha256:15ae4ca925ecf9cfdfb7a709250846fbb08072260fca08ade78056c502b86bed \
@@ -764,9 +764,7 @@ pydantic==1.10.18 \
     --hash=sha256:efbc8a7f9cb5fe26122acba1852d8dcd1e125e723727c59dcd244da7bdaa54f2 \
     --hash=sha256:fcb20d4cb355195c75000a49bb4a31d75e4295200df620f454bbc6bdf60ca890 \
     --hash=sha256:fe734914977eed33033b70bfc097e1baaffb589517863955430bf2e0846ac30f
-    # via
-    #   -r requirements.prod.in
-    #   opensafely-pipeline
+    # via -r requirements.prod.in
 pygments==2.18.0 \
     --hash=sha256:786ff802f32e91311bff3889f6e9a86e81505fe99f2735bb6d60ae0c5004f199 \
     --hash=sha256:b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a
