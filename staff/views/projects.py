@@ -20,7 +20,7 @@ from applications.models import Application
 from interactive.commands import create_repo, create_workspace
 from jobserver import html_utils
 from jobserver.auditing.presenters.lookup import get_presenter
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
 from jobserver.commands import project_members as members
@@ -40,7 +40,7 @@ from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectAddMember(FormView):
     form_class = ProjectAddMemberForm
     template_name = "staff/project/membership_create.html"
@@ -89,7 +89,7 @@ class ProjectAddMember(FormView):
         }
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectAuditLog(ListView):
     paginate_by = 25
     template_name = "staff/project/audit_log.html"
@@ -126,7 +126,7 @@ class ProjectAuditLog(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     get_github_api = staticmethod(_get_github_api)
@@ -199,7 +199,7 @@ class ProjectCreate(CreateView):
         return [template_name]
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectDetail(DetailView):
     model = Project
     template_name = "staff/project/detail.html"
@@ -219,7 +219,7 @@ class ProjectDetail(DetailView):
         }
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
@@ -241,7 +241,7 @@ class ProjectEdit(UpdateView):
         }
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectLinkApplication(UpdateView):
     form_class = ProjectLinkApplicationForm
     model = Project
@@ -274,7 +274,7 @@ class ProjectLinkApplication(UpdateView):
         }
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectList(ListView):
     queryset = Project.objects.order_by("-number", Lower("name"))
     paginate_by = 25
@@ -302,7 +302,7 @@ class ProjectList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectMembershipEdit(UpdateView):
     context_object_name = "membership"
     form_class = ProjectMembershipForm
@@ -343,7 +343,7 @@ class ProjectMembershipEdit(UpdateView):
         )
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectMembershipRemove(View):
     def post(self, request, *args, **kwargs):
         membership = get_object_or_404(

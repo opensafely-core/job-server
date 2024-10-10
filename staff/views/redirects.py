@@ -3,14 +3,14 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
 
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
 from redirects.models import Redirect
 
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class RedirectDelete(View):
     def post(self, request, *args, **kwargs):
         obj = get_object_or_404(Redirect, pk=self.kwargs["pk"])
@@ -22,13 +22,13 @@ class RedirectDelete(View):
         return redirect("staff:redirect-list")
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class RedirectDetail(DetailView):
     model = Redirect
     template_name = "staff/redirect/detail.html"
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
+@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class RedirectList(ListView):
     ordering = "-old_url"
     paginate_by = 25
