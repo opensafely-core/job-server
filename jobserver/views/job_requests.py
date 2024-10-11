@@ -286,14 +286,20 @@ class JobRequestDetail(View):
     def get_project_yaml(self, job_request):
         is_empty = job_request.project_definition == ""
 
-        # We know files that are 2.43MB take too long to render with pygments
-        # in production and crash browser tabs locally, so we're limiting the
-        # size.  The current 1MB is arbitrary until we can get some telemetry
-        # from production.
-        is_too_large = len(job_request.project_definition) > 10_000  # ~1MB
+        # Is this file too large to render? Files around 2.43MB crash tabs and
+        # render slowly. The 10K character limit (~10-40KB) is arbitrary. It
+        # could be refined, perhaps with telemetry. Length is an imperfect
+        # proxy for render cost, but better than size, which ignores encoding.
+        is_too_large = len(job_request.project_definition) > 10_000  # ~10-40KB
 
         if is_empty:
+            # Nothing to render, may as well not call render_definition.
             project_definition = ""
+        elif is_too_large:
+            # Skip rendering as the template shouldn't display the result.
+            # Return a human-readable string in case the template behavior
+            # changes and shows project_definition despite is_too_large.
+            project_definition = "This file is too large to render."
         else:
             project_definition = mark_safe(
                 render_definition(
