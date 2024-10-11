@@ -1006,6 +1006,9 @@ def test_jobrequestdetail_with_permission(rf, project_membership, role_factory):
     assert response.status_code == 200
     assert not response.context_data["is_invalid"]
     assert response.context_data["is_missing_updates"]
+    assert response.context_data["project_yaml"]["is_empty"]
+    assert not response.context_data["project_yaml"]["is_too_large"]
+    assert not response.context_data["project_yaml"]["definition"]
     assert "Cancel" in response.rendered_content
 
 
@@ -1041,6 +1044,77 @@ def test_jobrequestdetail_with_permission_core_developer(rf, freezer):
     assert url in response.rendered_content
 
 
+def test_jobrequestdetail_with_permission_nonempty_definition(
+    rf, project_membership, role_factory
+):
+    """When the project definition is valid and non-empty and smaller than
+    10,000 characters, it is rendered in the context."""
+    job_request = JobRequestFactory(project_definition="key: value")
+    JobFactory(job_request=job_request, updated_at=minutes_ago(timezone.now(), 31))
+
+    user = UserFactory()
+
+    project_membership(
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permission=permissions.job_cancel)],
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestDetail.as_view()(
+        request,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
+
+    assert response.status_code == 200
+    assert not response.context_data["is_invalid"]
+    assert response.context_data["is_missing_updates"]
+    assert not response.context_data["project_yaml"]["is_empty"]
+    assert not response.context_data["project_yaml"]["is_too_large"]
+    assert "<div" in response.context_data["project_yaml"]["definition"]
+    assert "key" in response.context_data["project_yaml"]["definition"]
+    assert "Cancel" in response.rendered_content
+
+
+def test_jobrequestdetail_with_permission_definition_large(
+    rf, project_membership, role_factory
+):
+    """When the project definition is larger than 10,000 characters, a flag is set in the
+    context and the project definition is empty."""
+    job_request = JobRequestFactory(project_definition=f"{'X' * 10_001}")
+    JobFactory(job_request=job_request, updated_at=minutes_ago(timezone.now(), 31))
+
+    user = UserFactory()
+
+    project_membership(
+        project=job_request.workspace.project,
+        user=user,
+        roles=[role_factory(permission=permissions.job_cancel)],
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestDetail.as_view()(
+        request,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
+
+    assert response.status_code == 200
+    assert not response.context_data["is_invalid"]
+    assert response.context_data["is_missing_updates"]
+    assert not response.context_data["project_yaml"]["is_empty"]
+    assert response.context_data["project_yaml"]["is_too_large"]
+    assert "too large" in response.context_data["project_yaml"]["definition"]
+    assert "Cancel" in response.rendered_content
+
+
 def test_jobrequestdetail_with_permission_with_completed_at(
     rf, project_membership, role_factory
 ):
@@ -1072,6 +1146,9 @@ def test_jobrequestdetail_with_permission_with_completed_at(
 
     assert response.status_code == 200
     assert not response.context_data["is_missing_updates"]
+    assert response.context_data["project_yaml"]["is_empty"]
+    assert not response.context_data["project_yaml"]["is_too_large"]
+    assert not response.context_data["project_yaml"]["definition"]
     assert "Cancel" in response.rendered_content
 
 
