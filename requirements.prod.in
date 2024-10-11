@@ -12,7 +12,7 @@ django-vite
 djangorestframework
 environs[django]
 furl
-opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2024.03.19.153938.zip
+opensafely-pipeline[fastparser]@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2024.10.11.170331.zip
 gunicorn
 incuna-mail
 interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/refs/tags/v2024.07.09.130747.zip
