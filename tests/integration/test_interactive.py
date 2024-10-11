@@ -10,7 +10,11 @@ from interactive_templates import git
 
 from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
-from jobserver.authorization import CoreDeveloper, InteractiveReporter, permissions
+from jobserver.authorization import (
+    InteractiveReporter,
+    StaffAreaAdministrator,
+    permissions,
+)
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
 
@@ -236,7 +240,7 @@ def test_interactive_publishing_report_success(
 
     assert_edit_and_publish_pages_are_locked(analysis, client)
 
-    staff = UserFactory(roles=[CoreDeveloper])
+    staff = UserFactory(roles=[StaffAreaAdministrator])
     client.force_login(staff)
 
     # check the staff area shows the pending publish request

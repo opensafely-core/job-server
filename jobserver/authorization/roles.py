@@ -21,6 +21,17 @@ from .permissions import (
 
 
 class CoreDeveloper:
+    """
+    Vestigial role class to support data migration from CoreDeveloper to StaffAreaAdministrator.
+    Not to be used outside of this migration.
+    Must be removed once this data migration is eliminated.
+    """
+
+    models = []
+    permissions = []
+
+
+class StaffAreaAdministrator:
     display_name = "Staff Area Administrator"
     description = """Access the Staff Area.
     View and edit applications, backends, organisations, project, repos, users, and workspaces.
