@@ -167,10 +167,10 @@ def test_analysisrequest_visible_to_creator():
     assert analysis_request.visible_to(analysis_request.created_by)
 
 
-def test_analysisrequest_visible_to_staff(core_developer):
+def test_analysisrequest_visible_to_staff(staff_area_administrator):
     analysis_request = AnalysisRequestFactory()
 
-    assert analysis_request.visible_to(core_developer)
+    assert analysis_request.visible_to(staff_area_administrator)
 
 
 def test_analysisrequest_visible_to_other_user():

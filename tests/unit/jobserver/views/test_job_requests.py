@@ -1009,7 +1009,7 @@ def test_jobrequestdetail_with_permission(rf, project_membership, role_factory):
     assert "Cancel" in response.rendered_content
 
 
-def test_jobrequestdetail_with_permission_core_developer(rf, freezer):
+def test_jobrequestdetail_with_permission_staff_area_administrator(rf, freezer):
     freezer.move_to("2022-06-16 12:00")
     job_request = JobRequestFactory()
     job = JobFactory(  # noqa: F841

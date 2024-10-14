@@ -30,12 +30,12 @@ from ....factories import (
 from ....fakes import FakeGitHubAPI
 
 
-def test_projectaddmember_get_success(rf, core_developer):
+def test_projectaddmember_get_success(rf, staff_area_administrator):
     project = ProjectFactory()
     UserFactory(username="beng", fullname="Ben Goldacre")
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectAddMember.as_view()(request, slug=project.slug)
 
@@ -44,7 +44,7 @@ def test_projectaddmember_get_success(rf, core_developer):
     assert "Ben Goldacre (beng)" in response.rendered_content
 
 
-def test_projectaddmember_post_success(rf, core_developer):
+def test_projectaddmember_post_success(rf, staff_area_administrator):
     project = ProjectFactory()
     user1 = UserFactory()
     user2 = UserFactory()
@@ -54,7 +54,7 @@ def test_projectaddmember_post_success(rf, core_developer):
         "users": [user1.pk, user2.pk],
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectAddMember.as_view()(request, slug=project.slug)
 
@@ -66,7 +66,7 @@ def test_projectaddmember_post_success(rf, core_developer):
     assert project.memberships.filter(roles=[ProjectDeveloper]).count() == 2
 
 
-def test_projectaddmember_unauthorized(rf, core_developer):
+def test_projectaddmember_unauthorized(rf, staff_area_administrator):
     request = rf.post("/")
     request.user = UserFactory()
 
@@ -74,15 +74,17 @@ def test_projectaddmember_unauthorized(rf, core_developer):
         ProjectAddMember.as_view()(request)
 
 
-def test_projectaddmember_unknown_project(rf, core_developer):
+def test_projectaddmember_unknown_project(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ProjectAddMember.as_view()(request, slug="test")
 
 
-def test_projectauditlog_filter_by_type(rf, core_developer, project_membership):
+def test_projectauditlog_filter_by_type(
+    rf, staff_area_administrator, project_membership
+):
     actor = UserFactory()
     project = ProjectFactory()
     user = UserFactory()
@@ -100,7 +102,7 @@ def test_projectauditlog_filter_by_type(rf, core_developer, project_membership):
     )
 
     request = rf.get("/?types=project_member_added")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectAuditLog.as_view()(request, slug=project.slug)
 
@@ -111,7 +113,7 @@ def test_projectauditlog_filter_by_type(rf, core_developer, project_membership):
     )
 
 
-def test_projectauditlog_success(rf, core_developer, project_membership):
+def test_projectauditlog_success(rf, staff_area_administrator, project_membership):
     actor = UserFactory()
     project = ProjectFactory()
     user = UserFactory()
@@ -129,7 +131,7 @@ def test_projectauditlog_success(rf, core_developer, project_membership):
     )
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectAuditLog.as_view()(request, slug=project.slug)
 
@@ -149,7 +151,7 @@ def test_projectauditlog_unauthorized(rf):
 
 
 def test_projectauditlog_num_queries(
-    rf, django_assert_num_queries, core_developer, project_membership
+    rf, django_assert_num_queries, staff_area_administrator, project_membership
 ):
     project = ProjectFactory()
     project_membership(
@@ -165,7 +167,7 @@ def test_projectauditlog_num_queries(
     )
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(11):
         response = ProjectAuditLog.as_view()(request, slug=project.slug)
@@ -175,18 +177,18 @@ def test_projectauditlog_num_queries(
         response.render()
 
 
-def test_projectauditlog_unknown_project(rf, core_developer):
+def test_projectauditlog_unknown_project(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ProjectAuditLog.as_view()(request, slug="")
 
 
-def test_projectcreate_get_success(rf, core_developer):
+def test_projectcreate_get_success(rf, staff_area_administrator):
     request = rf.get("/")
     request.htmx = False
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -194,10 +196,10 @@ def test_projectcreate_get_success(rf, core_developer):
     assert response.template_name == ["staff/project/create.html"]
 
 
-def test_projectcreate_get_htmx_success(rf, core_developer):
+def test_projectcreate_get_htmx_success(rf, staff_area_administrator):
     request = rf.get("/")
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectCreate.as_view()(request)
 
@@ -205,7 +207,7 @@ def test_projectcreate_get_htmx_success(rf, core_developer):
     assert response.template_name == ["staff/project/create.htmx.html"]
 
 
-def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
+def test_projectcreate_post_htmx_success_with_next(rf, staff_area_administrator):
     user = UserFactory()
 
     data = {
@@ -217,7 +219,7 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
     }
     request = rf.post("/?next=/next/page/", data)
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -225,7 +227,7 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
     assert response.headers["HX-Redirect"] == "/next/page/?project-slug=new-name"
 
 
-def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
+def test_projectcreate_post_htmx_success_without_next(rf, staff_area_administrator):
     user = UserFactory()
 
     data = {
@@ -237,7 +239,7 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
     }
     request = rf.post("/", data)
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -248,7 +250,7 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
     assert response.headers["HX-Redirect"] == expected
 
 
-def test_projectcreate_post_success(rf, core_developer):
+def test_projectcreate_post_success(rf, staff_area_administrator):
     org1 = OrgFactory()
     org2 = OrgFactory()
     user = UserFactory()
@@ -264,7 +266,7 @@ def test_projectcreate_post_success(rf, core_developer):
     }
     request = rf.post("/", data)
     request.htmx = False
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -272,7 +274,7 @@ def test_projectcreate_post_success(rf, core_developer):
 
     project = Project.objects.first()
     assert response.url == project.get_staff_url()
-    assert project.created_by == core_developer
+    assert project.created_by == staff_area_administrator
     assert project.name == "new-name"
     assert set_from_qs(project.orgs.all()) == {org1.pk, org2.pk}
 
@@ -281,7 +283,7 @@ def test_projectcreate_post_success(rf, core_developer):
     assert not collaboration2.is_lead
 
 
-def test_projectcreate_post_with_github_failure(rf, core_developer):
+def test_projectcreate_post_with_github_failure(rf, staff_area_administrator):
     org = OrgFactory()
     user = UserFactory()
 
@@ -294,7 +296,7 @@ def test_projectcreate_post_with_github_failure(rf, core_developer):
     }
     request = rf.post("/", data)
     request.htmx = False
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     class FailingGitHubAPI(FakeGitHubAPI):
         def get_repo(self, *args, **kwargs):
@@ -311,7 +313,7 @@ def test_projectcreate_post_with_github_failure(rf, core_developer):
     }
 
 
-def test_projectcreate_post_with_unique_number_failure(rf, core_developer):
+def test_projectcreate_post_with_unique_number_failure(rf, staff_area_administrator):
     org = OrgFactory()
     user = UserFactory()
 
@@ -327,7 +329,7 @@ def test_projectcreate_post_with_unique_number_failure(rf, core_developer):
     }
     request = rf.post("/", data)
     request.htmx = False
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -346,11 +348,11 @@ def test_projectcreate_unauthorized(rf):
         ProjectCreate.as_view()(request)
 
 
-def test_projectdetail_success(rf, core_developer):
+def test_projectdetail_success(rf, staff_area_administrator):
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectDetail.as_view()(request, slug=project.slug)
 
@@ -361,13 +363,13 @@ def test_projectdetail_success(rf, core_developer):
     assert output == expected
 
 
-def test_projectedit_get_success(rf, core_developer):
+def test_projectedit_get_success(rf, staff_area_administrator):
     project = ProjectFactory(orgs=[OrgFactory()])
 
     UserFactory(username="beng", fullname="Ben Goldacre")
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectEdit.as_view()(request, slug=project.slug)
 
@@ -385,7 +387,7 @@ def test_projectedit_get_unauthorized(rf):
         ProjectEdit.as_view()(request, slug=project.slug)
 
 
-def test_projectedit_post_success(rf, core_developer):
+def test_projectedit_post_success(rf, staff_area_administrator):
     project = ProjectFactory(name="test", number=123, orgs=[OrgFactory()])
     old_project_url = project.get_absolute_url()
 
@@ -403,7 +405,7 @@ def test_projectedit_post_success(rf, core_developer):
         "status_description": "",
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectEdit.as_view()(request, slug=project.slug)
 
@@ -416,12 +418,12 @@ def test_projectedit_post_success(rf, core_developer):
     assert project.number == 456
     assert project.copilot == new_copilot
     assert set_from_qs(project.orgs.all()) == {new_org.pk}
-    assert project.updated_by == core_developer
+    assert project.updated_by == staff_area_administrator
     assert project.redirects.count() == 1
     assert project.redirects.first().old_url == old_project_url
 
 
-def test_projectedit_post_success_when_not_changing_slug(rf, core_developer):
+def test_projectedit_post_success_when_not_changing_slug(rf, staff_area_administrator):
     org = OrgFactory()
     project = ProjectFactory(name="Test", slug="test", number=123, orgs=[org])
 
@@ -438,7 +440,7 @@ def test_projectedit_post_success_when_not_changing_slug(rf, core_developer):
         "status_description": "",
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectEdit.as_view()(request, slug=project.slug)
 
@@ -463,22 +465,24 @@ def test_projectedit_post_unauthorized(rf):
         ProjectEdit.as_view()(request, slug=project.slug)
 
 
-def test_projectedit_post_unknown_project(rf, core_developer):
+def test_projectedit_post_unknown_project(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ProjectEdit.as_view()(request, slug="")
 
 
-def test_projectlinkapplication_get_empty_application_list(rf, core_developer):
+def test_projectlinkapplication_get_empty_application_list(
+    rf, staff_area_administrator
+):
     ApplicationFactory(status=Application.Statuses.ONGOING)
     ApplicationFactory(status=Application.Statuses.REJECTED)
 
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -487,7 +491,7 @@ def test_projectlinkapplication_get_empty_application_list(rf, core_developer):
     assert not response.context_data["applications"]
 
 
-def test_projectlinkapplication_get_success(rf, core_developer):
+def test_projectlinkapplication_get_success(rf, staff_area_administrator):
     approved_fully = ApplicationFactory(
         project=None,
         status=Application.Statuses.APPROVED_FULLY,
@@ -512,7 +516,7 @@ def test_projectlinkapplication_get_success(rf, core_developer):
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -524,7 +528,7 @@ def test_projectlinkapplication_get_success(rf, core_developer):
     assert set(applications) == {approved_fully, approved_subject_to, completed}
 
 
-def test_projectlinkapplication_post_success(rf, core_developer):
+def test_projectlinkapplication_post_success(rf, staff_area_administrator):
     application = ApplicationFactory(
         project=None,
         status=Application.Statuses.COMPLETED,
@@ -532,7 +536,7 @@ def test_projectlinkapplication_post_success(rf, core_developer):
     project = ProjectFactory()
 
     request = rf.post("/", {"application": application.pk})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -543,11 +547,11 @@ def test_projectlinkapplication_post_success(rf, core_developer):
     assert application.project == project
 
 
-def test_projectlinkapplication_post_unknown_application(rf, core_developer):
+def test_projectlinkapplication_post_unknown_application(rf, staff_area_administrator):
     project = ProjectFactory()
 
     request = rf.post("/", {"application": "0"})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -567,34 +571,34 @@ def test_projectlinkapplication_unauthorized(rf):
         ProjectLinkApplication.as_view()(request, slug=project.slug)
 
 
-def test_projectlinkapplication_unknown_project(rf, core_developer):
+def test_projectlinkapplication_unknown_project(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ProjectLinkApplication.as_view()(request, slug="")
 
 
-def test_projectlist_filter_by_org(rf, core_developer):
+def test_projectlist_filter_by_org(rf, staff_area_administrator):
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
     ProjectFactory.create_batch(2)
 
     request = rf.get(f"/?orgs={org.slug}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectList.as_view()(request)
 
     assert set_from_qs(response.context_data["project_list"]) == {project.pk}
 
 
-def test_projectlist_find_by_username(rf, core_developer):
+def test_projectlist_find_by_username(rf, staff_area_administrator):
     ProjectFactory(name="ben")
     ProjectFactory(name="benjamin")
     ProjectFactory(name="seb")
 
     request = rf.get("/?q=ben")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectList.as_view()(request)
 
@@ -603,11 +607,11 @@ def test_projectlist_find_by_username(rf, core_developer):
     assert len(response.context_data["project_list"]) == 2
 
 
-def test_projectlist_success(rf, core_developer):
+def test_projectlist_success(rf, staff_area_administrator):
     ProjectFactory.create_batch(5)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectList.as_view()(request)
 
@@ -627,7 +631,7 @@ def test_projectlist_unauthorized(rf):
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
 def test_projectmembershipedit_success(
-    rf, core_developer, next_url, project_membership
+    rf, staff_area_administrator, next_url, project_membership
 ):
     project = ProjectFactory()
     user = UserFactory()
@@ -638,7 +642,7 @@ def test_projectmembershipedit_success(
 
     suffix = f"?next={next_url}" if next_url else ""
     request = rf.post(f"/{suffix}", {"roles": [dotted_path(ProjectDeveloper)]})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectMembershipEdit.as_view()(
         request, slug=project.slug, pk=membership.pk
@@ -654,14 +658,14 @@ def test_projectmembershipedit_success(
 
 
 def test_projectmembershipedit_unknown_membership(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     project = ProjectFactory()
 
     project_membership(project=project, user=UserFactory())
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ProjectMembershipEdit.as_view()(request, slug=project.slug, pk="0")
@@ -677,7 +681,7 @@ def test_projectmembershipedit_unauthorized(rf):
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
 def test_projectmembershipremove_success(
-    rf, core_developer, next_url, project_membership
+    rf, staff_area_administrator, next_url, project_membership
 ):
     project = ProjectFactory()
     user = UserFactory()
@@ -686,7 +690,7 @@ def test_projectmembershipremove_success(
 
     suffix = f"?next={next_url}" if next_url else ""
     request = rf.post(f"/{suffix}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -723,13 +727,13 @@ def test_projectmembershipremove_unauthorized(rf, project_membership):
         )
 
 
-def test_projectmembershipremove_unknown_membership(rf, core_developer):
+def test_projectmembershipremove_unknown_membership(rf, staff_area_administrator):
     project = ProjectFactory()
 
     assert project.memberships.count() == 0
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"

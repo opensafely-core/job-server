@@ -35,7 +35,7 @@ from ....factories import (
 )
 
 
-def test_userauditlog_filter_by_type(rf, core_developer, project_membership):
+def test_userauditlog_filter_by_type(rf, staff_area_administrator, project_membership):
     actor = UserFactory()
     project = ProjectFactory()
     user = UserFactory()
@@ -53,7 +53,7 @@ def test_userauditlog_filter_by_type(rf, core_developer, project_membership):
     )
 
     request = rf.get("/?types=project_member_added")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserAuditLog.as_view()(request, username=user.username)
 
@@ -64,7 +64,7 @@ def test_userauditlog_filter_by_type(rf, core_developer, project_membership):
     )
 
 
-def test_userauditlog_success(rf, core_developer, project_membership):
+def test_userauditlog_success(rf, staff_area_administrator, project_membership):
     actor = UserFactory()
     project = ProjectFactory()
     user = UserFactory()
@@ -91,7 +91,7 @@ def test_userauditlog_success(rf, core_developer, project_membership):
     )
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserAuditLog.as_view()(request, username=user.username)
 
@@ -111,7 +111,7 @@ def test_userauditlog_unauthorized(rf):
 
 
 def test_userauditlog_num_queries(
-    rf, django_assert_num_queries, core_developer, project_membership
+    rf, django_assert_num_queries, staff_area_administrator, project_membership
 ):
     project = ProjectFactory()
     user = UserFactory()
@@ -128,7 +128,7 @@ def test_userauditlog_num_queries(
     )
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(13):
         response = UserAuditLog.as_view()(request, username=user.username)
@@ -138,21 +138,21 @@ def test_userauditlog_num_queries(
         response.render()
 
 
-def test_userauditlog_unknown_project(rf, core_developer):
+def test_userauditlog_unknown_project(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         UserAuditLog.as_view()(request, username="")
 
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
-def test_userclearroles_success(rf, core_developer, next_url):
+def test_userclearroles_success(rf, staff_area_administrator, next_url):
     user = UserFactory()
 
     suffix = f"?next={next_url}" if next_url else ""
     request = rf.post(f"/{suffix}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserClearRoles.as_view()(request, username=user.username)
 
@@ -162,9 +162,9 @@ def test_userclearroles_success(rf, core_developer, next_url):
     assert response.url == expected
 
 
-def test_userclearroles_with_unknown_user(rf, core_developer):
+def test_userclearroles_with_unknown_user(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         UserClearRoles.as_view()(request, username="")
@@ -180,20 +180,20 @@ def test_userclearroles_unauthorized(rf):
         UserClearRoles.as_view()(request, username=user.username)
 
 
-def test_usercreate_get_success(rf, core_developer):
+def test_usercreate_get_success(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserCreate.as_view()(request)
 
     assert response.status_code == 200
 
 
-def test_usercreate_get_success_with_project_slug(rf, core_developer):
+def test_usercreate_get_success_with_project_slug(rf, staff_area_administrator):
     project = ProjectFactory()
 
     request = rf.get(f"/?project-slug={project.slug}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserCreate.as_view()(request)
 
@@ -201,9 +201,9 @@ def test_usercreate_get_success_with_project_slug(rf, core_developer):
     assert response.context_data["form"].initial["project"] == project
 
 
-def test_usercreate_get_success_with_unknown_args(rf, core_developer):
+def test_usercreate_get_success_with_unknown_args(rf, staff_area_administrator):
     request = rf.get("/?project-slug=test")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserCreate.as_view()(request)
 
@@ -212,7 +212,7 @@ def test_usercreate_get_success_with_unknown_args(rf, core_developer):
     assert "project" not in response.context_data["form"].initial
 
 
-def test_usercreate_post_success(rf, core_developer):
+def test_usercreate_post_success(rf, staff_area_administrator):
     project = ProjectFactory()
     WorkspaceFactory(project=project, name=project.interactive_slug)
 
@@ -222,7 +222,7 @@ def test_usercreate_post_success(rf, core_developer):
         "email": "test@example.com",
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserCreate.as_view()(request)
 
@@ -233,7 +233,7 @@ def test_usercreate_post_success(rf, core_developer):
 
     user = User.objects.get(email="test@example.com")
     assert response.url == user.get_staff_url()
-    assert user.created_by == core_developer
+    assert user.created_by == staff_area_administrator
     assert user.name == "New Name-Name"
     assert set_from_qs(user.orgs.all()) == set_from_qs(project.orgs.all())
     assert user.projects.first() == project
@@ -248,7 +248,7 @@ def test_usercreate_unauthorized(rf):
 
 
 def test_userdetail_with_email_user_invokes_userdetailwithemail(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     org = OrgFactory()
     project = ProjectFactory()
@@ -259,7 +259,7 @@ def test_userdetail_with_email_user_invokes_userdetailwithemail(
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetail.as_view()(request, username=user.username)
 
@@ -267,7 +267,7 @@ def test_userdetail_with_email_user_invokes_userdetailwithemail(
 
 
 def test_userdetail_with_oauth_user_invokes_userdetailwithoauth(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     org = OrgFactory()
     project = ProjectFactory()
@@ -280,16 +280,16 @@ def test_userdetail_with_oauth_user_invokes_userdetailwithoauth(
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetail.as_view()(request, username=user.username)
 
     assert response.status_code == 200
 
 
-def test_userdetail_with_unknown_user(rf, core_developer):
+def test_userdetail_with_unknown_user(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         UserDetail.as_view()(request, username="test")
@@ -303,7 +303,9 @@ def test_userdetail_without_core_dev_role(rf):
         UserDetail.as_view()(request, username="test")
 
 
-def test_userdetailwithemail_get_success(rf, core_developer, project_membership):
+def test_userdetailwithemail_get_success(
+    rf, staff_area_administrator, project_membership
+):
     user = UserFactory()
 
     # add a couple of memberships so the orgs and projects comprehensions in
@@ -312,14 +314,14 @@ def test_userdetailwithemail_get_success(rf, core_developer, project_membership)
     project_membership(user=user)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetailWithEmail.as_view()(request, username=user.username)
 
     assert response.status_code == 200
 
 
-def test_userdetailwithemail_post_success(rf, core_developer):
+def test_userdetailwithemail_post_success(rf, staff_area_administrator):
     user = UserFactory(fullname="testing", email="test@example.com")
 
     data = {
@@ -327,7 +329,7 @@ def test_userdetailwithemail_post_success(rf, core_developer):
         "email": "testing@example.com",
     }
     request = rf.post("/", data=data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetailWithEmail.as_view()(request, username=user.username)
 
@@ -340,7 +342,7 @@ def test_userdetailwithemail_post_success(rf, core_developer):
 
 
 def test_userdetailwithemail_with_oauth_user_invokes_userdetailwithoauth(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     org = OrgFactory()
     project = ProjectFactory()
@@ -353,22 +355,22 @@ def test_userdetailwithemail_with_oauth_user_invokes_userdetailwithoauth(
     project_membership(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetailWithEmail.as_view()(request, username=user.username)
 
     assert response.status_code == 200
 
 
-def test_userdetailwithemail_with_unknown_user(rf, core_developer):
+def test_userdetailwithemail_with_unknown_user(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         UserDetailWithEmail.as_view()(request, username="test")
 
 
-def test_userdetailwithemail_without_core_dev_role(rf, core_developer):
+def test_userdetailwithemail_without_core_dev_role(rf, staff_area_administrator):
     request = rf.get("/")
     request.user = UserFactory()
 
@@ -376,7 +378,9 @@ def test_userdetailwithemail_without_core_dev_role(rf, core_developer):
         UserDetailWithEmail.as_view()(request, username="test")
 
 
-def test_userdetailwithoauth_get_success(rf, core_developer, project_membership):
+def test_userdetailwithoauth_get_success(
+    rf, staff_area_administrator, project_membership
+):
     org = OrgFactory()
     project1 = ProjectFactory()
     project2 = ProjectFactory()
@@ -395,7 +399,7 @@ def test_userdetailwithoauth_get_success(rf, core_developer, project_membership)
     project_membership(project=project2, user=user)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
@@ -403,7 +407,9 @@ def test_userdetailwithoauth_get_success(rf, core_developer, project_membership)
     assert response.context_data["user"] == user
 
 
-def test_userdetailwithoauth_post_success(rf, core_developer, project_membership):
+def test_userdetailwithoauth_post_success(
+    rf, staff_area_administrator, project_membership
+):
     backend = BackendFactory()
 
     project1 = ProjectFactory()
@@ -420,7 +426,7 @@ def test_userdetailwithoauth_post_success(rf, core_developer, project_membership
     project_membership(project=project2, user=user)
 
     request = rf.post("/", {"backends": [backend.slug]})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
@@ -432,7 +438,7 @@ def test_userdetailwithoauth_post_success(rf, core_developer, project_membership
 
 
 def test_userdetailwithoauth_post_with_unknown_backend(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     project1 = ProjectFactory()
     project2 = ProjectFactory()
@@ -448,7 +454,7 @@ def test_userdetailwithoauth_post_with_unknown_backend(
     project_membership(project=project2, user=user)
 
     request = rf.post("/", {"backends": ["not-a-real-backend"]})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
@@ -471,7 +477,7 @@ def test_userdetailwithoauth_post_with_unknown_backend(
 
 
 def test_userdetailwithoauth_with_email_only_user_invokes_userdetailwithemail(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     org = OrgFactory()
     project = ProjectFactory()
@@ -482,16 +488,16 @@ def test_userdetailwithoauth_with_email_only_user_invokes_userdetailwithemail(
     project_membership(project=project, user=user, roles=[InteractiveReporter])
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
     assert response.status_code == 200
 
 
-def test_userdetailwithoauth_with_unknown_user(rf, core_developer):
+def test_userdetailwithoauth_with_unknown_user(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         UserDetailWithOAuth.as_view()(request, username="test")
@@ -505,57 +511,60 @@ def test_userdetailwithoauth_without_core_dev_role(rf):
         UserDetailWithOAuth.as_view()(request, username="test")
 
 
-def test_userlist_filter_by_backend(rf, core_developer):
+def test_userlist_filter_by_backend(rf, staff_area_administrator):
     backend = BackendFactory()
 
     BackendMembershipFactory(user=UserFactory(), backend=backend)
     BackendMembershipFactory(user=UserFactory())
 
     request = rf.get(f"/?backend={backend.pk}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
 
 
-def test_userlist_filter_by_invalid_backend(rf, core_developer):
+def test_userlist_filter_by_invalid_backend(rf, staff_area_administrator):
     request = rf.get("/?backend=test")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(BadRequest):
         UserList.as_view()(request)
 
 
-def test_userlist_filter_by_invalid_missing(rf, core_developer):
+def test_userlist_filter_by_invalid_missing(rf, staff_area_administrator):
     request = rf.get("/?missing=test")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
-    assert list(response.context_data["object_list"]) == [core_developer]
+    assert list(response.context_data["object_list"]) == [staff_area_administrator]
 
 
-def test_userlist_filter_by_missing(rf, core_developer):
+def test_userlist_filter_by_missing(rf, staff_area_administrator):
     backend = BackendFactory()
-    UserSocialAuthFactory(user=core_developer)
+    UserSocialAuthFactory(user=staff_area_administrator)
     social = UserSocialAuthFactory()
 
     BackendMembershipFactory(
         user=UserFactory(),
-        created_by=core_developer,
+        created_by=staff_area_administrator,
         backend=backend,
     )
 
     request = rf.get("/?missing=backend")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
-    assert list(response.context_data["object_list"]) == [core_developer, social.user]
+    assert list(response.context_data["object_list"]) == [
+        staff_area_administrator,
+        social.user,
+    ]
 
 
-def test_userlist_filter_by_org(rf, core_developer):
+def test_userlist_filter_by_org(rf, staff_area_administrator):
     org1 = OrgFactory()
     org2 = OrgFactory()
 
@@ -563,59 +572,61 @@ def test_userlist_filter_by_org(rf, core_developer):
     OrgMembershipFactory(user=UserFactory(), org=org2)
 
     request = rf.get(f"/?org={org1.slug}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
 
 
-def test_userlist_filter_by_invalid_org(rf, core_developer):
+def test_userlist_filter_by_invalid_org(rf, staff_area_administrator):
     request = rf.get("/?org=test")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 0
 
 
-def test_userlist_filter_by_role(rf, core_developer):
+def test_userlist_filter_by_role(rf, staff_area_administrator):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectCollaborator])
 
     request = rf.get("/?role=OutputPublisher")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
 
 
-def test_userlist_filter_by_invalid_role(rf, core_developer):
+def test_userlist_filter_by_invalid_role(rf, staff_area_administrator):
     request = rf.get("/?role=unknown")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Exception, match="^Unknown Roles:"):
         UserList.as_view()(request)
 
 
-def test_userlist_filter_by_any_roles_yes_includes_global_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_yes_includes_global_roles(
+    rf, staff_area_administrator
+):
     user = UserFactory(roles=[OutputPublisher])
     UserFactory()
 
     request = rf.get("/?any_roles=yes")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert set_from_qs(response.context_data["object_list"]) == {
-        core_developer.pk,
+        staff_area_administrator.pk,
         user.pk,
     }
 
 
 def test_userlist_filter_by_any_roles_yes_includes_project(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     UserFactory()
 
@@ -623,18 +634,18 @@ def test_userlist_filter_by_any_roles_yes_includes_project(
     project_membership(user=user_with_project, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=yes")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert set_from_qs(response.context_data["object_list"]) == {
-        core_developer.pk,
+        staff_area_administrator.pk,
         user_with_project.pk,
     }
 
 
 def test_userlist_filter_by_any_roles_yes_includes_org(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     UserFactory()
 
@@ -642,23 +653,25 @@ def test_userlist_filter_by_any_roles_yes_includes_org(
     project_membership(user=user_with_project, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=yes")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert set_from_qs(response.context_data["object_list"]) == {
-        core_developer.pk,
+        staff_area_administrator.pk,
         user_with_project.pk,
     }
 
 
-def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_no_excludes_global_roles(
+    rf, staff_area_administrator
+):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectCollaborator])
     user = UserFactory()
 
     request = rf.get("/?any_roles=no")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
@@ -666,11 +679,11 @@ def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_develope
 
 
 def test_userlist_filter_by_any_roles_no_excludes_project_roles(
-    rf, core_developer, project_membership
+    rf, staff_area_administrator, project_membership
 ):
     user = UserFactory()
 
-    actor = core_developer
+    actor = staff_area_administrator
 
     # set up projects so the creator can have roles
     project1 = ProjectFactory(created_by=actor, updated_by=actor)
@@ -699,7 +712,7 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(
     )
 
     request = rf.get("/?any_roles=no")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
@@ -709,25 +722,27 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(
     }
 
 
-def test_userlist_filter_by_any_roles_invalid_does_nothing(rf, core_developer):
+def test_userlist_filter_by_any_roles_invalid_does_nothing(
+    rf, staff_area_administrator
+):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[])
 
     request = rf.get("/?any_roles=asdf")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 3
 
 
-def test_userlist_find_by_username(rf, core_developer):
+def test_userlist_find_by_username(rf, staff_area_administrator):
     UserFactory(username="ben")
     UserFactory(fullname="ben g")
     UserFactory(username="seb")
 
     request = rf.get("/?q=ben")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
@@ -736,26 +751,26 @@ def test_userlist_find_by_username(rf, core_developer):
     assert len(response.context_data["object_list"]) == 2
 
 
-def test_userlist_success(rf, core_developer):
+def test_userlist_success(rf, staff_area_administrator):
     UserFactory.create_batch(5)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
 
     assert response.status_code == 200
 
-    # the core_developer fixture creates a User object as well as the 5 we
+    # the staff_area_administrator fixture creates a User object as well as the 5 we
     # created in the batch call above
     assert len(response.context_data["object_list"]) == 6
 
 
-def test_userrolelist_get_success(rf, core_developer):
+def test_userrolelist_get_success(rf, staff_area_administrator):
     user = UserFactory(roles=[ProjectCollaborator])
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserRoleList.as_view()(request, username=user.username)
 
@@ -764,7 +779,7 @@ def test_userrolelist_get_success(rf, core_developer):
     response.render()
 
 
-def test_userrolelist_post_success(rf, core_developer):
+def test_userrolelist_post_success(rf, staff_area_administrator):
     user = UserFactory(roles=[ProjectCollaborator])
 
     data = {
@@ -774,7 +789,7 @@ def test_userrolelist_post_success(rf, core_developer):
         ]
     }
     request = rf.post("/", data=data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserRoleList.as_view()(request, username=user.username)
 
@@ -784,11 +799,11 @@ def test_userrolelist_post_success(rf, core_developer):
     assert set(user.roles) == {OutputPublisher, ProjectCollaborator}
 
 
-def test_userrolelist_post_with_unknown_role(rf, core_developer):
+def test_userrolelist_post_with_unknown_role(rf, staff_area_administrator):
     user = UserFactory()
 
     request = rf.post("/", {"roles": ["not-a-real-role"]})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserRoleList.as_view()(request, username=user.username)
 
@@ -810,9 +825,9 @@ def test_userrolelist_post_with_unknown_role(rf, core_developer):
     )
 
 
-def test_userrolelist_with_unknown_user(rf, core_developer):
+def test_userrolelist_with_unknown_user(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         UserRoleList.as_view()(request, username="")
@@ -828,7 +843,7 @@ def test_userrolelist_without_core_dev_role(rf):
         UserRoleList.as_view()(request, username=user.username)
 
 
-def test_usersetorgs_get_success(rf, core_developer):
+def test_usersetorgs_get_success(rf, staff_area_administrator):
     org1 = OrgFactory()
     org2 = OrgFactory()
     user = UserFactory()
@@ -837,7 +852,7 @@ def test_usersetorgs_get_success(rf, core_developer):
     OrgMembershipFactory(org=org2, user=user)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserSetOrgs.as_view()(request, username=user.username)
 
@@ -845,7 +860,7 @@ def test_usersetorgs_get_success(rf, core_developer):
     assert response.context_data["user"] == user
 
 
-def test_usersetorgs_post_success(rf, core_developer):
+def test_usersetorgs_post_success(rf, staff_area_administrator):
     existing_org = OrgFactory()
     new_org1 = OrgFactory()
     new_org2 = OrgFactory()
@@ -855,7 +870,7 @@ def test_usersetorgs_post_success(rf, core_developer):
     OrgMembershipFactory(org=existing_org, user=user)
 
     request = rf.post("/", {"orgs": [new_org1.pk, new_org2.pk]})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = UserSetOrgs.as_view()(request, username=user.username)
 
@@ -866,8 +881,8 @@ def test_usersetorgs_post_success(rf, core_developer):
     assert set_from_qs(user.orgs.all()) == {new_org1.pk, new_org2.pk}
 
 
-def test_usersetorgs_unknown_user(rf, core_developer):
+def test_usersetorgs_unknown_user(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
     with pytest.raises(Http404):
         UserSetOrgs.as_view()(request, username="")

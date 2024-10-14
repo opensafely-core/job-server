@@ -7,12 +7,12 @@ from staff.views.researchers import ResearcherEdit
 from ....factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
 
 
-def test_researcheredit_get_success(rf, core_developer):
+def test_researcheredit_get_success(rf, staff_area_administrator):
     application = ApplicationFactory()
     researcher = ResearcherRegistrationFactory(application=application)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ResearcherEdit.as_view()(
         request,
@@ -23,7 +23,7 @@ def test_researcheredit_get_success(rf, core_developer):
     assert response.status_code == 200
 
 
-def test_researcheredit_post_success(rf, core_developer):
+def test_researcheredit_post_success(rf, staff_area_administrator):
     application = ApplicationFactory()
     researcher = ResearcherRegistrationFactory(application=application)
 
@@ -35,7 +35,7 @@ def test_researcheredit_post_success(rf, core_developer):
         "daa": "http://example.com",
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ResearcherEdit.as_view()(
         request,
@@ -54,27 +54,27 @@ def test_researcheredit_post_success(rf, core_developer):
     assert researcher.daa == "http://example.com"
 
 
-def test_researcheredit_unknown_application(rf, core_developer):
+def test_researcheredit_unknown_application(rf, staff_area_administrator):
     researcher = ResearcherRegistrationFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ResearcherEdit.as_view()(request, pk_hash="", pk=researcher.pk)
 
 
-def test_researcheredit_unknown_researcher(rf, core_developer):
+def test_researcheredit_unknown_researcher(rf, staff_area_administrator):
     application = ApplicationFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ResearcherEdit.as_view()(request, pk_hash=application.pk_hash, pk=0)
 
 
-def test_researcheredit_without_core_dev_role(rf, core_developer):
+def test_researcheredit_without_core_dev_role(rf, staff_area_administrator):
     application = ApplicationFactory()
     researcher = ResearcherRegistrationFactory(application=application)
 

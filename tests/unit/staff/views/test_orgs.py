@@ -18,12 +18,12 @@ from staff.views.orgs import (
 from ....factories import OrgFactory, OrgMembershipFactory, UserFactory
 
 
-def test_orgaddgithuborg_get_success(rf, core_developer):
+def test_orgaddgithuborg_get_success(rf, staff_area_administrator):
     org = OrgFactory(github_orgs=["one", "two"])
 
     request = rf.get("/")
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = org_add_github_org(request, slug=org.slug)
 
@@ -31,12 +31,12 @@ def test_orgaddgithuborg_get_success(rf, core_developer):
     assert response.context_data["form"]
 
 
-def test_orgaddgithuborg_post_invalid_form(rf, core_developer):
+def test_orgaddgithuborg_post_invalid_form(rf, staff_area_administrator):
     org = OrgFactory(github_orgs=["one", "two"])
 
     request = rf.post("/", {"foo": "three"})
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = org_add_github_org(request, slug=org.slug)
 
@@ -47,12 +47,12 @@ def test_orgaddgithuborg_post_invalid_form(rf, core_developer):
     assert org.github_orgs == ["one", "two"]
 
 
-def test_orgaddgithuborg_post_success(rf, core_developer):
+def test_orgaddgithuborg_post_success(rf, staff_area_administrator):
     org = OrgFactory(github_orgs=["one", "two"])
 
     request = rf.post("/", {"name": "three"})
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = org_add_github_org(request, slug=org.slug)
 
@@ -63,7 +63,7 @@ def test_orgaddgithuborg_post_success(rf, core_developer):
     assert org.github_orgs == ["one", "two", "three"]
 
 
-def test_orgaddgithuborg_unauthorized(rf, core_developer):
+def test_orgaddgithuborg_unauthorized(rf, staff_area_administrator):
     request = rf.post("/")
     request.user = UserFactory()
 
@@ -71,18 +71,18 @@ def test_orgaddgithuborg_unauthorized(rf, core_developer):
         org_add_github_org(request)
 
 
-def test_orgaddgithuborg_unknown_org(rf, core_developer):
+def test_orgaddgithuborg_unknown_org(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         org_add_github_org(request, slug="test")
 
 
-def test_orgcreate_get_success(rf, core_developer):
+def test_orgcreate_get_success(rf, staff_area_administrator):
     request = rf.get("/")
     request.htmx = False
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgCreate.as_view()(request)
 
@@ -90,10 +90,10 @@ def test_orgcreate_get_success(rf, core_developer):
     assert response.template_name == ["staff/org/create.html"]
 
 
-def test_orgcreate_get_htmx_success(rf, core_developer):
+def test_orgcreate_get_htmx_success(rf, staff_area_administrator):
     request = rf.get("/")
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgCreate.as_view()(request)
 
@@ -101,10 +101,10 @@ def test_orgcreate_get_htmx_success(rf, core_developer):
     assert response.template_name == ["staff/org/create.htmx.html"]
 
 
-def test_orgcreate_post_success(rf, core_developer):
+def test_orgcreate_post_success(rf, staff_area_administrator):
     request = rf.post("/", {"name": "A New Org"})
     request.htmx = False
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgCreate.as_view()(request)
 
@@ -115,14 +115,14 @@ def test_orgcreate_post_success(rf, core_developer):
 
     org = orgs.first()
     assert org.name == "A New Org"
-    assert org.created_by == core_developer
+    assert org.created_by == staff_area_administrator
     assert response.url == org.get_staff_url()
 
 
-def test_orgcreate_post_htmx_success_with_next(rf, core_developer):
+def test_orgcreate_post_htmx_success_with_next(rf, staff_area_administrator):
     request = rf.post("/?next=/next/page/", {"name": "A New Org"})
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgCreate.as_view()(request)
 
@@ -130,10 +130,10 @@ def test_orgcreate_post_htmx_success_with_next(rf, core_developer):
     assert response.headers["HX-Redirect"] == "/next/page/?org-slug=a-new-org"
 
 
-def test_orgcreate_post_htmx_success_without_next(rf, core_developer):
+def test_orgcreate_post_htmx_success_without_next(rf, staff_area_administrator):
     request = rf.post("/", {"name": "A New Org"})
     request.htmx = True
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgCreate.as_view()(request)
 
@@ -144,12 +144,12 @@ def test_orgcreate_post_htmx_success_without_next(rf, core_developer):
     assert response.headers["HX-Redirect"] == expected
 
 
-def test_orgdetail_get_success(rf, core_developer):
+def test_orgdetail_get_success(rf, staff_area_administrator):
     org = OrgFactory()
     UserFactory(username="beng", fullname="Ben Goldacre")
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgDetail.as_view()(request, slug=org.slug)
 
@@ -165,14 +165,14 @@ def test_orgdetail_get_success(rf, core_developer):
     assert output == expected
 
 
-def test_orgdetail_post_success(rf, core_developer):
+def test_orgdetail_post_success(rf, staff_area_administrator):
     org = OrgFactory()
 
     user1 = UserFactory()
     user2 = UserFactory()
 
     request = rf.post("/", {"users": [str(user1.pk), str(user2.pk)]})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgDetail.as_view()(request, slug=org.slug)
 
@@ -182,11 +182,11 @@ def test_orgdetail_post_success(rf, core_developer):
     assert set_from_qs(org.members.all()) == {user1.pk, user2.pk}
 
 
-def test_orgdetail_post_with_bad_data(rf, core_developer):
+def test_orgdetail_post_with_bad_data(rf, staff_area_administrator):
     org = OrgFactory()
 
     request = rf.post("/", {"test": "test"})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgDetail.as_view()(request, slug=org.slug)
 
@@ -204,11 +204,11 @@ def test_orgdetail_unauthorized(rf):
         OrgDetail.as_view()(request, slug=org.slug)
 
 
-def test_orgedit_get_success(rf, core_developer):
+def test_orgedit_get_success(rf, staff_area_administrator):
     org = OrgFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgEdit.as_view()(request, slug=org.slug)
 
@@ -225,7 +225,7 @@ def test_orgedit_get_unauthorized(rf):
         OrgEdit.as_view()(request, slug=org.slug)
 
 
-def test_orgedit_post_success(rf, core_developer, tmp_path):
+def test_orgedit_post_success(rf, staff_area_administrator, tmp_path):
     logo = tmp_path / "new_logo.png"
     logo.write_text("test")
 
@@ -233,7 +233,7 @@ def test_orgedit_post_success(rf, core_developer, tmp_path):
 
     data = {"name": "New Name", "slug": "new-name", "logo_file": logo.open()}
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgEdit.as_view()(request, slug=org.slug)
 
@@ -246,7 +246,9 @@ def test_orgedit_post_success(rf, core_developer, tmp_path):
     assert org.logo_file
 
 
-def test_orgedit_post_success_when_not_changing_slug(rf, core_developer, tmp_path):
+def test_orgedit_post_success_when_not_changing_slug(
+    rf, staff_area_administrator, tmp_path
+):
     logo = tmp_path / "new_logo.png"
     logo.write_text("test")
 
@@ -254,7 +256,7 @@ def test_orgedit_post_success_when_not_changing_slug(rf, core_developer, tmp_pat
 
     data = {"name": "New Name", "slug": "slug", "logo_file": logo.open()}
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgEdit.as_view()(request, slug=org.slug)
 
@@ -276,13 +278,13 @@ def test_orgedit_post_unauthorized(rf):
         OrgEdit.as_view()(request, slug=org.slug)
 
 
-def test_orglist_find_by_name(rf, core_developer):
+def test_orglist_find_by_name(rf, staff_area_administrator):
     OrgFactory(name="ben")
     OrgFactory(name="benjamin")
     OrgFactory(name="seb")
 
     request = rf.get("/?q=ben")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgList.as_view()(request)
 
@@ -291,11 +293,11 @@ def test_orglist_find_by_name(rf, core_developer):
     assert len(response.context_data["org_list"]) == 2
 
 
-def test_orglist_success(rf, core_developer):
+def test_orglist_success(rf, staff_area_administrator):
     OrgFactory.create_batch(5)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = OrgList.as_view()(request)
 
@@ -312,11 +314,11 @@ def test_orglist_unauthorized(rf):
         OrgList.as_view()(request)
 
 
-def test_orgremovegithuborg_success(rf, core_developer):
+def test_orgremovegithuborg_success(rf, staff_area_administrator):
     org = OrgFactory(github_orgs=["one", "two"])
 
     request = rf.post("/", {"name": "two"})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -345,21 +347,21 @@ def test_orgremovegithuborg_unauthorized(rf):
         OrgRemoveGitHubOrg.as_view()(request)
 
 
-def test_orgremovegithuborg_unknown_org(rf, core_developer):
+def test_orgremovegithuborg_unknown_org(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         OrgRemoveGitHubOrg.as_view()(request, slug="test")
 
 
-def test_orgremovegithuborg_unknown_github_org(rf, core_developer):
+def test_orgremovegithuborg_unknown_github_org(rf, staff_area_administrator):
     org = OrgFactory()
 
     assert "test" not in org.github_orgs
 
     request = rf.post("/", {"name": "test"})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -380,14 +382,14 @@ def test_orgremovegithuborg_unknown_github_org(rf, core_developer):
     assert str(messages[0]) == f"test is not assigned to {org.name}"
 
 
-def test_orgremovemember_success(rf, core_developer):
+def test_orgremovemember_success(rf, staff_area_administrator):
     org = OrgFactory()
     user = UserFactory()
 
     OrgMembershipFactory(org=org, user=user)
 
     request = rf.post("/", {"username": user.username})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -416,21 +418,21 @@ def test_orgremovemember_unauthorized(rf):
         OrgRemoveMember.as_view()(request)
 
 
-def test_orgremovemember_unknown_org(rf, core_developer):
+def test_orgremovemember_unknown_org(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         OrgRemoveMember.as_view()(request, slug="test")
 
 
-def test_orgremovemember_unknown_member(rf, core_developer):
+def test_orgremovemember_unknown_member(rf, staff_area_administrator):
     org = OrgFactory()
 
     assert org.memberships.count() == 0
 
     request = rf.post("/", {"username": "test"})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"

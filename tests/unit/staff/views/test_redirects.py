@@ -18,12 +18,12 @@ from ....factories import (
 )
 
 
-def test_redirectdelete_success(rf, core_developer):
+def test_redirectdelete_success(rf, staff_area_administrator):
     workspace = WorkspaceFactory()
     redirect = RedirectFactory(workspace=workspace)
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -43,9 +43,9 @@ def test_redirectdelete_success(rf, core_developer):
     assert str(messages[0]) == f"Deleted redirect for Workspace: {workspace.name}"
 
 
-def test_redirectdelete_with_unknown_redirect(rf, core_developer):
+def test_redirectdelete_with_unknown_redirect(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         RedirectDelete.as_view()(request, pk="0")
@@ -61,11 +61,11 @@ def test_redirectdelete_without_core_dev_role(rf):
         RedirectDelete.as_view()(request, pk=redirect.pk)
 
 
-def test_redirectedetail_success(rf, core_developer):
+def test_redirectedetail_success(rf, staff_area_administrator):
     redirect = RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectDetail.as_view()(request, pk=redirect.pk)
 
@@ -73,9 +73,9 @@ def test_redirectedetail_success(rf, core_developer):
     assert response.context_data["object"] == redirect
 
 
-def test_redirectedetail_with_unknown_redirect(rf, core_developer):
+def test_redirectedetail_with_unknown_redirect(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         RedirectDetail.as_view()(request, pk="0")
@@ -91,12 +91,12 @@ def test_redirectedetail_without_core_dev_role(rf):
         RedirectDetail.as_view()(request, pk=redirect.pk)
 
 
-def test_redirectlist_filter_by_object_type(rf, core_developer):
+def test_redirectlist_filter_by_object_type(rf, staff_area_administrator):
     project_redirects = RedirectFactory.create_batch(3, project=ProjectFactory())
     workspace_redirects = RedirectFactory.create_batch(3, workspace=WorkspaceFactory())
 
     request = rf.get("/?type=project")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -104,7 +104,7 @@ def test_redirectlist_filter_by_object_type(rf, core_developer):
     assert set(response.context_data["object_list"]) == set(project_redirects)
 
     request = rf.get("/?type=workspace")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -112,7 +112,7 @@ def test_redirectlist_filter_by_object_type(rf, core_developer):
     assert set(response.context_data["object_list"]) == set(workspace_redirects)
 
 
-def test_redirectlist_search_by_analysis_request(rf, core_developer):
+def test_redirectlist_search_by_analysis_request(rf, staff_area_administrator):
     analysis_request = AnalysisRequestFactory()
     redirect = RedirectFactory(analysis_request=analysis_request)
 
@@ -121,7 +121,7 @@ def test_redirectlist_search_by_analysis_request(rf, core_developer):
     RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.get(f"/?q={analysis_request.title}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -129,7 +129,7 @@ def test_redirectlist_search_by_analysis_request(rf, core_developer):
     assert set(response.context_data["object_list"]) == {redirect}
 
 
-def test_jobrequestlist_search_by_fullname(rf, core_developer):
+def test_jobrequestlist_search_by_fullname(rf, staff_area_administrator):
     org = OrgFactory()
     user = UserFactory(fullname="Ben Goldacre")
     redirect = RedirectFactory(org=org, created_by=user)
@@ -137,7 +137,7 @@ def test_jobrequestlist_search_by_fullname(rf, core_developer):
     RedirectFactory.create_batch(5, org=org)
 
     request = rf.get("/?q=ben")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -145,14 +145,14 @@ def test_jobrequestlist_search_by_fullname(rf, core_developer):
     assert set(response.context_data["object_list"]) == {redirect}
 
 
-def test_redirectlist_search_by_old_url(rf, core_developer):
+def test_redirectlist_search_by_old_url(rf, staff_area_administrator):
     org = OrgFactory()
     redirect = RedirectFactory(org=org, old_url="/test/foo/bar/")
 
     RedirectFactory.create_batch(5, org=org)
 
     request = rf.get("/?q=foo")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -160,7 +160,7 @@ def test_redirectlist_search_by_old_url(rf, core_developer):
     assert set(response.context_data["object_list"]) == {redirect}
 
 
-def test_redirectlist_search_by_org(rf, core_developer):
+def test_redirectlist_search_by_org(rf, staff_area_administrator):
     org = OrgFactory()
     redirect = RedirectFactory(org=org)
 
@@ -169,7 +169,7 @@ def test_redirectlist_search_by_org(rf, core_developer):
     RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.get(f"/?q={org.name}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -177,7 +177,7 @@ def test_redirectlist_search_by_org(rf, core_developer):
     assert set(response.context_data["object_list"]) == {redirect}
 
 
-def test_redirectlist_search_by_project(rf, core_developer):
+def test_redirectlist_search_by_project(rf, staff_area_administrator):
     project = ProjectFactory()
     redirect = RedirectFactory(project=project)
 
@@ -187,7 +187,7 @@ def test_redirectlist_search_by_project(rf, core_developer):
     RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.get(f"/?q={project.name}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -195,7 +195,7 @@ def test_redirectlist_search_by_project(rf, core_developer):
     assert set(response.context_data["object_list"]) == {redirect}
 
 
-def test_redirectlist_search_by_username(rf, core_developer):
+def test_redirectlist_search_by_username(rf, staff_area_administrator):
     org = OrgFactory()
     user = UserFactory(username="beng")
     redirect = RedirectFactory(org=org, created_by=user)
@@ -203,7 +203,7 @@ def test_redirectlist_search_by_username(rf, core_developer):
     RedirectFactory.create_batch(5, org=org)
 
     request = rf.get("/?q=ben")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -211,7 +211,7 @@ def test_redirectlist_search_by_username(rf, core_developer):
     assert set(response.context_data["object_list"]) == {redirect}
 
 
-def test_redirectlist_search_by_workspace(rf, core_developer):
+def test_redirectlist_search_by_workspace(rf, staff_area_administrator):
     project = ProjectFactory()
     redirect = RedirectFactory(project=project)
 
@@ -220,7 +220,7 @@ def test_redirectlist_search_by_workspace(rf, core_developer):
     RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.get(f"/?q={project.name}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 
@@ -228,11 +228,11 @@ def test_redirectlist_search_by_workspace(rf, core_developer):
     assert set(response.context_data["object_list"]) == {redirect}
 
 
-def test_redirectlist_success(rf, core_developer):
+def test_redirectlist_success(rf, staff_area_administrator):
     RedirectFactory.create_batch(5, project=ProjectFactory())
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RedirectList.as_view()(request)
 

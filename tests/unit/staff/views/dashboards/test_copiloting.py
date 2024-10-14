@@ -50,7 +50,7 @@ def test_build_repos_by_project_with_broken_github_api():
     assert build_repos_by_project(projects, get_github_api=BrokenGitHubAPI) == {}
 
 
-def test_copiloting_success(rf, core_developer):
+def test_copiloting_success(rf, staff_area_administrator):
     project = ProjectFactory()
     repo = RepoFactory(url="https://github.com/opensafely/research-repo-1")
     workspace = WorkspaceFactory(project=project, repo=repo)
@@ -63,7 +63,7 @@ def test_copiloting_success(rf, core_developer):
     JobFactory(job_request=job_request2, started_at=datetime(2021, 9, 3, tzinfo=UTC))
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = Copiloting.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -86,7 +86,7 @@ def test_copiloting_unauthorized(rf):
         Copiloting.as_view(get_github_api=FakeGitHubAPI)(request)
 
 
-def test_copiloting_with_broken_github_api(rf, core_developer):
+def test_copiloting_with_broken_github_api(rf, staff_area_administrator):
     project = ProjectFactory()
     repo = RepoFactory(url="https://github.com/opensafely/research-repo-1")
     workspace = WorkspaceFactory(project=project, repo=repo)
@@ -99,7 +99,7 @@ def test_copiloting_with_broken_github_api(rf, core_developer):
     JobFactory(job_request=job_request2, started_at=datetime(2021, 9, 3, tzinfo=UTC))
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     class BrokenGitHubAPI:
         def get_repos_with_status_and_url(self, orgs):

@@ -21,7 +21,9 @@ from .....fakes import FakeGitHubAPI
 from .....utils import minutes_ago
 
 
-def test_privatereposdashboard_success(rf, django_assert_num_queries, core_developer):
+def test_privatereposdashboard_success(
+    rf, django_assert_num_queries, staff_area_administrator
+):
     eleven_months_ago = timezone.now() - timedelta(days=30 * 11)
 
     # 3 private repos
@@ -74,7 +76,7 @@ def test_privatereposdashboard_success(rf, django_assert_num_queries, core_devel
     JobFactory(job_request=rr5_jr_1, started_at=None)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(2):
         response = PrivateReposDashboard.as_view(get_github_api=FakeGitHubAPI)(request)
@@ -99,7 +101,7 @@ def test_privatereposdashboard_unauthorized(rf):
 
 
 def test_reposwithmultipleprojects_success(
-    rf, django_assert_num_queries, core_developer
+    rf, django_assert_num_queries, staff_area_administrator
 ):
     # research-repo-1
     repo1 = RepoFactory(url="https://github.com/opensafely/repo-1")
@@ -114,7 +116,7 @@ def test_reposwithmultipleprojects_success(
     WorkspaceFactory.create_batch(5, repo=repo3, project=ProjectFactory())
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(2):
         response = ReposWithMultipleProjects.as_view()(request)

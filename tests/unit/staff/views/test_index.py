@@ -8,9 +8,9 @@ from ....factories import (
 )
 
 
-def test_index_without_search(rf, core_developer):
+def test_index_without_search(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = Index.as_view()(request)
 
@@ -18,7 +18,7 @@ def test_index_without_search(rf, core_developer):
     assert response.context_data["results"] == []
 
 
-def test_index_search(rf, core_developer, project_membership):
+def test_index_search(rf, staff_area_administrator, project_membership):
     backend = BackendFactory(name="GHickman's Research Thing")
     BackendFactory.create_batch(2)
 
@@ -35,7 +35,7 @@ def test_index_search(rf, core_developer, project_membership):
     project_membership(project=project2, user=user)
 
     request = rf.get("/?q=ghickman")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = Index.as_view()(request)
 

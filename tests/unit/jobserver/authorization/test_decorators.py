@@ -7,9 +7,9 @@ from jobserver.authorization.decorators import require_manage_backends, require_
 from ....factories import UserFactory
 
 
-def test_require_manage_backends_with_core_dev_role(rf, core_developer):
+def test_require_manage_backends_with_core_dev_role(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     def dispatch(request):
         return request

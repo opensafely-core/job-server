@@ -6,9 +6,9 @@ from staff.views import sentry
 from staff.views.sentry import sentry_sdk
 
 
-def test_error_success(rf, core_developer):
+def test_error_success(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(ZeroDivisionError):
         sentry.error(request)
@@ -22,9 +22,9 @@ def test_error_unauthorized(rf):
         sentry.error(request)
 
 
-def test_index_success(rf, core_developer):
+def test_index_success(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = sentry.index(request)
 
@@ -39,9 +39,9 @@ def test_index_unauthorized(rf):
         sentry.index(request)
 
 
-def test_message_success(rf, core_developer, mocker):
+def test_message_success(rf, staff_area_administrator, mocker):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     spy = mocker.spy(sentry_sdk, "capture_message")
 

@@ -15,11 +15,11 @@ from ....factories import (
 )
 
 
-def test_workspacedetail_success(rf, core_developer):
+def test_workspacedetail_success(rf, staff_area_administrator):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceDetail.as_view()(request, slug=workspace.name)
 
@@ -28,9 +28,9 @@ def test_workspacedetail_success(rf, core_developer):
     assert response.context_data["workspace"] == workspace
 
 
-def test_workspacedetail_with_unknown_user(rf, core_developer):
+def test_workspacedetail_with_unknown_user(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         WorkspaceDetail.as_view()(request, slug="test")
@@ -46,11 +46,11 @@ def test_workspacedetail_without_core_dev_role(rf):
         WorkspaceDetail.as_view()(request, slug=workspace.name)
 
 
-def test_workspaceedit_get_success(rf, core_developer):
+def test_workspaceedit_get_success(rf, staff_area_administrator):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceEdit.as_view()(request, slug=workspace.name)
 
@@ -58,7 +58,7 @@ def test_workspaceedit_get_success(rf, core_developer):
     assert workspace.name in response.rendered_content
 
 
-def test_workspaceedit_post_success(rf, core_developer):
+def test_workspaceedit_post_success(rf, staff_area_administrator):
     old_project = ProjectFactory()
     workspace = WorkspaceFactory(project=old_project, purpose="old value")
 
@@ -69,7 +69,7 @@ def test_workspaceedit_post_success(rf, core_developer):
         "project": str(new_project.pk),
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceEdit.as_view()(request, slug=workspace.name)
 
@@ -88,7 +88,9 @@ def test_workspaceedit_post_success(rf, core_developer):
     )
 
 
-def test_workspaceedit_post_success_when_not_changing_project(rf, core_developer):
+def test_workspaceedit_post_success_when_not_changing_project(
+    rf, staff_area_administrator
+):
     project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
 
@@ -97,7 +99,7 @@ def test_workspaceedit_post_success_when_not_changing_project(rf, core_developer
         "project": str(project.pk),
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceEdit.as_view()(request, slug=workspace.name)
 
@@ -119,22 +121,22 @@ def test_workspaceedit_unauthorized(rf):
         WorkspaceEdit.as_view()(request, slug=workspace.name)
 
 
-def test_workspaceedit_unknown_workspace(rf, core_developer):
+def test_workspaceedit_unknown_workspace(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         WorkspaceEdit.as_view()(request, slug="")
 
 
-def test_workspacelist_filter_by_org(rf, core_developer):
+def test_workspacelist_filter_by_org(rf, staff_area_administrator):
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
     workspace = WorkspaceFactory(project=project)
     WorkspaceFactory.create_batch(2)
 
     request = rf.get(f"/?orgs={org.slug}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceList.as_view()(request)
 
@@ -142,13 +144,13 @@ def test_workspacelist_filter_by_org(rf, core_developer):
     assert set_from_qs(response.context_data["workspace_list"]) == {workspace.pk}
 
 
-def test_workspacelist_filter_by_project(rf, core_developer):
+def test_workspacelist_filter_by_project(rf, staff_area_administrator):
     project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
     WorkspaceFactory.create_batch(2)
 
     request = rf.get(f"/?projects={project.slug}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceList.as_view()(request)
 
@@ -156,13 +158,13 @@ def test_workspacelist_filter_by_project(rf, core_developer):
     assert set_from_qs(response.context_data["workspace_list"]) == {workspace.pk}
 
 
-def test_workspacelist_search(rf, core_developer):
+def test_workspacelist_search(rf, staff_area_administrator):
     WorkspaceFactory(name="ben")
     WorkspaceFactory(repo=RepoFactory(url="ben"))
     WorkspaceFactory(name="seb")
 
     request = rf.get("/?q=ben")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceList.as_view()(request)
 
@@ -171,11 +173,11 @@ def test_workspacelist_search(rf, core_developer):
     assert len(response.context_data["object_list"]) == 2
 
 
-def test_workspacelist_success(rf, core_developer):
+def test_workspacelist_success(rf, staff_area_administrator):
     WorkspaceFactory.create_batch(5)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = WorkspaceList.as_view()(request)
     assert response.status_code == 200

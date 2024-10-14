@@ -5,14 +5,16 @@ from jobserver.context_processors import can_view_staff_area, nav
 from ...factories import UserFactory
 
 
-def test_can_view_staff_area_with_core_developer(rf, core_developer):
+def test_can_view_staff_area_with_staff_area_administrator(
+    rf, staff_area_administrator
+):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     assert can_view_staff_area(request)["user_can_view_staff_area"]
 
 
-def test_can_view_staff_area_without_core_developer(rf):
+def test_can_view_staff_area_without_staff_area_administrator(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
@@ -20,10 +22,10 @@ def test_can_view_staff_area_without_core_developer(rf):
 
 
 def test_can_view_staff_area_makes_no_db_queries(
-    rf, core_developer, django_assert_num_queries
+    rf, staff_area_administrator, django_assert_num_queries
 ):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(0):
         assert can_view_staff_area(request)["user_can_view_staff_area"]
