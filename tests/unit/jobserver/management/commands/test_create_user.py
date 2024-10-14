@@ -26,8 +26,8 @@ def test_create_user_args(capsys):
         "username",
         "--email=foo@bar.com",
         "--name=fullname",
+        "--staff-area-administrator",
         "--output-checker",
-        "--core-developer",
     )
 
     user = User.objects.get(username="username")
@@ -43,5 +43,5 @@ def test_create_user_args(capsys):
         "--email=foo@bar.com",
         "--name=fullname",
         "--output-checker",
-        "--core-developer",
+        "--staff-area-administrator",
     )
