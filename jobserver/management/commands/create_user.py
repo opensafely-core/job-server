@@ -9,15 +9,12 @@ from jobserver.models import get_or_create_user
 
 
 class Command(BaseCommand):
-    """
-    Create or update a workspace.
+    """Create or update a User."""
 
-    Will create Project and Repo as needed, and ensure the supplied user as
-    Project Developer of the workspace.
-    """
+    help = "Create or update a User"
 
     def add_arguments(self, parser):
-        parser.add_argument("username", help="User to create")
+        parser.add_argument("username", help="User to create or update")
         parser.add_argument("--email", help="Defaults to username@example.com")
         parser.add_argument("--name", help="Defaults to username")
         parser.add_argument(
