@@ -16,7 +16,7 @@ from .....factories import (
 )
 
 
-def test_projects_success(rf, core_developer):
+def test_projects_success(rf, staff_area_administrator):
     project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
     release = ReleaseFactory(workspace=workspace)
@@ -28,7 +28,7 @@ def test_projects_success(rf, core_developer):
     JobFactory(job_request=job_request2, started_at=datetime(2021, 9, 3, tzinfo=UTC))
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ProjectsDashboard.as_view()(request)
 

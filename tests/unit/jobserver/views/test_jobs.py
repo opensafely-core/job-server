@@ -180,7 +180,7 @@ def test_jobdetail_with_permission(rf, project_membership, role_factory):
     assert "Honeycomb" not in response.rendered_content
 
 
-def test_jobdetail_with_core_developer(rf, freezer):
+def test_jobdetail_with_staff_area_administrator(rf, freezer):
     freezer.move_to("2022-06-16 12:00")
 
     job_request = JobRequestFactory()
@@ -221,7 +221,7 @@ def test_jobdetail_with_core_developer(rf, freezer):
     assert job_request.identifier in response.rendered_content
 
 
-def test_jobdetail_with_core_developer_with_completed_at(rf, freezer):
+def test_jobdetail_with_staff_area_administrator_with_completed_at(rf, freezer):
     freezer.move_to("2022-06-15 13:00")
 
     job_request = JobRequestFactory()

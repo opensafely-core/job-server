@@ -78,7 +78,7 @@ def api_rf():
 
 
 @pytest.fixture
-def core_developer():
+def staff_area_administrator():
     return UserFactory(roles=[StaffAreaAdministrator])
 
 

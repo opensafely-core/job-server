@@ -561,13 +561,13 @@ def test_page_with_approved_application_and_non_staff_user(rf):
     assert str(messages[0]) == msg
 
 
-def test_page_with_approved_application_and_staff_user(rf, core_developer):
+def test_page_with_approved_application_and_staff_user(rf, staff_area_administrator):
     application = ApplicationFactory(
-        approved_at=timezone.now(), approved_by=core_developer
+        approved_at=timezone.now(), approved_by=staff_area_administrator
     )
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = page(request, pk_hash=application.pk_hash, key="study-purpose")
 

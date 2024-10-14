@@ -6,9 +6,9 @@ from staff.views.dashboards.index import DashboardIndex
 from .....factories import UserFactory
 
 
-def test_dashboardindex_success(rf, core_developer):
+def test_dashboardindex_success(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = DashboardIndex.as_view()(request)
 

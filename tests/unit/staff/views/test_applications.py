@@ -19,13 +19,15 @@ from staff.views.applications import (
 from ....factories import ApplicationFactory, OrgFactory, ProjectFactory, UserFactory
 
 
-def test_applicationapprove_already_approved(rf, core_developer, complete_application):
+def test_applicationapprove_already_approved(
+    rf, staff_area_administrator, complete_application
+):
     complete_application.approved_at = timezone.now()
-    complete_application.approved_by = core_developer
+    complete_application.approved_by = staff_area_administrator
     complete_application.save()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationApprove.as_view()(
         request, pk_hash=complete_application.pk_hash
@@ -35,11 +37,13 @@ def test_applicationapprove_already_approved(rf, core_developer, complete_applic
     assert response.url == complete_application.get_staff_url()
 
 
-def test_applicationapprove_get_success(rf, core_developer, complete_application):
+def test_applicationapprove_get_success(
+    rf, staff_area_administrator, complete_application
+):
     ProjectFactory(number=7)  # check default is set via Form.initial
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationApprove.as_view()(
         request, pk_hash=complete_application.pk_hash
@@ -52,10 +56,10 @@ def test_applicationapprove_get_success(rf, core_developer, complete_application
 
 
 def test_applicationapprove_num_queries(
-    rf, django_assert_num_queries, core_developer, complete_application
+    rf, django_assert_num_queries, staff_area_administrator, complete_application
 ):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(4):
         response = ApplicationApprove.as_view()(
@@ -67,11 +71,13 @@ def test_applicationapprove_num_queries(
         response.render()
 
 
-def test_applicationapprove_get_with_org_slug(rf, core_developer, complete_application):
+def test_applicationapprove_get_with_org_slug(
+    rf, staff_area_administrator, complete_application
+):
     org = OrgFactory()
 
     request = rf.get("/", {"org-slug": org.slug})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationApprove.as_view()(
         request, pk_hash=complete_application.pk_hash
@@ -83,10 +89,10 @@ def test_applicationapprove_get_with_org_slug(rf, core_developer, complete_appli
 
 
 def test_applicationapprove_get_with_org_slug_and_unknown_org(
-    rf, core_developer, complete_application
+    rf, staff_area_administrator, complete_application
 ):
     request = rf.get("/", {"org-slug": "0"})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationApprove.as_view()(
         request, pk_hash=complete_application.pk_hash
@@ -98,7 +104,7 @@ def test_applicationapprove_get_with_org_slug_and_unknown_org(
 
 
 def test_applicationapprove_post_success(
-    rf, django_assert_num_queries, core_developer, complete_application
+    rf, django_assert_num_queries, staff_area_administrator, complete_application
 ):
     assert complete_application.approved_at is None
     assert complete_application.approved_by is None
@@ -111,7 +117,7 @@ def test_applicationapprove_post_success(
         "org": str(org.pk),
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(15):
         response = ApplicationApprove.as_view()(
@@ -123,23 +129,23 @@ def test_applicationapprove_post_success(
     complete_application.refresh_from_db()
 
     assert complete_application.approved_at
-    assert complete_application.approved_by == core_developer
+    assert complete_application.approved_by == staff_area_administrator
     assert complete_application.project
-    assert complete_application.project.created_by == core_developer
-    assert complete_application.project.updated_by == core_developer
+    assert complete_application.project.created_by == staff_area_administrator
+    assert complete_application.project.updated_by == staff_area_administrator
     assert complete_application.project.number == 42
 
 
 def test_applicationapprove_with_deleted_application(
-    rf, core_developer, complete_application
+    rf, staff_area_administrator, complete_application
 ):
     application = complete_application
     application.deleted_at = timezone.now()
-    application.deleted_by = core_developer
+    application.deleted_by = staff_area_administrator
     application.save()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -158,19 +164,21 @@ def test_applicationapprove_with_deleted_application(
     assert str(messages[0]) == msg
 
 
-def test_applicationapprove_with_unknown_application(rf, core_developer):
+def test_applicationapprove_with_unknown_application(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ApplicationApprove.as_view()(request, pk_hash="")
 
 
-def test_applicationapprove_without_study_information_page(rf, core_developer):
+def test_applicationapprove_without_study_information_page(
+    rf, staff_area_administrator
+):
     application = ApplicationFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -190,7 +198,7 @@ def test_applicationapprove_without_study_information_page(rf, core_developer):
 
 
 def test_applicationdetail_success_with_complete_application(
-    rf, core_developer, complete_application
+    rf, staff_area_administrator, complete_application
 ):
     application = complete_application
     page = application.contactdetailspage
@@ -198,7 +206,7 @@ def test_applicationdetail_success_with_complete_application(
     page.save()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
@@ -210,10 +218,10 @@ def test_applicationdetail_success_with_complete_application(
 
 
 def test_applicationdetail_num_queries(
-    rf, django_assert_max_num_queries, core_developer, complete_application
+    rf, django_assert_max_num_queries, staff_area_administrator, complete_application
 ):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_max_num_queries(19):
         response = ApplicationDetail.as_view()(
@@ -226,7 +234,7 @@ def test_applicationdetail_num_queries(
 
 
 def test_applicationdetail_success_with_incomplete_application(
-    rf, core_developer, incomplete_application
+    rf, staff_area_administrator, incomplete_application
 ):
     application = incomplete_application
     page = application.contactdetailspage
@@ -234,7 +242,7 @@ def test_applicationdetail_success_with_incomplete_application(
     page.save()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
@@ -246,15 +254,15 @@ def test_applicationdetail_success_with_incomplete_application(
 
 
 def test_applicationdetail_with_deleted_application(
-    rf, core_developer, complete_application
+    rf, staff_area_administrator, complete_application
 ):
     application = complete_application
     application.deleted_at = timezone.now()
-    application.deleted_by = core_developer
+    application.deleted_by = staff_area_administrator
     application.save()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -273,9 +281,9 @@ def test_applicationdetail_with_deleted_application(
     assert str(messages[0]) == msg
 
 
-def test_applicationdetail_with_unknown_user(rf, core_developer):
+def test_applicationdetail_with_unknown_user(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ApplicationDetail.as_view()(request, pk_hash="0000")
@@ -294,7 +302,7 @@ def test_applicationdetail_without_core_dev_role(rf):
 def test_applicationdetail_post_with_complete_application(
     rf,
     django_assert_max_num_queries,
-    core_developer,
+    staff_area_administrator,
     complete_application,
     freezer,
 ):
@@ -316,7 +324,7 @@ def test_applicationdetail_post_with_complete_application(
     }
 
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_max_num_queries(34):
         response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
@@ -338,7 +346,7 @@ def test_applicationdetail_post_with_complete_application(
 
 def test_applicationdetail_post_with_incomplete_application(
     rf,
-    core_developer,
+    staff_area_administrator,
     incomplete_application,
     freezer,
 ):
@@ -360,7 +368,7 @@ def test_applicationdetail_post_with_incomplete_application(
     }
 
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
@@ -382,11 +390,11 @@ def test_applicationdetail_post_with_incomplete_application(
         application.researcherdetailspage
 
 
-def test_applicationedit_get_success(rf, core_developer):
+def test_applicationedit_get_success(rf, staff_area_administrator):
     application = ApplicationFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
@@ -394,10 +402,10 @@ def test_applicationedit_get_success(rf, core_developer):
 
 
 def test_applicationedit_num_queries(
-    rf, django_assert_num_queries, core_developer, complete_application
+    rf, django_assert_num_queries, staff_area_administrator, complete_application
 ):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(1):
         response = ApplicationEdit.as_view()(
@@ -409,7 +417,9 @@ def test_applicationedit_num_queries(
         response.render()
 
 
-def test_applicationedit_post_success(rf, django_assert_num_queries, core_developer):
+def test_applicationedit_post_success(
+    rf, django_assert_num_queries, staff_area_administrator
+):
     application = ApplicationFactory(status=Application.Statuses.ONGOING)
 
     data = {
@@ -417,7 +427,7 @@ def test_applicationedit_post_success(rf, django_assert_num_queries, core_develo
         "status_comment": "Completed and ready for review",
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(2):
         response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
@@ -430,24 +440,24 @@ def test_applicationedit_post_success(rf, django_assert_num_queries, core_develo
     assert application.status_comment == "Completed and ready for review"
 
 
-def test_applicationedit_unknown_application(rf, core_developer):
+def test_applicationedit_unknown_application(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ApplicationEdit.as_view()(request, pk_hash="")
 
 
 def test_applicationedit_with_deleted_application(
-    rf, core_developer, complete_application
+    rf, staff_area_administrator, complete_application
 ):
     application = complete_application
     application.deleted_at = timezone.now()
-    application.deleted_by = core_developer
+    application.deleted_by = staff_area_administrator
     application.save()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -476,36 +486,36 @@ def test_applicationedit_without_core_dev_role(rf):
         ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
 
-def test_applicationlist_filter_by_status(rf, core_developer):
+def test_applicationlist_filter_by_status(rf, staff_area_administrator):
     ApplicationFactory(status=Application.Statuses.APPROVED_FULLY)
 
     request = rf.get("/?status=approved_fully")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationList.as_view()(request)
 
     assert len(response.context_data["application_list"]) == 1
 
 
-def test_applicationlist_filter_by_user(rf, core_developer):
+def test_applicationlist_filter_by_user(rf, staff_area_administrator):
     ApplicationFactory.create_batch(5)
     application = ApplicationFactory()
 
     request = rf.get(f"/?user={application.created_by.username}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationList.as_view()(request)
 
     assert list(response.context_data["application_list"]) == [application]
 
 
-def test_applicationlist_search(rf, core_developer):
+def test_applicationlist_search(rf, staff_area_administrator):
     app1 = ApplicationFactory(created_by=UserFactory(fullname="ben g"))
     app2 = ApplicationFactory(created_by=UserFactory(username="ben"))
     ApplicationFactory(created_by=UserFactory(username="seb"))
 
     request = rf.get("/?q=ben")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationList.as_view()(request)
 
@@ -516,11 +526,11 @@ def test_applicationlist_search(rf, core_developer):
     }
 
 
-def test_applicationlist_success(rf, core_developer):
+def test_applicationlist_success(rf, staff_area_administrator):
     ApplicationFactory.create_batch(5)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationList.as_view()(request)
 
@@ -528,10 +538,12 @@ def test_applicationlist_success(rf, core_developer):
     assert len(response.context_data["application_list"]) == 5
 
 
-def test_applicationlist_num_queries(rf, django_assert_num_queries, core_developer):
+def test_applicationlist_num_queries(
+    rf, django_assert_num_queries, staff_area_administrator
+):
     ApplicationFactory.create_batch(5)
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(2):
         response = ApplicationList.as_view()(request)
@@ -541,13 +553,13 @@ def test_applicationlist_num_queries(rf, django_assert_num_queries, core_develop
         response.render()
 
 
-def test_applicationremove_already_approved(rf, core_developer):
+def test_applicationremove_already_approved(rf, staff_area_administrator):
     application = ApplicationFactory(
-        approved_at=timezone.now(), approved_by=core_developer
+        approved_at=timezone.now(), approved_by=staff_area_administrator
     )
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -565,13 +577,13 @@ def test_applicationremove_already_approved(rf, core_developer):
     assert str(messages[0]) == "You cannot delete an approved Application."
 
 
-def test_applicationremove_already_deleted(rf, core_developer):
+def test_applicationremove_already_deleted(rf, staff_area_administrator):
     application = ApplicationFactory(
         deleted_at=timezone.now(), deleted_by=UserFactory()
     )
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -589,11 +601,13 @@ def test_applicationremove_already_deleted(rf, core_developer):
     assert str(messages[0]) == "Application has already been deleted"
 
 
-def test_applicationremove_success(rf, django_assert_num_queries, core_developer):
+def test_applicationremove_success(
+    rf, django_assert_num_queries, staff_area_administrator
+):
     application = ApplicationFactory()
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(2):
         response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
@@ -602,9 +616,9 @@ def test_applicationremove_success(rf, django_assert_num_queries, core_developer
     assert response.url == reverse("staff:application-list")
 
 
-def test_applicationremove_unknown_application(rf, core_developer):
+def test_applicationremove_unknown_application(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ApplicationRemove.as_view()(request, pk_hash="")
@@ -620,13 +634,13 @@ def test_applicationremove_without_core_dev_role(rf):
         ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
 
 
-def test_applicationrestore_already_deleted(rf, core_developer):
+def test_applicationrestore_already_deleted(rf, staff_area_administrator):
     application = ApplicationFactory(
         deleted_at=timezone.now(), deleted_by=UserFactory()
     )
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
 
@@ -634,11 +648,13 @@ def test_applicationrestore_already_deleted(rf, core_developer):
     assert response.url == reverse("staff:application-list")
 
 
-def test_applicationrestore_success(rf, django_assert_num_queries, core_developer):
+def test_applicationrestore_success(
+    rf, django_assert_num_queries, staff_area_administrator
+):
     application = ApplicationFactory()
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with django_assert_num_queries(1):
         response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
@@ -647,9 +663,9 @@ def test_applicationrestore_success(rf, django_assert_num_queries, core_develope
     assert response.url == reverse("staff:application-list")
 
 
-def test_applicationrestore_unknown_application(rf, core_developer):
+def test_applicationrestore_unknown_application(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         ApplicationRestore.as_view()(request, pk_hash="")

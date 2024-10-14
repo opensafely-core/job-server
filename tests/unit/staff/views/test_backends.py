@@ -12,22 +12,22 @@ from staff.views.backends import (
 from ....factories import BackendFactory
 
 
-def test_backendcreate_get_success(rf, core_developer):
+def test_backendcreate_get_success(rf, staff_area_administrator):
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = BackendCreate.as_view()(request)
 
     assert response.status_code == 200
 
 
-def test_backendcreate_post_success(rf, core_developer):
+def test_backendcreate_post_success(rf, staff_area_administrator):
     data = {
         "name": "New Backend",
         "slug": "new-backend",
     }
     request = rf.post("/", data)
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = BackendCreate.as_view()(request)
 
@@ -43,11 +43,11 @@ def test_backendcreate_post_success(rf, core_developer):
     assert response.url == backend.get_staff_url()
 
 
-def test_backendedit_success(rf, core_developer):
+def test_backendedit_success(rf, staff_area_administrator):
     backend = BackendFactory()
 
     request = rf.post("/", {"level_4_url": "http://testing"})
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = BackendEdit.as_view()(request, pk=backend.pk)
 
@@ -58,22 +58,22 @@ def test_backendedit_success(rf, core_developer):
     assert backend.level_4_url == "http://testing"
 
 
-def test_backenddetail_success(rf, core_developer):
+def test_backenddetail_success(rf, staff_area_administrator):
     backend = BackendFactory()
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
     response = BackendDetail.as_view()(request, pk=backend.pk)
 
     assert response.status_code == 200
     assert response.context_data["backend"] == backend
 
 
-def test_backendlist_success(rf, core_developer):
+def test_backendlist_success(rf, staff_area_administrator):
     BackendFactory.create_batch(3)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = BackendList.as_view()(request)
 
@@ -81,11 +81,11 @@ def test_backendlist_success(rf, core_developer):
     assert len(response.context_data["object_list"]) == 3
 
 
-def test_backendrotatetoken_success(rf, core_developer):
+def test_backendrotatetoken_success(rf, staff_area_administrator):
     backend = BackendFactory()
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
     response = BackendRotateToken.as_view()(request, pk=backend.pk)
 
     assert response.status_code == 302

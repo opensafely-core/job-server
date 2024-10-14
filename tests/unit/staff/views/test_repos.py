@@ -31,7 +31,7 @@ def test_ran_at():
     assert ran_at(None) is None
 
 
-def test_repodetail_success(rf, core_developer):
+def test_repodetail_success(rf, staff_area_administrator):
     repo = RepoFactory(url="https://github.com/opensafely-testing/github-api-testing")
 
     workspace1 = WorkspaceFactory(repo=repo)
@@ -52,7 +52,7 @@ def test_repodetail_success(rf, core_developer):
     JobFactory(job_request=job_request4, created_at=timezone.now())
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, repo_url=quote(repo.url)
@@ -63,7 +63,7 @@ def test_repodetail_success(rf, core_developer):
 
 
 def test_repodetail_sign_off_disabled_when_already_internally_signed_off(
-    rf, core_developer
+    rf, staff_area_administrator
 ):
     repo = RepoFactory(
         researcher_signed_off_at=timezone.now(),
@@ -76,7 +76,7 @@ def test_repodetail_sign_off_disabled_when_already_internally_signed_off(
     JobFactory(job_request=job_request)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, repo_url=quote(repo.url)
@@ -92,7 +92,7 @@ def test_repodetail_sign_off_disabled_when_already_internally_signed_off(
 
 
 def test_repodetail_sign_off_disabled_when_repo_has_github_outputs_but_user_is_missing_role(
-    rf, core_developer
+    rf, staff_area_administrator
 ):
     repo = RepoFactory(
         has_github_outputs=True,
@@ -104,7 +104,7 @@ def test_repodetail_sign_off_disabled_when_repo_has_github_outputs_but_user_is_m
     JobFactory(job_request=job_request)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, repo_url=quote(repo.url)
@@ -122,7 +122,7 @@ def test_repodetail_sign_off_disabled_when_repo_has_github_outputs_but_user_is_m
 
 
 def test_repodetail_sign_off_disabled_when_repo_missing_researcher_sign_off(
-    rf, core_developer
+    rf, staff_area_administrator
 ):
     repo = RepoFactory()
     workspace = WorkspaceFactory(repo=repo)
@@ -130,7 +130,7 @@ def test_repodetail_sign_off_disabled_when_repo_missing_researcher_sign_off(
     JobFactory(job_request=job_request)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, repo_url=quote(repo.url)
@@ -151,7 +151,7 @@ def test_repodetail_unauthorized(rf):
         RepoDetail.as_view(get_github_api=FakeGitHubAPI)(request, repo_url="test")
 
 
-def test_repolist_filter_by_org(rf, core_developer):
+def test_repolist_filter_by_org(rf, staff_area_administrator):
     repo = RepoFactory()
     RepoFactory.create_batch(2)
 
@@ -160,32 +160,32 @@ def test_repolist_filter_by_org(rf, core_developer):
     WorkspaceFactory(project=project, repo=repo)
 
     request = rf.get(f"/?orgs={org.slug}")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
 
 
-def test_repolist_filter_by_outputs(rf, core_developer):
+def test_repolist_filter_by_outputs(rf, staff_area_administrator):
     RepoFactory(has_github_outputs=False)
     RepoFactory.create_batch(2, has_github_outputs=True)
 
     request = rf.get("/?has_outputs=yes")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 2
 
 
-def test_repolist_find_by_name(rf, core_developer):
+def test_repolist_find_by_name(rf, staff_area_administrator):
     repo1 = RepoFactory(url="age-test-distribution")
     repo2 = RepoFactory(url="ghickman-testing")
     RepoFactory(url="sro-measures")
 
     request = rf.get("/?q=test")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoList.as_view()(request)
 
@@ -193,11 +193,11 @@ def test_repolist_find_by_name(rf, core_developer):
     assert set(response.context_data["object_list"]) == {repo1, repo2}
 
 
-def test_repolist_success(rf, core_developer):
+def test_repolist_success(rf, staff_area_administrator):
     RepoFactory.create_batch(5)
 
     request = rf.get("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     response = RepoList.as_view()(request)
 
@@ -213,11 +213,11 @@ def test_repolist_unauthorized(rf):
         RepoList.as_view()(request)
 
 
-def test_reposignoff_success(rf, core_developer):
+def test_reposignoff_success(rf, staff_area_administrator):
     repo = RepoFactory()
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
@@ -252,19 +252,19 @@ def test_reposignoff_unauthorized(rf):
         RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(request)
 
 
-def test_reposignoff_unknown_repo(rf, core_developer):
+def test_reposignoff_unknown_repo(rf, staff_area_administrator):
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     with pytest.raises(Http404):
         RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(request, repo_url="test")
 
 
-def test_reposignoff_without_sign_off_role(rf, core_developer):
+def test_reposignoff_without_sign_off_role(rf, staff_area_administrator):
     repo = RepoFactory(has_github_outputs=True)
 
     request = rf.post("/")
-    request.user = core_developer
+    request.user = staff_area_administrator
 
     # set up messages framework
     request.session = "session"
