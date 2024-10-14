@@ -21,12 +21,14 @@ class Command(BaseCommand):
         parser.add_argument("--email", help="Defaults to username@example.com")
         parser.add_argument("--name", help="Defaults to username")
         parser.add_argument(
+            "-o",
             "--output-checker",
             action="store_true",
             help="Make user global OutputChecker",
         )
         parser.add_argument(
-            "--core-developer",
+            "-s",
+            "--staff-area-administrator",
             action="store_true",
             help="Make user global StaffAreaAdministrator",
         )
@@ -52,7 +54,7 @@ class Command(BaseCommand):
         roles = []
         if options["output_checker"]:
             roles.append(OutputChecker)
-        if options["core_developer"]:
+        if options["staff_area_administrator"]:
             roles.append(StaffAreaAdministrator)
 
         updated = False
