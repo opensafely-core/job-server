@@ -6,19 +6,14 @@ from .models import Redirect
 
 
 class RedirectsMiddleware:
-    """
-    Apply saved redirections to all requests
-
-    We had three options for redirections, checked in this order:
-     * exact match -> redirect
-     * prefix match -> redirect
-     * no match
-    """
+    """Apply DB redirects to rewrite request URLs, with longer matches
+    preferred. Exact matches take top priority."""
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        # Skip processing requests for non-user-facing URLs.
         exemptions = (
             "/api",
             "/staff",
@@ -26,7 +21,8 @@ class RedirectsMiddleware:
         if request.path.startswith(exemptions):
             return self.get_response(request)
 
-        # look for a direct or prefix match on the current URL
+        # Find the longest old_url that matches the start of request.path
+        # (longer URLs are more specific). Exact matches take top priority.
         redirection = (
             Redirect.objects.annotate(
                 url_length=Length("old_url"),
@@ -37,16 +33,18 @@ class RedirectsMiddleware:
             .first()
         )
 
+        # No match, allow the request to proceed.
         if not redirection:
-            # there's no direct or indirect match so let the request continue
             return self.get_response(request)
 
+        # Exact match, return the URL from the DB.
         if redirection.old_url == request.path:
             return redirect(
                 redirection.obj.get_absolute_url(),
                 permanent=True,
             )
 
+        # Partial match, rewrite the request URL prefix.
         new_url = request.path.replace(
             redirection.old_url, redirection.obj.get_absolute_url()
         )
