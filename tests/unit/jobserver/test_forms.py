@@ -96,6 +96,36 @@ def test_jobrequestcreateform_with_bad_codelists(
         )
 
 
+def test_workspacecreateform_unbound():
+    """
+    When the form is instantiated with two known repos and no data then:
+        * The repo choices include (url, name) pairs for each repo.
+        * The branch choices are set to None.
+        * The repo and branch initial values are set to None.
+    """
+    repos_with_branches = [
+        {
+            "name": "test-repo",
+            "url": "http://example.com/derp/test-repo",
+            "branches": ["test-branch"],
+        },
+        {
+            "name": "test-repo2",
+            "url": "http://example.com/derp/test-repo2",
+            "branches": ["test-branch2"],
+        },
+    ]
+    form = WorkspaceCreateForm(repos_with_branches)
+
+    assert form.fields["repo"].choices == [
+        ("http://example.com/derp/test-repo", "test-repo"),
+        ("http://example.com/derp/test-repo2", "test-repo2"),
+    ]
+    assert form.fields["branch"].choices == []
+    assert form.fields["repo"].initial is None
+    assert form.fields["branch"].initial is None
+
+
 @pytest.mark.parametrize(
     "name,cleaned_name",
     [
@@ -105,7 +135,9 @@ def test_jobrequestcreateform_with_bad_codelists(
 )
 def test_workspacecreateform_success(name, cleaned_name):
     """
-    When the form is instantiated with valid data then:
+    When the form is instantiated with two known repos and valid data selecting
+    the second repo, then:
+        * The initial repo and branch values are set to the second repo.
         * The form validates.
         * The data ends up in the cleaned_data.
         * The name field is cleaned by converting to lower case.
@@ -132,6 +164,8 @@ def test_workspacecreateform_success(name, cleaned_name):
     }
     form = WorkspaceCreateForm(repos_with_branches, data)
 
+    assert form.fields["repo"].initial == "http://example.com/derp/test-repo2"
+    assert form.fields["branch"].initial == "test-branch2"
     assert form.is_valid()
     assert form.cleaned_data["name"] == cleaned_name
     assert form.cleaned_data["repo"] == "http://example.com/derp/test-repo2"

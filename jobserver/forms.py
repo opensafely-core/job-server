@@ -100,7 +100,10 @@ class WorkspaceCreateForm(forms.Form):
 
     def __init__(self, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        # The repo and branch fields must be dynamic as their valid values
+        # depend on the state of GitHub at request-time. We construct them in
+        # this function. The template JavaScript updates the branch fields when
+        # repo is selected.
         self.repos_with_branches = repos_with_branches
 
         # Get selected repo and branch from POSTed form data, if available,
@@ -112,8 +115,8 @@ class WorkspaceCreateForm(forms.Form):
             posted_repo = None
             posted_branch = None
 
-        # has there been a repo selected already?
-        if "data" in self.data and "repo" in self.data:
+        # Find the repo data dictionary matching the POSTed name.
+        if self.data and "repo" in self.data:
             try:
                 repo = next(
                     (r for r in self.repos_with_branches if r["url"] == posted_repo),
@@ -123,13 +126,26 @@ class WorkspaceCreateForm(forms.Form):
                     "No matching repos found, please reload the page and try again"
                 )
         else:
-            repo = self.repos_with_branches[0]
+            repo = None
 
-        # construct the branch Form field
-        branch_choices = [(b, b) for b in repo["branches"]]
+        # Construct the repo field.
+        repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
+        self.fields["repo"] = forms.ChoiceField(
+            label="Repo",
+            choices=repo_choices,
+            initial=repo["url"] if repo else None,
+        )
+
+        # Construct the initial branch field, to be updated dynamically by
+        # JavaScript when a repo is selected.
+        if repo:
+            branch_choices = [(b, b) for b in repo["branches"]]
+        else:
+            branch_choices = []
         self.fields["branch"] = forms.ChoiceField(
             label="Branch",
             choices=branch_choices,
+            initial=posted_branch,
         )
 
     def clean(self):
