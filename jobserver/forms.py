@@ -104,22 +104,20 @@ class WorkspaceCreateForm(forms.Form):
         self.project = project
         self.repos_with_branches = repos_with_branches
 
-        # construct the repo Form field
-        repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
-        self.fields["repo"] = forms.ChoiceField(
-            label="Repo",
-            choices=repo_choices,
-        )
+        # Get selected repo and branch from POSTed form data, if available,
+        # so we can maintain that choice in the fields that we construct.
+        if self.data:
+            posted_repo = self.data.get("repo")
+            posted_branch = self.data.get("branch")
+        else:
+            posted_repo = None
+            posted_branch = None
 
         # has there been a repo selected already?
-        if "data" in kwargs and "repo" in kwargs["data"]:
+        if "data" in self.data and "repo" in self.data:
             try:
                 repo = next(
-                    (
-                        r
-                        for r in self.repos_with_branches
-                        if r["url"] == kwargs["data"]["repo"]
-                    ),
+                    (r for r in self.repos_with_branches if r["url"] == posted_repo),
                 )
             except StopIteration:
                 raise forms.ValidationError(

@@ -104,27 +104,44 @@ def test_jobrequestcreateform_with_bad_codelists(
     ],
 )
 def test_workspacecreateform_success(name, cleaned_name):
+    """
+    When the form is instantiated with valid data then:
+        * The form validates.
+        * The data ends up in the cleaned_data.
+        * The name field is cleaned by converting to lower case.
+    """
     project = ProjectFactory()
-    data = {
-        "name": name,
-        "repo": "http://example.com/derp/test-repo",
-        "branch": "test-branch",
-        "purpose": "test",
-    }
+    # Two repos to validate that the custom Form code is actually using the
+    # POSTed data, not just defaulting to the first.
     repos_with_branches = [
         {
             "name": "test-repo",
             "url": "http://example.com/derp/test-repo",
             "branches": ["test-branch"],
-        }
+        },
+        {
+            "name": "test-repo2",
+            "url": "http://example.com/derp/test-repo2",
+            "branches": ["test-branch2"],
+        },
     ]
-    form = WorkspaceCreateForm(project, repos_with_branches, data)
+    data = {
+        "name": name,
+        "repo": "http://example.com/derp/test-repo2",
+        "branch": "test-branch2",
+        "purpose": "test purpose",
+    }
+    form = WorkspaceCreateForm(repos_with_branches, data)
 
     assert form.is_valid()
     assert form.cleaned_data["name"] == cleaned_name
+    assert form.cleaned_data["repo"] == "http://example.com/derp/test-repo2"
+    assert form.cleaned_data["branch"] == "test-branch2"
+    assert form.cleaned_data["purpose"] == "test purpose"
 
 
 def test_workspacecreateform_unknown_branch():
+    """When the form cleaned_data has an unknown branch, validation fails."""
     project = ProjectFactory()
     repos_with_branches = [
         {
@@ -147,6 +164,7 @@ def test_workspacecreateform_unknown_branch():
 
 
 def test_workspacecreateform_unknown_repo():
+    """When the form cleaned_data has an unknown repo, validation fails."""
     project = ProjectFactory()
     repos_with_branches = [
         {
@@ -169,6 +187,7 @@ def test_workspacecreateform_unknown_repo():
 
 
 def test_workspacecreateform_with_duplicate_name():
+    """When a Workspace already exists with the chosen name, validation fails."""
     project = ProjectFactory()
     WorkspaceFactory(name="test")
 
@@ -179,7 +198,7 @@ def test_workspacecreateform_with_duplicate_name():
         "purpose": "test",
     }
     repos_with_branches = [{"name": "test", "url": "test", "branches": ["test"]}]
-    form = WorkspaceCreateForm(project, repos_with_branches, data)
+    form = WorkspaceCreateForm(repos_with_branches, data)
     form.is_valid()
 
     assert form.errors == {
@@ -190,6 +209,7 @@ def test_workspacecreateform_with_duplicate_name():
 
 
 def test_workspacecreateform_with_no_repo_match():
+    """When form data includes a repo not in the provided set, validation fails."""
     project = ProjectFactory()
     WorkspaceFactory(name="test")
 
