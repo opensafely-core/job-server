@@ -45,7 +45,7 @@ def link_func(path):
 
 
 def test_check_cohortextractor_permission():
-    config = Pipeline(
+    config = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
@@ -70,7 +70,7 @@ def test_check_cohortextractor_permission():
 
 
 def test_check_cohortextractor_permission_no_cohort_extractor_actions():
-    config = Pipeline(
+    config = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
@@ -89,7 +89,7 @@ def test_check_cohortextractor_permission_no_cohort_extractor_actions():
 
 
 def test_check_sqlrunner_permission():
-    config = Pipeline(
+    config = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
@@ -111,7 +111,7 @@ def test_check_sqlrunner_permission():
 
 
 def test_check_sqlrunner_permission_no_sqlrunner_actions():
-    config = Pipeline(
+    config = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
@@ -130,7 +130,7 @@ def test_check_sqlrunner_permission_no_sqlrunner_actions():
 
 
 def test_get_actions_missing_needs():
-    dummy = Pipeline(
+    dummy = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
@@ -152,7 +152,7 @@ def test_get_actions_missing_needs():
 
 
 def test_get_actions_no_run_all():
-    dummy = Pipeline(
+    dummy = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
@@ -180,7 +180,7 @@ def test_get_actions_no_run_all():
 
 
 def test_get_actions_success():
-    content = Pipeline(
+    content = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
@@ -551,7 +551,7 @@ def test_render_definition():
     ],
 )
 def test_get_database_actions(actions, expected_db_actions):
-    content = Pipeline(
+    content = Pipeline.build(
         **{
             "version": 3,
             "expectations": {"population_size": 1000},
