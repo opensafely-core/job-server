@@ -536,6 +536,9 @@ interfaces can be changed, through coordination with the relevant teams.
 Except where mentioned otherwise, URLs are relative to the root of the
 Job Server API endpoint (https://jobs.opensafely.org/api/v2 in production).
 
+Management commands might be used in other repos' tooling and CI. While not
+required, it's helpful to check for downstream impacts if you change their API.
+
 ### Job Runner interface
 
 [Job Runner] is a container that runs in a secure backend. It executes
