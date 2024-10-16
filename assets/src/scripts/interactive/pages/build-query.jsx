@@ -70,7 +70,7 @@ function BuildQuery() {
       initialValues={initialValues(formData)}
       onSubmit={(values, actions) =>
         actions.validateForm().then(() => {
-          const { timeOption, timeScale, timeValue, ...otherValues } = values;
+          const { timeOption, ...otherValues } = values;
 
           if (timeOption === anyTimeQuery) {
             setFormData({

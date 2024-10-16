@@ -1,5 +1,3 @@
-/* eslint-disable import/prefer-default-export */
-
 export const queryText = [
   "The number of people who had",
   "added to their health record each month from",

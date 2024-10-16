@@ -12,7 +12,6 @@ function Filter({ files, listRef, setFiles }) {
     }));
 
     setFiles(filteredFiles);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   function filterOnChange(e) {

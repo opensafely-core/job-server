@@ -30,8 +30,6 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
     if (data) {
       setFiles(data);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   if (isLoading) {

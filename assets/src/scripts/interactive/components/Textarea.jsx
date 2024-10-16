@@ -24,7 +24,7 @@ function Textarea({
 
   useEffect(() => {
     setFieldValue(id, values[id] || value);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className={`flex flex-col gap-y-3 text-lg leading-tight ${className}`}>

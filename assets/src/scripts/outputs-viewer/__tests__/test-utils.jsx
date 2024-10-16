@@ -1,4 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies, react/prop-types */
+/* eslint-disable react/prop-types */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
@@ -19,13 +19,15 @@ const createTestQueryClient = () =>
 
 function createWrapper() {
   const testQueryClient = createTestQueryClient();
-  return ({ children }) => (
-    <HistoryRouter history={history}>
-      <QueryClientProvider client={testQueryClient}>
-        {children}
-      </QueryClientProvider>
-    </HistoryRouter>
-  );
+  return React.memo(function ElForTests({ children }) {
+    return (
+      <HistoryRouter history={history}>
+        <QueryClientProvider client={testQueryClient}>
+          {children}
+        </QueryClientProvider>
+      </HistoryRouter>
+    );
+  });
 }
 
 const customRender = (ui, options) =>
