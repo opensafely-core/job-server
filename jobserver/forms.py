@@ -129,7 +129,14 @@ class WorkspaceCreateForm(forms.Form):
             repo = None
 
         # Construct the repo field.
-        repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
+        # Add a dummy invalid option to hint that the user needs to do
+        # something, and prevent auto-selecting the first repo by default if
+        # the user does not change the field.
+        dummy_repo_choice = (None, "Please select a repo...")
+
+        repo_choices = [dummy_repo_choice] + [
+            (r["url"], r["name"]) for r in self.repos_with_branches
+        ]
         self.fields["repo"] = forms.ChoiceField(
             label="Repo",
             choices=repo_choices,
@@ -141,6 +148,9 @@ class WorkspaceCreateForm(forms.Form):
         if repo:
             branch_choices = [(b, b) for b in repo["branches"]]
         else:
+            # On initial GET the dummy repo option will be selected, so there
+            # are no valid branches available. This prevents submitting the
+            # form without changing the repo.
             branch_choices = []
         self.fields["branch"] = forms.ChoiceField(
             label="Branch",

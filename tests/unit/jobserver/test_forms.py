@@ -99,7 +99,8 @@ def test_jobrequestcreateform_with_bad_codelists(
 def test_workspacecreateform_unbound():
     """
     When the form is instantiated with two known repos and no data then:
-        * The repo choices include (url, name) pairs for each repo.
+        * The repo choices include (url, name) pairs for each repo and
+          a leading dummy option.
         * The branch choices are set to None.
         * The repo and branch initial values are set to None.
     """
@@ -118,6 +119,7 @@ def test_workspacecreateform_unbound():
     form = WorkspaceCreateForm(repos_with_branches)
 
     assert form.fields["repo"].choices == [
+        (None, "Please select a repo..."),
         ("http://example.com/derp/test-repo", "test-repo"),
         ("http://example.com/derp/test-repo2", "test-repo2"),
     ]
