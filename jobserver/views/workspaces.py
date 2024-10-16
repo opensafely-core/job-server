@@ -183,7 +183,6 @@ class WorkspaceCreate(CreateView):
         del kwargs["instance"]
 
         return kwargs | {
-            "project": self.project,
             "repos_with_branches": self.repos_with_branches,
         }
 
