@@ -5,7 +5,6 @@ export function toastDismiss({ toastId }) {
 }
 
 export function toastError({ toastId, message, ...args }) {
-  // eslint-disable-next-line no-console
   console.error(message, { ...args });
 
   toast.error(message, {

@@ -45,7 +45,6 @@ function Button({
       `}
       disabled={disabled}
       onClick={onClick}
-      // eslint-disable-next-line react/button-has-type
       type={type}
     >
       {children}

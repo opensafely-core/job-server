@@ -110,9 +110,7 @@ function generatePDF() {
 function formatNumbers() {
   const numbers = document.querySelectorAll(`[data-format-number="true"]`);
   numbers?.forEach(
-    // eslint-disable-next-line no-return-assign
     (number) =>
-      // eslint-disable-next-line no-param-reassign
       (number.textContent = parseFloat(number.textContent).toLocaleString(
         "en-GB",
       )),

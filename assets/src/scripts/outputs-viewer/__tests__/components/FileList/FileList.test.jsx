@@ -1,4 +1,4 @@
-/* eslint-disable no-console, no-unused-vars, react/prop-types */
+/* eslint-disable no-unused-vars, react/prop-types */
 import userEvent from "@testing-library/user-event";
 import React, { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
