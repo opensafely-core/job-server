@@ -13,6 +13,7 @@
     "test:single": "npx vitest -t"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
