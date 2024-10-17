@@ -19,7 +19,9 @@ if (document.getElementById("eventLog")) {
     });
   });
 
+  // biome-ignore lint/correctness/noUndeclaredVariables: ESLint to Biome legacy ignore
   $(() => {
+    // biome-ignore lint/correctness/noUndeclaredVariables: ESLint to Biome legacy ignore
     $('[data-toggle="tooltip"]').tooltip();
   });
 }

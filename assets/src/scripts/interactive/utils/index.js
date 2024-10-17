@@ -6,7 +6,6 @@ export function classNames(...classes) {
 }
 
 export function delay(ms) {
-  // eslint-disable-next-line no-promise-executor-return
   return new Promise((res) => setTimeout(res, ms));
 }
 
@@ -68,7 +67,6 @@ export function getAppData({
 }
 
 export const removeUndefinedValuesFromObject = (obj) => {
-  // eslint-disable-next-line no-param-reassign
   Object.keys(obj).forEach((key) => obj[key] === undefined && delete obj[key]);
   return obj;
 };

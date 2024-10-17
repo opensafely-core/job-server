@@ -8,6 +8,7 @@ function Iframe({ data, fileName, fileUrl }) {
   const [frameHeight, setFrameHeight] = useState(0);
   const id = encodeURIComponent(fileUrl).replace(/\W/g, "");
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ESLint to Biome legacy ignore
   useLayoutEffect(() => {
     const minHeight = 1000;
     if (document.getElementById(id) && window.innerWidth > 991) {
