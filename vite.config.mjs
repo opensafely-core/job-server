@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import liveReload from "vite-plugin-live-reload";

@@ -22,9 +22,10 @@ function Textarea({
 }) {
   const { setFieldValue, values } = useFormikContext();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ESLint to Biome legacy ignore
   useEffect(() => {
     setFieldValue(id, values[id] || value);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className={`flex flex-col gap-y-3 text-lg leading-tight ${className}`}>

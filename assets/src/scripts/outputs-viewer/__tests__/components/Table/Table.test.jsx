@@ -5,6 +5,7 @@ import { csvExample, csvFile } from "../../helpers/files";
 import { render, screen } from "../../test-utils";
 
 describe("<Table />", () => {
+  // biome-ignore lint/style/useConsistentBuiltinInstantiation: ESLint to Biome legacy ignore
   const twoThousandRows = `${Array(2000).fill(`b
   `)}`.trimEnd();
 

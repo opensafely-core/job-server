@@ -23,6 +23,7 @@ const queryClient = new QueryClient({
     },
   },
   queryCache: new QueryCache({
+    // biome-ignore lint/correctness/noUnusedVariables: ESLint to Biome legacy ignore
     onError: (error, query) => {
       if (query.meta.errorMessage) {
         toastError({

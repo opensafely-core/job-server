@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { ToastContainer } from "react-toastify";
@@ -79,7 +78,6 @@ describe("<PrepareButton />", () => {
       expect(jsonBody.file_ids).toEqual(fileIds);
 
       return new Promise((resolve) =>
-        // eslint-disable-next-line no-promise-executor-return
         setTimeout(() => {
           const res = { url: urls.redirect };
           return resolve(JSON.stringify(res));

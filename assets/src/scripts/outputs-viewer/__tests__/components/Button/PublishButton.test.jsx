@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { ToastContainer } from "react-toastify";
@@ -23,7 +22,6 @@ describe("<PublishButton />", () => {
     fetch.mockResponseOnce(
       () =>
         new Promise((resolve) =>
-          // eslint-disable-next-line no-promise-executor-return
           setTimeout(() => resolve({ body: "ok" }), 100),
         ),
     );

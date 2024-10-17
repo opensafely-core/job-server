@@ -8,7 +8,6 @@ function longestSubStr(files) {
     const splitFileName = file.name.split("/");
     if (i === 0) {
       initialStr = [];
-      // eslint-disable-next-line no-return-assign
       return (initialStr = splitFileName);
     }
 
