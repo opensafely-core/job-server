@@ -91,7 +91,7 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
         <p className="mt-3">
           <Link
             href="https://docs.opensafely.org/how-to-get-help/#slack"
-            newTab
+            newTab={true}
           >
             Contact tech support in Slack for more information.
           </Link>

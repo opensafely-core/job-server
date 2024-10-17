@@ -46,7 +46,6 @@ describe("<Metadata />", () => {
   });
 
   it("shows unknown for file size if file size not provided", () => {
-    // eslint-disable-next-line no-console
     console.error = vi.fn();
 
     render(

@@ -1,7 +1,7 @@
 import {
+  QueryCache,
   QueryClient,
   QueryClientProvider,
-  QueryCache,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React, { useState } from "react";
@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
     },
   },
   queryCache: new QueryCache({
-    onError: (error, query) => {
+    onError: (_error, query) => {
       if (query.meta.errorMessage) {
         toastError({
           message: query.meta.errorMessage,
@@ -86,7 +86,7 @@ function App({
           <div className="md:col-span-2 lg:col-span-3">
             {selectedFile && (
               <Card
-                container
+                container={true}
                 header={
                   <Metadata
                     fileDate={selectedFile.date}

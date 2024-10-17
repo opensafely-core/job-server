@@ -19,7 +19,9 @@ if (document.getElementById("eventLog")) {
     });
   });
 
+  // biome-ignore lint/correctness/noUndeclaredVariables: jQuery
   $(() => {
+    // biome-ignore lint/correctness/noUndeclaredVariables: jQuery
     $('[data-toggle="tooltip"]').tooltip();
   });
 }

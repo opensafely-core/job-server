@@ -1,4 +1,3 @@
-/* eslint-disable array-callback-return, no-param-reassign */
 const content = document?.getElementById("applicationForm");
 const links = content?.getElementsByTagName("a");
 

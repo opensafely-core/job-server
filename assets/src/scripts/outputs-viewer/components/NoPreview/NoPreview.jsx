@@ -13,7 +13,7 @@ function NoPreview({ error = null, fileUrl }) {
       )}
 
       <p className="mt-3">
-        <Link href={fileUrl} newTab>
+        <Link href={fileUrl} newTab={true}>
           Open file in a new tab &#8599;
         </Link>
       </p>

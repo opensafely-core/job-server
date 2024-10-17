@@ -1,5 +1,5 @@
 import debounce from "just-debounce-it";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Hook
 function useWindowSize(delay = 100) {

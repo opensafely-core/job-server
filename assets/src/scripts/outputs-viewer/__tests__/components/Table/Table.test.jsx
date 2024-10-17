@@ -5,8 +5,11 @@ import { csvExample, csvFile } from "../../helpers/files";
 import { render, screen } from "../../test-utils";
 
 describe("<Table />", () => {
-  const twoThousandRows = `${Array(2000).fill(`b
-  `)}`.trimEnd();
+  const twoThousandRows = `${
+    // biome-ignore lint/style/useConsistentBuiltinInstantiation:
+    Array(2000).fill(`b
+  `)
+  }`.trimEnd();
 
   it("displays the CSV mapped to a table", async () => {
     render(<Table data={csvExample} />, {}, { file: csvFile });

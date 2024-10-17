@@ -103,7 +103,7 @@ function Glossary() {
       </div>
 
       <div className="flex flex-row w-full gap-2 mt-10">
-        <Link asChild to="/find-codelists">
+        <Link asChild={true} to="/find-codelists">
           <Button>Next</Button>
         </Link>
       </div>

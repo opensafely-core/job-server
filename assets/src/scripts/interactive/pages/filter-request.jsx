@@ -44,7 +44,7 @@ function FilterRequest() {
           navigate("/analysis-information");
         });
       }}
-      validateOnMount
+      validateOnMount={true}
       validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (

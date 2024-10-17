@@ -38,7 +38,7 @@ function PreviewRequest() {
       </div>
 
       <div className="flex flex-row w-full gap-2 mt-16">
-        <Link asChild to="/filter-request">
+        <Link asChild={true} to="/filter-request">
           <Button>Next</Button>
         </Link>
       </div>

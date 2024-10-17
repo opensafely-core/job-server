@@ -1,4 +1,4 @@
-import { TabList, Tab } from "@headlessui/react";
+import { Tab, TabList } from "@headlessui/react";
 import { useAppData } from "../../context";
 import { classNames } from "../../utils";
 

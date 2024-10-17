@@ -31,7 +31,7 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
             after:content-['↗'] after:text-sm after:ml-1 after:absolute after:mt-0.5
           `}
           href={fileUrl}
-          newTab
+          newTab={true}
         >
           {fileName}
         </Link>

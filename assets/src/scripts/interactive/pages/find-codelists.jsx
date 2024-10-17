@@ -50,7 +50,7 @@ function FindCodelists() {
           return navigate("/build-query");
         });
       }}
-      validateOnMount
+      validateOnMount={true}
       validationSchema={validationSchema}
     >
       {({ isValid }) => (

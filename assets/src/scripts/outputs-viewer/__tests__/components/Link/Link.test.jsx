@@ -14,7 +14,7 @@ describe("<Link />", () => {
 
   it("Opens a link in a new target tab", async () => {
     render(
-      <Link href="/hello-world/" newTab>
+      <Link href="/hello-world/" newTab={true}>
         Hello world
       </Link>,
     );

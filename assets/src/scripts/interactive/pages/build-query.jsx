@@ -92,9 +92,9 @@ function BuildQuery() {
           return navigate("/preview-request");
         })
       }
-      validateOnBlur
-      validateOnChange
-      validateOnMount
+      validateOnBlur={true}
+      validateOnChange={true}
+      validateOnMount={true}
       validationSchema={validationSchema}
     >
       {({ isValid }) => (

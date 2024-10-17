@@ -20,6 +20,7 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
 
   const listRef = createRef();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     const selectedItem = data?.find(
       (file) => `/${file.name}` === location.pathname,
@@ -30,13 +31,11 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
     if (data) {
       setFiles(data);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   if (isLoading) {
     return (
-      <Card container>
+      <Card container={true}>
         <p>Loading…</p>
       </Card>
     );
@@ -44,7 +43,10 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
 
   if (isError) {
     return (
-      <Card container header={<h2 className="font-semibold text-lg">Error</h2>}>
+      <Card
+        container={true}
+        header={<h2 className="font-semibold text-lg">Error</h2>}
+      >
         <p>Unable to load files</p>
       </Card>
     );

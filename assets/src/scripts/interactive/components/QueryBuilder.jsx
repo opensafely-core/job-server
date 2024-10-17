@@ -91,7 +91,7 @@ function QueryBuilder() {
         </span>
       </p>
 
-      <Fieldset hideLegend legend="Select a time scale">
+      <Fieldset hideLegend={true} legend="Select a time scale">
         <RadioButton
           id="timeHasValue"
           label={timeStatement(values)}

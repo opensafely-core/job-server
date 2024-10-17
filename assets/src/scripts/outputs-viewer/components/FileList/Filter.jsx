@@ -5,6 +5,7 @@ import FormInput from "../Form/Input";
 function Filter({ files, listRef, setFiles }) {
   const [filter, setFilter] = useState("");
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     const filteredFiles = [...files].map((file) => ({
       ...file,
@@ -12,7 +13,6 @@ function Filter({ files, listRef, setFiles }) {
     }));
 
     setFiles(filteredFiles);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   function filterOnChange(e) {
@@ -26,7 +26,7 @@ function Filter({ files, listRef, setFiles }) {
       autocomplete="off"
       autocorrect="off"
       className="mb-1"
-      hideLabel
+      hideLabel={true}
       id="filterFiles"
       label="Find a file…"
       onChange={(e) => filterOnChange(e)}

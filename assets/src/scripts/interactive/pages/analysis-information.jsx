@@ -48,7 +48,7 @@ function AnalysisInformation() {
           navigate("/review-request");
         });
       }}
-      validateOnMount
+      validateOnMount={true}
       validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
@@ -57,7 +57,7 @@ function AnalysisInformation() {
           <h1 className="text-4xl font-bold">Analysis information</h1>
 
           <Textarea
-            characterCount
+            characterCount={true}
             className="mb-6"
             hintText={
               <>
@@ -76,7 +76,7 @@ function AnalysisInformation() {
             maxlength={140}
             name="title"
             placeholder=""
-            required
+            required={true}
             resize={false}
             rows={2}
             value={`${formData.codelistA.label} & ${formData.codelistB.label} during the COVID-19 pandemic`}
@@ -87,7 +87,7 @@ function AnalysisInformation() {
           </Textarea>
 
           <Textarea
-            characterCount
+            characterCount={true}
             hintText={
               <>
                 <p>
@@ -104,7 +104,7 @@ function AnalysisInformation() {
             label="Explain why this analysis fits with the approved project purpose"
             maxlength={1000}
             name="purpose"
-            required
+            required={true}
             resize={false}
           />
           {errors.purpose && touched.purpose ? (
