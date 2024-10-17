@@ -5,7 +5,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint \"./assets/src/**/*.{js,jsx}\"",
+    "lint": "npx @biomejs/biome check ./assets/src/**/*",
     "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix",
     "test": "npx vitest run",
     "test:watch": "npx vitest",
