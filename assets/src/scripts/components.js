@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const ul = document.getElementById("table-of-contents");
 
   anchors.forEach((heading) => {
-    // eslint-disable-next-line no-param-reassign
     heading.id = `${slugify(heading.textContent, {
       lower: true,
       strict: true,
