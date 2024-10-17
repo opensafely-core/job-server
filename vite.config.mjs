@@ -31,16 +31,16 @@ export default defineConfig(({ mode }) => ({
   },
   clearScreen: false,
   plugins: [
+    mode !== "test" ? liveReload("templates/**/*.html") : undefined,
     mode !== "test"
-      ? (liveReload("templates/**/*.html"),
-        viteStaticCopy({
+      ? viteStaticCopy({
           targets: [
             {
               src: "node_modules/htmx.org/dist/htmx.min.js",
               dest: "vendor",
             },
           ],
-        }))
+        })
       : undefined,
     react(),
   ],
