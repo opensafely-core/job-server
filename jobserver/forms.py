@@ -93,46 +93,73 @@ class WorkspaceArchiveToggleForm(forms.Form):
 
 class WorkspaceCreateForm(forms.Form):
     name = forms.SlugField(
-        help_text="Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run."
+        help_text=(
+            "Enter a descriptive name for the workspace, which will also "
+            "be the directory name for results after job execution. Valid "
+            "characters: letters, numbers, underscores, and hyphens."
+        )
     )
     purpose = forms.CharField(help_text="Describe the purpose of this workspace.")
     branch = forms.CharField()
 
-    def __init__(self, project, repos_with_branches, *args, **kwargs):
+    def __init__(self, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.project = project
+        # The repo and branch fields must be dynamic as their valid values
+        # depend on the state of GitHub at request-time. We construct them in
+        # this function. The template JavaScript updates the branch fields when
+        # repo is selected.
         self.repos_with_branches = repos_with_branches
 
-        # construct the repo Form field
-        repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
-        self.fields["repo"] = forms.ChoiceField(
-            label="Repo",
-            choices=repo_choices,
-        )
+        # Get selected repo and branch from POSTed form data, if available,
+        # so we can maintain that choice in the fields that we construct.
+        if self.data:
+            posted_repo = self.data.get("repo")
+            posted_branch = self.data.get("branch")
+        else:
+            posted_repo = None
+            posted_branch = None
 
-        # has there been a repo selected already?
-        if "data" in kwargs and "repo" in kwargs["data"]:
+        # Find the repo data dictionary matching the POSTed name.
+        if self.data and "repo" in self.data:
             try:
                 repo = next(
-                    (
-                        r
-                        for r in self.repos_with_branches
-                        if r["url"] == kwargs["data"]["repo"]
-                    ),
+                    (r for r in self.repos_with_branches if r["url"] == posted_repo),
                 )
             except StopIteration:
                 raise forms.ValidationError(
                     "No matching repos found, please reload the page and try again"
                 )
         else:
-            repo = self.repos_with_branches[0]
+            repo = None
 
-        # construct the branch Form field
-        branch_choices = [(b, b) for b in repo["branches"]]
+        # Construct the repo field.
+        # Add a dummy invalid option to hint that the user needs to do
+        # something, and prevent auto-selecting the first repo by default if
+        # the user does not change the field.
+        dummy_repo_choice = (None, "Please select a repo...")
+
+        repo_choices = [dummy_repo_choice] + [
+            (r["url"], r["name"]) for r in self.repos_with_branches
+        ]
+        self.fields["repo"] = forms.ChoiceField(
+            label="Repo",
+            choices=repo_choices,
+            initial=repo["url"] if repo else None,
+        )
+
+        # Construct the initial branch field, to be updated dynamically by
+        # JavaScript when a repo is selected.
+        if repo:
+            branch_choices = [(b, b) for b in repo["branches"]]
+        else:
+            # On initial GET the dummy repo option will be selected, so there
+            # are no valid branches available. This prevents submitting the
+            # form without changing the repo.
+            branch_choices = []
         self.fields["branch"] = forms.ChoiceField(
             label="Branch",
             choices=branch_choices,
+            initial=posted_branch,
         )
 
     def clean(self):
