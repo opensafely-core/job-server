@@ -10,7 +10,7 @@ import {
   txtFile,
 } from "../../helpers/files";
 import props from "../../helpers/props";
-import { render, screen, waitFor, history } from "../../test-utils";
+import { history, render, screen, waitFor } from "../../test-utils";
 
 function FileListWrapper() {
   // biome-ignore lint/correctness/noUnusedVariables: ESLint to Biome legacy ignore
