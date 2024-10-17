@@ -8,6 +8,7 @@
 __pycache__
 /assets/dist
 /assets/stats.html
+/assets/src/scripts/outputs-viewer/coverage
 /coverage
 /docker/staticfiles/*
 /htmlcov
