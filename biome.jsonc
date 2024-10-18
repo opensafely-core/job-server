@@ -4,6 +4,7 @@
     "include": [
       "*.cjs",
       "*.mjs",
+      "assets/src/styles/*.css",
       "assets/src/scripts/**/*.js",
       "assets/src/scripts/**/*.jsx",
       "assets/src/scripts/**/*.test.js",
