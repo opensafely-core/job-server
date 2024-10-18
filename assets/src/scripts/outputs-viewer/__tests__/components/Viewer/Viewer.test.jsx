@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import Viewer from "../../../components/Viewer/Viewer";

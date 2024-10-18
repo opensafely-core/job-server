@@ -1,7 +1,7 @@
 import {
+  QueryCache,
   QueryClient,
   QueryClientProvider,
-  QueryCache,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React, { useState } from "react";
@@ -23,6 +23,7 @@ const queryClient = new QueryClient({
     },
   },
   queryCache: new QueryCache({
+    // biome-ignore lint/correctness/noUnusedVariables: ESLint to Biome legacy ignore
     onError: (error, query) => {
       if (query.meta.errorMessage) {
         toastError({

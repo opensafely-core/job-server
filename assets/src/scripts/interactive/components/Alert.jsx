@@ -6,7 +6,6 @@ const beforeUnloadListener = (event) => {
   event.preventDefault();
   // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#examples
   // @ts-ignore
-  // eslint-disable-next-line no-return-assign, no-param-reassign
   return (event.returnValue = "");
 };
 

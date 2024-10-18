@@ -1,4 +1,3 @@
-/* eslint-disable no-console, no-unused-vars, react/prop-types */
 import userEvent from "@testing-library/user-event";
 import React, { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -11,9 +10,10 @@ import {
   txtFile,
 } from "../../helpers/files";
 import props from "../../helpers/props";
-import { render, screen, waitFor, history } from "../../test-utils";
+import { history, render, screen, waitFor } from "../../test-utils";
 
 function FileListWrapper() {
+  // biome-ignore lint/correctness/noUnusedVariables: ESLint to Biome legacy ignore
   const [listVisible, setListVisible] = useState(true);
   const [_, setSelectedFile] = useState(false);
   return (

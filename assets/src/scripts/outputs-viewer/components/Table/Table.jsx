@@ -1,4 +1,3 @@
-/* eslint-disable react/no-array-index-key */
 import PropTypes from "prop-types";
 import React from "react";
 import { usePapaParse } from "react-papaparse";
@@ -11,6 +10,7 @@ function TableRow({ row }) {
   return (
     <tr className="divide-x divide-gray-200 even:bg-gray-50">
       {row.map((cell, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: ESLint to Biome legacy ignore
         <TableCell key={i} cell={cell} />
       ))}
     </tr>
@@ -37,6 +37,7 @@ function Table({ data }) {
               <table className="min-w-full divide-y divide-gray-300">
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {jsonData.slice(0, 1000).map((row, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: ESLint to Biome legacy ignore
                     <TableRow key={i} row={row} />
                   ))}
                 </tbody>
@@ -55,6 +56,7 @@ function Table({ data }) {
           <table className="min-w-full divide-y divide-gray-300">
             <tbody className="divide-y divide-gray-200 bg-white">
               {jsonData.map((row, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: ESLint to Biome legacy ignore
                 <TableRow key={i} row={row} />
               ))}
             </tbody>

@@ -20,6 +20,7 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
 
   const listRef = createRef();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ESLint to Biome legacy ignore
   useEffect(() => {
     const selectedItem = data?.find(
       (file) => `/${file.name}` === location.pathname,
@@ -30,8 +31,6 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
     if (data) {
       setFiles(data);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   if (isLoading) {
