@@ -181,7 +181,7 @@ def test_workspacecreateform_success(name, cleaned_name):
         "purpose": "test purpose",
     }
 
-    form = WorkspaceCreateForm(repos_with_branches, data=data)
+    form = WorkspaceCreateForm(repos_with_branches, data)
 
     assert form.is_bound
     assert form.fields["repo"].choices == [
