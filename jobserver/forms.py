@@ -100,17 +100,20 @@ class WorkspaceCreateForm(forms.Form):
 
     def __init__(self, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        # The repo and branch fields must be dynamic as their valid values
+        # depend on the state of GitHub at request-time. We construct them in
+        # this function. The template JavaScript updates the branch fields when
+        # repo is selected.
         self.repos_with_branches = repos_with_branches
 
-        # construct the repo Form field
+        # Construct the repo field.
         repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
         self.fields["repo"] = forms.ChoiceField(
             label="Repo",
             choices=repo_choices,
         )
 
-        # has there been a repo selected already?
+        # Find the repo data dictionary matching the POSTed name, if any.
         if self.data and "repo" in self.data:
             try:
                 repo = next(
@@ -127,7 +130,8 @@ class WorkspaceCreateForm(forms.Form):
         else:
             repo = self.repos_with_branches[0]
 
-        # construct the branch Form field
+        # Construct the initial branch field, to be updated dynamically by
+        # JavaScript each time a different repo is selected.
         branch_choices = [(b, b) for b in repo["branches"]]
         self.fields["branch"] = forms.ChoiceField(
             label="Branch",
