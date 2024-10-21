@@ -101,9 +101,10 @@ def test_workspacecreateform_unbound():
     When the form is instantiated with multiple repos and branches and no data
     then:
         * The form is unbound.
-        * The repo choices include (url, name) pairs for each repo.
-        * The branch choices include (name, name) pairs for each branch
-          in the first repo (the default selection).
+        * The repo choices include (url, name) pairs for each repo and
+          a leading dummy option.
+        * The branch choices are set to None (as the leading dummy
+          option has no valid branches to select).
         * The repo and branch initial values are set to None.
     """
     repos_with_branches = [
@@ -122,23 +123,11 @@ def test_workspacecreateform_unbound():
 
     assert not form.is_bound
     assert form.fields["repo"].choices == [
+        (None, "Please select a repo..."),
         ("http://example.com/derp/test-repo", "test-repo"),
         ("http://example.com/derp/test-repo2", "test-repo2"),
     ]
-    assert form.fields["branch"].choices == [
-        (
-            "test-branch-1a",
-            "test-branch-1a",
-        ),
-        (
-            "test-branch-1b",
-            "test-branch-1b",
-        ),
-        (
-            "test-branch-1c",
-            "test-branch-1c",
-        ),
-    ]
+    assert form.fields["branch"].choices == []
     assert form.fields["repo"].initial is None
     assert form.fields["branch"].initial is None
 
@@ -155,9 +144,11 @@ def test_workspacecreateform_success(name, cleaned_name):
     When the form is instantiated with multiple repos and branches wth valid
     data selecting the second repo and third branch, then:
         * The form is bound.
-        * The repo choices include (url, name) pairs for each repo.
+        * The repo choices include (url, name) pairs for each repo and
+          a leading dummy option.
         * The branch choices include (name, name) pairs for each branch
           in the second repo (the one selected in data).
+        * The repo and branch initial values match those in the data.
         * The form validates.
         * The data ends up in the cleaned_data.
         * The name field is cleaned by converting to lower case.
@@ -185,6 +176,7 @@ def test_workspacecreateform_success(name, cleaned_name):
 
     assert form.is_bound
     assert form.fields["repo"].choices == [
+        (None, "Please select a repo..."),
         ("http://example.com/derp/test-repo", "test-repo"),
         ("http://example.com/derp/test-repo2", "test-repo2"),
     ]
@@ -202,6 +194,9 @@ def test_workspacecreateform_success(name, cleaned_name):
             "test-branch-2c",
         ),
     ]
+    assert form.fields["repo"].initial == "http://example.com/derp/test-repo2"
+    assert form.fields["branch"].initial == "test-branch-2c"
+
     assert form.is_valid()
     assert form.cleaned_data["name"] == cleaned_name
     assert form.cleaned_data["repo"] == "http://example.com/derp/test-repo2"

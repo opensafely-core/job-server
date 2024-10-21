@@ -36,9 +36,9 @@
 
         {% form_textarea field=form.purpose label="Workspace purpose" required=True %}
 
-        {% form_select field=form.repo label="GitHub repo" choices=form.repo.field.choices hint_text="If your repo doesn’t show up here, reach out to the OpenSAFELY team on Slack." required=True %}
+        {% form_select field=form.repo label="GitHub repo" choices=form.repo.field.choices hint_text="If your repo doesn’t show up here, reach out to the OpenSAFELY team on Slack." required=True selected=form.repo.initial %}
 
-        {% form_select field=form.branch label="Branch" choices=form.branch.field.choices required=True %}
+        {% form_select field=form.branch label="Branch" choices=form.branch.field.choices required=True selected=form.branch.initial %}
       </div>
     {% /card %}
 
