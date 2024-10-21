@@ -111,13 +111,13 @@ class WorkspaceCreateForm(forms.Form):
         )
 
         # has there been a repo selected already?
-        if "data" in kwargs and "repo" in kwargs["data"]:
+        if self.data and "repo" in self.data:
             try:
                 repo = next(
                     (
                         r
                         for r in self.repos_with_branches
-                        if r["url"] == kwargs["data"]["repo"]
+                        if r["url"] == self.data["repo"]
                     ),
                 )
             except StopIteration:
