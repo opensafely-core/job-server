@@ -98,10 +98,9 @@ class WorkspaceCreateForm(forms.Form):
     purpose = forms.CharField(help_text="Describe the purpose of this workspace.")
     branch = forms.CharField()
 
-    def __init__(self, project, repos_with_branches, *args, **kwargs):
+    def __init__(self, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.project = project
         self.repos_with_branches = repos_with_branches
 
         # construct the repo Form field
