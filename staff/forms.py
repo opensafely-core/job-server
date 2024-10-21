@@ -96,7 +96,7 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
 
 class ProjectCreateForm(forms.Form):
     application_url = forms.URLField()
-    copilot = UserModelChoiceField(queryset=User.objects.order_by_name())
+    copilot = UserModelChoiceField(queryset=User.objects.all())
     name = forms.CharField()
     number = forms.IntegerField()
     orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by("name"))
@@ -147,7 +147,7 @@ class ProjectEditForm(forms.ModelForm):
         self.fields["number"].required = False
 
         self.fields["copilot"] = UserModelChoiceField(
-            queryset=User.objects.order_by_name(), required=False
+            queryset=User.objects.all(), required=False
         )
         self.fields["copilot_support_ends_at"].required = False
 

@@ -345,5 +345,5 @@ class UserList(ListView):
             super()
             .get_queryset()
             .annotate(project_count=Count("projects"))
-            .order_by_name()
+            .order_by(*self.model._meta.ordering)
         )

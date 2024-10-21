@@ -238,9 +238,12 @@ class UserDetailWithOAuth(UpdateView):
 
 @method_decorator(require_permission(permissions.user_manage), name="dispatch")
 class UserList(ListView):
+    model = User
     paginate_by = 25
     template_name = "staff/user/list.html"
-    queryset = User.objects.prefetch_related("project_memberships", "org_memberships")
+    queryset = User.objects.all().prefetch_related(
+        "project_memberships", "org_memberships"
+    )
 
     def get_context_data(self, **kwargs):
         all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
@@ -270,7 +273,7 @@ class UserList(ListView):
             is_github_user=Exists(social_auths),
             org_exists=Exists(orgs),
             project_exists=Exists(projects),
-        ).order_by_name()
+        ).order_by(*self.model._meta.ordering)
 
         # filter on the search query
         if q := self.request.GET.get("q"):

@@ -1,14 +1,15 @@
 import itertools
 import secrets
+import unicodedata
 from datetime import date, timedelta
 
 import structlog
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-from django.db.models import Q
-from django.db.models.functions import Lower, NullIf
+from django.db.models import Case, Q, When
+from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -22,75 +23,24 @@ from ..hash_utils import hash_user_pat
 logger = structlog.get_logger(__name__)
 
 
-class UserQuerySet(models.QuerySet):
-    def order_by_name(self):
-        """
-        Order Users by their "name".
-
-        We don't have fullname populated for all users yet and having some
-        users at the top of the list with just usernames looks fairly odd.
-        We've modelled our text fields in job-server such that they're not
-        nullable because we treat empty string as the only empty case.  The
-        NullIf() call lets us tell the database to treat empty strings as NULL
-        for the purposes of this ORDER BY, using nulls_last=True
-
-        TODO: remove this method in favour of order_by(Lower("fullname")) once
-        all users have fullname populated
-        """
-        return self.order_by(
-            NullIf(
-                Lower("fullname"), models.Value(""), output_field=models.TextField()
-            ).asc(nulls_last=True)
-        )
-
-
-class UserManager(DjangoUserManager.from_queryset(UserQuerySet)):
+class UserManager(models.Manager):
     use_in_migrations = True
 
-    def create_user(self, username, email=None, password=None, **extra_fields):
-        # User extends AbstractBaseUser and doesn't have is_staff or
-        # is_superuser fields as UserManager expects. So we call the private
-        # UserManager._create_user method to bypass UserManager.create_user
-        # accessing those fields. This may now break if the UserManager
-        # implementation changes. It would hopefully break loudly, at least.
-        #
-        # Why have a manager at all? We think we want the special handling from
-        # UserManager_create_user that normalizes the username and email and
-        # hashes the password.  Possibly, we don't need some or all of those.
-        # Possibly, we could extend BaseUserManager instead and do some of
-        # those transformations in our code. Or, possibly, we don't need
-        # create_user or get_or_create_user at all and could just do those
-        # transformations in User.create, if they're needed. Ref #4627.
-        # https://github.com/opensafely-core/job-server/issues/4627
-        return super()._create_user(username, email, password, **extra_fields)
+    def create(self, **kwargs):
+        # Normalize email to lowercase as they are case-insensitive.  Without
+        # normalization, unique=True on EmailField would not prevent multiple
+        # entries with the same email differing only by case. For example,
+        # 'User@Example.com' and 'user@example.com' would be considered
+        # different.
+        kwargs["email"] = kwargs.get("email", "").lower()
+        # Normalize username unicode to avoid multiple representations of the same
+        # username.
+        kwargs["username"] = unicodedata.normalize("NFKC", kwargs.get("username", ""))
+        password = kwargs.pop("password", None)
+        if password:
+            kwargs["password"] = make_password(password)
 
-
-def get_or_create_user(username, email, fullname, update_fields=None):
-    """Extend the special User.objects.create_user constructor to have the
-    usual get_or_create semantics.
-
-    By default, it will not update an existing user with the supplied email or
-    fullname, but the caller can specify to do so independently for each. This
-    enables a better implementation for the create_user function.
-    """
-    # We cannot use get_or_create here because the create_user factory function
-    # is special, and does additional work when creating users.
-    created = False
-    try:
-        user = User.objects.get(username=username)
-        if update_fields:
-            if "email" in update_fields:
-                user.email = email
-            if "fullname" in update_fields:
-                user.fullname = fullname
-            user.save()
-    except User.DoesNotExist:
-        user = User.objects.create_user(
-            username=username, email=email, fullname=fullname
-        )
-        created = True
-
-    return user, created
+        return super().create(**kwargs)
 
 
 class User(AbstractBaseUser):
@@ -163,6 +113,7 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
+    # Used by AbstractBaseUser machinery we possibly need.
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
 
@@ -181,6 +132,17 @@ class User(AbstractBaseUser):
                 ),
                 name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
             ),
+        ]
+        ordering = [
+            # Empty fullname last.
+            Case(
+                When(fullname="", then=1),
+                default=0,
+                output_field=models.IntegerField(),
+            ),
+            # Then by fullname then username, case-insensitive.
+            Lower("fullname"),
+            Lower("username"),
         ]
 
     def __str__(self):
@@ -205,10 +167,6 @@ class User(AbstractBaseUser):
         )
 
         return set(self.roles + membership_roles)
-
-    def clean(self):
-        super().clean()
-        self.email = self.__class__.objects.normalize_email(self.email)
 
     @property
     def initials(self):
