@@ -110,36 +110,57 @@ class WorkspaceCreateForm(forms.Form):
         # repo is selected.
         self.repos_with_branches = repos_with_branches
 
-        # Construct the repo field.
-        repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
-        self.fields["repo"] = forms.ChoiceField(
-            label="Repo",
-            choices=repo_choices,
-        )
+        # Get selected repo and branch from POSTed form data, if available,
+        # so we can maintain that choice in the fields that we construct.
+        if self.data:
+            posted_repo = self.data.get("repo")
+            posted_branch = self.data.get("branch")
+        else:
+            posted_repo = None
+            posted_branch = None
 
         # Find the repo data dictionary matching the POSTed name, if any.
         if self.data and "repo" in self.data:
             try:
                 repo = next(
-                    (
-                        r
-                        for r in self.repos_with_branches
-                        if r["url"] == self.data["repo"]
-                    ),
+                    (r for r in self.repos_with_branches if r["url"] == posted_repo),
                 )
             except StopIteration:
                 raise forms.ValidationError(
                     "No matching repos found, please reload the page and try again"
                 )
         else:
-            repo = self.repos_with_branches[0]
+            repo = None
+
+        # Construct the repo field.
+        # Add a dummy invalid option to hint that the user needs to do
+        # something, and prevent auto-selecting the first repo by default if
+        # the user does not change the field.
+        dummy_repo_choice = (None, "Please select a repo...")
+
+        repo_choices = [dummy_repo_choice] + [
+            (r["url"], r["name"]) for r in self.repos_with_branches
+        ]
+        self.fields["repo"] = forms.ChoiceField(
+            label="Repo",
+            choices=repo_choices,
+            initial=repo["url"] if repo else None,
+        )
 
         # Construct the initial branch field, to be updated dynamically by
         # JavaScript each time a different repo is selected.
-        branch_choices = [(b, b) for b in repo["branches"]]
+        if repo:
+            branch_choices = [(b, b) for b in repo["branches"]]
+        else:
+            # On initial GET the dummy repo option will be selected, so there
+            # are no valid branches available. This prevents submitting the
+            # form without changing the repo, as the clean() validates that
+            # the selected repo's branch appears in self.repos_with_branches.
+            branch_choices = []
         self.fields["branch"] = forms.ChoiceField(
             label="Branch",
             choices=branch_choices,
+            initial=posted_branch,
         )
 
     def clean(self):
