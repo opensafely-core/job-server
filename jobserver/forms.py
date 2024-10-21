@@ -93,7 +93,11 @@ class WorkspaceArchiveToggleForm(forms.Form):
 
 class WorkspaceCreateForm(forms.Form):
     name = forms.SlugField(
-        help_text="Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run."
+        help_text=(
+            "Enter a descriptive name for the workspace, which will also "
+            "be the directory name for results after job execution. Valid "
+            "characters: letters, numbers, underscores, and hyphens."
+        )
     )
     purpose = forms.CharField(help_text="Describe the purpose of this workspace.")
     branch = forms.CharField()
