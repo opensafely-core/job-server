@@ -9,9 +9,14 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-    allow:
-      - dependency-type: "production"
+      interval: "daily"
+      time: "13:00"
+      timezone: "Europe/London"
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"
     reviewers:
       - "tomodwyer"
     open-pull-requests-limit: 20
