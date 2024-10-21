@@ -45,9 +45,7 @@ class UserManager(models.Manager):
 
 class User(AbstractBaseUser):
     """
-    A custom User model used throughout the codebase.
-
-    Using a custom Model allows us to add extra fields trivially, eg Roles.
+    A User of the site.
 
     Changing any fields in the User model may require the corresponding
     view, used by Grafana, to be regenerated after deployment. More
@@ -81,9 +79,9 @@ class User(AbstractBaseUser):
     )
     email = models.EmailField(blank=True, unique=True)
 
-    # fullname instead of full_name because social auth already provides that
-    # field name and life is too short to work out which class we should map
-    # fullname -> full_name in.
+    # 'fullname' instead of 'full_name' because social auth already uses
+    # 'fullname' and life is too short to work out which classes we should map
+    # 'fullname' -> 'full_name' in.
     # TODO: rename name and remove the name property once all users have filled
     # in their names
     fullname = models.TextField(default="")
@@ -96,12 +94,10 @@ class User(AbstractBaseUser):
     pat_token = models.TextField(null=True, unique=True)
     pat_expires_at = models.DateTimeField(null=True)
 
-    # single use token login
+    # Single use token login.
     login_token = models.TextField(null=True)
     login_token_expires_at = models.DateTimeField(null=True)
 
-    # normally this would be nullable but we are only creating users for
-    # Interactive users currently
     created_by = models.ForeignKey(
         "User",
         null=True,
@@ -119,6 +115,7 @@ class User(AbstractBaseUser):
 
     class Meta:
         constraints = [
+            # pat_* fields are null together, or not.
             models.CheckConstraint(
                 condition=(
                     Q(
@@ -134,13 +131,13 @@ class User(AbstractBaseUser):
             ),
         ]
         ordering = [
-            # Empty fullname last.
+            # Empty 'fullname' comes last.
             Case(
                 When(fullname="", then=1),
                 default=0,
                 output_field=models.IntegerField(),
             ),
-            # Then by fullname then username, case-insensitive.
+            # Then order by fullname then username, case-insensitive.
             Lower("fullname"),
             Lower("username"),
         ]
@@ -151,7 +148,7 @@ class User(AbstractBaseUser):
     @cached_property
     def all_roles(self):
         """
-        All roles, including those given via memberships, for the User
+        All roles, including those given via memberships, for the User.
 
         Typically we look up whether the user has permission or a role in the
         context of another object (eg a project).  However there are times when
@@ -180,7 +177,7 @@ class User(AbstractBaseUser):
 
     def get_all_permissions(self):
         """
-        Get all Permissions for the current User
+        Get all Permissions for the current User.
         """
 
         def flatten_perms(roles):
@@ -202,7 +199,7 @@ class User(AbstractBaseUser):
 
     def get_all_roles(self):
         """
-        Get all Roles for the current User
+        Get all Roles for the current User.
 
         Return all Roles for the User, grouping the local-Roles by the objects
         they are contextual to.
@@ -257,7 +254,7 @@ class User(AbstractBaseUser):
     @property
     def is_interactive_only(self):
         """
-        Does this user only have access the Interactive part of the platform
+        Does this user only have access the Interactive part of the platform?
 
         Because a user can have the InteractiveReporter role globally or via
         any project, along with other roles, we needed an easy way to identify
@@ -271,18 +268,18 @@ class User(AbstractBaseUser):
         return self.fullname or self.username
 
     def rotate_token(self):
-        # ticket to look at signing request
+        # Ticket to look at signing request.
         expires_at = timezone.now() + timedelta(days=90)
 
-        # store as datetime in case we want to compare with a datetime or
+        # Store as datetime in case we want to compare with a datetime or
         # increase resolution later.
         expires_at = expires_at.replace(hour=0, minute=0, second=0, microsecond=0)
 
-        # suffix the token with the expiry date so it's clearer to users of it
-        # when it will expire
+        # Suffix the token with the expiry date so it's clearer to users of it
+        # when it will expire.
         token = f"{secrets.token_hex(32)}-{expires_at.date().isoformat()}"
 
-        # we're going to check the token against ones passed to the service,
+        # We're going to check the token against ones passed to the service,
         # but we don't want to expose ourselves to timing attacks.  So we're
         # storing it in the db as a hased string using Django's password
         # hashing tools and then comparing (in User.is_valid_pat()) with
@@ -293,13 +290,13 @@ class User(AbstractBaseUser):
         self.pat_token = hashed_token
         self.save(update_fields=["pat_token", "pat_expires_at"])
 
-        # return the unhashed token so it can be passed to a consuming service
+        # Return the unhashed token so it can be passed to a consuming service.
         return token
 
     @cached_property
     def uses_social_auth(self):
         """
-        Cache whether this user logs in via GitHub (using social auth)
+        Cache whether this user logs in via GitHub (using social auth).
 
         We use this in a couple of places in our base header template, so to
         avoid extra queries on every page load we're caching it to the user
