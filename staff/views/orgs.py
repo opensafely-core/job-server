@@ -108,7 +108,7 @@ class OrgDetail(FormView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "github_orgs": sorted(self.object.github_orgs),
-            "members": self.object.members.order_by_name(),
+            "members": self.object.members.all(),
             "org": self.object,
             "projects": self.object.projects.order_by("number", Lower("name")),
             "redirects": self.object.redirects.order_by("-created_at"),
@@ -117,7 +117,7 @@ class OrgDetail(FormView):
     def get_form_kwargs(self):
         members = self.object.members.values_list("pk", flat=True)
         return super().get_form_kwargs() | {
-            "users": User.objects.exclude(pk__in=members).order_by_name(),
+            "users": User.objects.exclude(pk__in=members),
         }
 
     def get_initial(self):

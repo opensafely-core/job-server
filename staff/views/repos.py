@@ -109,9 +109,7 @@ class RepoDetail(View):
             # get the users who created jobs in this workspace or created it,
             # just in case the creator has not run any jobs.
             users = list(
-                User.objects.filter(job_requests__workspace=workspace)
-                .distinct()
-                .order_by_name()
+                User.objects.filter(job_requests__workspace=workspace).distinct()
             )
             if workspace.created_by not in users:
                 users = [workspace.created_by, *users]
