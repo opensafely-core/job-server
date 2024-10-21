@@ -86,7 +86,6 @@ class User(AbstractBaseUser):
     # in their names
     fullname = models.TextField(default="")
 
-    is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField("date joined", default=timezone.now)
 
     # PATs are generated for bot users.  They can only be generated via a shell

@@ -69,7 +69,6 @@ def create_user(*, creator, email, name, project):
         email=email,
         username=email,
         created_by=creator,
-        is_active=True,
     )
 
     OrgMembership.objects.bulk_create(
