@@ -83,10 +83,6 @@ class ProjectMembershipForm(RolesForm):
     pass
 
 
-class ResetPasswordForm(forms.Form):
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"autocomplete": "email"}))
-
-
 class WorkspaceArchiveToggleForm(forms.Form):
     is_archived = forms.BooleanField(required=False)
 
