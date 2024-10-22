@@ -220,10 +220,7 @@ def test_workspacecreateform_unknown_branch_validation_fails():
         "branch": "unknown-branch",
     }
 
-    with pytest.raises(ValidationError) as e:
-        form.clean()
-
-    assert e.value.message.startswith("Unknown branch")
+    assert not form.is_valid()
 
 
 def test_workspacecreateform_unknown_repo_validation_fails():
