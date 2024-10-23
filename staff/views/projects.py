@@ -80,7 +80,7 @@ class ProjectAddMember(FormView):
         members = self.project.members.values_list("pk", flat=True)
         return super().get_form_kwargs() | {
             "available_roles": roles_for(ProjectMembership),
-            "users": User.objects.exclude(pk__in=members).order_by_name(),
+            "users": User.objects.exclude(pk__in=members),
         }
 
     def get_initial(self):

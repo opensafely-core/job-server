@@ -5,7 +5,7 @@ from jobserver.authorization.roles import (
     OutputChecker,
     StaffAreaAdministrator,
 )
-from jobserver.models import get_or_create_user
+from jobserver.models import User
 
 
 class Command(BaseCommand):
@@ -34,17 +34,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         username = options["username"]
 
-        update_fields = []
-        if options["email"]:
-            update_fields.append("email")
-        if options["name"]:
-            update_fields.append("fullname")
-
-        user, created = get_or_create_user(
-            username,
-            email=options["email"] or f"{username}@example.com",
-            fullname=options["name"] or username,
-            update_fields=update_fields,
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                "email": options["email"] or f"{username}@example.com",
+                "fullname": options["name"] or username,
+            },
         )
         self.stdout.write(f"User {username} {'created' if created else 'updated'}")
 

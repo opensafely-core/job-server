@@ -11,7 +11,7 @@ from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models.user import User, get_or_create_user
+from jobserver.models.user import User
 
 from ....factories import (
     OrgFactory,
@@ -291,63 +291,34 @@ def test_user_valid_pat_with_invalid_token():
     assert not user.has_valid_pat("invalid")
 
 
-def test_get_or_create_user_not_exists():
-    user1, created = get_or_create_user("username", "email", "fullname")
-    assert created
-    assert User.objects.get(username="username") == user1
-    user2, created = get_or_create_user("username", "email", "fullname")
-    assert not created
-    assert User.objects.get(username="username") == user2
+def test_user_ordering():
+    # Last due to empty fullname.
+    user0 = UserFactory(fullname="", username="a")
+    # Case-insensitive on username.
+    user1 = UserFactory(fullname="", username="AA")
+    # fullname has precedence over usename.
+    user2 = UserFactory(fullname="alice", username="c")
+    # Case-insensitive on fullname
+    user3 = UserFactory(fullname="Charlie", username="e")
+    user4 = UserFactory(fullname="bob", username="d")
+    # fullname has precedence over username.
+    user5 = UserFactory(fullname="Dino", username=" ")
+    user6 = UserFactory(fullname="Alice", username="CC")
 
-
-@pytest.mark.parametrize(
-    "update_fields",
-    [
-        {"email": "updated@example.com"},
-        {"fullname": "updated"},
-        {
-            "email": "updated@example.com",
-            "fullname": "updated",
-        },
-    ],
-)
-def test_get_or_create_user_update_fields(update_fields):
-    user = UserFactory(
-        username="username", email="original@example.com", fullname="original"
-    )
-
-    kwargs = {
-        "username": "username",
-        "email": user.email,
-        "fullname": user.fullname,
-        "update_fields": list(update_fields),
-    }
-    kwargs.update(**update_fields)
-
-    expected_email = "updated" if "email" in update_fields else "original"
-    expected_fullname = "updated" if "fullname" in update_fields else "original"
-
-    user, created = get_or_create_user(**kwargs)
-    assert not created
-    assert user.email == expected_email + "@example.com"
-    assert user.fullname == expected_fullname
+    users = User.objects.all()
+    assert list(users) == [user2, user6, user4, user3, user5, user0, user1]
 
 
 def test_create_user():
-    """Test of the custom UserManager.create_user() method."""
-    username = "Ⅳan"  # Note unicode character.
-    email = "test@TeSt.TEST"  # Note uppercase in domain.
+    """Test the UserManager.create manager method."""
+    username = "Ⅳan"  # Note initial unicode character.
+    email = "tEsT@TeSt.tEST"  # Note uppercase characters.
     password = "hunter2"
-    user = User.objects.create_user(username=username, email=email, password=password)
-
-    # It's not completely clear that we need all of these behaviours from
-    # django.contrib.auth.models.UserManager for our Users. Ref #4627.
-    # https://github.com/opensafely-core/job-server/issues/4627
-    # But we should test them, as the function does them (for now?).
+    user = User.objects.create(username=username, email=email, password=password)
 
     # Username unicode gets normalized.
     assert user.username == "IVan"
-    # E-mail gets normalized by lower-casing the domain.
+    # E-mail gets normalized by lower-casing.
     assert user.email == "test@test.test"
     # Password is not stored in plaintext.
     assert user.password != password
