@@ -30,8 +30,6 @@ Job Server uses a testing pyramid, with the following layers from top to bottom:
 * Integration
 * Unit
 
-**At present, there are no end-to-end tests.**
-
 ### Unit Tests
 **Directory:** `tests/unit`
 
