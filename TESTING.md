@@ -24,15 +24,11 @@ Tests should be fast where possible.
 
 
 ## Testing Pyramid
-Job Server uses a three layer testing pyramid, with the following layers from top to bottom:
-* End-to-End
+
+Job Server uses a testing pyramid, with the following layers from top to bottom:
+
 * Integration
 * Unit
-
-Below we describe how we draw the lines between each of those layers.
-
-Much like the developer tooling at Bennett Institute for Applied Data Science we define these layers as an ideal guide that should be adhered by default, but in the knowledge that things can deviate if there is a good reason.
-
 
 ### Unit Tests
 **Directory:** `tests/unit`
@@ -59,14 +55,6 @@ These tests should use [`Client` instances](https://docs.djangoproject.com/en/3.
 Ideally these tests would avoid mocking.
 
 This lets us test views with all the surrounding parts turned: URL routing, middleware, etc.
-
-
-### End-to-End
-**Directory:** `tests/e2e`
-
-We don't currently have any end-to-end tests but with the upcoming addition of onboarding it's clear we need a way to test across multiple views.
-
-The expectation is that these tests will check user flows work as expected, eg "As a user who has not signed up before who has received an invite email I can…".  These tests would likely like Client instances.
 
 
 ## Tooling
