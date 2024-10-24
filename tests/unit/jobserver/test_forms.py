@@ -213,12 +213,12 @@ def test_workspacecreateform_unknown_branch_validation_fails():
             "branches": ["test-branch"],
         }
     ]
-    form = WorkspaceCreateForm(repos_with_branches)
-    form.cleaned_data = {
+    data = {
         "name": "test",
         "repo": "http://example.com/derp/test-repo",
         "branch": "unknown-branch",
     }
+    form = WorkspaceCreateForm(repos_with_branches, data)
 
     assert not form.is_valid()
 
