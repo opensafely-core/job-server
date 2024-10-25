@@ -188,8 +188,8 @@
         {% if first_job_ran_at < project.created_at %}
           {% #card_footer %}
             <div class="text-sm flex flex-col gap-y-2">
-              <p><strong>Why was the project created after code was first run?</strong></p>
-              <p>The concept of projects were added to this site after workspaces, so this workspace predates its project.</p>
+              <p><strong>Why is the <em>code first run</em> date before the <em>project created</em> date?</strong></p>
+              <p>In OpenSAFELY Jobs, code is run within a workspace. The workspaces feature was introduced before the projects feature, meaning that in some cases, workspaces were created before projects.</p>
             </div>
           {% /card_footer %}
         {% endif %}
