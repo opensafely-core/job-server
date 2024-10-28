@@ -218,9 +218,10 @@
           <p class="text-sm mb-2">
             The
             {% link text="first job to run against the git repository" href=first_job.get_absolute_url %}
-            for this workspace ran over 11 months ago.  As per our platform
-            policy, we ask that repositories are made public 12 months after
-            they are first executed against patient data.
+            for this workspace ran over 11 months ago. Per our
+            {% link text="platform policy" href="https://docs.opensafely.org/repositories/#when-you-need-to-make-your-code-public" %}
+            we ask that repositories are made public 12 months after they
+            are first executed against patient data.
           </p>
           <p class="text-sm">
             {% link text="Change repository visibility &rarr;" href=workspace.repo.get_sign_off_url %}

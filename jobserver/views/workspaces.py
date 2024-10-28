@@ -197,7 +197,7 @@ class WorkspaceDetail(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        # get the first job for this workspace's repo
+        # Get the first job for this workspace's repo.
         first_job = (
             Job.objects.filter(job_request__workspace__project=workspace.project)
             .annotate(run_at=Least("started_at", "created_at"))
@@ -205,19 +205,18 @@ class WorkspaceDetail(View):
             .first()
         )
 
-        # if the first job to run against this workspace's repo was more than
-        # 11 months ago then show a warning
+        # Warn if the first job run on this workspace's repo was over 11 months
+        # ago. Policy: Private research repos must be made public within
+        # twelve months of the first code execution. Documentation reference:
+        # https://docs.opensafely.org/repositories/#when-you-need-to-make-your-code-public
         eleven_months_ago = timezone.now() - timedelta(days=30 * 11)
-
         is_member = request.user in workspace.project.members.all()
-
         try:
             repo_is_private = self.get_github_api().get_repo_is_private(
                 workspace.repo.owner, workspace.repo.name
             )
         except (requests.ConnectionError, requests.HTTPError):
             repo_is_private = None
-
         show_publish_repo_warning = (
             is_member
             and first_job
@@ -238,7 +237,7 @@ class WorkspaceDetail(View):
         )
         has_backends = request.user.is_authenticated and request.user.backends.exists()
 
-        # should we show the admin section in the UI?
+        # Should we show the admin section in the UI?
         show_admin = can_archive_workspace or can_toggle_notifications
 
         honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)

@@ -26,12 +26,19 @@ class PrivateReposDashboard(View):
     @csp_exempt
     def get(self, request, *args, **kwargs):
         """
-        List private repos which are in need of converting to public
+        List private repos due for conversion to public.
+
+        Policy: Private research repos must be made public within twelve months
+        of the first code execution. The Information Governance team monitors
+        this dashboard to ensure compliance. Such repos nearing twelve months
+        are listed here. Documentation reference:
+
+        https://docs.opensafely.org/repositories/#when-you-need-to-make-your-code-public
 
         Repos should be:
-         * Private
-         * not have `non-research` topic
-         * first job was run > 11 months ago
+         * Private.
+         * Not have the `non-research` topic.
+         * First associated job was run > 11 months ago.
         """
         all_repos = list(self.get_github_api().get_repos_with_dates("opensafely"))
 
