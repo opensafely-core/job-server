@@ -29,9 +29,8 @@ class PrivateReposDashboard(View):
         List private repos due for conversion to public.
 
         Policy: Private research repos must be made public within twelve months
-        of the first code execution. The Information Governance team monitors
-        this dashboard to ensure compliance. Such repos nearing twelve months
-        are listed here. Documentation reference:
+        of the first code execution.  Such repos nearing twelve months are
+        listed here. Documentation reference:
 
         https://docs.opensafely.org/repositories/#when-you-need-to-make-your-code-public
 
