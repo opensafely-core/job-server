@@ -25,15 +25,13 @@ session.headers = {
 class GitHubError(Exception):
     """Base exception to target all other exceptions we define here"""
 
-    pass
-
 
 class RepoAlreadyExists(GitHubError):
-    pass
+    """An API call failed as the repo to be created already exists."""
 
 
 class RepoNotYetCreated(GitHubError):
-    pass
+    """An API call failed as the repo to be deleted already exists."""
 
 
 class GitHubAPI:
