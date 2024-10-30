@@ -1,16 +1,46 @@
 import pytest
+import requests.exceptions
 import stamina
 from environs import Env
-from requests.exceptions import HTTPError
+from requests.models import Response
 
-from jobserver.github import GitHubAPI, RepoAlreadyExists, RepoNotYetCreated
+from jobserver.github import (
+    ConnectionException,
+    GitHubAPI,
+    HTTPError,
+    RepoAlreadyExists,
+    RepoNotYetCreated,
+    Timeout,
+)
 from jobserver.models.common import new_ulid_str
 
-from ..fakes import FakeGitHubAPI
-from .utils import compare
+from ..fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
+from .utils import assert_deep_type_equality, assert_public_method_signature_equality
 
 
 pytestmark = [pytest.mark.verification, pytest.mark.disable_db]
+
+
+def test_fake_public_method_signatures():
+    """Test that `FakeGitHubAPI` has the same public methods with the same
+    signatures as the real one."""
+    assert_public_method_signature_equality(
+        GitHubAPI,
+        FakeGitHubAPI,
+        # delete_repo is only used in testing.
+        ignored_methods=["delete_repo"],
+    )
+
+
+def test_fake_with_errors_public_method_signatures():
+    """Test that the fake `WithErrors` API has the same public methods with the
+    same signatures as the real one."""
+    assert_public_method_signature_equality(
+        GitHubAPI,
+        FakeGitHubAPIWithErrors,
+        # delete_repo is only used in testing.
+        ignored_methods=["delete_repo"],
+    )
 
 
 @pytest.fixture
@@ -60,7 +90,7 @@ def test_create_issue(enable_network, github_api):
     real = github_api.create_issue(*args)
     fake = FakeGitHubAPI().create_issue(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real is not None
 
@@ -72,7 +102,7 @@ def test_get_issue_number(enable_network, github_api):
 
     real = github_api.get_issue_number_from_title(*args)
     fake = FakeGitHubAPI().get_issue_number_from_title(*args)
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real is not None
 
@@ -110,7 +140,7 @@ def test_create_issue_comment(enable_network, github_api):
     real = github_api.create_issue_comment(*args)
     fake = FakeGitHubAPI().create_issue_comment(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real is not None
 
@@ -133,7 +163,7 @@ def test_close_issue(enable_network, github_api, comment):
     real = github_api.close_issue(*args)
     fake = FakeGitHubAPI().close_issue(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real is not None
 
@@ -161,8 +191,7 @@ def test_create_repo(enable_network, github_api):
         real = github_api.create_repo(*args)
         fake = FakeGitHubAPI().create_repo(*args)
 
-        # does the fake work as expected?
-        compare(fake, real)
+        assert_deep_type_equality(fake, real)
 
         assert real is not None
 
@@ -183,7 +212,7 @@ def test_get_branch(enable_network, github_api):
     real = github_api.get_branch(*args)
     fake = FakeGitHubAPI().get_branch(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real is not None
 
@@ -198,7 +227,7 @@ def test_get_branches(enable_network, github_api):
     real = github_api.get_branches(*args)
     fake = FakeGitHubAPI().get_branches(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real is not None
 
@@ -209,7 +238,7 @@ def test_get_branches_with_unknown_org(enable_network, github_api):
     real = github_api.get_branches(*args)
     fake = FakeGitHubAPI().get_branches(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real == []
 
@@ -220,7 +249,7 @@ def test_get_branches_with_unknown_repo(enable_network, github_api):
     real = github_api.get_branches(*args)
     fake = FakeGitHubAPI().get_branches(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real == []
 
@@ -234,7 +263,7 @@ def test_get_branch_sha(enable_network, github_api):
     assert real == "71650d527c9288f90aa01d089f5a9884b683f7ed"
 
     # get_branch_sha is a wrapper for get_branch to extract just the SHA as a
-    # string so no need to throw compare() at it
+    # string so no need to throw assert_deep_type_equality() at it
     assert isinstance(fake, str)
 
 
@@ -265,7 +294,7 @@ def test_get_default_file(enable_network, github_api):
     real = github_api.get_file(*args)
     fake = FakeGitHubAPI().get_file(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
 
 def test_get_file(enable_network, github_api):
@@ -274,7 +303,7 @@ def test_get_file(enable_network, github_api):
     real = github_api.get_file(*args)
     fake = FakeGitHubAPI().get_file(*args, filepath="README.md")
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
 
 def test_get_file_missing_project_yml(enable_network, github_api):
@@ -293,7 +322,7 @@ def test_get_repo(enable_network, github_api):
     real = github_api.get_repo(*args)
     fake = FakeGitHubAPI().get_repo(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
 
 def test_get_repo_is_private(enable_network, github_api):
@@ -317,7 +346,7 @@ def test_get_repos_with_branches(enable_network, github_api):
     real = list(github_api.get_repos_with_branches(*args))
     fake = FakeGitHubAPI().get_repos_with_branches(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
 
 def test_get_repos_with_dates(enable_network, github_api):
@@ -326,7 +355,7 @@ def test_get_repos_with_dates(enable_network, github_api):
     real = list(github_api.get_repos_with_dates(*args))
     fake = FakeGitHubAPI().get_repos_with_dates(*args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
 
 def test_get_repos_with_status_and_url(enable_network, github_api):
@@ -335,7 +364,7 @@ def test_get_repos_with_status_and_url(enable_network, github_api):
     real = list(github_api.get_repos_with_status_and_url(args))
     fake = FakeGitHubAPI().get_repos_with_status_and_url(args)
 
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
 
 def test_graphql_error_handling(enable_network, github_api):
@@ -367,8 +396,7 @@ def test_set_repo_topics(enable_network, github_api, clear_topics):
     real = github_api.set_repo_topics(*args)
     fake = FakeGitHubAPI().set_repo_topics(*args)
 
-    # does the fake work as expected?
-    compare(fake, real)
+    assert_deep_type_equality(fake, real)
 
     assert real is not None
 
@@ -388,3 +416,36 @@ def test_unauthenticated_request(enable_network):
             assert True
         else:
             raise
+
+
+def test_timeout(enable_network, github_api, monkeypatch):
+    def mock_request(*args, **kwargs):
+        raise requests.exceptions.Timeout()
+
+    monkeypatch.setattr(github_api.session, "request", mock_request)
+
+    with pytest.raises(Timeout):
+        github_api.get_repo("opensafely-testing", "github-api-testing")
+
+
+def test_connection_error(enable_network, github_api, monkeypatch):
+    def mock_request(*args, **kwargs):
+        raise requests.exceptions.ConnectionError()
+
+    monkeypatch.setattr(github_api.session, "request", mock_request)
+
+    with pytest.raises(ConnectionException):
+        github_api.get_repo("opensafely-testing", "github-api-testing")
+
+
+def test_http_error(enable_network, github_api, monkeypatch):
+    def mock_request(*args, **kwargs):
+        mock_response = Response()
+        mock_response.status_code = 403
+        mock_response._content = b"Not allowed"
+        return mock_response
+
+    monkeypatch.setattr(github_api.session, "request", mock_request)
+
+    with pytest.raises(HTTPError):
+        github_api.get_repo("opensafely-testing", "github-api-testing")

@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import requests
 from csp.decorators import csp_exempt
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -27,7 +26,7 @@ from ..forms import (
     WorkspaceEditForm,
     WorkspaceNotificationsToggleForm,
 )
-from ..github import _get_github_api
+from ..github import GitHubError, _get_github_api
 from ..models import (
     Backend,
     Job,
@@ -134,7 +133,7 @@ class WorkspaceCreate(CreateView):
             self.repos_with_branches = list(
                 self.get_github_api().get_repos_with_branches(gh_org)
             )
-        except requests.HTTPError:
+        except GitHubError:
             # gracefully handle not being able to access GitHub's API
             msg = (
                 "An error occurred while retrieving the list of repositories from GitHub, "
@@ -215,7 +214,7 @@ class WorkspaceDetail(View):
             repo_is_private = self.get_github_api().get_repo_is_private(
                 workspace.repo.owner, workspace.repo.name
             )
-        except (requests.ConnectionError, requests.HTTPError):
+        except GitHubError:
             repo_is_private = None
         show_publish_repo_warning = (
             is_member

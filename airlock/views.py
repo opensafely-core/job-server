@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from requests.exceptions import HTTPError
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.response import Response
 
 from jobserver.api.authentication import get_backend_from_token
-from jobserver.github import _get_github_api
+from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import User, Workspace
 
 from .config import ORG_OUTPUT_CHECKING_REPOS
@@ -122,7 +121,7 @@ def create_issue(airlock_event: AirlockEvent, github_api=None):
             airlock_event.repo,
             github_api,
         )
-    except HTTPError as e:
+    except GitHubError as e:
         raise NotificationError(f"Error creating GitHub issue: {e}")
 
 
@@ -138,7 +137,7 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
             airlock_event.repo,
             github_api,
         )
-    except HTTPError as e:
+    except GitHubError as e:
         raise NotificationError(f"Error closing GitHub issue: {e}")
 
 
@@ -155,7 +154,7 @@ def update_issue(airlock_event: AirlockEvent, github_api=None, notify_slack=Fals
             github_api,
             notify_slack=notify_slack,
         )
-    except HTTPError as e:
+    except GitHubError as e:
         raise NotificationError(f"Error creating GitHub issue comment: {e}")
 
 

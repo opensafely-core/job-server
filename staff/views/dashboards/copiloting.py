@@ -1,6 +1,5 @@
 import itertools
 
-import requests
 import structlog
 from csp.decorators import csp_exempt
 from django.conf import settings
@@ -12,7 +11,7 @@ from django.views.generic import TemplateView
 
 from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
-from jobserver.github import _get_github_api
+from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import Project, ReleaseFile, Repo
 
 
@@ -45,10 +44,10 @@ def build_repos_by_project(projects, get_github_api=_get_github_api):
 
     try:
         github_repos = list(get_github_api().get_repos_with_status_and_url(repo_orgs))
-    except requests.HTTPError:
-        # if the GitHub API is down log some details but don't block the page
+    except GitHubError as exc:
         logger.exception(
-            "Failed to get repo status and URL from GitHub API", repo_orgs=repo_orgs
+            f"Failed to get repo status and URL from GitHub API due to: {exc}",
+            repo_orgs=repo_orgs,
         )
         return {}
 

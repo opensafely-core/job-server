@@ -1,13 +1,13 @@
 from urllib.parse import quote
 
 import pytest
-import requests
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
 
 from jobserver.views.repos import RepoHandler, SignOffRepo
+from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 
 from ....factories import (
     OrgFactory,
@@ -16,7 +16,6 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from ....fakes import FakeGitHubAPI
 
 
 def test_repohandler_with_broken_repo_url(rf):
@@ -160,31 +159,20 @@ def test_signoffrepo_get_success_with_broken_github(rf, project_membership):
 
     project_membership(project=project, user=user)
 
-    workspaces = WorkspaceFactory.create_batch(5, project=project, repo=repo)
+    WorkspaceFactory.create_batch(5, project=project, repo=repo)
     WorkspaceFactory.create_batch(5, project=project)
 
     request = rf.get("/")
     request.user = user
 
-    class BrokenGitHubAPI:
-        def get_branch(self, owner, repo, branch):
-            return {}
-
-        def get_branches(self, owner, repo):
-            return []
-
-        def get_repo_is_private(self, owner, repo):
-            raise requests.HTTPError()
-
-    response = SignOffRepo.as_view(get_github_api=BrokenGitHubAPI)(
+    response = SignOffRepo.as_view(get_github_api=FakeGitHubAPIWithErrors)(
         request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 200
 
-    expected = {w["name"] for w in response.context_data["workspaces"]}
-    assert {w.name for w in workspaces} == expected
-
+    assert response.context_data["workspaces"] == []
+    assert response.context_data["branches"] == []
     assert response.context_data["repo"]["is_private"] is None
     assert response.context_data["repo"]["name"] == "name"
     assert response.context_data["repo"]["status"] == "public"

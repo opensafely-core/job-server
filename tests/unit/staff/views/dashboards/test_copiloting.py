@@ -1,7 +1,6 @@
 from datetime import UTC, datetime
 
 import pytest
-import requests
 from django.core.exceptions import PermissionDenied
 
 from jobserver.models import Project
@@ -10,6 +9,7 @@ from staff.views.dashboards.copiloting import (
     MissingGitHubReposError,
     build_repos_by_project,
 )
+from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 
 from .....factories import (
     JobFactory,
@@ -21,7 +21,6 @@ from .....factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from .....fakes import FakeGitHubAPI
 
 
 def test_build_repos_by_project_missing_github_repos():
@@ -42,12 +41,9 @@ def test_build_repos_by_project_with_broken_github_api():
 
     projects = Project.objects.all()
 
-    class BrokenGitHubAPI:
-        def get_repos_with_status_and_url(self, orgs):
-            # simulate the GitHub API being down
-            raise requests.HTTPError()
-
-    assert build_repos_by_project(projects, get_github_api=BrokenGitHubAPI) == {}
+    assert (
+        build_repos_by_project(projects, get_github_api=FakeGitHubAPIWithErrors) == {}
+    )
 
 
 def test_copiloting_success(rf, staff_area_administrator):
@@ -101,12 +97,7 @@ def test_copiloting_with_broken_github_api(rf, staff_area_administrator):
     request = rf.get("/")
     request.user = staff_area_administrator
 
-    class BrokenGitHubAPI:
-        def get_repos_with_status_and_url(self, orgs):
-            # simulate the GitHub API being down
-            raise requests.HTTPError()
-
-    response = Copiloting.as_view(get_github_api=BrokenGitHubAPI)(request)
+    response = Copiloting.as_view(get_github_api=FakeGitHubAPIWithErrors)(request)
 
     assert response.status_code == 200
 

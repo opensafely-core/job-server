@@ -21,17 +21,49 @@ session.headers = {
     "User-Agent": "OpenSAFELY Jobs",
 }
 
+# Clients should catch GitHubError to handle common, often transient, connection
+# issues gracefully. Some HTTPError status codes indicate specific API errors
+# related to remote state (e.g., attempting to create an object that already
+# exists). These cases should raise specific HTTPError exceptions from this
+# module, allowing clients to handle such errors without relying on internal
+# implementation details.
+
 
 class GitHubError(Exception):
-    """Base exception to target all other exceptions we define here"""
+    """Base exception for this module. A problem contacting or using the GitHub
+    API."""
 
 
-class RepoAlreadyExists(GitHubError):
-    """An API call failed as the repo to be created already exists."""
+class Timeout(GitHubError):
+    """A request to the GitHub API timed out."""
 
 
-class RepoNotYetCreated(GitHubError):
-    """An API call failed as the repo to be deleted already exists."""
+class ConnectionException(GitHubError):
+    """A connection error occurred while contacting the GitHub API."""
+
+    # ConnectionError is a Python default exception class, so let's avoid using
+    # that name. Otherwise we might have mirrored the name of
+    # requests.exceptions.ConnectionError.
+
+
+class HTTPError(GitHubError):
+    """An HTTP request with an error status code was returned by the GitHub
+    API."""
+
+    # Attach request and response because some unit tests inspect them."""
+
+    def __init__(self, request, response):
+        self.request = request
+        self.response = response
+        super().__init__(f"<HTTPError {response.status_code}: {response.reason}>")
+
+
+class RepoAlreadyExists(HTTPError):
+    """Tried to create a repo that already existed."""
+
+
+class RepoNotYetCreated(HTTPError):
+    """Tried to delete a repo that did not already exist."""
 
 
 class GitHubAPI:
@@ -51,7 +83,7 @@ class GitHubAPI:
 
     def __init__(self, _session=session, token=None):
         """
-        Initialise the wrapper with a session and maybe token
+        Initialise the wrapper with a session and maybe token.
 
         We pass in the session here so that tests can pass in a fake object to
         test internals.
@@ -73,31 +105,39 @@ class GitHubAPI:
 
     def _request(self, method, *args, **kwargs):
         """
-        Thin wrapper of requests.Session._request()
+        Make a request to the remote GitHub API.
 
-        This wrapper exists solely to inject the Authorization header if a
-        token has been set on the current instance and that headers hasn't
-        already been set in a given requests headers.
+        A wrapper for `requests.Session.request` that injects an
+        `Authorization` header if a token is set on the API instance and not
+        already included in the request headers.
 
-        This solves a tension between using an application-level session object
-        and wanting GitHubAPI instance-level authentication.  We want to
-        support the use of different tokens for typical running (eg in prod),
-        verification tests (eg in CI), and the ability to query the API without
-        a token (less likely but can be useful) so we can't just set the header
-        on the session when it's defined at the module level.  However if we
-        set it on the session then it persists beyond the life time of a given
-        GitHubAPI instance.
+        This design allows for instance-level authentication with different
+        tokens (e.g., for production, CI verification tests, or unauthenticated
+        queries) without setting the header globally on the session.
+
+        Raises locally-defined Exceptions for common connection errors.
         """
         headers = kwargs.pop("headers", {})
 
         if self.token and "Authorization" not in headers:
             headers = headers | {"Authorization": f"bearer {self.token}"}
 
-        return self.session.request(method, *args, headers=headers, **kwargs)
+        try:
+            return self.session.request(method, *args, headers=headers, **kwargs)
+        except requests.Timeout as exc:
+            raise Timeout(exc)
+        except requests.ConnectionError as exc:
+            raise ConnectionException(exc)
+
+    def _raise_for_status(self, request):
+        try:
+            request.raise_for_status()
+        except requests.HTTPError as exc:
+            raise HTTPError(exc.request, exc.response)
 
     def _get_query_page(self, *, query, session, cursor, **kwargs):
         """
-        Get a page of the given query
+        Get a page of the given query.
 
         This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
         API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
@@ -116,7 +156,7 @@ class GitHubAPI:
             print(r.headers)
             print(r.content)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
         results = r.json()
 
         # In some cases graphql will return a 200 response when there are errors.
@@ -133,7 +173,7 @@ class GitHubAPI:
 
     def _iter_query_results(self, query, **kwargs):
         """
-        Get results from a GraphQL query
+        Get results from a GraphQL query.
 
         Given a GraphQL query, return all results across one or more pages as a
         single generator.  We currently assume all results live under
@@ -158,7 +198,7 @@ class GitHubAPI:
             if not data["pageInfo"]["hasNextPage"]:
                 break
 
-            # update the cursor we pass into the GraphQL query
+            # Update the cursor we pass into the GraphQL query.
             cursor = data["pageInfo"]["endCursor"]  # pragma: no cover
 
     def _url(self, path_segments, query_args=None):
@@ -192,7 +232,7 @@ class GitHubAPI:
         }
         r = self._put(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return
 
@@ -225,7 +265,7 @@ class GitHubAPI:
         }
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -262,7 +302,7 @@ class GitHubAPI:
         }
         r = self._get(url, headers=headers, params=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         results = r.json()
         count = results["total_count"]
@@ -307,7 +347,7 @@ class GitHubAPI:
         }
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -320,7 +360,7 @@ class GitHubAPI:
         url = self._url(path_segments)
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
     def close_issue(self, org, repo, title_text, comment=None, latest=True):
         if settings.DEBUG:  # pragma: no cover
@@ -354,7 +394,7 @@ class GitHubAPI:
         }
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         if comment is not None:
             self.create_issue_comment(
@@ -379,11 +419,10 @@ class GitHubAPI:
             "Accept": "application/vnd.github.v3+json",
         }
         r = self._post(url, headers=headers, json=payload)
+        if r.status_code == 422:
+            raise RepoAlreadyExists()
 
-        try:
-            r.raise_for_status()
-        except requests.HTTPError as e:
-            raise RepoAlreadyExists from e
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -415,15 +454,15 @@ class GitHubAPI:
             print(r.content)
 
         if r.status_code == 403:
-            # it's possible for us to create and then attempt to delete a repo
+            # It's possible for us to create and then attempt to delete a repo
             # faster than GitHub can create it on disk, so lets wait and retry
-            # if that's happened
-            # Note: 403 isn't just used for this state
+            # if that's happened.
+            # Note: 403 isn't just used for this state.
             msg = "Repository cannot be deleted until it is done being created on disk."
             if msg in r.json().get("message", ""):
                 raise RepoNotYetCreated()
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
     def get_branch(self, org, repo, branch):
         path_segments = [
@@ -443,7 +482,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -464,7 +503,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return []
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -484,7 +523,7 @@ class GitHubAPI:
         }
 
         r = self._get(url, headers=headers)
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()["object"]["sha"]
 
@@ -507,7 +546,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.text
 
@@ -527,7 +566,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -587,7 +626,7 @@ class GitHubAPI:
                 topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
 
             if "non-research" in topics:
-                continue  # ignore non-research repos
+                continue  # Ignore non-research repos.
 
             yield {
                 "name": repo["name"],
@@ -682,7 +721,7 @@ class GitHubAPI:
         }
         r = self._put(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
