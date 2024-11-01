@@ -7,10 +7,21 @@ from jobserver.github import GitHubAPI, RepoAlreadyExists, RepoNotYetCreated
 from jobserver.models.common import new_ulid_str
 
 from ..fakes import FakeGitHubAPI
-from .utils import assert_deep_type_equality
+from .utils import assert_deep_type_equality, assert_public_method_signature_equality
 
 
 pytestmark = [pytest.mark.verification, pytest.mark.disable_db]
+
+
+def test_fake_public_method_signatures():
+    """Test that `FakeGitHubAPI` has the same public methods with the same
+    signatures as the real one."""
+    assert_public_method_signature_equality(
+        GitHubAPI,
+        FakeGitHubAPI,
+        # delete_repo is only used in testing.
+        ignored_methods=["delete_repo"],
+    )
 
 
 @pytest.fixture
