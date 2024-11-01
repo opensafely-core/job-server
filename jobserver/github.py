@@ -21,17 +21,42 @@ session.headers = {
     "User-Agent": "OpenSAFELY Jobs",
 }
 
+# Clients should catch GitHubError to handle common, often transient, connection
+# issues gracefully. Some HTTPError status codes indicate specific API errors
+# related to remote state (e.g., attempting to create an object that already
+# exists). These cases should raise specific HTTPError exceptions from this
+# module, allowing clients to handle such errors without relying on internal
+# implementation details.
+
 
 class GitHubError(Exception):
-    """Base exception to target all other exceptions we define here"""
+    """Base exception for this module. A problem contacting or using the GitHub
+    API."""
 
 
-class RepoAlreadyExists(GitHubError):
-    """An API call failed as the repo to be created already exists."""
+class Timeout(GitHubError):
+    """A request to the GitHub API timed out."""
 
 
-class RepoNotYetCreated(GitHubError):
-    """An API call failed as the repo to be deleted already exists."""
+class ConnectionException(GitHubError):
+    """A connection error occurred while contacting the GitHub API."""
+
+    # ConnectionError is a Python default exception class, so let's avoid using
+    # that name. Otherwise we might have mirrored the name of
+    # requests.exceptions.ConnectionError.
+
+
+class HTTPError(GitHubError):
+    """An HTTP request with an error status code was returned by the GitHub
+    API."""
+
+
+class RepoAlreadyExists(HTTPError):
+    """Tried to create a repo that already existed."""
+
+
+class RepoNotYetCreated(HTTPError):
+    """Tried to delete a repo that did not already exist."""
 
 
 class GitHubAPI:
