@@ -50,14 +50,6 @@ class HTTPError(GitHubError):
     """An HTTP request with an error status code was returned by the GitHub
     API."""
 
-    # Attach request and response because some unit tests inspect them."""
-
-    def __init__(self, request, response):
-        self.request = request
-        self.response = response
-        super().__init__(f"<HTTPError {response.status_code}: {response.reason}>")
-
-
 class RepoAlreadyExists(HTTPError):
     """Tried to create a repo that already existed."""
 
@@ -133,7 +125,7 @@ class GitHubAPI:
         try:
             request.raise_for_status()
         except requests.HTTPError as exc:
-            raise HTTPError(exc.request, exc.response)
+            raise HTTPError(exc)
 
     def _get_query_page(self, *, query, session, cursor, **kwargs):
         """
