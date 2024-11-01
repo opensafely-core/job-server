@@ -76,7 +76,7 @@ class GitHubAPI:
 
     def __init__(self, _session=session, token=None):
         """
-        Initialise the wrapper with a session and maybe token
+        Initialise the wrapper with a session and maybe token.
 
         We pass in the session here so that tests can pass in a fake object to
         test internals.
@@ -98,20 +98,15 @@ class GitHubAPI:
 
     def _request(self, method, *args, **kwargs):
         """
-        Thin wrapper of requests.Session._request()
+        Make a request to the remote GitHub API.
 
-        This wrapper exists solely to inject the Authorization header if a
-        token has been set on the current instance and that headers hasn't
-        already been set in a given requests headers.
+        A wrapper for `requests.Session.request` that injects an
+        `Authorization` header if a token is set on the API instance and not
+        already included in the request headers.
 
-        This solves a tension between using an application-level session object
-        and wanting GitHubAPI instance-level authentication.  We want to
-        support the use of different tokens for typical running (eg in prod),
-        verification tests (eg in CI), and the ability to query the API without
-        a token (less likely but can be useful) so we can't just set the header
-        on the session when it's defined at the module level.  However if we
-        set it on the session then it persists beyond the life time of a given
-        GitHubAPI instance.
+        This design allows for instance-level authentication with different
+        tokens (e.g., for production, CI verification tests, or unauthenticated
+        queries) without setting the header globally on the session.
         """
         headers = kwargs.pop("headers", {})
 
@@ -122,7 +117,7 @@ class GitHubAPI:
 
     def _get_query_page(self, *, query, session, cursor, **kwargs):
         """
-        Get a page of the given query
+        Get a page of the given query.
 
         This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
         API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
@@ -158,7 +153,7 @@ class GitHubAPI:
 
     def _iter_query_results(self, query, **kwargs):
         """
-        Get results from a GraphQL query
+        Get results from a GraphQL query.
 
         Given a GraphQL query, return all results across one or more pages as a
         single generator.  We currently assume all results live under
@@ -183,7 +178,7 @@ class GitHubAPI:
             if not data["pageInfo"]["hasNextPage"]:
                 break
 
-            # update the cursor we pass into the GraphQL query
+            # Update the cursor we pass into the GraphQL query.
             cursor = data["pageInfo"]["endCursor"]  # pragma: no cover
 
     def _url(self, path_segments, query_args=None):
@@ -440,10 +435,10 @@ class GitHubAPI:
             print(r.content)
 
         if r.status_code == 403:
-            # it's possible for us to create and then attempt to delete a repo
+            # It's possible for us to create and then attempt to delete a repo
             # faster than GitHub can create it on disk, so lets wait and retry
-            # if that's happened
-            # Note: 403 isn't just used for this state
+            # if that's happened.
+            # Note: 403 isn't just used for this state.
             msg = "Repository cannot be deleted until it is done being created on disk."
             if msg in r.json().get("message", ""):
                 raise RepoNotYetCreated()
@@ -612,7 +607,7 @@ class GitHubAPI:
                 topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
 
             if "non-research" in topics:
-                continue  # ignore non-research repos
+                continue  # Ignore non-research repos.
 
             yield {
                 "name": repo["name"],
