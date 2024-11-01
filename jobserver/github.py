@@ -50,6 +50,7 @@ class HTTPError(GitHubError):
     """An HTTP request with an error status code was returned by the GitHub
     API."""
 
+
 class RepoAlreadyExists(HTTPError):
     """Tried to create a repo that already existed."""
 
