@@ -1,9 +1,17 @@
 import pytest
+import requests.exceptions
 import stamina
 from environs import Env
-from requests.exceptions import HTTPError
+from requests.models import Response
 
-from jobserver.github import GitHubAPI, RepoAlreadyExists, RepoNotYetCreated
+from jobserver.github import (
+    ConnectionException,
+    GitHubAPI,
+    HTTPError,
+    RepoAlreadyExists,
+    RepoNotYetCreated,
+    Timeout,
+)
 from jobserver.models.common import new_ulid_str
 
 from ..fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
@@ -408,3 +416,47 @@ def test_unauthenticated_request(enable_network):
             assert True
         else:
             raise
+
+
+# We could test every public function for the `Exception` that are consistently
+# transformed into `GitHubError`. But this is costly as we hit the real API.
+# Instead let's just test them on one of the simple ones.
+
+
+def test_timeout(enable_network, github_api, monkeypatch):
+    """Test mocked Timeout exception is transformed."""
+
+    def mock_request(*args, **kwargs):
+        raise requests.exceptions.Timeout()
+
+    monkeypatch.setattr(github_api.session, "request", mock_request)
+
+    with pytest.raises(Timeout):
+        github_api.get_repo("opensafely-testing", "github-api-testing")
+
+
+def test_connection_error(enable_network, github_api, monkeypatch):
+    """Test mocked connection exception is transformed."""
+
+    def mock_request(*args, **kwargs):
+        raise requests.exceptions.ConnectionError()
+
+    monkeypatch.setattr(github_api.session, "request", mock_request)
+
+    with pytest.raises(ConnectionException):
+        github_api.get_repo("opensafely-testing", "github-api-testing")
+
+
+def test_http_error(enable_network, github_api, monkeypatch):
+    """Test mocked response with error status_code raises Exception."""
+
+    def mock_request(*args, **kwargs):
+        mock_response = Response()
+        mock_response.status_code = 403
+        mock_response._content = b"Not allowed"
+        return mock_response
+
+    monkeypatch.setattr(github_api.session, "request", mock_request)
+
+    with pytest.raises(HTTPError):
+        github_api.get_repo("opensafely-testing", "github-api-testing")

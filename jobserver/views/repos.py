@@ -1,7 +1,6 @@
 import itertools
 from urllib.parse import quote, unquote
 
-import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
@@ -16,7 +15,7 @@ from ..emails import (
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
 )
-from ..github import _get_github_api
+from ..github import GitHubError, _get_github_api
 from ..models import Org, Project, ProjectMembership, Repo
 from ..slacks import notify_copilots_of_repo_sign_off
 
@@ -164,7 +163,7 @@ class SignOffRepo(TemplateView):
 
         try:
             is_private = github_api.get_repo_is_private(self.repo.owner, self.repo.name)
-        except requests.HTTPError:
+        except GitHubError:
             is_private = None
 
         repo = {
@@ -177,19 +176,27 @@ class SignOffRepo(TemplateView):
             "url": self.repo.url,
         }
 
-        workspaces = [build_workspace(w, github_api) for w in self.workspaces]
+        try:
+            workspaces = [build_workspace(w, github_api) for w in self.workspaces]
+        except GitHubError:
+            workspaces = []
 
         # build up a list of branches without a workspace
-        branches = [
-            b["name"] for b in github_api.get_branches(self.repo.owner, self.repo.name)
-        ]
-        workspace_branches = [w["branch"] for w in workspaces]
-        branches = [b for b in branches if b not in workspace_branches]
+
+        try:
+            branches = [
+                b["name"]
+                for b in github_api.get_branches(self.repo.owner, self.repo.name)
+            ]
+            workspace_branches = [w["branch"] for w in workspaces]
+            branches = [b for b in branches if b not in workspace_branches]
+        except GitHubError:
+            branches = []
 
         workspaces_signed_off = not self.workspaces.filter(signed_off_at=None).exists()
 
         # TODO: when we have dealt with all the cross-project repos and are
-        # enforcing repos can't be used acrosss projects this check can be
+        # enforcing repos can't be used across projects this check can be
         # skipped.
         projects = Project.objects.filter(workspaces__repo=self.repo).distinct()
         if projects.count() == 1:

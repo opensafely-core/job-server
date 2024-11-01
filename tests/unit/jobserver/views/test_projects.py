@@ -1,5 +1,4 @@
 import pytest
-import requests
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -14,6 +13,8 @@ from jobserver.views.projects import (
     ProjectEventLog,
     ProjectReportList,
 )
+from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
+from tests.utils import minutes_ago
 
 from ....factories import (
     JobFactory,
@@ -27,8 +28,6 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from ....fakes import FakeGitHubAPI
-from ....utils import minutes_ago
 
 
 @pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
@@ -173,7 +172,7 @@ def test_projectdetail_with_multiple_releases(rf, freezer):
     assert snapshot4 not in snapshots
 
 
-def test_projectdetail_with_no_github(rf):
+def test_projectdetail_with_github_error(rf):
     project = ProjectFactory(org=OrgFactory())
     WorkspaceFactory(
         project=project, repo=RepoFactory(url="https://github.com/owner/repo")
@@ -183,11 +182,7 @@ def test_projectdetail_with_no_github(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    class BrokenGitHubAPI:
-        def get_repo_is_private(self, *args):
-            raise requests.HTTPError
-
-    response = ProjectDetail.as_view(get_github_api=BrokenGitHubAPI)(
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPIWithErrors)(
         request, project_slug=project.slug
     )
 

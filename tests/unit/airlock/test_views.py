@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 import pytest
-from requests.exceptions import HTTPError
 
 from airlock.views import AirlockEvent, EventType, airlock_event_view
 from tests.factories import (
@@ -11,18 +10,7 @@ from tests.factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from tests.fakes import FakeGitHubAPI
-
-
-class FakeGithubApiWithError:
-    def create_issue(*args, **kwargs):
-        raise HTTPError("An error occurred")
-
-    def create_issue_comment(*args, **kwargs):
-        raise HTTPError("An error occurred")
-
-    def close_issue(*args, **kwargs):
-        raise HTTPError("An error occurred")
+from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 
 
 @pytest.mark.parametrize(
@@ -205,7 +193,7 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
         ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'"),
     ],
 )
-@patch("airlock.views._get_github_api", FakeGithubApiWithError)
+@patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
 def test_api_airlock_event_error(api_rf, event_type, updates, error):
     author = UserFactory()
     user = UserFactory()

@@ -107,13 +107,26 @@ class GitHubAPI:
         This design allows for instance-level authentication with different
         tokens (e.g., for production, CI verification tests, or unauthenticated
         queries) without setting the header globally on the session.
+
+        Raises locally-defined Exceptions for common connection errors.
         """
         headers = kwargs.pop("headers", {})
 
         if self.token and "Authorization" not in headers:
             headers = headers | {"Authorization": f"bearer {self.token}"}
 
-        return self.session.request(method, *args, headers=headers, **kwargs)
+        try:
+            return self.session.request(method, *args, headers=headers, **kwargs)
+        except requests.Timeout as exc:
+            raise Timeout(exc)
+        except requests.ConnectionError as exc:
+            raise ConnectionException(exc)
+
+    def _raise_for_status(self, request):
+        try:
+            request.raise_for_status()
+        except requests.HTTPError as exc:
+            raise HTTPError(exc)
 
     def _get_query_page(self, *, query, session, cursor, **kwargs):
         """
@@ -136,7 +149,7 @@ class GitHubAPI:
             print(r.headers)
             print(r.content)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
         results = r.json()
 
         # In some cases graphql will return a 200 response when there are errors.
@@ -212,7 +225,7 @@ class GitHubAPI:
         }
         r = self._put(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return
 
@@ -245,7 +258,7 @@ class GitHubAPI:
         }
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -282,7 +295,7 @@ class GitHubAPI:
         }
         r = self._get(url, headers=headers, params=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         results = r.json()
         count = results["total_count"]
@@ -327,7 +340,7 @@ class GitHubAPI:
         }
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -340,7 +353,7 @@ class GitHubAPI:
         url = self._url(path_segments)
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
     def close_issue(self, org, repo, title_text, comment=None, latest=True):
         if settings.DEBUG:  # pragma: no cover
@@ -374,7 +387,7 @@ class GitHubAPI:
         }
         r = self._post(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         if comment is not None:
             self.create_issue_comment(
@@ -399,11 +412,10 @@ class GitHubAPI:
             "Accept": "application/vnd.github.v3+json",
         }
         r = self._post(url, headers=headers, json=payload)
-
         if r.status_code == 422:
             raise RepoAlreadyExists()
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -443,7 +455,7 @@ class GitHubAPI:
             if msg in r.json().get("message", ""):
                 raise RepoNotYetCreated()
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
     def get_branch(self, org, repo, branch):
         path_segments = [
@@ -463,7 +475,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -484,7 +496,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return []
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -504,7 +516,7 @@ class GitHubAPI:
         }
 
         r = self._get(url, headers=headers)
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()["object"]["sha"]
 
@@ -527,7 +539,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.text
 
@@ -547,7 +559,7 @@ class GitHubAPI:
         if r.status_code == 404:
             return
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
@@ -702,7 +714,7 @@ class GitHubAPI:
         }
         r = self._put(url, headers=headers, json=payload)
 
-        r.raise_for_status()
+        self._raise_for_status(r)
 
         return r.json()
 
