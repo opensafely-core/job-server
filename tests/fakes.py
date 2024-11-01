@@ -3,8 +3,13 @@ from datetime import UTC, datetime
 
 from django.utils import timezone
 
+from jobserver.github import GitHubError
+
 
 class FakeGitHubAPI:
+    """Fake GitHubAPI that returns reasonable values for each corresponding
+    public function."""
+
     def add_repo_to_team(self, team, org, repo):
         return
 
@@ -158,6 +163,69 @@ class FakeGitHubAPI:
         return {
             "names": [],
         }
+
+
+class FakeGitHubAPIWithErrors:
+    """Fake GitHubAPI that returns an error for each corresponding public
+    function."""
+
+    def add_repo_to_team(self, team, org, repo):
+        raise GitHubError()
+
+    def create_issue(self, org, repo, title, body, labels):
+        # Some unit tests want to check the message.
+        raise GitHubError("An error occurred")
+
+    def get_issue_number_from_title(
+        self, org, repo, title_text, latest=True, state=None
+    ):
+        raise GitHubError()
+
+    def create_issue_comment(
+        self, org, repo, title_text, body, latest=True, issue_number=1
+    ):
+        # Some unit tests want to check the message.
+        raise GitHubError("An error occurred")
+
+    def close_issue(self, org, repo, title_text, comment=None, latest=True):
+        # Some unit tests want to check the message.
+        raise GitHubError("An error occurred")
+
+    def create_repo(self, org, repo):
+        raise GitHubError()
+
+    def get_branch(self, org, repo, branch):
+        raise GitHubError()
+
+    def get_branches(self, org, repo):
+        raise GitHubError()
+
+    def get_branch_sha(self, org, repo, branch):
+        raise GitHubError()
+
+    def get_tag_sha(self, org, repo, tag):
+        raise GitHubError()
+
+    def get_file(self, org, repo, branch, filepath="project.yaml"):
+        raise GitHubError()
+
+    def get_repo(self, org, repo):
+        raise GitHubError()
+
+    def get_repo_is_private(self, org, repo):
+        raise GitHubError()
+
+    def get_repos_with_branches(self, org):
+        raise GitHubError()
+
+    def get_repos_with_dates(self, org):
+        raise GitHubError()
+
+    def get_repos_with_status_and_url(self, orgs):
+        raise GitHubError()
+
+    def set_repo_topics(self, org, repo, topics):
+        raise GitHubError()
 
 
 class FakeOpenCodelistsAPI:

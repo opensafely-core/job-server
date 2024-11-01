@@ -6,7 +6,7 @@ from requests.exceptions import HTTPError
 from jobserver.github import GitHubAPI, RepoAlreadyExists, RepoNotYetCreated
 from jobserver.models.common import new_ulid_str
 
-from ..fakes import FakeGitHubAPI
+from ..fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 from .utils import assert_deep_type_equality, assert_public_method_signature_equality
 
 
@@ -19,6 +19,17 @@ def test_fake_public_method_signatures():
     assert_public_method_signature_equality(
         GitHubAPI,
         FakeGitHubAPI,
+        # delete_repo is only used in testing.
+        ignored_methods=["delete_repo"],
+    )
+
+
+def test_fake_with_errors_public_method_signatures():
+    """Test that the fake `WithErrors` API has the same public methods with the
+    same signatures as the real one."""
+    assert_public_method_signature_equality(
+        GitHubAPI,
+        FakeGitHubAPIWithErrors,
         # delete_repo is only used in testing.
         ignored_methods=["delete_repo"],
     )
