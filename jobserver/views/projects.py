@@ -2,7 +2,6 @@ import concurrent
 import itertools
 import operator
 
-import requests
 from django.core.exceptions import PermissionDenied
 from django.db.models import Min, OuterRef, Subquery
 from django.db.models.functions import Least, Lower
@@ -17,7 +16,7 @@ from jobserver import html_utils
 from jobserver.utils import set_from_qs
 
 from ..authorization import has_permission, permissions
-from ..github import _get_github_api
+from ..github import GitHubError, _get_github_api
 from ..models import Job, JobRequest, Project, PublishRequest, Repo, Snapshot
 
 
@@ -173,7 +172,7 @@ class ProjectDetail(View):
                     is_private = self.get_github_api().get_repo_is_private(
                         repo.owner, repo.name
                     )
-                except (requests.HTTPError, requests.Timeout, requests.ConnectionError):
+                except GitHubError:
                     is_private = None
                 span = trace.get_current_span()
                 span.set_attribute("repo_owner", repo.owner)

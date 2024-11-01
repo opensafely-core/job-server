@@ -2,7 +2,6 @@ import zipfile
 from datetime import timedelta
 
 import pytest
-import requests
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
@@ -24,6 +23,8 @@ from jobserver.views.workspaces import (
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
 )
+from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
+from tests.utils import minutes_ago
 
 from ....factories import (
     AnalysisRequestFactory,
@@ -41,8 +42,6 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from ....fakes import FakeGitHubAPI
-from ....utils import minutes_ago
 
 
 # this is what defines "private"
@@ -180,11 +179,7 @@ def test_workspacecreate_without_github(rf, project_membership, user, role_facto
     messages = FallbackStorage(request)
     request._messages = messages
 
-    class BrokenGitHubAPI:
-        def get_repos_with_branches(self, *args):
-            raise requests.HTTPError
-
-    response = WorkspaceCreate.as_view(get_github_api=BrokenGitHubAPI)(
+    response = WorkspaceCreate.as_view(get_github_api=FakeGitHubAPIWithErrors)(
         request, project_slug=project.slug
     )
 
@@ -612,11 +607,7 @@ def test_workspacedetail_with_no_github(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    class BrokenGitHubAPI:
-        def get_repo_is_private(self, *args):
-            raise requests.HTTPError
-
-    response = WorkspaceDetail.as_view(get_github_api=BrokenGitHubAPI)(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPIWithErrors)(
         request,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
