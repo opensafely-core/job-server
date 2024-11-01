@@ -380,10 +380,10 @@ class GitHubAPI:
         }
         r = self._post(url, headers=headers, json=payload)
 
-        try:
-            r.raise_for_status()
-        except requests.HTTPError as e:
-            raise RepoAlreadyExists from e
+        if r.status_code == 422:
+            raise RepoAlreadyExists()
+
+        r.raise_for_status()
 
         return r.json()
 
