@@ -391,9 +391,9 @@ django-ipware==6.0.4 \
     --hash=sha256:09c502ee3b1f8ae08d197d5e1f4397e965d0b201c83de7b5721db1fc460e6ab6 \
     --hash=sha256:614d0f0a911f8a765e55b6d358b1715bb85eeb63d1ebb77447d09d645f1343e8
     # via django-structlog
-django-permissions-policy==4.22.0 \
-    --hash=sha256:a65aeeeca0673f8820b1d94490677f1f8a4c0bf28253e189142fc7b175e131dd \
-    --hash=sha256:b8b9034f2e1b59a8ab5b701cb4000f5b3bff1445bc56347c94b3fa4e20794618
+django-permissions-policy==4.23.0 \
+    --hash=sha256:11a9b481bb0cfe5925534f2edd7ce1307a4ed81d1e33c59f6b8fddb511badf74 \
+    --hash=sha256:54e67d50fce3f93e5288e0e56a4292731b5dd1afe8c1322ec001b236eb21ecbe
     # via -r requirements.prod.in
 django-structlog==8.1.0 \
     --hash=sha256:0229b9a2efbd24a4e3500169788e53915c2429521e34e41dd58ccc56039bef3f \
