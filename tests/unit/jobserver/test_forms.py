@@ -217,6 +217,7 @@ def test_workspacecreateform_unknown_branch_validation_fails():
         "name": "test",
         "repo": "http://example.com/derp/test-repo",
         "branch": "unknown-branch",
+        "purpose": "For testing",
     }
     form = WorkspaceCreateForm(repos_with_branches, data)
 
