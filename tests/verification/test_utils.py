@@ -64,37 +64,37 @@ class ClassE:
 
 
 class TestPublicMethodSignatureEquality:
-    def test_identity(cls):
+    def test_identity(self):
         """Test when applied against the same class."""
         for cls in (ClassA, ClassB, ClassC, ClassD, ClassE):
             assert_public_method_signature_equality(cls, cls)
 
-    def test_matching_methods(cls):
+    def test_matching_methods(self):
         """Test when methods match between classes."""
         assert_public_method_signature_equality(ClassA, ClassB)
 
-    def test_signature_mismatch(cls):
+    def test_signature_mismatch(self):
         """Test when method signatures differ between classes."""
         with pytest.raises(AssertionError, match="signature mismatch"):
             assert_public_method_signature_equality(ClassA, ClassC)
 
-    def test_extra_method(cls):
+    def test_extra_method(self):
         """Test when the second class has an extra method."""
         with pytest.raises(AssertionError, match="methods mismatch"):
             assert_public_method_signature_equality(ClassA, ClassD)
 
-    def test_missing_method(cls):
+    def test_missing_method(self):
         """Test when a method is missing in the second class."""
         with pytest.raises(AssertionError, match="methods mismatch"):
             assert_public_method_signature_equality(ClassD, ClassA)
 
-    def test_ignore_methods(cls):
+    def test_ignore_methods(self):
         """Test when certain methods are ignored in the comparison."""
         assert_public_method_signature_equality(
             ClassA, ClassD, ignored_methods=["method_three"]
         )
 
-    def test_ignore_private_methods(cls):
+    def test_ignore_private_methods(self):
         """Test that extra private methods are ignored."""
         assert_public_method_signature_equality(ClassA, ClassE)
 
