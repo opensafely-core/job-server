@@ -599,7 +599,6 @@ def test_userlist_filter_by_role(rf, staff_area_administrator, role):
     # Set up two users: one as the staff area administrator to request the view and
     # be filtered out, the other to be included in the response after filtering.
     UserFactory(roles=[role])
-
     request = rf.get(f"/?role={role.__name__}")
     request.user = staff_area_administrator
 
