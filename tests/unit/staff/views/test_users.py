@@ -588,11 +588,19 @@ def test_userlist_filter_by_invalid_org(rf, staff_area_administrator):
     assert len(response.context_data["object_list"]) == 0
 
 
-def test_userlist_filter_by_role(rf, staff_area_administrator):
-    # first user is staff area administrator; second user is output publisher
-    UserFactory(roles=[OutputPublisher])
+@pytest.mark.parametrize(
+    "role",
+    [
+        pytest.param(OutputPublisher, id="global"),
+        pytest.param(ProjectDeveloper, id="local"),
+    ],
+)
+def test_userlist_filter_by_role(rf, staff_area_administrator, role):
+    # Set up two users: one as the staff area administrator to request the view and
+    # be filtered out, the other to be included in the response after filtering.
+    UserFactory(roles=[role])
 
-    request = rf.get("/?role=OutputPublisher")
+    request = rf.get(f"/?role={role.__name__}")
     request.user = staff_area_administrator
 
     response = UserList.as_view()(request)
