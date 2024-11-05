@@ -175,11 +175,6 @@ class WorkspaceCreateForm(forms.Form):
             msg = "Unknown repo, please reload the page and try again"
             raise forms.ValidationError(msg)
 
-        # normalise branch names so we can do a case insensitive match
-        branches = [b.lower() for b in repo["branches"]]
-        if branch.lower() not in branches:
-            raise forms.ValidationError(f'Unknown branch "{branch}"')
-
     def clean_name(self):
         name = self.cleaned_data["name"].lower()
 
