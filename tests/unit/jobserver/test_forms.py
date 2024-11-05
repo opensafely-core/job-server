@@ -222,6 +222,7 @@ def test_workspacecreateform_unknown_branch_validation_fails():
     form = WorkspaceCreateForm(repos_with_branches, data)
 
     assert not form.is_valid()
+    assert "branch" in form.errors
 
 
 def test_workspacecreateform_unknown_repo_validation_fails():
