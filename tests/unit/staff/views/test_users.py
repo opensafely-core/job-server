@@ -589,8 +589,8 @@ def test_userlist_filter_by_invalid_org(rf, staff_area_administrator):
 
 
 def test_userlist_filter_by_role(rf, staff_area_administrator):
+    # first user is staff area administrator; second user is output publisher
     UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[ProjectCollaborator])
 
     request = rf.get("/?role=OutputPublisher")
     request.user = staff_area_administrator
