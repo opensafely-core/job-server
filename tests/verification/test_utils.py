@@ -5,6 +5,7 @@ import pytest
 from .utils import assert_public_method_signature_equality
 
 
+@pytest.mark.disable_db
 class TestPublicMethodSignatureEquality:
     def test_identity(self):
         """Test when applied against the same class."""

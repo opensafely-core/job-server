@@ -9,6 +9,7 @@ from .utils import assert_deep_type_equality, assert_public_method_signature_equ
 pytestmark = [pytest.mark.verification, pytest.mark.disable_db]
 
 
+@pytest.mark.disable_db
 def test_fake_public_method_signatures():
     """Test that `FakeOpenCodelistsAPI` has the same public methods with the
     same signatures as the real one."""
@@ -24,6 +25,7 @@ def opencodelists_api():
     return OpenCodelistsAPI()
 
 
+@pytest.mark.disable_db
 def test_get_codelists(enable_network, opencodelists_api):
     args = ["snomedct"]
 
@@ -35,6 +37,7 @@ def test_get_codelists(enable_network, opencodelists_api):
     assert real is not None
 
 
+@pytest.mark.disable_db
 def test_get_codelists_with_unknown_coding_system(enable_network, opencodelists_api):
     args = ["test"]
 
@@ -46,6 +49,7 @@ def test_get_codelists_with_unknown_coding_system(enable_network, opencodelists_
     assert real == []
 
 
+@pytest.mark.disable_db
 def test_check_codelists(enable_network, opencodelists_api):
     args = ["{}", ""]
 
