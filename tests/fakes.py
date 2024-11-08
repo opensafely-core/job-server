@@ -182,7 +182,7 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def create_issue_comment(
-        self, org, repo, title_text, body, latest=True, issue_number=1
+        self, org, repo, title_text, body, latest=True, issue_number=None
     ):
         # Some unit tests want to check the message.
         raise GitHubError("An error occurred")
