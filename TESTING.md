@@ -56,6 +56,14 @@ Ideally these tests would avoid mocking.
 
 This lets us test views with all the surrounding parts turned: URL routing, middleware, etc.
 
+### Notes for test authors
+
+All tests have access to the database by default. You should mark up tests that
+don't require such access with `@pytest.mark.disable_db`. This significantly
+speeds up executing the tests in isolation as the test DB doesn't need to be
+spun up and prepared. Note that you can apply this marker at test, class, or
+module level. [See the pytest
+docs](https://docs.pytest.org/en/7.1.x/example/markers.html).
 
 ## Tooling
 We use [coverage.py](https://coverage.readthedocs.io/) to check test coverage on the code base and require 100% coverage for CI to pass.
