@@ -5,7 +5,7 @@ import pytest
 from .utils import assert_public_method_signature_equality
 
 
-pytestmark = [pytest.mark.disable_db]
+pytestmark = [pytest.mark.verification, pytest.mark.disable_db]
 
 
 class TestPublicMethodSignatureEquality:
