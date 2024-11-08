@@ -1,3 +1,5 @@
+import inspect
+
 import pytest
 import requests.exceptions
 import stamina
@@ -7,6 +9,7 @@ from requests.models import Response
 from jobserver.github import (
     ConnectionException,
     GitHubAPI,
+    GitHubError,
     HTTPError,
     RepoAlreadyExists,
     RepoNotYetCreated,
@@ -41,6 +44,18 @@ class TestGitHubAPIAgainstFakes:
             # delete_repo is only used in testing.
             ignored_methods=["delete_repo"],
         )
+
+
+class TestFakeGitHubAPIWithErrors:
+    def test_public_methods_raise_githuberror(self):
+        fake = FakeGitHubAPIWithErrors
+        for name, method in inspect.getmembers(fake, predicate=inspect.isfunction):
+            if not name.startswith("_"):
+                sig = inspect.signature(method)
+                args = {param.name: None for param in sig.parameters.values()}
+
+                with pytest.raises(GitHubError):
+                    method(**args)
 
 
 @pytest.fixture
