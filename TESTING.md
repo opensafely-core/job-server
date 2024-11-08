@@ -73,7 +73,7 @@ We also provide DRF's testing tools as fixtures to mirror pytest-django.
 We use a fake object, `FakeGitHubAPI`, to test our uses of GitHub's API.
 However, we want to [verify that fake](https://pythonspeed.com/articles/verified-fakes/), so we have a set of verification tests in `tests/verification/`.
 
-`test-verification` will run those tests, but `just test` and `just test-ci` will not (see [ADR#21](docs/adr/0021-move-verification-tests.md) for more details).
+`test-verification` will run those tests marked with `pytest.mark.verification`, but `just test` and `just test-ci` will not (see [ADR#21](docs/adr/0021-move-verification-tests.md) for more details).
 This way, the verification tests verify our faster tests are correct.
 We have a separate GitHub org, `opensafely-testing`, and bot user, `opensafely-testing-bot`, for performing these tests.
 We use a different env var, `GITHUB_TOKEN_TESTING`, to pass the required PAT in.
