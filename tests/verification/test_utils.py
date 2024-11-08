@@ -12,7 +12,7 @@ class TestPublicMethodSignatureEquality:
     def test_identity(self):
         """Test when applied against the same class."""
 
-        class ClassA:
+        class ClassA:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
@@ -22,13 +22,13 @@ class TestPublicMethodSignatureEquality:
     def test_matching_methods(self):
         """Test when methods match between classes."""
 
-        class ClassA:
+        class ClassA:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
 
         # This class is identical to Class A.
-        class ClassB:
+        class ClassB:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
@@ -38,13 +38,13 @@ class TestPublicMethodSignatureEquality:
     def test_signature_mismatch(self):
         """Test when method signatures differ between classes."""
 
-        class ClassA:
+        class ClassA:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
 
         # The same as A, but a method has a different signature.
-        class ClassC:
+        class ClassC:  # pragma: no cover - Test class that is never instantiated.
             # Different signature to A.method_one.
             def method_one(self, x): ...
 
@@ -56,13 +56,13 @@ class TestPublicMethodSignatureEquality:
     def test_extra_method(self):
         """Test when the second class has an extra method."""
 
-        class ClassA:
+        class ClassA:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
 
         # The same as A, but with an extra method.
-        class ClassD:
+        class ClassD:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
@@ -75,13 +75,13 @@ class TestPublicMethodSignatureEquality:
     def test_missing_method(self):
         """Test when a method is missing in the second class."""
 
-        class ClassA:
+        class ClassA:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
 
         # The same as A, but with an extra method.
-        class ClassD:
+        class ClassD:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
@@ -94,13 +94,13 @@ class TestPublicMethodSignatureEquality:
     def test_ignore_methods(self):
         """Test when certain methods are ignored in the comparison."""
 
-        class ClassA:
+        class ClassA:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
 
         # The same as A, but with an extra method.
-        class ClassD:
+        class ClassD:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
@@ -114,13 +114,13 @@ class TestPublicMethodSignatureEquality:
     def test_ignore_private_methods(self):
         """Test that extra private methods are ignored."""
 
-        class ClassA:
+        class ClassA:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
 
         # The same as A, but with a private method.
-        class ClassE:
+        class ClassE:  # pragma: no cover - Test class that is never instantiated.
             def method_one(self, x, y): ...
 
             def method_two(self, z): ...
