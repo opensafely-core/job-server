@@ -213,17 +213,16 @@ def test_workspacecreateform_unknown_branch_validation_fails():
             "branches": ["test-branch"],
         }
     ]
-    form = WorkspaceCreateForm(repos_with_branches)
-    form.cleaned_data = {
+    data = {
         "name": "test",
         "repo": "http://example.com/derp/test-repo",
         "branch": "unknown-branch",
+        "purpose": "For testing",
     }
+    form = WorkspaceCreateForm(repos_with_branches, data)
 
-    with pytest.raises(ValidationError) as e:
-        form.clean()
-
-    assert e.value.message.startswith("Unknown branch")
+    assert not form.is_valid()
+    assert "branch" in form.errors
 
 
 def test_workspacecreateform_unknown_repo_validation_fails():
