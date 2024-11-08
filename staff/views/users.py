@@ -1,5 +1,3 @@
-import inspect
-
 import structlog
 from django.core.exceptions import FieldError
 from django.db import transaction
@@ -14,9 +12,10 @@ from social_django.models import UserSocialAuth
 from interactive.commands import create_user
 from interactive.emails import send_welcome_email
 from jobserver.auditing.presenters.lookup import get_presenter
-from jobserver.authorization import permissions, roles
+from jobserver.authorization import permissions
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.forms import RolesForm
+from jobserver.authorization.global_roles import GLOBAL_ROLE_NAMES
 from jobserver.authorization.utils import roles_for, strings_to_roles
 from jobserver.commands import users
 from jobserver.models import (
@@ -243,14 +242,12 @@ class UserList(ListView):
     queryset = User.objects.prefetch_related("project_memberships", "org_memberships")
 
     def get_context_data(self, **kwargs):
-        all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
-
         return super().get_context_data(**kwargs) | {
             "backends": Backend.objects.order_by("slug"),
             "missing_names": ["backend", "org", "project"],
             "orgs": Org.objects.order_by("name"),
             "q": self.request.GET.get("q", ""),
-            "roles": all_roles,
+            "roles": GLOBAL_ROLE_NAMES,
         }
 
     def get_queryset(self):
