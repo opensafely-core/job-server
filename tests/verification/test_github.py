@@ -21,7 +21,6 @@ from .utils import assert_deep_type_equality, assert_public_method_signature_equ
 pytestmark = [pytest.mark.verification, pytest.mark.disable_db]
 
 
-@pytest.mark.disable_db
 class TestGitHubAPIAgainstFakes:
     def test_fake_public_method_signatures(self):
         """Test that `FakeGitHubAPI` has the same public methods with the same
@@ -66,7 +65,6 @@ def github_api():
     return GitHubAPI(token=Env().str("GITHUB_TOKEN_TESTING"))
 
 
-@pytest.mark.disable_db
 @pytest.mark.usefixtures("enable_network")
 class TestGithubAPIPrivate:
     """Tests of the real GitHubAPI that require permissions on a private
@@ -229,7 +227,6 @@ class TestGithubAPIPrivate:
         assert repo["topics"] == ["testing"]
 
 
-@pytest.mark.disable_db
 @pytest.mark.usefixtures("enable_network")
 class TestGithubAPINonPrivate:
     """Tests of the real GitHubAPI that don't require permissions on a private
