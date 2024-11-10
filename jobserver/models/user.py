@@ -27,11 +27,16 @@ class UserManager(models.Manager):
     use_in_migrations = True
 
     def create(self, **kwargs):
-        # Normalize email to lowercase as they are case-insensitive.  Without
-        # normalization, unique=True on EmailField would not prevent multiple
-        # entries with the same email differing only by case. For example,
-        # 'User@Example.com' and 'user@example.com' would be considered
-        # different.
+        # Normalize email to lowercase. RFC 5321 §2.4 states that the local
+        # part of an email (before the @ symbol) must be treated as
+        # case-sensitive by SMTP. However, mail systems are encouraged to
+        # handle it in a case-insensitive manner for local delivery, and almost
+        # all follow this recommendation.
+        # Without normalization, `unique=True` on an EmailField would allow
+        # duplicate entries like `User@example.com` and `user@example.com`.
+        # This risk outweighs the rare possibility of a case-sensitive mail
+        # system. Currently, this issue is moot as users don't manually enter
+        # their email.
         kwargs["email"] = kwargs.get("email", "").lower()
         # Normalize username unicode to avoid multiple representations of the same
         # username.
