@@ -225,8 +225,8 @@ def test_workspacecreateform_unknown_branch_validation_fails():
     assert "branch" in form.errors
 
 
-def test_workspacecreateform_unknown_repo_validation_fails():
-    """When the form cleaned_data has an unknown repo, validation fails."""
+def test_workspacecreateform_unknown_repo_creation_fails():
+    """When a bound form's data has an unknown repo, form creation fails."""
     repos_with_branches = [
         {
             "name": "test-repo",
@@ -234,17 +234,16 @@ def test_workspacecreateform_unknown_repo_validation_fails():
             "branches": ["test-branch"],
         }
     ]
-    form = WorkspaceCreateForm(repos_with_branches)
-    form.cleaned_data = {
+    data = {
         "name": "test",
         "repo": "unknown-repo",
         "branch": "test-branch",
     }
 
     with pytest.raises(ValidationError) as e:
-        form.clean()
+        WorkspaceCreateForm(repos_with_branches, data)
 
-    assert e.value.message.startswith("Unknown repo")
+    assert e.value.message.startswith("No matching repos")
 
 
 def test_workspacecreateform_duplicate_name_validation_fails():
