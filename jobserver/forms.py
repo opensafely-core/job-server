@@ -167,14 +167,6 @@ class WorkspaceCreateForm(forms.Form):
         if not (repo_url and branch):  # pragma: no cover
             return
 
-        repo = next(
-            (r for r in self.repos_with_branches if r["url"] == repo_url),
-            None,
-        )
-        if repo is None:
-            msg = "Unknown repo, please reload the page and try again"
-            raise forms.ValidationError(msg)
-
     def clean_name(self):
         name = self.cleaned_data["name"].lower()
 
