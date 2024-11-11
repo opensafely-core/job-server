@@ -159,14 +159,6 @@ class WorkspaceCreateForm(forms.Form):
             initial=posted_branch,
         )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        repo_url = cleaned_data.get("repo")
-        branch = cleaned_data.get("branch")
-
-        if not (repo_url and branch):  # pragma: no cover
-            return
-
     def clean_name(self):
         name = self.cleaned_data["name"].lower()
 
