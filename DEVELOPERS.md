@@ -235,16 +235,7 @@ In that situation you can follow the steps below to set up your local copy of th
 1. Give your user the `StaffAreaAdministrator` role by running:
 
    ```sh
-   > python3 manage.py shell_plus
-   ```
-
-   and then running in the `shell_plus` shell:
-
-   ```
-   >>> from jobserver.authorization import StaffAreaAdministrator
-   >>> user = User.objects.get(username="<your_username>")
-   >>> user.roles.append(StaffAreaAdministrator)
-   >>> user.save()
+   > python manage.py create_user <your_username> -s
    ```
 1. Click on your avatar in the top right-hand corner of the site to access the Staff Area.
 1. Create an Org, Project, and Backend in the Staff Area.
