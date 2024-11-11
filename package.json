@@ -28,7 +28,7 @@
     "postcss-preset-env": "^10.0.9",
     "vite": "^5.4.10",
     "vite-plugin-live-reload": "^3.0.3",
-    "vite-plugin-static-copy": "^2.0.0",
+    "vite-plugin-static-copy": "^2.1.0",
     "vitest": "^2.1.2",
     "vitest-fetch-mock": "^0.3.0",
     "window-resizeto": "^0.0.2"
