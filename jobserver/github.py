@@ -616,7 +616,11 @@ class GitHubAPI:
 
             topics = []
             if repo["repositoryTopics"]["nodes"]:
-                topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
+                topics = [
+                    n["topic"]["name"]
+                    for n in repo["repositoryTopics"]["nodes"]
+                    if n is not None
+                ]
 
             if "non-research" in topics:
                 continue  # Ignore non-research repos.
@@ -661,7 +665,11 @@ class GitHubAPI:
 
             topics = []
             if repo["repositoryTopics"]["nodes"]:
-                topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
+                topics = [
+                    n["topic"]["name"]
+                    for n in repo["repositoryTopics"]["nodes"]
+                    if n is not None
+                ]
 
             yield {
                 "name": repo["name"],
