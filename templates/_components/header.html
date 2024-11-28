@@ -9,16 +9,29 @@
       {% url 'home' as url %}
       <a
         class="
-          group relative p-2 -ml-2 bg-transparent rounded overflow-hidden focus:text-bn-strawberry-600 focus:outline-none focus:ring-2 focus:ring-oxford-500
-          after:absolute after:bottom-1 after:h-[2px] after:left-2 after:bg-bn-strawberry-300 after:w-1 after:transition-all after:opacity-0
-          after:hover:w-11/12 after:hover:opacity-100
+          group relative bg-transparent rounded flex flex-row items-center gap-1 focus:text-bn-strawberry-600 focus:outline-none focus:ring-2
         "
         href="{% url 'home' %}"
       >
-        <span class="transition-colors ease-in duration-150 text-oxford group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
+        <svg class="inline-block h-12 -ml-1 -my-1 mr-2 w-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109.22 109.22">
+          <title>OpenSAFELY</title>
+          <path class="transition-colors ease-in duration-150 fill-bn-roman-500 group-hover:fill-bn-strawberry-700 " d="M54.61 30.34c.54 0 1.08.02 1.61.05L55.54 0h-1.86L53 30.38c.53-.03 1.07-.05 1.61-.05Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-grape-500 group-hover:fill-bn-strawberry-700 " d="M49.21 30.95c.53-.12 1.05-.22 1.58-.3L43.37 1.17l-.91.2-.9.22 6.1 29.77c.51-.15 1.03-.29 1.55-.41ZM44.08 32.74c.49-.23.98-.45 1.47-.65L31.76 5.01l-.84.4-.83.41 12.57 27.67c.46-.26.94-.51 1.42-.75Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-royal-700 group-hover:fill-bn-strawberry-700 " d="M39.48 35.63c.42-.34.85-.66 1.29-.96L21.29 11.34l-.73.57-.72.59 18.42 24.18c.39-.36.8-.71 1.22-1.04ZM35.63 39.48c.34-.42.69-.83 1.04-1.22L12.5 19.84l-.59.72-.57.73 23.33 19.47c.3-.44.62-.87.96-1.29Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-picton-500 group-hover:fill-bn-strawberry-700 " d="M32.74 44.08c.23-.49.48-.96.75-1.42L5.82 30.08l-.41.83-.4.84 27.08 13.79c.2-.49.41-.98.65-1.47ZM30.95 49.21c.12-.53.26-1.04.41-1.55L1.58 41.55l-.22.9-.2.91 29.47 7.42c.08-.53.18-1.05.3-1.58Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-sun-500 group-hover:fill-bn-strawberry-700 " d="M60.01 78.27c-.53.12-1.05.22-1.58.3l7.42 29.47.91-.2.9-.22-6.1-29.77c-.51.15-1.03.29-1.55.41ZM65.14 76.48c-.49.23-.98.45-1.47.65l13.79 27.08.84-.4.83-.41-12.57-27.67c-.46.26-.94.51-1.42.75Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-straw-500 group-hover:fill-bn-strawberry-700 " d="M69.74 73.59c-.42.34-.85.66-1.29.96l19.47 23.33.73-.57.72-.59-18.41-24.18c-.39.36-.8.71-1.22 1.04ZM73.59 69.74c-.34.42-.69.83-1.04 1.22l24.18 18.42.59-.72.57-.73-23.33-19.47c-.3.44-.62.87-.96 1.29Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-flamenco-500 group-hover:fill-bn-strawberry-700 " d="M76.48 65.14c-.23.49-.48.96-.75 1.42l27.67 12.57.41-.83.4-.84-27.08-13.79c-.2.49-.41.98-.65 1.47ZM78.27 60.01c-.12.53-.26 1.04-.41 1.55l29.77 6.1.22-.9.2-.91-29.47-7.42c-.08.53-.18 1.05-.3 1.58Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-ribbon-500 group-hover:fill-bn-strawberry-700 " d="M78.88 54.61c0 .54-.02 1.08-.05 1.61l30.38-.68v-1.86L78.83 53c.03.53.05 1.07.05 1.61ZM78.27 49.21c.12.53.22 1.05.3 1.58l29.47-7.42a29.63 29.63 0 0 0-.42-1.81l-29.77 6.1c.15.51.29 1.03.41 1.55Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-strawberry-500 group-hover:fill-bn-strawberry-700 " d="M76.48 44.08c.23.49.45.98.65 1.47l27.08-13.79-.4-.84-.41-.83-27.67 12.57c.26.46.51.94.75 1.42ZM73.59 39.48c.34.42.66.85.96 1.29L97.88 21.3l-.57-.73-.59-.72-24.18 18.41c.36.39.71.8 1.04 1.22Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-blush-500 group-hover:fill-bn-strawberry-700 " d="M69.74 35.63c.42.34.83.69 1.22 1.04l18.42-24.18-.72-.59-.73-.57-19.47 23.33c.44.3.87.62 1.29.96ZM65.14 32.74c.49.23.96.48 1.42.75L79.14 5.82l-.83-.41-.84-.4-13.79 27.08c.49.2.98.41 1.47.65Z"/>
+          <path class="transition-colors ease-in duration-150 fill-bn-roman-500 group-hover:fill-bn-strawberry-700 " d="M60.01 30.95c.53.12 1.04.26 1.55.41l6.1-29.77-.9-.22-.91-.2-7.42 29.47c.53.08 1.05.18 1.58.3Z"/>
+          <path class="transition-colors ease-in duration-150 fill-os-blue-800 group-hover:fill-bn-strawberry-700 " d="M54.61 78.88a24.27 24.27 0 0 1-24.19-26.2H.03a54.61 54.61 0 0 0 56.51 56.51V78.81c-.64.05-1.28.08-1.93.08Z"/>
+        </svg>
+        <span class="transition-colors ease-in delay-75 duration-150 text-os-blue-800 group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
           OpenSAFELY
         </span>
-        <span class="transition-colors ease-in duration-300 text-oxford-600 group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
+        <span class="transition-colors ease-in delay-150 duration-150 text-os-blue-800 group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
           Jobs
         </span>
       </a>
