@@ -11,7 +11,7 @@ from jobserver.api.jobs import (
     UserAPIDetail,
     WorkspaceStatusesAPI,
     get_backend_from_token,
-    update_stats,
+    update_backend_state,
 )
 from jobserver.authorization import ProjectDeveloper, StaffAreaAdministrator
 from jobserver.models import Job, JobRequest, Stats
@@ -52,26 +52,26 @@ def test_token_backend_unknown_backend():
         get_backend_from_token("test")
 
 
-def test_update_stats_existing_url():
+def test_update_backend_state_existing_url(api_rf):
     backend = BackendFactory()
-    StatsFactory(backend=backend, url="test")
+    StatsFactory(backend=backend, url="/test")
 
-    update_stats(backend, url="test")
+    update_backend_state(backend, api_rf.get("/test"))
 
     # check there's only one Stats for backend
     assert backend.stats.count() == 1
-    assert backend.stats.first().url == "test"
+    assert backend.stats.first().url == "/test"
 
 
-def test_update_stats_new_url():
+def test_update_backend_state_new_url(api_rf):
     backend = BackendFactory()
-    StatsFactory(backend=backend, url="test")
+    StatsFactory(backend=backend, url="/test")
 
-    update_stats(backend, url="new-url")
+    update_backend_state(backend, api_rf.get("/new-url"))
 
     # check there's only one Stats for backend
     assert backend.stats.count() == 2
-    assert backend.stats.last().url == "new-url"
+    assert backend.stats.last().url == "/new-url"
 
 
 def test_jobapiupdate_all_existing(api_rf, freezer):
@@ -876,6 +876,26 @@ def test_jobrequestapilist_success(api_rf):
             "codelists_ok": True,
         },
     ]
+
+
+def test_jobrequestapilist_with_flags(api_rf):
+    backend = BackendFactory()
+    flags = json.dumps({"mode": {"v": "test"}})
+
+    request = api_rf.get(
+        "/",
+        format="json",
+        headers={
+            "authorization": backend.auth_token,
+            "flags": flags,
+        },
+    )
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200, response.data
+
+    backend.refresh_from_db()
+    assert backend.jobrunner_state["mode"]["v"] == "test"
 
 
 def test_userapidetail_success(api_rf, project_membership):
