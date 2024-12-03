@@ -43,12 +43,18 @@ class CoercingCharFieldSerializer(serializers.CharField):
         return value
 
 
-def update_stats(backend, url):
+def update_backend_state(backend, request):
+    # Record when we last heard from the backend, for availability reporting purposes
     Stats.objects.update_or_create(
         backend=backend,
-        url=url,
+        url=request.path,
         defaults={"api_last_seen": timezone.now()},
     )
+    # Store backend state sent up from job-runner. We might rename the header this is
+    # passed in at some point but for now this is good enough.
+    if flags := request.headers.get("Flags", ""):
+        backend.jobrunner_state = json.loads(flags)
+        backend.save(update_fields=["jobrunner_state"])
 
 
 class JobAPIUpdate(APIView):
@@ -188,14 +194,7 @@ class JobAPIUpdate(APIView):
             updated_job_ids=",".join(updated_job_ids),
         )
 
-        # store backend state sent up from job-runner.  We might rename the
-        # header this is passed in at some point but now this is good enough.
-        if flags := request.headers.get("Flags", ""):
-            self.backend.jobrunner_state = json.loads(flags)
-            self.backend.save(update_fields=["jobrunner_state"])
-
-        # record use of the API
-        update_stats(self.backend, request.path)
+        update_backend_state(self.backend, request)
 
         return Response({"status": "success"}, status=200)
 
@@ -279,9 +278,9 @@ class JobRequestAPIList(ListAPIView):
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
 
-        # only gather stats when authenticated and response is 2xx
+        # only update state when authenticated and response is 2xx
         if self.backend and response.status_code >= 200 and response.status_code < 300:
-            update_stats(self.backend, request.path)
+            update_backend_state(self.backend, request)
 
         return response
 
