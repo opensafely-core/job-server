@@ -25,7 +25,7 @@
     "jsdom": "^25.0.1",
     "postcss-import": "^16.1.0",
     "postcss-nesting": "^13.0.1",
-    "postcss-preset-env": "^10.1.1",
+    "postcss-preset-env": "^10.1.2",
     "vite": "^6.0.3",
     "vite-plugin-live-reload": "^3.0.4",
     "vite-plugin-static-copy": "^2.2.0",
