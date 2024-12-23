@@ -212,6 +212,11 @@ MEDIA_ROOT = Path(env.str("MEDIA_STORAGE", default="uploads"))
 MEDIA_URL = "/uploads/"
 
 
+# Form submission
+# https://docs.djangoproject.com/en/5.1/ref/settings/#data-upload-max-number-fields
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000
+
+
 # Logging
 # https://docs.djangoproject.com/en/3.1/topics/logging/
 LOGGING = logging_config_dict
