@@ -84,7 +84,8 @@ def test_build_outputs_zip_with_missing_files(build_release_with_files):
 
 
 def test_create_release_reupload():
-    rfile = ReleaseFileFactory(name="file1.txt", filehash="hash")
+    workspace = WorkspaceFactory(name="workspace")
+    rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
 
     files = [
         {
@@ -93,18 +94,49 @@ def test_create_release_reupload():
             "url": "",
             "size": 4,
             "sha256": "hash",
-            "mtime": "2022-08-17T13:37Z",
+            "date": "2022-08-17T13:37Z",
             "metadata": {},
         }
     ]
 
     with pytest.raises(releases.ReleaseFileAlreadyExists):
         releases.create_release(
-            rfile.release.workspace,
+            workspace,
             rfile.release.backend,
             rfile.release.created_by,
             files,
         )
+
+
+def test_create_release_reupload_to_different_workspace():
+    workspace = WorkspaceFactory(name="workspace")
+    another_workspace = WorkspaceFactory(name="another_workspace")
+    rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
+
+    files = [
+        {
+            "name": "file1.txt",
+            "path": "path/to/file1.txt",
+            "url": "",
+            "size": 4,
+            "sha256": "hash",
+            "date": "2022-08-17T13:37Z",
+            "metadata": {},
+        }
+    ]
+
+    release = releases.create_release(
+        another_workspace,
+        rfile.release.backend,
+        rfile.release.created_by,
+        files,
+    )
+    assert release.requested_files == files
+    assert release.files.count() == 1
+
+    rfile = release.files.first()
+    rfile.filehash == "hash"
+    rfile.size == 4
 
 
 def test_create_release_success():

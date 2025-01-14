@@ -69,23 +69,24 @@ def build_outputs_zip(release_files, url_builder_func):
     return in_memory_zf
 
 
-def check_not_already_uploaded(filename, filehash, backend):
-    """Check if this filename/filehash combination has been uploaded before."""
+def check_not_already_uploaded(workspace, filename, filehash, backend):
+    """Check if this workspace/filename/filehash combination has been uploaded before."""
     duplicate = ReleaseFile.objects.filter(
         release__backend=backend,
+        workspace=workspace,
         name=filename,
         filehash=filehash,
     )
     if duplicate.exists():
         raise ReleaseFileAlreadyExists(
-            f"This version of '{filename}' has already been uploaded from backend '{backend.slug}'"
+            f"This version of '{filename}' in workspace {workspace} has already been uploaded from backend '{backend.slug}'"
         )
 
 
 @transaction.atomic
 def create_release(workspace, backend, created_by, requested_files, **kwargs):
     for f in requested_files:
-        check_not_already_uploaded(f["name"], f["sha256"], backend)
+        check_not_already_uploaded(workspace, f["name"], f["sha256"], backend)
 
     release = Release.objects.create(
         workspace=workspace,
