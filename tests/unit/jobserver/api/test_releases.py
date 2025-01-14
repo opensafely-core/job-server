@@ -818,10 +818,10 @@ def test_releaseworkspaceapi_post_create_release_with_oversized_file(
 
 def test_releaseworkspaceapi_post_release_already_exists(api_rf, project_membership):
     user = UserFactory(roles=[OutputChecker])
-
     release = ReleaseFactory()
     rfile = ReleaseFileFactory(
         release=release,
+        workspace=release.workspace,
         created_by=user,
         name="file.txt",
         filehash="hash",
