@@ -73,15 +73,15 @@ QUERYSET_METHODS = [
 
 
 def test_all_models_are_listed():
-    assert set(MUTABLE_MODELS) | set(IMMUTABLE_MODELS) == set(
-        get_models()
-    ), "The lists of mutable and immutable models are incomplete"
+    assert set(MUTABLE_MODELS) | set(IMMUTABLE_MODELS) == set(get_models()), (
+        "The lists of mutable and immutable models are incomplete"
+    )
 
 
 def test_all_models_are_listed_as_either_mutable_or_immutable():
-    assert (
-        set(MUTABLE_MODELS) & set(IMMUTABLE_MODELS) == set()
-    ), "A model must be listed as either mutable or immutable"
+    assert set(MUTABLE_MODELS) & set(IMMUTABLE_MODELS) == set(), (
+        "A model must be listed as either mutable or immutable"
+    )
 
 
 @pytest.mark.parametrize("Model", MUTABLE_MODELS)

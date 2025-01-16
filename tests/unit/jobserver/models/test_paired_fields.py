@@ -72,9 +72,9 @@ def test_fields_are_paired(model, lsuffix, rsuffix):
     unpaired_rnames = [f"{stem}{rsuffix}" for stem in rstems - lstems]
     unpaired_names = sorted(unpaired_lnames + unpaired_rnames)
 
-    assert (
-        not unpaired_names
-    ), f"{model._meta.label} is missing paired fields for: {', '.join(unpaired_names)}"
+    assert not unpaired_names, (
+        f"{model._meta.label} is missing paired fields for: {', '.join(unpaired_names)}"
+    )
 
 
 @pytest.mark.slow_test
