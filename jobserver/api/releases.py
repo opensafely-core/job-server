@@ -215,7 +215,16 @@ def validate_release_access(request, workspace):
 
     This validation uses a User PAT OR Django's regular User auth.
     """
-    if auth_header := request.headers.get("Authorization"):
+    if username := request.headers.get("OS-User", "").strip():
+        # authenticate with backend
+        get_backend_from_token(request.headers.get("Authorization"))
+        try:
+            user = User.objects.get(username=username)
+            return
+        except User.DoesNotExist:
+            raise NotAuthenticated("Invalid user")
+
+    elif auth_header := request.headers.get("Authorization"):
         username, _, token = auth_header.partition(":")
 
         user = User.objects.filter(username=username).first()

@@ -1195,6 +1195,16 @@ def test_reviewapi_success(api_rf):
     assert review2.comments == {"test": "bar"}
 
 
+def test_releaseviewapi_with_backend_auth(api_rf):
+    user = UserFactory(roles=[OutputChecker])
+
+    release = ReleaseFactory()
+    ReleaseFileFactory(release=release, name="file.txt", filehash="hash")
+
+    BackendMembershipFactory(backend=release.backend, user=user)
+    # project_membership(project=release.workspace.project, user=user
+
+
 def test_snapshotapi_published_with_anonymous_user(api_rf, freezer):
     snapshot = SnapshotFactory()
     PublishRequestFactory(
@@ -1544,6 +1554,19 @@ def test_validate_release_access_with_auth_header_and_unknown_user(rf):
 
     with pytest.raises(NotAuthenticated):
         validate_release_access(request, workspace)
+
+
+def test_validate_release_access_with_backend_success(rf):
+    user = UserFactory(roles=[OutputChecker])
+    backend = BackendFactory()
+    workspace = WorkspaceFactory()
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get(
+        "/", headers={"authorization": backend.auth_token, "os-user": user.username}
+    )
+
+    assert validate_release_access(request, workspace) is None
 
 
 def test_validate_upload_access_no_permission(rf):
