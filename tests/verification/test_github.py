@@ -50,9 +50,9 @@ class TestFakeGitHubAPIWithErrors:
     def test_public_methods_raise_githuberror(self):
         fake = FakeGitHubAPIWithErrors
         for name, method in inspect.getmembers(fake, predicate=inspect.isfunction):
-            assert not name.startswith(
-                "_"
-            ), "if private methods are ever added to the fake, this assert should be a conditional check instead"
+            assert not name.startswith("_"), (
+                "if private methods are ever added to the fake, this assert should be a conditional check instead"
+            )
             sig = inspect.signature(method)
             args = {param.name: None for param in sig.parameters.values()}
 
