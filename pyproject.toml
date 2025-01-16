@@ -129,6 +129,7 @@ extend-select = [
   "W",  # pycodestyle warning
 ]
 extend-ignore = [
+  "A005", # ignore stdlib-module-shadowing. Would need to re-name services.logging.
   "E501",
   "E731",
   # Remove ISC001 when https://github.com/astral-sh/ruff/issues/8272 is resolved.
