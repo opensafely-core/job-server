@@ -8,10 +8,11 @@ from django.utils import timezone
 from rest_framework.exceptions import NotFound
 
 from jobserver import releases
-from jobserver.models import ReleaseFile
+from jobserver.models import Release, ReleaseFile
 from jobserver.models.release_file import absolute_file_path
 from tests.factories import (
     BackendFactory,
+    ReleaseFactory,
     ReleaseFileFactory,
     UserFactory,
     WorkspaceFactory,
@@ -83,9 +84,9 @@ def test_build_outputs_zip_with_missing_files(build_release_with_files):
             assert "This file was redacted by" in zipped_contents, zipped_contents
 
 
-def test_create_release_reupload_allowed():
+def test_create_release_already_exists(build_release):
     workspace = WorkspaceFactory(name="workspace")
-    rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
+    backend = BackendFactory()
 
     files = [
         {
@@ -99,13 +100,21 @@ def test_create_release_reupload_allowed():
         }
     ]
 
+    existing_release = ReleaseFactory(
+        requested_files=files, workspace=workspace, backend=backend
+    )
+    ReleaseFileFactory(release=existing_release, name="file1.txt")
+    assert Release.objects.count() == 1
+
     release = releases.create_release(
         workspace,
-        rfile.release.backend,
-        rfile.release.created_by,
+        backend,
+        existing_release.created_by,
         files,
+        id=existing_release.id,
     )
 
+    assert release.id == existing_release.id
     assert release.requested_files == files
     assert release.files.count() == 1
 
@@ -114,9 +123,9 @@ def test_create_release_reupload_allowed():
     rfile.size == 4
 
 
-def test_create_release_already_exists():
+def test_create_release_already_exists_file_mismatch():
     workspace = WorkspaceFactory(name="workspace")
-    rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
+    backend = BackendFactory()
 
     files = [
         {
@@ -130,19 +139,32 @@ def test_create_release_already_exists():
         }
     ]
 
-    release = releases.create_release(
-        workspace,
-        rfile.release.backend,
-        rfile.release.created_by,
-        files,
+    existing_release = ReleaseFactory(
+        requested_files=files, workspace=workspace, backend=backend
     )
+    ReleaseFileFactory(release=existing_release, name="file1.txt")
+    assert Release.objects.count() == 1
 
-    assert release.requested_files == files
-    assert release.files.count() == 1
+    mismatched_files = [
+        {
+            "name": "file2.txt",
+            "path": "path/to/file1.txt",
+            "url": "",
+            "size": 5,
+            "sha256": "hash1",
+            "date": "2022-08-17T13:37Z",
+            "metadata": {},
+        }
+    ]
 
-    rfile = release.files.first()
-    rfile.filehash == "hash"
-    rfile.size == 4
+    with pytest.raises(releases.ReleaseFilesMismatch):
+        releases.create_release(
+            workspace,
+            backend,
+            existing_release.created_by,
+            mismatched_files,
+            id=existing_release.id,
+        )
 
 
 def test_create_release_success():

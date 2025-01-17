@@ -1,6 +1,7 @@
 import json
 import random
 import string
+from datetime import UTC, datetime
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
@@ -816,7 +817,7 @@ def test_releaseworkspaceapi_post_create_release_with_oversized_file(
     assert response.data["files"][0]["size"][0].startswith("File size should be <16Mb.")
 
 
-def test_releaseworkspaceapi_post_release_already_exists(
+def test_releaseworkspaceapi_post_release_already_exists_no_airlock_id(
     api_rf, slack_messages, project_membership
 ):
     user = UserFactory(roles=[OutputChecker], username="test-output-checker")
@@ -841,7 +842,7 @@ def test_releaseworkspaceapi_post_release_already_exists(
         "review": {},
     }
 
-    # Create release via API with same data
+    # Create release via API with same data. There's no id to check against, so a new release is created
     request = api_rf.post(
         "/",
         data=data,
@@ -857,8 +858,7 @@ def test_releaseworkspaceapi_post_release_already_exists(
     )
 
     assert response.status_code == 201
-    assert Release.objects.count() == 1
-    assert Release.objects.latest("id").id == release.id
+    assert Release.objects.count() == 2
 
 
 def test_releaseworkspaceapi_post_release_already_exists_with_airlock_id(
@@ -871,7 +871,7 @@ def test_releaseworkspaceapi_post_release_already_exists_with_airlock_id(
             "url": "url",
             "size": 7,
             "sha256": "hash",
-            "date": timezone.now(),
+            "date": datetime(2025, 1, 15, 10, 30, 35, 99999, tzinfo=UTC),
             "metadata": {},
             "review": None,
         }
@@ -923,13 +923,15 @@ def test_releaseworkspaceapi_post_release_already_created_by_another_user(
             "review": None,
         }
     ]
-    release = ReleaseFactory(requested_files=files, created_by=user)
+    release = ReleaseFactory(
+        requested_files=files, created_by=user, id="01AAA1AAAAAAA1AAAAA11A1AAA"
+    )
     BackendMembershipFactory(backend=release.backend, user=user)
     project_membership(project=release.workspace.project, user=user)
 
     data = {
         "files": files,
-        "metadata": {},
+        "metadata": {"tool": "airlock", "airlock_id": "01AAA1AAAAAAA1AAAAA11A1AAA"},
         "review": {},
     }
 
