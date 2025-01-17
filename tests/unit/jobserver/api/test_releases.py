@@ -816,35 +816,32 @@ def test_releaseworkspaceapi_post_create_release_with_oversized_file(
     assert response.data["files"][0]["size"][0].startswith("File size should be <16Mb.")
 
 
-def test_releaseworkspaceapi_post_release_already_exists(api_rf, project_membership):
-    user = UserFactory(roles=[OutputChecker])
-    release = ReleaseFactory()
-    rfile = ReleaseFileFactory(
-        release=release,
-        workspace=release.workspace,
-        created_by=user,
-        name="file.txt",
-        filehash="hash",
-    )
-
+def test_releaseworkspaceapi_post_release_already_exists(
+    api_rf, slack_messages, project_membership
+):
+    user = UserFactory(roles=[OutputChecker], username="test-output-checker")
+    files = [
+        {
+            "name": "file.txt",
+            "url": "url",
+            "size": 7,
+            "sha256": "hash",
+            "date": timezone.now(),
+            "metadata": {},
+            "review": None,
+        }
+    ]
+    release = ReleaseFactory(requested_files=files, created_by=user)
     BackendMembershipFactory(backend=release.backend, user=user)
     project_membership(project=release.workspace.project, user=user)
 
     data = {
-        "files": [
-            {
-                "name": rfile.name,
-                "url": "url",
-                "size": 7,
-                "sha256": rfile.filehash,
-                "date": timezone.now(),
-                "metadata": {},
-                "review": None,
-            }
-        ],
+        "files": files,
         "metadata": {},
         "review": {},
     }
+
+    # Create release via API with same data
     request = api_rf.post(
         "/",
         data=data,
@@ -859,9 +856,105 @@ def test_releaseworkspaceapi_post_release_already_exists(api_rf, project_members
         request, workspace_name=release.workspace.name
     )
 
-    assert response.status_code == 400
-    assert "file.txt" in response.data["detail"]
-    assert "already been uploaded" in response.data["detail"]
+    assert response.status_code == 201
+    assert Release.objects.count() == 1
+    assert Release.objects.latest("id").id == release.id
+
+
+def test_releaseworkspaceapi_post_release_already_exists_with_airlock_id(
+    api_rf, slack_messages, project_membership
+):
+    user = UserFactory(roles=[OutputChecker], username="test-output-checker")
+    files = [
+        {
+            "name": "file.txt",
+            "url": "url",
+            "size": 7,
+            "sha256": "hash",
+            "date": timezone.now(),
+            "metadata": {},
+            "review": None,
+        }
+    ]
+    release = ReleaseFactory(
+        requested_files=files, created_by=user, id="01AAA1AAAAAAA1AAAAA11A1AAA"
+    )
+    BackendMembershipFactory(backend=release.backend, user=user)
+    project_membership(project=release.workspace.project, user=user)
+
+    data = {
+        "files": files,
+        "metadata": {"tool": "airlock", "airlock_id": "01AAA1AAAAAAA1AAAAA11A1AAA"},
+        "review": {},
+    }
+
+    # Create release via API with same data
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": release.backend.auth_token,
+            "os-user": user.username,
+        },
+    )
+
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=release.workspace.name
+    )
+
+    assert response.status_code == 201
+    assert Release.objects.count() == 1
+    assert Release.objects.latest("id").id == "01AAA1AAAAAAA1AAAAA11A1AAA"
+
+
+def test_releaseworkspaceapi_post_release_already_created_by_another_user(
+    api_rf, slack_messages, project_membership
+):
+    user = UserFactory(roles=[OutputChecker], username="test-output-checker")
+    files = [
+        {
+            "name": "file.txt",
+            "url": "url",
+            "size": 7,
+            "sha256": "hash",
+            "date": timezone.now(),
+            "metadata": {},
+            "review": None,
+        }
+    ]
+    release = ReleaseFactory(requested_files=files, created_by=user)
+    BackendMembershipFactory(backend=release.backend, user=user)
+    project_membership(project=release.workspace.project, user=user)
+
+    data = {
+        "files": files,
+        "metadata": {},
+        "review": {},
+    }
+
+    other_user = UserFactory(roles=[OutputChecker], username="other-output-checker")
+    BackendMembershipFactory(backend=release.backend, user=other_user)
+    # Create release via API with same data but different user
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": release.backend.auth_token,
+            "os-user": other_user.username,
+        },
+    )
+
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=release.workspace.name
+    )
+
+    assert response.status_code == 201
+    assert Release.objects.count() == 1
+    latest_release = Release.objects.latest("id")
+    assert latest_release.id == release.id
+    assert latest_release.created_by == user
 
 
 def test_releaseworkspaceapi_post_unknown_workspace(api_rf):

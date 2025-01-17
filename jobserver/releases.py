@@ -71,25 +71,33 @@ def build_outputs_zip(release_files, url_builder_func):
 
 @transaction.atomic
 def create_release(workspace, backend, created_by, requested_files, **kwargs):
-    release = Release.objects.create(
+    release_id = kwargs.pop("id", None)
+    create_kwargs = dict(
         workspace=workspace,
         backend=backend,
-        created_by=created_by,
         requested_files=requested_files,
-        **kwargs,
+        defaults={
+            "created_by": created_by,
+            **kwargs,
+        },
     )
+    if release_id is not None:
+        create_kwargs["id"] = release_id
 
-    for f in requested_files:
-        ReleaseFile.objects.create(
-            release=release,
-            workspace=release.workspace,
-            created_by=created_by,
-            name=f["name"],
-            filehash=f["sha256"],
-            size=f["size"],
-            mtime=f["date"],
-            metadata=f["metadata"],
-        )
+    release, created = Release.objects.get_or_create(**create_kwargs)
+
+    if created:
+        for f in requested_files:
+            ReleaseFile.objects.create(
+                release=release,
+                workspace=release.workspace,
+                created_by=created_by,
+                name=f["name"],
+                filehash=f["sha256"],
+                size=f["size"],
+                mtime=f["date"],
+                metadata=f["metadata"],
+            )
 
     return release
 

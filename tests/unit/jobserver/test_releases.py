@@ -114,6 +114,37 @@ def test_create_release_reupload_allowed():
     rfile.size == 4
 
 
+def test_create_release_already_exists():
+    workspace = WorkspaceFactory(name="workspace")
+    rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
+
+    files = [
+        {
+            "name": "file1.txt",
+            "path": "path/to/file1.txt",
+            "url": "",
+            "size": 4,
+            "sha256": "hash",
+            "date": "2022-08-17T13:37Z",
+            "metadata": {},
+        }
+    ]
+
+    release = releases.create_release(
+        workspace,
+        rfile.release.backend,
+        rfile.release.created_by,
+        files,
+    )
+
+    assert release.requested_files == files
+    assert release.files.count() == 1
+
+    rfile = release.files.first()
+    rfile.filehash == "hash"
+    rfile.size == 4
+
+
 def test_create_release_success():
     backend = BackendFactory()
     workspace = WorkspaceFactory()
