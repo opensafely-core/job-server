@@ -69,44 +69,35 @@ def build_outputs_zip(release_files, url_builder_func):
     return in_memory_zf
 
 
-def check_not_already_uploaded(workspace, filename, filehash, backend):
-    """Check if this workspace/filename/filehash combination has been uploaded before."""
-    duplicate = ReleaseFile.objects.filter(
-        release__backend=backend,
-        workspace=workspace,
-        name=filename,
-        filehash=filehash,
-    )
-    if duplicate.exists():
-        raise ReleaseFileAlreadyExists(
-            f"This version of '{filename}' in workspace {workspace} has already been uploaded from backend '{backend.slug}'"
-        )
-
-
 @transaction.atomic
 def create_release(workspace, backend, created_by, requested_files, **kwargs):
-    for f in requested_files:
-        check_not_already_uploaded(workspace, f["name"], f["sha256"], backend)
-
-    release = Release.objects.create(
+    release_id = kwargs.pop("id", None)
+    create_kwargs = dict(
         workspace=workspace,
         backend=backend,
-        created_by=created_by,
         requested_files=requested_files,
-        **kwargs,
+        defaults={
+            "created_by": created_by,
+            **kwargs,
+        },
     )
+    if release_id is not None:
+        create_kwargs["id"] = release_id
 
-    for f in requested_files:
-        ReleaseFile.objects.create(
-            release=release,
-            workspace=release.workspace,
-            created_by=created_by,
-            name=f["name"],
-            filehash=f["sha256"],
-            size=f["size"],
-            mtime=f["date"],
-            metadata=f["metadata"],
-        )
+    release, created = Release.objects.get_or_create(**create_kwargs)
+
+    if created:
+        for f in requested_files:
+            ReleaseFile.objects.create(
+                release=release,
+                workspace=release.workspace,
+                created_by=created_by,
+                name=f["name"],
+                filehash=f["sha256"],
+                size=f["size"],
+                mtime=f["date"],
+                metadata=f["metadata"],
+            )
 
     return release
 

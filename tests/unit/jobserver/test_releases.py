@@ -83,34 +83,8 @@ def test_build_outputs_zip_with_missing_files(build_release_with_files):
             assert "This file was redacted by" in zipped_contents, zipped_contents
 
 
-def test_create_release_reupload():
+def test_create_release_reupload_allowed():
     workspace = WorkspaceFactory(name="workspace")
-    rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
-
-    files = [
-        {
-            "name": "file1.txt",
-            "path": "path/to/file1.txt",
-            "url": "",
-            "size": 4,
-            "sha256": "hash",
-            "date": "2022-08-17T13:37Z",
-            "metadata": {},
-        }
-    ]
-
-    with pytest.raises(releases.ReleaseFileAlreadyExists):
-        releases.create_release(
-            workspace,
-            rfile.release.backend,
-            rfile.release.created_by,
-            files,
-        )
-
-
-def test_create_release_reupload_to_different_workspace():
-    workspace = WorkspaceFactory(name="workspace")
-    another_workspace = WorkspaceFactory(name="another_workspace")
     rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
 
     files = [
@@ -126,11 +100,43 @@ def test_create_release_reupload_to_different_workspace():
     ]
 
     release = releases.create_release(
-        another_workspace,
+        workspace,
         rfile.release.backend,
         rfile.release.created_by,
         files,
     )
+
+    assert release.requested_files == files
+    assert release.files.count() == 1
+
+    rfile = release.files.first()
+    rfile.filehash == "hash"
+    rfile.size == 4
+
+
+def test_create_release_already_exists():
+    workspace = WorkspaceFactory(name="workspace")
+    rfile = ReleaseFileFactory(workspace=workspace, name="file1.txt", filehash="hash")
+
+    files = [
+        {
+            "name": "file1.txt",
+            "path": "path/to/file1.txt",
+            "url": "",
+            "size": 4,
+            "sha256": "hash",
+            "date": "2022-08-17T13:37Z",
+            "metadata": {},
+        }
+    ]
+
+    release = releases.create_release(
+        workspace,
+        rfile.release.backend,
+        rfile.release.created_by,
+        files,
+    )
+
     assert release.requested_files == files
     assert release.files.count() == 1
 
