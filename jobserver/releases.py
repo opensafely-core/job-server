@@ -23,6 +23,10 @@ class ReleaseFileHashMismatch(Exception):
     pass
 
 
+class ReleaseFilesMismatch(Exception):
+    pass
+
+
 def _build_paths(release, filename, data):
     """
     Build the absolute path for a given filename as part of a release
@@ -71,20 +75,27 @@ def build_outputs_zip(release_files, url_builder_func):
 
 @transaction.atomic
 def create_release(workspace, backend, created_by, requested_files, **kwargs):
+    # If this release creation comes from Airlock, a release id will be specified in the kwargs
     release_id = kwargs.pop("id", None)
     create_kwargs = dict(
         workspace=workspace,
         backend=backend,
-        requested_files=requested_files,
         defaults={
             "created_by": created_by,
+            "requested_files": requested_files,
             **kwargs,
         },
     )
-    if release_id is not None:
-        create_kwargs["id"] = release_id
 
-    release, created = Release.objects.get_or_create(**create_kwargs)
+    if release_id is not None:
+        # We know the release id, check for an existing release
+        create_kwargs["id"] = release_id
+        release, created = Release.objects.get_or_create(**create_kwargs)
+    else:
+        created = True
+        release = Release.objects.create(
+            workspace=workspace, backend=backend, **create_kwargs["defaults"]
+        )
 
     if created:
         for f in requested_files:
@@ -97,6 +108,13 @@ def create_release(workspace, backend, created_by, requested_files, **kwargs):
                 size=f["size"],
                 mtime=f["date"],
                 metadata=f["metadata"],
+            )
+    else:
+        requested_files_shas = {rf["sha256"] for rf in requested_files}
+        existing_release_files_shas = {rf["sha256"] for rf in release.requested_files}
+        if requested_files_shas != existing_release_files_shas:
+            raise ReleaseFilesMismatch(
+                f"Requested files do not match files in existing release {release_id}'"
             )
 
     return release
