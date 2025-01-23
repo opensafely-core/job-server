@@ -62,7 +62,7 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
     <div className={listVisible ? "block md:sticky md:top-2" : "hidden"}>
       <div className="flex flex-row items-center gap-2 mb-1">
         <label
-          className="inline-block font-semibold text-sm text-slate-900 cursor-pointer flex-shrink-0"
+          className="inline-block font-semibold text-sm text-slate-900 cursor-pointer shrink-0"
           htmlFor="fileSort"
         >
           Sort files by

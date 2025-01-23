@@ -24,8 +24,8 @@ function SelectContainer({ defaultValue, handleChange, name }) {
       <div className="relative mt-1">
         <ListboxButton
           className={classNames(
-            "relative w-fit max-w-prose rounded-md border-gray-400 border-2 bg-white py-2 pl-3 pr-10 text-left shadow-sm",
-            "focus:outline-none",
+            "relative w-fit max-w-prose rounded-md border-gray-400 border-2 bg-white py-2 pl-3 pr-10 text-left shadow-xs",
+            "focus:outline-hidden",
             "focus-visible:border-oxford-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300",
           )}
         >
@@ -47,7 +47,7 @@ function SelectContainer({ defaultValue, handleChange, name }) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-fit max-w-prose overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-fit max-w-prose overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden">
             {formData.codelist0 ? (
               <SelectOption
                 label={formData.codelist0.label}

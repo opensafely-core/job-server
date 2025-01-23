@@ -38,7 +38,7 @@
           {% is_filter_selected key="has_outputs" value="yes" as is_has_outputs_yes_active %}
           {% if is_has_outputs_yes_active %}
             {% url_without_querystring has_outputs="yes" as query_string_has_outputs_yes %}
-            {% var yes_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+            {% var yes_active_class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
           {% else %}
             {% url_with_querystring has_outputs="yes" as query_string_has_outputs_yes %}
           {% endif %}
@@ -50,7 +50,7 @@
           {% is_filter_selected key="has_outputs" value="no" as is_has_outputs_no_active %}
           {% if is_has_outputs_no_active %}
             {% url_without_querystring has_outputs="no" as query_string_has_outputs_no %}
-            {% var no_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+            {% var no_active_class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
           {% else %}
             {% url_with_querystring has_outputs="no" as query_string_has_outputs_no %}
           {% endif %}
@@ -77,8 +77,8 @@
           {% if request.GET.q %}
             {% var value=request.GET.q|stringformat:"s" %}
           {% endif %}
-          {% form_input custom_field=True type="search" id="repoSearch" name="q" value=value label="Search for a repo" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by repo name" %}
-          {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+          {% form_input custom_field=True type="search" id="repoSearch" name="q" value=value label="Search for a repo" label_class="sr-only" class="w-full" input_class="m-0!" placeholder="Search by repo name" %}
+          {% #button type="submit" variant="primary" class="shrink-0" %}Search{% /button %}
         </form>
         {% if request.GET.q %}
           <p class="mt-3">

@@ -9,7 +9,7 @@ function Card({
   innerClassName = "",
 }) {
   return (
-    <div className={`bg-white shadow ${className}`}>
+    <div className={`bg-white shadow-sm ${className}`}>
       {header ? (
         <div className="flex flex-wrap gap-2 items-center justify-between px-4 py-2 sm:px-6 sm:py-4 sm:flex-nowrap bg-slate-50">
           {header}

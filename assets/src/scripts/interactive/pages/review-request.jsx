@@ -233,7 +233,7 @@ function ReviewRequest() {
           {isSubmitting ? (
             <>
               <svg
-                className="h-5 w-5 flex-1 animate-spin stroke-current stroke-[3] mr-2"
+                className="h-5 w-5 flex-1 animate-spin stroke-current stroke-3 mr-2"
                 fill="none"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"

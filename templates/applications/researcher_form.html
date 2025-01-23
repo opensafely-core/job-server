@@ -40,7 +40,7 @@
       {% endfor %}
     {% endif %}
 
-    {% #form_fieldset class="grid gap-y-6 !min-w-0 w-full max-w-prose" %}
+    {% #form_fieldset class="grid gap-y-6 min-w-0! w-full max-w-prose" %}
       {% form_legend text="Researcher contact information" class="sr-only" %}
 
       {% form_input field=form.name label="Researcher name" name="name" %}
@@ -56,7 +56,7 @@
       {% snippet "researcher-server-access-rubric" %}
     </div>
 
-    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+    {% #form_fieldset class="grid gap-y-2 min-w-0! w-full max-w-prose" %}
       {% form_legend text="Does this researcher require access to the OpenSAFELY secure results server?" %}
 
       {% for value, label in form.does_researcher_need_server_access.field.choices %}
@@ -81,7 +81,7 @@
       This is required to set up Virtual Private Network (VPN) access to access the results server.
     </p>
 
-    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+    {% #form_fieldset class="grid gap-y-2 min-w-0! w-full max-w-prose" %}
       {% form_legend text="What type of smartphone does this researcher have?" %}
 
       {% for value, label in form.phone_type.field.choices %}
@@ -98,7 +98,7 @@
   {% /card %}
 
   {% #card title="Safe researcher training" class="max-w-3xl" container=True container_class="grid gap-y-6 max-w-prose" %}
-    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+    {% #form_fieldset class="grid gap-y-2 min-w-0! w-full max-w-prose" %}
       {% form_legend text="Has this researcher undertaken safe researcher training?" %}
 
       {% for value, label in form.has_taken_safe_researcher_training.field.choices %}

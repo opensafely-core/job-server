@@ -108,9 +108,9 @@
             <span class="flex flex-row items-start gap-2">
               {% link href="#"|add:page.key text=page.title class="mr-auto" %}
               {% if page.status == "approved" %}
-                {% pill variant="success-outline" text="Approved" class="flex-shrink-0" %}
+                {% pill variant="success-outline" text="Approved" class="shrink-0" %}
               {% else %}
-                {% pill variant="danger-outline" text="Not approved" class="flex-shrink-0" %}
+                {% pill variant="danger-outline" text="Not approved" class="shrink-0" %}
               {% endif %}
             </span>
           </li>
@@ -121,7 +121,7 @@
     {% #card container=True title="Status" %}
       <dl class="flex flex-row flex-wrap gap-1">
         <dt class="sr-only">Application status:</dt>
-        <dd>{% pill_application_status status=application.status class="!text-base py-1 px-3" %}</dd>
+        <dd>{% pill_application_status status=application.status class="text-base! py-1 px-3" %}</dd>
       </dl>
       {% if application.status_comment %}
         <div class="prose prose-oxford break-words mt-3">

@@ -86,7 +86,7 @@
                         title="{{ group.workspace.project.org }}"
                       >
                     {% else %}
-                      <span class="h-5 w-5 mr-1 shrink-0 bg-white rounded"></span>
+                      <span class="h-5 w-5 mr-1 shrink-0 bg-white rounded-sm"></span>
                     {% endif %}
                     {% link href=group.workspace.project.get_absolute_url new_tab=True text=group.workspace.project.name %}
                   </span>
@@ -116,10 +116,10 @@
                     {% endif %}
                     {% if group.started_at %}
                       {% if forloop.last %}
-                        {% var position="-top-14 !pb-0" %}
+                        {% var position="-top-14 pb-0!" %}
                         {% var tooltip_top=True %}
                       {% else %}
-                        {% var position="-bottom-4 !pb-0" %}
+                        {% var position="-bottom-4 pb-0!" %}
                         {% var tooltip_top=False %}
                       {% endif %}
                       {% tooltip position=position tooltip_top=tooltip_top content=group.started_at|date:"d F Y H:i:s T" %}

@@ -15,7 +15,7 @@
 
 {% block full_width_content %}
   <div class="bg-bn-roman-100 pt-4">
-    <div class="container xl:max-w-screen-xl">
+    <div class="container xl:max-w-(--breakpoint-xl)">
       {% #grid_three_cols gap="8" %}
         {% #grid_col_lg_span_2 %}
           <h1 class="text-3xl break-words pt-2 mb-4 md:pt-0 md:text-4xl font-bold text-slate-900">
@@ -39,12 +39,12 @@
         {% /grid_col_lg_span_2 %}
 
         {% #grid_col_span_1 %}
-          {% #card title="Releases information" header_class="!px-4" %}
+          {% #card title="Releases information" header_class="px-4!" %}
             <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-              {% #description_item class="!py-2 !px-4" title="Project" stacked %}
+              {% #description_item class="py-2! px-4!" title="Project" stacked %}
                 {{ workspace.project.name }}
               {% /description_item %}
-              {% #description_item class="!py-2 !px-4" title="Workspace" stacked %}
+              {% #description_item class="py-2! px-4!" title="Workspace" stacked %}
                 {{ workspace.name }}
               {% /description_item %}
             </dl>

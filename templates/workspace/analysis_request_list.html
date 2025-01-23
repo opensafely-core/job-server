@@ -24,15 +24,15 @@
     {% #list_group_rich_item type="Analysis request" url=analysis_request.get_absolute_url title=analysis_request.title status_text=analysis_request.status %}
       <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
         <dt class="sr-only">Created at:</dt>
-        <dd class="flex flex-row flex-shrink-0 items-start">
-          {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+        <dd class="flex flex-row shrink-0 items-start">
+          {% icon_calendar_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
           <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}">
             {{ analysis_request.created_at|date:"d M Y" }}
           </time>
         </dd>
         <dt class="sr-only">Created by:</dt>
         <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-          {% icon_user_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+          {% icon_user_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
           <span class="truncate">{{ analysis_request.created_by }}</span>
         </dd>
       </div>
