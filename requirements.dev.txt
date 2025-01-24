@@ -198,9 +198,9 @@ django==5.1.5 \
     # via
     #   -c requirements.prod.txt
     #   django-debug-toolbar
-django-debug-toolbar==4.4.6 \
-    --hash=sha256:36e421cb908c2f0675e07f9f41e3d1d8618dc386392ec82d23bcfcd5d29c7044 \
-    --hash=sha256:3beb671c9ec44ffb817fad2780667f172bd1c067dbcabad6268ce39a81335f45
+django-debug-toolbar==5.0.1 \
+    --hash=sha256:296f6f18a80710e84fbb8361538ae5ec522a75ebe9ab67db34bcf1026cbeb420 \
+    --hash=sha256:7456cc2e951db37dab335686db7803c4a0ecb6736d120705f6668db9548bf49f
     # via -r requirements.dev.in
 django-upgrade==1.22.2 \
     --hash=sha256:8643abdde2961e3c60173ebee84f48371ffbec5181095a38cac080947af0d2ae \
