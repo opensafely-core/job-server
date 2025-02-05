@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import liveReload from "vite-plugin-live-reload";
@@ -31,6 +32,7 @@ export default defineConfig(({ mode }) => ({
   },
   clearScreen: false,
   plugins: [
+    tailwindcss(),
     mode !== "test" ? liveReload("templates/**/*.html") : undefined,
     mode !== "test"
       ? viteStaticCopy({
