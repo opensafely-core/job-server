@@ -1,0 +1,29 @@
+name: Update python dependencies
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  "0 23 * * *"
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - uses: "opensafely-core/setup-action@v1"
+      with:
+        python-version: "3.12"
+        install-just: true
+
+    - uses: actions/create-github-app-token@v1
+      id: generate-token
+      with:
+        app-id: 1031449  # opensafely-core Create PR app
+        private-key: ${{ secrets.CREATE_PR_APP_PRIVATE_KEY }}
+
+    - uses: bennettoxford/update-dependencies-action@v1
+      with:
+        token: ${{ steps.generate-token.outputs.token }}
+        # Note: just update pipeline library for now, as job-server uses dependabot for python upgrades
+        update_command: |
+          just upgrade-pipeline
