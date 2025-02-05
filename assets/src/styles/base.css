@@ -1,9 +1,187 @@
 @import "./_utils.css" layer(base);
 @import "../../../templates/_components/alert/alert.css" layer(base);
-
 @import "tailwindcss";
 
-@config "../../../tailwind.config.mjs";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@source "../../../templates/**/*.html";
+@source "../scripts/**/*.{js,jsx}";
+
+@theme {
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-oxford-50: #f1f7ff;
+  --color-oxford-100: #cfe5ff;
+  --color-oxford-200: #9ccaff;
+  --color-oxford-300: #69afff;
+  --color-oxford-400: #3693ff;
+  --color-oxford-500: #0378ff;
+  --color-oxford-600: #0058be;
+  --color-oxford-700: #00397a;
+  --color-oxford-800: #002147;
+  --color-oxford-900: #001936;
+  --color-oxford: var(--color-oxford-800);
+
+  --color-bn-egg-50: #f3fdfe;
+  --color-bn-egg-100: #e8fbfd;
+  --color-bn-egg-200: #c5f5f9;
+  --color-bn-egg-300: #a2eff5;
+  --color-bn-egg-400: #5de3ee;
+  --color-bn-egg-500: #17d7e6;
+  --color-bn-egg-600: #15c2cf;
+  --color-bn-egg-700: #11a1ad;
+  --color-bn-egg-800: #0e818a;
+  --color-bn-egg-900: #0b6971;
+  --color-bn-egg: var(--color-bn-egg-500);
+
+  --color-bn-picton-50: #f5fbff;
+  --color-bn-picton-100: #ecf8ff;
+  --color-bn-picton-200: #cfedff;
+  --color-bn-picton-300: #b3e1ff;
+  --color-bn-picton-400: #79cbff;
+  --color-bn-picton-500: #40b5ff;
+  --color-bn-picton-600: #3aa3e6;
+  --color-bn-picton-700: #3088bf;
+  --color-bn-picton-800: #266d99;
+  --color-bn-picton-900: #1f597d;
+  --color-bn-picton: var(--color-bn-picton-500);
+
+  --color-bn-royal-50: #f7f8fe;
+  --color-bn-royal-100: #eef1fe;
+  --color-bn-royal-200: #d6dcfc;
+  --color-bn-royal-300: #bdc6fa;
+  --color-bn-royal-400: #8b9cf6;
+  --color-bn-royal-500: #5971f2;
+  --color-bn-royal-600: #5066da;
+  --color-bn-royal-700: #4355b6;
+  --color-bn-royal-800: #354491;
+  --color-bn-royal-900: #2c3777;
+  --color-bn-royal: var(--color-bn-royal-500);
+
+  --color-bn-grape-50: #f6f4fb;
+  --color-bn-grape-100: #eee9f7;
+  --color-bn-grape-200: #d4c8ec;
+  --color-bn-grape-300: #baa7e1;
+  --color-bn-grape-400: #8766ca;
+  --color-bn-grape-500: #5324b3;
+  --color-bn-grape-600: #4b20a1;
+  --color-bn-grape-700: #3e1b86;
+  --color-bn-grape-800: #32166b;
+  --color-bn-grape-900: #291258;
+  --color-bn-grape: var(--color-bn-grape-500);
+
+  --color-bn-roman-50: #faf6fe;
+  --color-bn-roman-100: #f5eefd;
+  --color-bn-roman-200: #e6d4f9;
+  --color-bn-roman-300: #d7bbf5;
+  --color-bn-roman-400: #b987ee;
+  --color-bn-roman-500: #9b54e6;
+  --color-bn-roman-600: #8c4ccf;
+  --color-bn-roman-700: #743fad;
+  --color-bn-roman-800: #5d328a;
+  --color-bn-roman-900: #4c2971;
+  --color-bn-roman: var(--color-bn-roman-500);
+
+  --color-bn-blush-50: #fff8ff;
+  --color-bn-blush-100: #fff2ff;
+  --color-bn-blush-200: #ffdeff;
+  --color-bn-blush-300: #ffcbff;
+  --color-bn-blush-400: #ffa3ff;
+  --color-bn-blush-500: #ff7cff;
+  --color-bn-blush-600: #e670e6;
+  --color-bn-blush-700: #bf5dbf;
+  --color-bn-blush-800: #994a99;
+  --color-bn-blush-900: #7d3d7d;
+  --color-bn-blush: var(--color-bn-blush-500);
+
+  --color-bn-strawberry-50: #fff5fa;
+  --color-bn-strawberry-100: #ffebf5;
+  --color-bn-strawberry-200: #ffcde6;
+  --color-bn-strawberry-300: #ffafd7;
+  --color-bn-strawberry-400: #ff72ba;
+  --color-bn-strawberry-500: #ff369c;
+  --color-bn-strawberry-600: #e6318c;
+  --color-bn-strawberry-700: #bf2975;
+  --color-bn-strawberry-800: #99205e;
+  --color-bn-strawberry-900: #7d1a4c;
+  --color-bn-strawberry: var(--color-bn-strawberry-500);
+
+  --color-bn-ribbon-50: #fef3f6;
+  --color-bn-ribbon-100: #fee7ee;
+  --color-bn-ribbon-200: #fcc2d4;
+  --color-bn-ribbon-300: #fa9eb9;
+  --color-bn-ribbon-400: #f65585;
+  --color-bn-ribbon-500: #f20c51;
+  --color-bn-ribbon-600: #da0b49;
+  --color-bn-ribbon-700: #b6093d;
+  --color-bn-ribbon-800: #910731;
+  --color-bn-ribbon-900: #770628;
+  --color-bn-ribbon: var(--color-bn-ribbon-500);
+
+  --color-bn-flamenco-50: #fff8f2;
+  --color-bn-flamenco-100: #fff2e6;
+  --color-bn-flamenco-200: #ffdebf;
+  --color-bn-flamenco-300: #ffcb99;
+  --color-bn-flamenco-400: #ffa34d;
+  --color-bn-flamenco-500: #ff7c00;
+  --color-bn-flamenco-600: #e67000;
+  --color-bn-flamenco-700: #bf5d00;
+  --color-bn-flamenco-800: #994a00;
+  --color-bn-flamenco-900: #7d3d00;
+  --color-bn-flamenco: var(--color-bn-flamenco-500);
+
+  --color-bn-sun-50: #fffdf5;
+  --color-bn-sun-100: #fffaeb;
+  --color-bn-sun-200: #fff4ce;
+  --color-bn-sun-300: #ffedb0;
+  --color-bn-sun-400: #ffdf75;
+  --color-bn-sun-500: #ffd13a;
+  --color-bn-sun-600: #e6bc34;
+  --color-bn-sun-700: #bf9d2c;
+  --color-bn-sun-800: #997d23;
+  --color-bn-sun-900: #7d661c;
+  --color-bn-sun: var(--color-bn-sun-500);
+
+  --color-bn-straw-50: #fffbf2;
+  --color-bn-straw-100: #fff8e6;
+  --color-bn-straw-200: #ffedbf;
+  --color-bn-straw-300: #ffe299;
+  --color-bn-straw-400: #ffcd4d;
+  --color-bn-straw-500: #ffb700;
+  --color-bn-straw-600: #e6a500;
+  --color-bn-straw-700: #bf8900;
+  --color-bn-straw-800: #996e00;
+  --color-bn-straw-900: #7d5a00;
+  --color-bn-straw: var(--color-bn-straw-500);
+
+  --color-os-blue-50: #e7ebf6;
+  --color-os-blue-100: #d4dbef;
+  --color-os-blue-200: #afbce1;
+  --color-os-blue-300: #8b9dd2;
+  --color-os-blue-400: #667ec4;
+  --color-os-blue-500: #4461b3;
+  --color-os-blue-600: #364d8e;
+  --color-os-blue-700: #283969;
+  --color-os-blue-800: #1a2544;
+  --color-os-blue-900: #0c111f;
+  --color-os-blue-950: #05070d;
+  --color-os-blue: var(--color-os-blue-800);
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @media (width >= theme(--breakpoint-lg)) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= theme(--breakpoint-xl)) {
+    padding-inline: 3rem;
+  }
+}
 
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
@@ -20,5 +198,26 @@
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer utilities {
+  .prose-oxford {
+    --tw-prose-body: var(--color-slate-900);
+    --tw-prose-links: var(--color-oxford-600);
+    --tw-prose-counters: var(--color-slate-800);
+    --tw-prose-bullets: var(--color-slate-800);
+  }
+
+  .transition-scale-opacity {
+    transition-property: transform, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.15s;
+  }
+
+  .transition-buttons {
+    transition-property: background-color, box-shadow, color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.15s;
   }
 }
