@@ -23,32 +23,32 @@
         {% if workspace.project.org.logo_file %}
           <img
             alt="{{ workspace.project.org.name }} logo"
-            class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
+            class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-xs overflow-hidden shrink-0"
             height="144"
             src="{{ workspace.project.org.logo_file.url }}"
             width="144"
           />
         {% else %}
-          <span class="grid place-content-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden flex-shrink-0">
+          <span class="grid place-content-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden shrink-0">
             <span class="text-xs text-slate-600 tracking-tighter leading-4 p-1">
               {{ workspace.project.org.name }}
             </span>
           </span>
         {% endif %}
 
-        <div class="flex flex-col gap-y-2 flex-grow lg:ml-4">
+        <div class="flex flex-col gap-y-2 grow lg:ml-4">
           <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
             Published outputs
           </h1>
           <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
             <dt class="sr-only">Organisation:</dt>
             <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
               <span class="truncate">{{ workspace.project.org.name }}</span>
             </dd>
             <dt class="sr-only">Project:</dt>
             <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
               <span class="truncate">{{ workspace.project.name }}</span>
             </dd>
           </dl>
@@ -72,7 +72,7 @@
                   ">
                     <a
                       class="
-                        focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                        focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset
                         before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
                       href="{{ snapshot.get_absolute_url }}"
                     >
@@ -82,7 +82,7 @@
                   </dd>
                   {% if user_can_view_all_files %}
                     <dt class="sr-only">Status:</dt>
-                    <dd class="ml-auto flex-shrink-0">
+                    <dd class="ml-auto shrink-0">
                       {% if snapshot.is_published %}
                         {% pill variant="success" text="Published" %}
                       {% else %}
@@ -94,12 +94,12 @@
                 <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
                   <dt class="sr-only">GitHub repository:</dt>
                   <dd class="flex flex-row items-start overflow-hidden sm:max-w-[66%]">
-                    {% icon_user_outline class="-ml-0.5 mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    {% icon_user_outline class="-ml-0.5 mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                     <span class="truncate">{{ snapshot.created_by.name }}</span>
                   </dd>
                   <dt class="sr-only">Created at:</dt>
-                  <dd class="flex flex-row flex-shrink-0 items-start sm:ml-auto">
-                    {% icon_folder_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  <dd class="flex flex-row shrink-0 items-start sm:ml-auto">
+                    {% icon_folder_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                     {{ snapshot.files.count }} file{{ snapshot.files.count|pluralize }}
                   </dd>
                 </div>

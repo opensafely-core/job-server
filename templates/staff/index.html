@@ -57,8 +57,8 @@
           {% if q %}
             {% var value=q|stringformat:"s" %}
           {% endif %}
-          {% form_input custom_field=True type="search" id="staffSearch" name="q" value=value label="Search the site" label_class="sr-only" class="w-full" input_class="!m-0" %}
-          {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+          {% form_input custom_field=True type="search" id="staffSearch" name="q" value=value label="Search the site" label_class="sr-only" class="w-full" input_class="m-0!" %}
+          {% #button type="submit" variant="primary" class="shrink-0" %}Search{% /button %}
         </form>
       {% /card %}
 

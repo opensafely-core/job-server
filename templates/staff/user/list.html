@@ -52,7 +52,7 @@
         {% is_filter_selected key="any_roles" value="yes" as is_any_roles_yes_active %}
         {% if is_any_roles_yes_active %}
           {% url_without_querystring any_roles="yes" as query_string_any_roles_yes %}
-          {% var yes_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+          {% var yes_active_class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
         {% else %}
           {% url_with_querystring any_roles="yes" as query_string_any_roles_yes %}
         {% endif %}
@@ -64,7 +64,7 @@
         {% is_filter_selected key="any_roles" value="no" as is_any_roles_no_active %}
         {% if is_any_roles_no_active %}
           {% url_without_querystring any_roles="no" as query_string_any_roles_no %}
-          {% var no_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+          {% var no_active_class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
         {% else %}
           {% url_with_querystring any_roles="no" as query_string_any_roles_no %}
         {% endif %}
@@ -109,8 +109,8 @@
         {% if request.GET.q %}
           {% var value=request.GET.q|stringformat:"s" %}
         {% endif %}
-        {% form_input custom_field=True type="search" id="userSearch" name="q" value=value label="Search for a user" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by user name" %}
-        {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+        {% form_input custom_field=True type="search" id="userSearch" name="q" value=value label="Search for a user" label_class="sr-only" class="w-full" input_class="m-0!" placeholder="Search by user name" %}
+        {% #button type="submit" variant="primary" class="shrink-0" %}Search{% /button %}
       </form>
       {% if request.GET.q %}
         <p class="mt-3">

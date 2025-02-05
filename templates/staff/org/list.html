@@ -32,7 +32,7 @@
             {% var value=request.GET.q|stringformat:"s" %}
           {% endif %}
           {% form_input custom_field=True type="search" id="orgSearch" name="q" value=value label="Search for an org" label_class="sr-only" class="w-full max-w-prose" %}
-          {% #button type="submit" variant="primary" class="flex-shrink-0 mt-auto" %}Search{% /button %}
+          {% #button type="submit" variant="primary" class="shrink-0 mt-auto" %}Search{% /button %}
         </form>
         {% if request.GET.q %}
           <p class="mt-3">

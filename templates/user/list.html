@@ -19,12 +19,12 @@
     {% #list_group %}
       {% for user in object_list %}
         {% #list_group_item href=user.get_absolute_url %}
-          <div class="flex flex-col md:flex-row min-w-0 md:justify-between md:flex-grow">
+          <div class="flex flex-col md:flex-row min-w-0 md:justify-between md:grow">
             <p class="truncate text-base font-semibold text-oxford-600">
               {{ user.name }}
             </p>
             <div class="mt-1 flex items-center text-sm text-slate-600 font-normal whitespace-nowrap md:mt-0 md:ml-2">
-              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
               {% if user.project_count %}
                 {{ user.project_count }} project{{ user.project_count|pluralize }}
               {% else %}

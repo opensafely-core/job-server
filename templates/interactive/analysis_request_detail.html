@@ -35,19 +35,19 @@
         <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
           <dt class="sr-only">Organisation:</dt>
           <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            {% icon_building_library_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
             <span class="truncate">{{ analysis_request.project.org.name }}</span>
           </dd>
           <dt class="sr-only">Project:</dt>
           <dd class="flex flex-row items-start overflow-hidden">
-            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
             <span class="truncate">{{ analysis_request.project.name }}</span>
           </dd>
         </dl>
       </div>
       {% if user_can_view_staff_area %}
-        <div class="order-1 lg:order-2 flex-shrink-0">
-          {% #button href=analysis_request.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+        <div class="order-1 lg:order-2 shrink-0">
+          {% #button href=analysis_request.get_staff_url type="link" variant="danger" class="shrink-0" %}
             View in Staff Area
             {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
           {% /button %}
@@ -132,7 +132,7 @@
             </h1>
 
             {% if analysis_request.report.description %}
-            <p class="lead !mb-2">{{ analysis_request.report.description|linebreaksbr }}</p>
+            <p class="lead mb-2!">{{ analysis_request.report.description|linebreaksbr }}</p>
             {% endif %}
 
             <p class="mb-4">
@@ -175,19 +175,19 @@
             <ol class="report__footer-notes">
               <li id="footnote-1">
                 Data Security and Protection Toolkit - NHS Digital. NHS Digital. <a href="http://https://digital.nhs.uk/data-and-information/looking-after-information/data-security-and-information-governance/data-security-and-protection-toolkit" target="_blank" rel="noopener noreferrer">https://digital.nhs.uk/data-and-information/looking-after-information/data-security-and-information-governance/data-security-and-protection-toolkit</a> (accessed 30 Apr 2020).
-                <a href="#location-1" class="!decoration-transparent"><span role="img" aria-label="Show footnote 1 location">↵</span></a>
+                <a href="#location-1" class="decoration-transparent!"><span role="img" aria-label="Show footnote 1 location">↵</span></a>
               </li>
               <li>ISB1523: Anonymisation Standard for Publishing Health and Social Care Data - NHS Digital. NHS Digital. <a href="https://digital.nhs.uk/data-and-information/information-standards/information-standards-and-data-collections-including-extractions/publications-and-notifications/standards-and-collections/isb1523-anonymisation-standard-for-publishing-health-and-social-care-data" target="_blank" rel="noopener noreferrer">https://digital.nhs.uk/data-and-information/information-standards/information-standards-and-data-collections-including-extractions/publications-and-notifications/standards-and-collections/isb1523-anonymisation-standard-for-publishing-health-and-social-care-data</a> (accessed 30 Apr 2020).
-                <a href="#location-2" class="!decoration-transparent"><span role="img" aria-label="Show footnote 2 location">↵</span></a>
+                <a href="#location-2" class="decoration-transparent!"><span role="img" aria-label="Show footnote 2 location">↵</span></a>
               </li>
               <li>Secretary of State for Health and Social Care - UK Government. Coronavirus (COVID-19): notification to organisations to share information. 2020.<a href=" https://web.archive.org/web/20200421171727/https://www.gov.uk/government/publications/covid-19-notification-to-gps-and-nhs-england-to-share-information" target="_blank" rel="noopener noreferrer"> https://web.archive.org/web/20200421171727/https://www.gov.uk/government/publications/covid-19-notification-to-gps-and-nhs-england-to-share-information</a>
-                <a href="#location-3" class="!decoration-transparent"><span role="img" aria-label="Show footnote 3 location">↵</span></a>
+                <a href="#location-3" class="decoration-transparent!"><span role="img" aria-label="Show footnote 3 location">↵</span></a>
               </li>
               <li>Secretary of State for Health and Social Care - UK Government. Coronavirus (COVID-19): notification to organisations to share information. 2022. <a href="https://www.gov.uk/government/publications/coronavirus-covid-19-notification-to-organisations-to-share-information/coronavirus-covid-19-notice-under-regulation-34-of-the-health-service-control-of-patient-information-regulations-2002" target="_blank" rel="noopener noreferrer">https://www.gov.uk/government/publications/coronavirus-covid-19-notification-to-organisations-to-share-information/coronavirus-covid-19-notice-under-regulation-34-of-the-health-service-control-of-patient-information-regulations-2002</a>
-                <a href="#location-4" class="!decoration-transparent"><span role="img" aria-label="Show footnote 4 location">↵</span></a>
+                <a href="#location-4" class="decoration-transparent!"><span role="img" aria-label="Show footnote 4 location">↵</span></a>
               </li>
               <li>Confidentiality Advisory Group. Health Research Authority. <a href="https://www.hra.nhs.uk/about-us/committees-and-services/confidentiality-advisory-group/" target="_blank" rel="noopener noreferrer">https://www.hra.nhs.uk/about-us/committees-and-services/confidentiality-advisory-group/</a>
-                <a href="#location-5" class="!decoration-transparent"><span role="img" aria-label="Show footnote 5 location">↵</span></a>
+                <a href="#location-5" class="decoration-transparent!"><span role="img" aria-label="Show footnote 5 location">↵</span></a>
               </li>
             </ol>
           </div>
@@ -273,7 +273,7 @@
   </div>
 </div>
 
-<dialog id="downloadModal" class="max-w-prose p-8 shadow-xl rounded-md backdrop:bg-black/25 backdrop:backdrop-blur-sm">
+<dialog id="downloadModal" class="max-w-prose p-8 shadow-xl rounded-md backdrop:bg-black/25 backdrop:backdrop-blur-xs">
   <section class="prose prose-blue">
     {% if object.publish_request.is_approved %}
     <p>

@@ -1,7 +1,7 @@
 <li class="flex max-w-full relative items-center -mr-1 {{ class }}">
   {% if title == "Home" %}
     <a href="{{ url }}" class="text-slate-400 hover:text-slate-500 p-1 -ml-1 lg:p-2 lg:-ml-2">
-      {% icon_home_outline class="flex-shrink-0 h-5 w-5" %}
+      {% icon_home_outline class="shrink-0 h-5 w-5" %}
       <span class="sr-only">{{ title }}</span>
     </a>
   {% else %}
@@ -25,6 +25,6 @@
   {% endif %}
 
   {% if not active %}
-    {% icon_chevron_right_outline class="flex-shrink-0 h-5 w-5 text-oxford/25" %}
+    {% icon_chevron_right_outline class="shrink-0 h-5 w-5 text-oxford/25" %}
   {% endif %}
 </li>

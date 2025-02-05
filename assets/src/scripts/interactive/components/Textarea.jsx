@@ -39,7 +39,7 @@ function Textarea({
           mt-1 block w-full max-w-prose rounded-md border-gray-400 text-gray-900 shadow-sm
           ${resize ? "" : "resize-none"}
           sm:text-sm
-          focus:outline-none focus:ring-oxford-500 focus:border-oxford-500
+          focus:outline-hidden focus:ring-oxford-500 focus:border-oxford-500
         `}
         maxLength={maxlength}
         minLength={minlength}

@@ -38,7 +38,7 @@
 
             {% if is_status_active %}
               {% url_without_querystring status=status.value as remove_status_query_url %}
-              {% #list_group_item href=remove_status_query_url role="checkbox" aria-checked="true" class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+              {% #list_group_item href=remove_status_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
               {% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}
                 {{ status.label }}
               {% /list_group_item %}
@@ -64,7 +64,7 @@
 
             {% if is_user_active %}
               {% url_without_querystring user=user.username as remove_user_query_url %}
-              {% #list_group_item href=remove_user_query_url role="checkbox" aria-checked="true" class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+              {% #list_group_item href=remove_user_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
                 {% icon_check_outline class="h-5 w-5 stroke-green-700" %}
                 {{ user.name }}
               {% /list_group_item %}
@@ -88,8 +88,8 @@
         {% else %}
           {% var value="" %}
         {% endif %}
-        {% form_input custom_field=True type="search" id="applicationSearch" name="q" value=value label="Search for an application" label_class="sr-only" class="w-full" input_class="!m-0" %}
-        {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+        {% form_input custom_field=True type="search" id="applicationSearch" name="q" value=value label="Search for an application" label_class="sr-only" class="w-full" input_class="m-0!" %}
+        {% #button type="submit" variant="primary" class="shrink-0" %}Search{% /button %}
       </form>
       {% if request.GET.q %}
         <p class="mt-3">

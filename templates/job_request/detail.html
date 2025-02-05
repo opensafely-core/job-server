@@ -43,30 +43,30 @@
     <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
       <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
         <div class="order-2 w-full lg:mr-auto lg:order-1">
-          <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl !leading-snug">
+          <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl leading-snug!">
             Job request: {{ job_request.pk }}
           </h1>
           <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start mt-1">
             <dt class="sr-only">Organisation:</dt>
             <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
               <span class="truncate">{{ job_request.workspace.project.org.name }}</span>
             </dd>
             <dt class="sr-only">Workspace:</dt>
             <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_folder_open_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              {% icon_folder_open_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
               <span class="truncate">{{ job_request.workspace.name }}</span>
             </dd>
             <dt class="sr-only">ID:</dt>
             <dd class="flex flex-row items-start overflow-hidden relative">
-              {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
               <span class="truncate">{{ job_request.identifier }}</span>
             </dd>
           </dl>
         </div>
         {% if user_can_view_staff_area %}
-          <div class="order-1 lg:order-2 flex-shrink-0">
-            {% #button href=job_request.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+          <div class="order-1 lg:order-2 shrink-0">
+            {% #button href=job_request.get_staff_url type="link" variant="danger" class="shrink-0" %}
               View in Staff Area
               {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
             {% /button %}
@@ -148,7 +148,7 @@
                     ">
                       <a
                         class="
-                          focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                          focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset
                           before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
                         href="{{ job.get_absolute_url }}"
                       >
@@ -156,7 +156,7 @@
                       </a>
                     </dd>
                     <dt class="sr-only">Status:</dt>
-                    <dd class="ml-auto flex-shrink-0">
+                    <dd class="ml-auto shrink-0">
                       {% if job.status == "pending" %}
                         {% pill sr_only="Status:" variant="warning" text=job.status|capfirst %}
                       {% elif job.status == "running" %}
@@ -170,7 +170,7 @@
                   </div>
                   <dt class="sr-only">Job identifier:</dt>
                   <dd class="inline-flex flex-row items-start mr-auto overflow-hidden max-w-full relative z-40">
-                    {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                     <code class="font-mono font-semibold text-sm text-slate-600 tracking-widest truncate">
                       {{ job.identifier }}
                     </code>

@@ -19,13 +19,13 @@
     {% if org.logo_file %}
       <img
         alt="{{ org.name }} logo"
-        class="w-36 h-36 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
+        class="w-36 h-36 bg-white aspect-square rounded-2xl border border-slate-200 shadow-xs overflow-hidden shrink-0"
         height="144"
         src="{{ org.logo_file.url }}"
         width="144"
       />
     {% endif %}
-    <div class="flex-grow flex flex-col gap-y-4 md:gap-y-2">
+    <div class="grow flex flex-col gap-y-4 md:gap-y-2">
       <h1 class="text-3xl tracking-tight break-words md:text-4xl font-bold text-slate-900">
         {{ org.name }}
       </h1>
@@ -56,7 +56,7 @@
                   <p class="truncate text-base font-semibold text-oxford-600">
                     {{ project.name }}
                   </p>
-                  <div class="ml-2 flex flex-shrink-0">
+                  <div class="ml-2 flex shrink-0">
                     {% if project.status == "retired" %}
                       {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
                     {% elif project.status == "ongoing" %}
@@ -75,18 +75,18 @@
                 <div class="mt-2 sm:flex sm:justify-between">
                   <div class="sm:flex">
                     <p class="flex items-center text-sm text-slate-600">
-                      {% icon_user_group_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      {% icon_user_group_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                       {{ project.member_count }}
                       user{{ project.member_count|pluralize }}
                     </p>
                     <p class="flex items-center text-sm text-slate-600 mt-2 sm:mt-0 sm:ml-6">
-                      {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                       {{ project.workspace_count }}
                       workspace{{ project.workspace_count|pluralize }}
                     </p>
                   </div>
                   <div class="mt-2 flex items-center text-sm text-slate-600 sm:mt-0">
-                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                     <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
                       <span class="sr-only">Project created:</span>
                       {{ project.created_at|date:"d M Y" }}

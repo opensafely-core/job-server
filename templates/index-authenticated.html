@@ -14,9 +14,9 @@
     <h2 class="sr-only" id="profile-overview-title">Profile Overview</h2>
     <div class="flex items-center justify-center sm:justify-between">
       <div class="sm:flex sm:space-x-5 sm:items-center">
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
           <div
-            class="flex items-center justify-center w-16 h-16 bg-oxford-100 aspect-square rounded-2xl border border-oxford-500/25 overflow-hidden flex-shrink-0 mx-auto sm:mx-0"
+            class="flex items-center justify-center w-16 h-16 bg-oxford-100 aspect-square rounded-2xl border border-oxford-500/25 overflow-hidden shrink-0 mx-auto sm:mx-0"
           >
             <span class="py-2 text-oxford-600 text-2xl font-bold" role="presentation">
               {{ user.initials }}
@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    {% #card_footer class="!py-0 !px-0 !-mb-3 md:!-mb-5" %}
+    {% #card_footer class="py-0! px-0! -mb-3! md:-mb-5!" %}
       <ul class="grid grid-cols-1 divide-y divide-slate-200 border-t border-slate-200 bg-slate-50 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
         <li class="px-6 py-5 text-center text-sm font-medium text-slate-600">
           <span class="text-slate-900">{{ counts.job_requests }}</span>

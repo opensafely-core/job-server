@@ -20,7 +20,7 @@
         {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
       {% /button %}
       {% if user_can_view_staff_area %}
-        {% #button href=user.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+        {% #button href=user.get_staff_url type="link" variant="danger" class="shrink-0" %}
           View in Staff Area
           {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
         {% /button %}
@@ -37,7 +37,7 @@
               <p class="truncate text-base font-semibold text-oxford-600">
                 {{ project.name }}
               </p>
-              <div class="ml-2 flex flex-shrink-0">
+              <div class="ml-2 flex shrink-0">
                 {% if project.status == "retired" %}
                   {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
                 {% elif project.status == "ongoing" %}

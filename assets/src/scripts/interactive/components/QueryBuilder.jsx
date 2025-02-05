@@ -102,7 +102,7 @@ function QueryBuilder() {
         >
           up to
           <Field
-            className="inline-flex w-[6ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-sm"
+            className="inline-flex w-[6ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-xs"
             inputMode="numeric"
             max="52"
             min="0"
@@ -112,7 +112,7 @@ function QueryBuilder() {
           />
           <Field
             as="select"
-            className="inline-flex w-[12ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-sm"
+            className="inline-flex w-[12ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-xs"
             name="timeScale"
             onChange={(e) => handleTimeChange(e, "timeScale", "timeValue")}
           >
