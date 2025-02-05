@@ -91,7 +91,6 @@ devenv: prodenv requirements-dev && install-precommit
     $PIP install --no-deps -r requirements.dev.txt
     touch $VIRTUAL_ENV/.dev
 
-
 # ensure precommit is installed
 install-precommit:
     #!/usr/bin/env bash
@@ -110,6 +109,9 @@ upgrade env package="": virtualenv
     test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
+# upgrade our internal pipeline library
+upgrade-pipeline:
+    ./scripts/upgrade-pipeline.sh requirements.prod.in
 
 update-interactive-templates tag="": && prodenv
     #!/usr/bin/env bash
