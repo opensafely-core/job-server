@@ -199,7 +199,7 @@ Vite integrates into the Django project using the [django-vite](https://github.c
 
 Vite works by compiling JavaScript files, and outputs a manifest file, the JavaScript files, and any included assets such as stylesheets or images.
 
-For styling this project uses [Tailwind CSS](https://tailwindcss.com/), and then [PostCSS](https://github.com/postcss/postcss) for post-processing.
+For styling this project uses [Tailwind CSS](https://tailwindcss.com/).
 
 ### Running the local asset server
 
