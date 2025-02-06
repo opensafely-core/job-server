@@ -585,7 +585,6 @@ def build_level4_user(user):
         if has_permission(user, permissions.unreleased_outputs_view, project=project):
             for workspace in project.workspaces.all().values("name", "is_archived"):
                 workspaces[workspace["name"]] = {
-                    "project": project.name,  # for backwards compatibility with Airlock
                     "project_details": {
                         "name": project.name,
                         "ongoing": project.status in ongoing_project_statuses,

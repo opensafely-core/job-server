@@ -1755,12 +1755,10 @@ def test_level4tokenauthenticationapi_success(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": ongoing},
                 "archived": True,
             },
             workspace2.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": ongoing},
                 "archived": False,
             },
@@ -1803,12 +1801,10 @@ def test_level4tokenauthenticationapi_success_privileged(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project": project.name,
                 "project_details": {"name": project.name, "ongoing": True},
                 "archived": False,
             },
             workspace2.name: {
-                "project": project.name,
                 "project_details": {"name": project.name, "ongoing": True},
                 "archived": False,
             },
@@ -1947,12 +1943,10 @@ def test_level4authorisationapi_success(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": True},
                 "archived": False,
             },
             workspace2.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": True},
                 "archived": False,
             },
