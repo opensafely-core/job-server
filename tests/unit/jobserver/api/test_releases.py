@@ -1813,7 +1813,7 @@ def test_level4tokenauthenticationapi_success_privileged(
         },  # should not include workspace3
         "copiloted_workspaces": {},
         "output_checker": True,
-        "staff": False,
+        "staff": True,
     }
 
 

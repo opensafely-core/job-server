@@ -28,7 +28,13 @@ from interactive.models import AnalysisRequest
 from interactive.slacks import notify_report_uploaded
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
-from jobserver.authorization import OutputChecker, has_permission, has_role, permissions
+from jobserver.authorization import (
+    OutputChecker,
+    StaffAreaAdministrator,
+    has_permission,
+    has_role,
+    permissions,
+)
 from jobserver.commands import users
 from jobserver.models import (
     Project,
@@ -621,7 +627,7 @@ def build_level4_user(user):
             # list the explicit workspaces that the user has this permission
             # for.
             output_checker=has_role(user, OutputChecker),
-            staff=False,
+            staff=has_role(user, StaffAreaAdministrator),
         )
     )
     assert level4_user.is_valid(), level4_user.errors
