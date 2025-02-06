@@ -567,10 +567,10 @@ class WorkspaceStatusAPI(RetrieveAPIView):
 
 class Level4AuthenticatedUser(serializers.Serializer):
     username = serializers.CharField()
-    fullname = serializers.CharField()
+    fullname = serializers.CharField(default=None, allow_blank=True)
     workspaces = serializers.DictField(default={})
-    output_checker = serializers.BooleanField()
-    staff = serializers.BooleanField()
+    output_checker = serializers.BooleanField(default=False)
+    staff = serializers.BooleanField(default=False)
 
 
 def build_level4_user(user):
@@ -606,8 +606,8 @@ def build_level4_user(user):
             output_checker=has_role(user, OutputChecker),
         )
     )
-    # we must validate this or DRF will refuse to serializer it.
-    level4_user.is_valid()
+    # we must validate this or DRF will refuse to serialize it
+    assert level4_user.is_valid(), level4_user.errors
 
     return level4_user
 

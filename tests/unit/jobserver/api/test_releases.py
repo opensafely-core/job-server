@@ -1764,6 +1764,7 @@ def test_level4tokenauthenticationapi_success(
             },
         },  # should not include workspace3
         "output_checker": False,
+        "staff": False,
     }
 
 
@@ -1810,6 +1811,7 @@ def test_level4tokenauthenticationapi_success_privileged(
             },
         },  # should not include workspace3
         "output_checker": True,
+        "staff": False,
     }
 
 
@@ -1952,6 +1954,7 @@ def test_level4authorisationapi_success(
             },
         },  # should not include workspace3
         "output_checker": False,
+        "staff": False,
     }
 
 
