@@ -19,7 +19,7 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react-swc": "^3.7.2",
-    "@vitest/coverage-v8": "^3.0.4",
+    "@vitest/coverage-v8": "^3.0.5",
     "autoprefixer": "^10.4.20",
     "history": "^5.3.0",
     "jsdom": "^26.0.0",
@@ -29,7 +29,7 @@
     "vite": "^6.0.11",
     "vite-plugin-live-reload": "^3.0.4",
     "vite-plugin-static-copy": "^2.2.0",
-    "vitest": "^3.0.2",
+    "vitest": "^3.0.5",
     "vitest-fetch-mock": "^0.3.0",
     "window-resizeto": "^0.0.2"
   },
