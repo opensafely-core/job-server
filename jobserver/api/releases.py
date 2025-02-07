@@ -28,7 +28,13 @@ from interactive.models import AnalysisRequest
 from interactive.slacks import notify_report_uploaded
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
-from jobserver.authorization import OutputChecker, has_permission, has_role, permissions
+from jobserver.authorization import (
+    OutputChecker,
+    StaffAreaAdministrator,
+    has_permission,
+    has_role,
+    permissions,
+)
 from jobserver.commands import users
 from jobserver.models import (
     Project,
@@ -567,31 +573,46 @@ class WorkspaceStatusAPI(RetrieveAPIView):
 
 class Level4AuthenticatedUser(serializers.Serializer):
     username = serializers.CharField()
-    fullname = serializers.CharField()
+    fullname = serializers.CharField(default=None, allow_blank=True)
     workspaces = serializers.DictField(default={})
-    output_checker = serializers.BooleanField()
-    staff = serializers.BooleanField()
+    copiloted_workspaces = serializers.DictField(default={})
+    output_checker = serializers.BooleanField(default=False)
+    staff = serializers.BooleanField(default=False)
+
+
+ONGOING_PROJECT_STATUSES = {
+    Project.Statuses.ONGOING,
+    Project.Statuses.ONGOING_LINKED,
+}
+
+
+def build_level4_workspace(workspace, project):
+    return {
+        "project_details": {
+            "name": project.name,
+            "ongoing": project.status in ONGOING_PROJECT_STATUSES,
+        },
+        "archived": workspace["is_archived"],
+    }
 
 
 def build_level4_user(user):
-    ongoing_project_statuses = {
-        Project.Statuses.ONGOING,
-        Project.Statuses.ONGOING_LINKED,
-    }
-
     workspaces = {}
-    # this is 1 or 2 queries per project, not ideal, but we permissions are not stored in the db
+    copiloted_workspaces = {}
+
+    # this is 1 or 2 queries per project, not ideal, but the permissions are not stored in the db
     for project in user.projects.all():
         if has_permission(user, permissions.unreleased_outputs_view, project=project):
             for workspace in project.workspaces.all().values("name", "is_archived"):
-                workspaces[workspace["name"]] = {
-                    "project": project.name,  # for backwards compatibility with Airlock
-                    "project_details": {
-                        "name": project.name,
-                        "ongoing": project.status in ongoing_project_statuses,
-                    },
-                    "archived": workspace["is_archived"],
-                }
+                workspaces[workspace["name"]] = build_level4_workspace(
+                    workspace, project
+                )
+
+    for project in Project.objects.filter(copilot=user):
+        for workspace in project.workspaces.all().values("name", "is_archived"):
+            copiloted_workspaces[workspace["name"]] = build_level4_workspace(
+                workspace, project
+            )
 
     # using a DRF serializer for now, so we've *some* schema definition
     level4_user = Level4AuthenticatedUser(
@@ -599,16 +620,17 @@ def build_level4_user(user):
             username=user.username,
             fullname=user.fullname,
             workspaces=workspaces,
+            copiloted_workspaces=copiloted_workspaces,
             # note, we use a generic role check here rather than a permissions
             # as its currently a global role. In future, if output checking
             # permissions applies to different projects/orgs, we'll need to
             # list the explicit workspaces that the user has this permission
             # for.
             output_checker=has_role(user, OutputChecker),
+            staff=has_role(user, StaffAreaAdministrator),
         )
     )
-    # we must validate this or DRF will refuse to serializer it.
-    level4_user.is_valid()
+    assert level4_user.is_valid(), level4_user.errors
 
     return level4_user
 

@@ -1755,17 +1755,17 @@ def test_level4tokenauthenticationapi_success(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": ongoing},
                 "archived": True,
             },
             workspace2.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": ongoing},
                 "archived": False,
             },
         },  # should not include workspace3
+        "copiloted_workspaces": {},
         "output_checker": False,
+        "staff": False,
     }
 
 
@@ -1803,17 +1803,17 @@ def test_level4tokenauthenticationapi_success_privileged(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project": project.name,
                 "project_details": {"name": project.name, "ongoing": True},
                 "archived": False,
             },
             workspace2.name: {
-                "project": project.name,
                 "project_details": {"name": project.name, "ongoing": True},
                 "archived": False,
             },
         },  # should not include workspace3
+        "copiloted_workspaces": {},
         "output_checker": True,
+        "staff": True,
     }
 
 
@@ -1931,6 +1931,10 @@ def test_level4authorisationapi_success(
     WorkspaceFactory(project=project2)
     project_membership(user=token_login_user, project=project2)
 
+    # another project, where user is the copilot
+    project3 = ProjectFactory(copilot=token_login_user)
+    workspace3 = WorkspaceFactory(project=project3)
+
     backend = token_login_user.backends.first()
     request_data = {"user": token_login_user.username}
     request = api_rf.post(
@@ -1947,17 +1951,22 @@ def test_level4authorisationapi_success(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": True},
                 "archived": False,
             },
             workspace2.name: {
-                "project": project1.name,
                 "project_details": {"name": project1.name, "ongoing": True},
                 "archived": False,
             },
         },  # should not include workspace3
+        "copiloted_workspaces": {
+            workspace3.name: {
+                "project_details": {"name": project3.name, "ongoing": True},
+                "archived": False,
+            },
+        },
         "output_checker": False,
+        "staff": False,
     }
 
 
