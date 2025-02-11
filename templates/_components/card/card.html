@@ -1,5 +1,5 @@
 <section {% attrs class id %} {% if title %}aria-labelledby="{{ title | slugify }}-title"{% endif %}>
-  <div class="bg-white shadow">
+  <div class="bg-white shadow-sm">
     {% if title or subtitle or button %}
     <div class="flex flex-wrap gap-2 items-center justify-between px-4 py-2 sm:px-6 sm:py-4 {{ header_class }}">
       <div>
@@ -14,7 +14,7 @@
         {% endif %}
       </div>
       {% if button %}
-        {% #button class="flex-shrink-0" href=button_href type="link" variant="primary" %}
+        {% #button class="shrink-0" href=button_href type="link" variant="primary" %}
           {{ button_text }}
         {% /button %}
       {% endif %}

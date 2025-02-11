@@ -88,7 +88,7 @@
             {% var value=request.GET.q|stringformat:"s" %}
           {% endif %}
           {% form_input custom_field=True type="search" id="jobRequestSearch" name="q" value=value label="Search by number, (partial) identifier, job (partial) identifier, name of author, workspace, project, or org" label_class="text-sm" %}
-          {% #button type="submit" variant="primary" class="flex-shrink-0 mt-auto" %}Search{% /button %}
+          {% #button type="submit" variant="primary" class="shrink-0 mt-auto" %}Search{% /button %}
         </form>
         {% if request.GET.q %}
           <p class="mt-3">

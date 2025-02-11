@@ -8,7 +8,7 @@
 {% block content %}
   <details
     class="
-      fixed top-4 right-4 inline-flex z-50 group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
+      fixed top-4 right-4 inline-flex flex-col z-50 group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
       open:bg-white
     "
     open
@@ -56,7 +56,7 @@
         <li><code>title</code>: [string] - add a title for the alert</li>
         <li><code>variant</code>: [string] - select styling colour and icon for component</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-8 items-center">
           {% #alert variant="warning" title="Attention needed" dismissible=True %}
             This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
@@ -81,7 +81,7 @@
         <li><code>title</code>: [string] - add a title for the page</li>
         <li><code>text</code>: [string] - text to be displayed below the title</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-8 items-stretch">
           {% #article_header title="A page title can go here" text="And description text can go here" %}
             <ul class="flex flex-col gap-1 text-sm ml-3 list-disc">
@@ -102,7 +102,7 @@
     <section id="breadcrumbsSection">
       <h2>Breadcrumbs</h2>
 
-      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="mb-8">
           {% #breadcrumbs %}
             {% url 'home' as home_url %}
@@ -166,7 +166,7 @@
         <li><code>form</code>: [string] - form id to link button to, as per HTML</li>
         <li><code>hx-*</code>: [string] - HTMX attributes</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col md:flex-row gap-8 items-center">
           {% #button type="link" href="#" variant="danger" %}Danger link{% /button %}
           {% #button type="submit" variant="success" %}Submit success{% /button %}
@@ -195,7 +195,7 @@
         <li><code>subtitle</code>: [string] - display a title for the card</li>
         <li><code>title</code>: [string] - display a subtitle for the card</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}
             <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
@@ -211,13 +211,13 @@
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>no_container</code>: [boolean] - if true, remove all padding from the footer</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <pre><code class="language-django">{% verbatim %}{% #card_footer no_container=False %}{% endverbatim %}
   {% filter force_escape %}<span class="text-bn-egg-500">Hello world</span>{% endfilter %}
 {% verbatim %}{% /card %}{% endverbatim %}</code></pre>
       </div>
 
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}
             <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
@@ -241,7 +241,7 @@
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>children</code>: [html] - display the children components</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #code %}
             <h1>Hello world!</h1>
@@ -265,7 +265,7 @@
         <li><code>title</code>: [string] - add title text</li>
         <li><code>title_class</code>: [string] - add HTML classes to the dd component</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col items-center">
           {% #description_item title="This is a title on the left" %}
             <p>This is content on the right</p>
@@ -302,7 +302,7 @@
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #description_list %}
             {% #description_item title="This is a title on the left" %}
@@ -320,7 +320,7 @@
 
     <section id="footerSection">
       <h2>Footer</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% footer %}
         </div>
@@ -350,7 +350,7 @@
         <li><code>span_class</code>: [string] - add HTML classes to the span tag wrapping the label</li>
         <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% form_checkbox checked=True custom_field=True id="backendActive" label="Is this backend active?" name="backend" value="activeBackend" %}
         </div>
@@ -362,7 +362,7 @@
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>children</code>: [html] - display the children components</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #form_fieldset %}
             This is a fieldset for wrapping form elements
@@ -401,7 +401,7 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types"><code>type</code></a></li>
         <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-y-4 items-start max-w-xl w-full mx-auto">
           {% form_input type="email" label="Email address" required=True field=example_form.example_email hint_text="Must be an opensafely.org account" %}
           {% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
@@ -417,7 +417,7 @@
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>text</code>: [string] - text to display for the legend</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #form_fieldset %}
             {% form_legend text="This is a form legend" %}
@@ -438,7 +438,7 @@
         <li><code>name</code>: [string] - set the HTML name for the input element</li>
         <li><code>span_class</code>: [string] - add HTML classes to the span tag wrapping the label</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #form_fieldset %}
             {% form_legend text="Where do you find the best pizza in New York?" %}
@@ -476,7 +476,7 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
         <li><code>selected</code>: [string] - matches value of choice for preselected option</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         {% form_radios class="w-full max-w-lg mx-auto" label="Choose a language" required=True field=example_form.example_radios choices=example_form.example_radios.field.choices selected=example_form.example_radios.value %}
         <pre><code class="language-django">{% verbatim %}{% form_radios class="w-full max-w-lg mx-auto" label="Choose a language" required=True field=example_form.example_radios choices=example_form.example_radios.field.choices selected=example_form.example_radios.value %}{% endverbatim %}</code></pre>
       </div>
@@ -501,7 +501,7 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
         <li><code>selected</code>: [string] - matches value of choice for preselected option</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         {% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form.example_select choices=example_form.example_select.field.choices selected=example_form.example_select.value %}
         <pre><code class="language-django">{% verbatim %}{% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form.example_select choices=example_form.example_select.field.choices selected=example_form.example_select.value %}{% endverbatim %}</code></pre>
       </div>
@@ -535,7 +535,7 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea#attr-rows"><code>rows</code></a></li>
         <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         {% form_textarea class="max-w-lg w-full mx-auto" field=example_form.example_textarea label="Enter a short description of the project" resize=True rows=8 required=True %}
         <pre><code class="language-django">{% verbatim %}{% form_textarea class="max-w-lg w-full mx-auto" field=example_form.example_textarea label="Enter a short description of the project" resize=True rows=8 %}{% endverbatim %}</code></pre>
       </div>
@@ -548,7 +548,7 @@
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>gap</code>: [number] - set the Tailwind gap distance for the columns</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #grid_three_cols gap=4 %}
             {% #grid_col_span_1 %}
@@ -572,7 +572,7 @@
 
     <section id="headerSection">
       <h2>Header</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="block relative">
           {% header nav=nav %}
         </div>
@@ -592,7 +592,7 @@
         <li><code>new_tab</code>: [boolean] - if true, opens link in a new tab</li>
         <li><code>text</code>: [string] - link text to display</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-x-8">
           <p>{% link href="#" new_tab=True text="It's me, a link!" %}</p>
           <p>And this is showing the {% link href="#" new_tab=True text="end of a sentence" append_after="." %}</p>
@@ -611,7 +611,7 @@
         <li><code>no_border</code>: [boolean] - remove the top border from the group</li>
         <li><code>small</code>: [boolean] - if true, reduces padding and font size</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <pre><code class="language-django">{% verbatim %}{% #list_group %}content in here{% /list_group %}{% endverbatim %}</code></pre>
       </div>
       <h3>List group empty</h3>
@@ -622,7 +622,7 @@
         <li><code>icon</code>: [boolean] - if true, shows the empty folder icon</li>
         <li><code>title</code>: [string] - title text to display</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         {% #card %}
           {% #list_group %}
             {% list_group_empty icon=True title="This group is empty" description="And here is some text explaining why" %}
@@ -644,7 +644,7 @@
         <li><code>href</code>: [string] - href for the anchor tag</li>
         <li><code>role</code>: [string] - set role HTML attribute</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         {% #card %}
           {% #list_group %}
             {% #list_group_item href="https://www.example.com/" %}Example dot com{% /list_group_item %}
@@ -667,7 +667,7 @@
         <li><code>type</code>: [string] - hidden field for screen readers listing the group type</li>
         <li><code>url</code>: [string] - href for the item</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         {% #card %}
           {% #list_group %}
             {% #list_group_rich_item status_text="running" title="An example rich item" type="Example card" url="#" %}
@@ -701,7 +701,7 @@
         <li><code>request</code>: [Request] - pass the current request into the component. It does not have access by default, and needs access to <code>request.csp_nonce</code> for inline scripting.</li>
         <li><code>autoshow</code>: [bool] - open the modal immeadiately. Useful for HTMX use cases.</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #modal id="addGitHubOrg" button_text="Add a Github Organisation" button_variant="primary-outline" request=request %}
             {% #card container=True title="Add a GitHub Organisation" %}
@@ -725,7 +725,7 @@
 
     <section>
       <h2>Multiselect</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card title="Filter by company" container=True class="w-full max-w-prose" %}
             {% #multiselect custom_field=True name="company" placeholder="Select a company" %}
@@ -773,7 +773,7 @@
         <li><code>variant</code>: [string] - select styling colours for the component</li>
       </ul>
 
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-8 md:flex-row items-center">
           {% pill variant="danger" text="Danger" %}
           {% pill variant="info" text="Info" %}
@@ -794,7 +794,7 @@
         <li><code>class</code>: [string] - add HTML classes to element</li>
         <li><code>status</code>: [string] - selects the correct variant for Job Server application status</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-8 md:flex-row items-center">
           {% pill_application_status status="approved_fully" %}
           {% pill_application_status status="ongoing" %}
@@ -809,7 +809,7 @@
         <li><code>status</code>: [string] - selects the correct variant for Job Server project status</li>
         <li><code>text</code>: [string] - display text in the pill</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-8 md:flex-row items-center">
           {% pill_project_status status="completed-and-awaiting" text="Completed and awaiting publication" %}
           {% pill_project_status status="ongoing-and-linked" text="Ongoing" %}
@@ -822,7 +822,7 @@
 
     <section id="skipLinkSection">
       <h2>Skip link</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           <p>Use the tab key to get the link to show</p>
           {% skip_link %}
@@ -833,7 +833,7 @@
 
     <section>
       <h2>Tables</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card class="w-full" no_container=True %}
             <div class="relative inline-block min-w-full align-middle overflow-x-auto max-w-full">
@@ -1009,7 +1009,7 @@
         <li><code>datetime</code>: [datetime] - display a valid datetime for HTML time element</li>
         <li><code>tooltip</code>: [string] - if added, tooltip will show content</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #time class="hover:cursor-pointer" datetime="2023-10-31T13:00:00+0000" tooltip="31 October 2023 at 13:00" %}
             1 hour ago
@@ -1031,7 +1031,7 @@
         <li><code>time</code>: [date] - provide a Django date to display natural time and tooltip for exact time stamp</li>
         <li><code>title</code>: [string] - text to display above time or content</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card title="Timeline" class="w-full" container=True %}
             <ul class="flow-root">
@@ -1064,7 +1064,7 @@
         <li><code>content</code>: [string] - text for the tooltip to display when hovered</li>
         <li><code>tooltip_top</code>: [boolean] - if true, show the tooltip on top</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row gap-x-8 items-center">
           <div class="relative group cursor-pointer">
             Hover here to see a tooltip
@@ -1083,7 +1083,7 @@
       <ul>
         <li><code>class</code>: [string] - add HTML classes to the icon</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-row flex-wrap gap-8 items-center">
           {% icon_academic_cap_outline class="h-6 w-6 text-black" %}
           {% icon_beaker_outline class="h-6 w-6 text-black" %}
@@ -1179,7 +1179,7 @@
       {# <ul> #}
         {# <li><code></code></li> #}
       {# </ul> #}
-      {# <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded"> #}
+      {# <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm"> #}
         {# <div class="flex flex-row gap-x-8 items-center"> #}
           {# {% example_here %} #}
         {# </div> #}

@@ -46,14 +46,14 @@ function Panel({ codelistGroup, codelistID, query, setQuery }) {
                   autoComplete="off"
                   autoCorrect="false"
                   className={classNames(
-                    "block w-full px-3 py-2 border-2 border-gray-400 rounded-md shadow-sm placeholder-gray-400",
-                    "focus:cursor-text focus:outline-none focus:ring-oxford-500 focus:border-oxford-500",
+                    "block w-full px-3 py-2 border-2 border-gray-400 rounded-md shadow-xs placeholder-gray-400",
+                    "focus:cursor-text focus:outline-hidden focus:ring-oxford-500 focus:border-oxford-500",
                   )}
                   displayValue={(codelist) => codelist.label}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Type 3 or more characters to find a codelist"
                 />
-                <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-hidden">
                   <ComboboxItem
                     codelistGroup={codelistGroup}
                     codelistID={codelistID}

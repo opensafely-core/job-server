@@ -11,7 +11,7 @@
         {% if url %}
         <a
           class="
-            focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+            focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset
             before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full
             {{ title_class }}
           "
@@ -25,7 +25,7 @@
       </dd>
       {% if status_text or custom_status %}
         <dt class="sr-only">Status:</dt>
-        <dd class="ml-auto flex-shrink-0">
+        <dd class="ml-auto shrink-0">
           {% if status_text %}
             {% var text=status_text|capfirst %}
 

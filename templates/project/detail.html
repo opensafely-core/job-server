@@ -32,17 +32,17 @@
       md:mt-0 md:gap-6
       lg:col-span-2
     ">
-      <div class="flex-shrink-0 flex flex-col items-center">
+      <div class="shrink-0 flex flex-col items-center">
         {% if project.org.logo_file %}
           <img
             alt="{{ project.org.name }} logo"
-            class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
+            class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-xs overflow-hidden shrink-0 mt-1 mb-2"
             height="144"
             src="{{ project.org.logo_file.url }}"
             width="144"
           />
         {% else %}
-          <span class="grid place-content-center text-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden flex-shrink-0 mt-1 mb-2">
+          <span class="grid place-content-center text-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden shrink-0 mt-1 mb-2">
             <span class="text-xs text-slate-600 tracking-tighter leading-4 p-1">
               {{ project.org.name }}
             </span>
@@ -79,20 +79,20 @@
             {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
           {% /button %}
           {% if is_interactive_user %}
-            {% #button class="flex-shrink-0" href=project.get_interactive_url type="link" variant="primary" %}
+            {% #button class="shrink-0" href=project.get_interactive_url type="link" variant="primary" %}
               Run interactive analysis
               {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
             {% /button %}
           {% endif %}
           {% if is_member %}
-            {% #button class="flex-shrink-0" href=project.get_edit_url type="link" variant="secondary" %}
+            {% #button class="shrink-0" href=project.get_edit_url type="link" variant="secondary" %}
               Edit project
               {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
             {% /button %}
           {% endif %}
         </div>
         {% if project.status_description %}
-          {% #alert variant="info" title="Project "|add:project.get_status_display class="mt-3 !shadow-none border" no_icon %}
+          {% #alert variant="info" title="Project "|add:project.get_status_display class="mt-3 shadow-none! border" no_icon %}
             <div class="prose prose-sm prose-oxford">
               {{ project.status_description|safe }}
             </div>
@@ -102,7 +102,7 @@
     </div>
 
     {% if user_can_view_staff_area %}
-      {% #button href=project.get_staff_url type="link" variant="danger" class="flex-shrink-0 self-start justify-self-start mb-3 lg:justify-self-end" %}
+      {% #button href=project.get_staff_url type="link" variant="danger" class="shrink-0 self-start justify-self-start mb-3 lg:justify-self-end" %}
         View in Staff Area
         {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
       {% /button %}
@@ -125,7 +125,7 @@
                 ">
                   <a
                     class="
-                      focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                      focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset
                       before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
                     href="{{ workspace.get_absolute_url }}"
                   >
@@ -133,7 +133,7 @@
                   </a>
                 </dd>
                 <dt class="sr-only">Status:</dt>
-                <dd class="ml-auto flex-shrink-0">
+                <dd class="ml-auto shrink-0">
                   {% if workspace.is_archived %}
                     {% pill variant="warning" text="Archived" %}
                   {% else %}
@@ -144,17 +144,17 @@
               <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
                 <dt class="sr-only">GitHub repository:</dt>
                 <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                  {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  {% icon_github_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                   <span class="truncate">{{ workspace.repo.name }}</span>
                 </dd>
                 <dt class="sr-only">Git branch:</dt>
                 <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                  {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  {% icon_branches_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                   <span class="truncate">{{ workspace.branch }}</span>
                 </dd>
                 <dt class="sr-only">Created at:</dt>
-                <dd class="flex flex-row flex-shrink-0 items-start sm:ml-auto">
-                  {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                <dd class="flex flex-row shrink-0 items-start sm:ml-auto">
+                  {% icon_calendar_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
                   <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
                     {{ workspace.created_at|date:"d M Y" }}
                   </time>

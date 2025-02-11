@@ -5,7 +5,7 @@
   --alert-text-color: var(--color-slate-700);
   --alert-hover-color: var(--color-slate-600);
 
-  @apply rounded-lg drop-shadow p-4 pr-6 relative;
+  @apply rounded-lg drop-shadow-sm p-4 pr-6 relative;
   background-color: var(--alert-background);
 }
 
@@ -18,7 +18,7 @@
 }
 
 .alert__icon {
-  @apply h-6 w-6 mt-0.5 flex-shrink-0;
+  @apply h-6 w-6 mt-0.5 shrink-0;
   color: var(--alert-icon-color);
 }
 

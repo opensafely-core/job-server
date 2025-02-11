@@ -35,7 +35,7 @@
             <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
               {% for field in fieldset.fields %}
                 {% if not field.is_valid %}
-                  {% #description_item stacked=True title=field.label|add:" *" class="!bg-bn-ribbon-50" %}
+                  {% #description_item stacked=True title=field.label|add:" *" class="bg-bn-ribbon-50!" %}
                     {{ field.value|linebreaksbr }}
                   {% /description_item %}
                 {% else %}
@@ -53,7 +53,7 @@
             </h3>
             <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
               {% if form.job_title.errors %}
-                {% #description_item stacked=True title="Job title"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Job title"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.job_title.value }}
                 {% /description_item %}
               {% else %}
@@ -62,7 +62,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.email.errors %}
-                {% #description_item stacked=True title="Email"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Email"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.email.value }}
                 {% /description_item %}
               {% else %}
@@ -71,7 +71,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.github_username.errors %}
-                {% #description_item stacked=True title="GitHub username"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="GitHub username"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.github_username.value }}
                 {% /description_item %}
               {% else %}
@@ -80,7 +80,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.does_researcher_need_server_access.errors %}
-                {% #description_item stacked=True title="Do they need access to the results server?"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Do they need access to the results server?"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.does_researcher_need_server_access.value|yesno:"Yes,No"|default_if_none:"Not supplied"}}
                 {% /description_item %}
               {% else %}
@@ -89,7 +89,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.telephone.errors %}
-                {% #description_item stacked=True title="Phone number"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Phone number"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.telephone.value|default:"Not supplied" }}
                 {% /description_item %}
               {% else %}
@@ -98,7 +98,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.phone_type.errors %}
-                {% #description_item stacked=True title="Type of phone"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Type of phone"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.phone_type.value|default:"Not supplied" }}
                 {% /description_item %}
               {% else %}
@@ -107,7 +107,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.has_taken_safe_researcher_training.errors %}
-                {% #description_item stacked=True title="Have they undertaken safe researcher training?"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Have they undertaken safe researcher training?"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.has_taken_safe_researcher_training.value|yesno:"Yes,No"|default_if_none:"Not supplied" }}
                 {% /description_item %}
               {% else %}
@@ -116,7 +116,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.training_with_org.errors %}
-                {% #description_item stacked=True title="Organisation training completed with"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Organisation training completed with"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.training_with_org.value|default:"Not supplied" }}
                 {% /description_item %}
               {% else %}
@@ -125,7 +125,7 @@
                 {% /description_item %}
               {% endif %}
               {% if form.training_passed_at.errors %}
-                {% #description_item stacked=True title="Training passed on"|add:" *" class="!bg-bn-ribbon-50" %}
+                {% #description_item stacked=True title="Training passed on"|add:" *" class="bg-bn-ribbon-50!" %}
                   {{ form.training_passed_at.value|date:"d F Y"|default:"Not supplied" }}
                 {% /description_item %}
               {% else %}
@@ -138,7 +138,7 @@
         {% endif %}
 
         {% if page.wizard_page.page_instance.last_reviewed_at is not None %}
-          {% #card_footer class="!bg-bn-sun-50" no_container=True %}
+          {% #card_footer class="bg-bn-sun-50!" no_container=True %}
             <h2 class="text-lg font-semibold text-oxford-700">OpenSAFELY review</h2>
             <div class="prose prose-sm prose-oxford">
               <ul>

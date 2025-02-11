@@ -45,8 +45,8 @@ function generatePDF() {
     // Remove elements not required
     reportContainer
       .querySelectorAll("svg")
-      .forEach((element) => element.classList.add("!hidden"));
-    reportContainer.querySelector(".toc").classList.add("!hidden");
+      .forEach((element) => element.classList.add("hidden!"));
+    reportContainer.querySelector(".toc").classList.add("hidden!");
 
     // Repeat the watermark 300 times on the container
     const singleInner = watermark.innerHTML;
@@ -64,8 +64,8 @@ function generatePDF() {
       report.classList.remove(`print-pdf`);
       reportContainer
         .querySelectorAll("svg")
-        .forEach((element) => element.classList.remove("!hidden"));
-      reportContainer.querySelector(".toc").classList.remove("!hidden");
+        .forEach((element) => element.classList.remove("hidden!"));
+      reportContainer.querySelector(".toc").classList.remove("hidden!");
     }, 0);
 
     // flip the links back

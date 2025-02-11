@@ -8,7 +8,7 @@ function App({ children }) {
   const isLastPage = location === "/success";
 
   return (
-    <main className="min-h-[66vh] flex-grow pb-12 bg-gray-100">
+    <main className="min-h-[66vh] grow pb-12 bg-gray-100">
       <div className="mb-6 mt-3 flex flex-col gap-y-2 text-left md:mt-0">
         <h1 className="text-3xl tracking-tight break-words md:text-4xl font-bold text-gray-900">
           Interactive request
@@ -21,7 +21,7 @@ function App({ children }) {
       <section className="max-w-3xl relative">
         <div
           className={classNames(
-            "bg-white p-6 shadow rounded",
+            "bg-white p-6 shadow-sm rounded-sm",
             !isFirstPage && !isLastPage ? "pt-12" : null,
           )}
         >
