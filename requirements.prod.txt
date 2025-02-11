@@ -378,9 +378,9 @@ django-extensions==3.2.3 \
     --hash=sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a \
     --hash=sha256:9600b7562f79a92cbf1fde6403c04fee314608fefbb595502e34383ae8203401
     # via -r requirements.prod.in
-django-htmx==1.21.0 \
-    --hash=sha256:64bc31463017a80552b767bc216ee5700248fa72e7ccd2963495e69afbdb6abe \
-    --hash=sha256:6ed3b42effd5980f22e68f36cd14ee4311bff3b6cb8435a89e27f45995691572
+django-htmx==1.22.0 \
+    --hash=sha256:7306e1aba4e407496f30a57ec2e0b2974a9b96c8c6036f7ec6a8b5753ea0abdd \
+    --hash=sha256:9f1fcf239125a42d6dadc814b3796b8d6faad8ded444a14ae021d0241fa9a40f
     # via -r requirements.prod.in
 django-ipware==6.0.4 \
     --hash=sha256:09c502ee3b1f8ae08d197d5e1f4397e965d0b201c83de7b5721db1fc460e6ab6 \
@@ -539,8 +539,8 @@ oauthlib==3.2.2 \
     # via
     #   requests-oauthlib
     #   social-auth-core
-opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.01.21.182725.zip \
-    --hash=sha256:da942852c561698ea497844abef65ebbd9d745b3fcc2f40b6b9024ac11740379
+opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.02.10.092559.zip \
+    --hash=sha256:30e60eb6d5a6c85c8f82e347a3abf28fbc1446c7470dacfb3d46bd1ec7ab5729
     # via -r requirements.prod.in
 opentelemetry-api==1.29.0 \
     --hash=sha256:5fcd94c4141cc49c736271f3e1efb777bebe9cc535759c54c936cca4f1b312b8 \
