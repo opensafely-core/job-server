@@ -11,6 +11,7 @@ from jobserver.models import User, Workspace
 
 from .config import ORG_OUTPUT_CHECKING_REPOS
 from .emails import (
+    send_request_approved_email,
     send_request_rejected_email,
     send_request_released_email,
     send_request_returned_email,
@@ -158,12 +159,14 @@ def update_issue(airlock_event: AirlockEvent, github_api=None, notify_slack=Fals
         raise NotificationError(f"Error creating GitHub issue comment: {e}")
 
 
-def update_issue_and_slack(airlock_event, github_api=None, notify_slack=False):
+def update_issue_and_slack(airlock_event, github_api=None):
     update_issue(airlock_event, github_api, notify_slack=True)
 
 
 def email_author(airlock_event: AirlockEvent):
     match airlock_event.event_type:
+        case EventType.REQUEST_APPROVED:
+            send_request_approved_email(airlock_event)
         case EventType.REQUEST_RELEASED:
             send_request_released_email(airlock_event)
         case EventType.REQUEST_REJECTED:
@@ -177,7 +180,7 @@ def email_author(airlock_event: AirlockEvent):
 EVENT_NOTIFICATIONS = {
     EventType.REQUEST_SUBMITTED: [create_issue],
     EventType.REQUEST_WITHDRAWN: [close_issue],
-    EventType.REQUEST_APPROVED: [],
+    EventType.REQUEST_APPROVED: [email_author, update_issue_and_slack],
     EventType.REQUEST_RELEASED: [email_author, close_issue],
     EventType.REQUEST_REJECTED: [email_author, close_issue],
     EventType.REQUEST_RETURNED: [email_author, update_issue],

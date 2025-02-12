@@ -7,7 +7,8 @@ Dear {{ request_author }},
 Your files for workspace {{ workspace }} have been released.
 {% include "airlock/emails/includes/updates.txt" %}
 
-You can now view your <a href="{{ url }}">released files here.
+You can now view your released files here:
 
     {{ url }}
+
 {% endblock content %}
