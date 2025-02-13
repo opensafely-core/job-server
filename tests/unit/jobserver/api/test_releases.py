@@ -27,7 +27,6 @@ from jobserver.api.releases import (
 from jobserver.authorization import (
     OutputChecker,
     ProjectCollaborator,
-    StaffAreaAdministrator,
     permissions,
 )
 from jobserver.commands.users import generate_login_token
@@ -1765,7 +1764,6 @@ def test_level4tokenauthenticationapi_success(
         },  # should not include workspace3
         "copiloted_workspaces": {},
         "output_checker": False,
-        "staff": False,
     }
 
 
@@ -1774,7 +1772,6 @@ def test_level4tokenauthenticationapi_success_privileged(
 ):
     # enable privileges for user
     token_login_user.roles.append(OutputChecker)
-    token_login_user.roles.append(StaffAreaAdministrator)
     token_login_user.save()
 
     project = ProjectFactory()
@@ -1813,7 +1810,6 @@ def test_level4tokenauthenticationapi_success_privileged(
         },  # should not include workspace3
         "copiloted_workspaces": {},
         "output_checker": True,
-        "staff": True,
     }
 
 
@@ -1966,7 +1962,6 @@ def test_level4authorisationapi_success(
             },
         },
         "output_checker": False,
-        "staff": False,
     }
 
 

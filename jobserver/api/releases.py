@@ -30,7 +30,6 @@ from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import (
     OutputChecker,
-    StaffAreaAdministrator,
     has_permission,
     has_role,
     permissions,
@@ -577,7 +576,6 @@ class Level4AuthenticatedUser(serializers.Serializer):
     workspaces = serializers.DictField(default={})
     copiloted_workspaces = serializers.DictField(default={})
     output_checker = serializers.BooleanField(default=False)
-    staff = serializers.BooleanField(default=False)
 
 
 ONGOING_PROJECT_STATUSES = {
@@ -627,7 +625,6 @@ def build_level4_user(user):
             # list the explicit workspaces that the user has this permission
             # for.
             output_checker=has_role(user, OutputChecker),
-            staff=has_role(user, StaffAreaAdministrator),
         )
     )
     assert level4_user.is_valid(), level4_user.errors
