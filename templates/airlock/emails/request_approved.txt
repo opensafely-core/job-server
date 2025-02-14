@@ -1,0 +1,14 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
+
+Dear {{ request_author }},
+
+Your release request for workspace {{ workspace }} has been approved.
+Your files will be uploaded here:
+    {{ url }}
+
+You will receive a notification when file uploads are complete.
+{% include "airlock/emails/includes/updates.txt" %}
+
+{% endblock content %}

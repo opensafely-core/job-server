@@ -2,6 +2,7 @@ import pytest
 from django.core import mail
 
 from airlock.emails import (
+    send_request_approved_email,
     send_request_rejected_email,
     send_request_released_email,
     send_request_returned_email,
@@ -69,6 +70,20 @@ def test_rejected_email(airlock_event, updates, expected_email_updates):
     event = airlock_event(EventType.REQUEST_REJECTED, updates=updates)
     send_request_rejected_email(event)
     assert_email(event, "Release request rejected", expected_email_updates)
+
+
+@pytest.mark.parametrize(
+    "updates,expected_email_updates",
+    [
+        ([], []),
+        ([{"update": "comment added", "user": "test"}], ["comment added by user test"]),
+    ],
+)
+def test_approved_email(airlock_event, updates, expected_email_updates):
+    ReleaseFactory(id="request-id")
+    event = airlock_event(EventType.REQUEST_APPROVED, updates=updates)
+    send_request_approved_email(event)
+    assert_email(event, "Release request approved", expected_email_updates)
 
 
 @pytest.mark.parametrize(

@@ -16,28 +16,17 @@ from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 @pytest.mark.parametrize(
     "event_type,author_is_user,updates,email_sent,slack_notified",
     [
-        # No action for request_approved
-        ("request_approved", True, None, False, False),
-        # author and user are different; emails are sent for rejected/released/returned
+        # emails are sent for approved/rejected/released/returned
         # slack notifications are sent for resubmitted/partially_reviewed/reviewed
-        ("request_submitted", False, None, False, False),
+        ("request_submitted", True, None, False, False),
         ("request_rejected", False, None, True, False),
-        ("request_withdrawn", False, None, False, False),
+        ("request_withdrawn", True, None, False, False),
+        ("request_approved", False, None, True, True),
         ("request_released", False, None, True, False),
         ("request_returned", False, None, True, False),
-        ("request_resubmitted", False, None, False, True),
+        ("request_resubmitted", True, None, False, True),
         ("request_partially_reviewed", False, None, False, True),
         ("request_reviewed", False, None, False, True),
-        # author and user are the same; emails are still sent for rejected/released/returned
-        # slack notifications are still sent for resubmitted/partially_reviewed/reviewed
-        ("request_submitted", True, None, False, False),
-        ("request_rejected", True, None, True, False),
-        ("request_withdrawn", True, None, False, False),
-        ("request_released", True, None, True, False),
-        ("request_returned", True, None, True, False),
-        ("request_resubmitted", True, None, False, True),
-        ("request_partially_reviewed", True, None, False, True),
-        ("request_reviewed", True, None, False, True),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPI)
@@ -60,7 +49,7 @@ def test_api_post_release_request_post_by_non_author(
     backend = BackendFactory(auth_token="test", name="test-backend")
     BackendMembershipFactory(backend=backend, user=user)
 
-    if event_type == "request_released":
+    if event_type in ["request_approved", "request_released"]:
         ReleaseFactory(id="01AAA1AAAAAAA1AAAAA11A1AAA")
 
     data = {
