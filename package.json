@@ -35,12 +35,12 @@
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.1.5",
     "@remotedevforce/tom-select": "^2.2.8",
-    "@sentry/react": "^9.0.1",
+    "@sentry/react": "^9.1.0",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.0.6",
-    "@tanstack/react-query": "^5.66.0",
-    "@tanstack/react-query-devtools": "^5.66.0",
+    "@tanstack/react-query": "^5.66.3",
+    "@tanstack/react-query-devtools": "^5.66.3",
     "@zachleat/details-utils": "^2.0.2",
     "formik": "^2.4.6",
     "highlight.js": "^11.11.1",
@@ -57,7 +57,7 @@
     "simple-datatables": "^10.0.0",
     "slugify": "^1.6.6",
     "tailwindcss": "^4.0.6",
-    "wouter": "^3.5.1",
+    "wouter": "^3.6.0",
     "yup": "^1.6.1"
   }
 }
