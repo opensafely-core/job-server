@@ -18,12 +18,6 @@
     {% #button type="link" href=analysis_request.get_absolute_url variant="primary" %}
       View on Site
     {% /button %}
-    <form method="POST">
-      {% csrf_token %}
-      {% #button type="submit" variant="danger" %}
-        Re-run analysis
-      {% /button %}
-    </form>
   </div>
 {% /staff_hero %}
 {% endblock hero %}
