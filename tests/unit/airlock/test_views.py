@@ -21,16 +21,22 @@ from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
         ("request_submitted", True, None, False, False),
         ("request_rejected", False, None, True, False),
         ("request_withdrawn", True, None, False, False),
-        ("request_approved", False, None, True, True),
+        (
+            "request_approved",
+            False,
+            [{"update": "3 files will be uploaded"}],
+            True,
+            True,
+        ),
         ("request_released", False, None, True, False),
-        ("request_returned", False, None, True, False),
+        ("request_returned", False, None, True, True),
         ("request_resubmitted", True, None, False, True),
         ("request_partially_reviewed", False, None, False, True),
         ("request_reviewed", False, None, False, True),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPI)
-def test_api_post_release_request_post_by_non_author(
+def test_api_post_release_request_event(
     api_rf,
     mailoutbox,
     slack_messages,

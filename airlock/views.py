@@ -183,7 +183,7 @@ EVENT_NOTIFICATIONS = {
     EventType.REQUEST_APPROVED: [email_author, update_issue_and_slack],
     EventType.REQUEST_RELEASED: [email_author, close_issue],
     EventType.REQUEST_REJECTED: [email_author, close_issue],
-    EventType.REQUEST_RETURNED: [email_author, update_issue],
+    EventType.REQUEST_RETURNED: [email_author, update_issue_and_slack],
     EventType.REQUEST_RESUBMITTED: [update_issue_and_slack],
     EventType.REQUEST_PARTIALLY_REVIEWED: [update_issue_and_slack],
     EventType.REQUEST_REVIEWED: [update_issue_and_slack],
