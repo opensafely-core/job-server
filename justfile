@@ -110,7 +110,7 @@ upgrade env package="": virtualenv
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
 # upgrade our internal pipeline library
-upgrade-pipeline:
+upgrade-pipeline: && requirements-prod
     ./scripts/upgrade-pipeline.sh requirements.prod.in
 
 update-interactive-templates tag="": && prodenv
