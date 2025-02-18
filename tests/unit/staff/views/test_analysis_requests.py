@@ -6,9 +6,7 @@ from jobserver.utils import set_from_qs
 from staff.views.analysis_requests import (
     AnalysisRequestDetail,
     AnalysisRequestList,
-    AnalysisRequestResubmit,
 )
-from tests.fakes import FakeGitHubAPI
 
 from ....factories import (
     AnalysisRequestFactory,
@@ -18,7 +16,6 @@ from ....factories import (
     ReportFactory,
     SnapshotFactory,
     UserFactory,
-    WorkspaceFactory,
 )
 
 
@@ -73,19 +70,6 @@ def test_analysisrequestdetail_unknown_analysis_request(rf, staff_area_administr
 
     with pytest.raises(Http404):
         AnalysisRequestDetail.as_view()(request, slug="")
-
-
-def test_analysisrequestresubmit_success(rf, staff_area_administrator):
-    project = ProjectFactory()
-    analysis_request = AnalysisRequestFactory(project=project)
-    WorkspaceFactory(name=project.interactive_slug, project=project)
-
-    request = rf.post("/")
-    request.user = staff_area_administrator
-
-    AnalysisRequestResubmit.as_view(get_github_api=FakeGitHubAPI)(
-        request, slug=analysis_request.id
-    )
 
 
 def test_analysisrequestlist_filter_by_project(rf, staff_area_administrator):
