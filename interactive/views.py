@@ -12,7 +12,7 @@ from interactive_templates.dates import END_DATE, START_DATE, WEEK_OF_LATEST_EXT
 from interactive_templates.schema import Codelist, v2
 
 from jobserver.authorization import has_permission, permissions
-from jobserver.models import Backend, Project
+from jobserver.models import Backend
 from jobserver.opencodelists import _get_opencodelists_api
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
@@ -73,23 +73,9 @@ class AnalysisRequestCreate(View):
         )
 
     def dispatch(self, request, *args, **kwargs):
-        # even though an AnalysisRequest is a superset of a JobRequest, an
-        # object that lives below a Workspace, we hide workspaces from the
-        # interactive view, treating them as an implementation detail for this
-        # method of using the service.  As such users see the interactive
-        # pages in the context of a project, including the URL.
-        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
-
-        if not has_permission(
-            request.user, permissions.analysis_request_create, project=self.project
-        ):
-            raise PermissionDenied
-
-        self.codelists_api = self.get_opencodelists_api()
-        self.events = self.codelists_api.get_codelists("snomedct")
-        self.medications = self.codelists_api.get_codelists("dmd")
-
-        return super().dispatch(request, *args, **kwargs)
+        # The analysis_request_create permission has been removed as part of
+        # sunsetting interactive.
+        raise PermissionDenied
 
     def get(self, request, *args, **kwargs):
         return self.render_to_response(request)

@@ -47,20 +47,9 @@ class WorkspaceAnalysisRequestList(ListView):
     template_name = "workspace/analysis_request_list.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.workspace = get_object_or_404(
-            Workspace,
-            project__slug=self.kwargs["project_slug"],
-            name=self.kwargs["workspace_slug"],
-        )
-
-        if not has_permission(
-            request.user,
-            permissions.analysis_request_create,
-            project=self.workspace.project,
-        ):
-            raise PermissionDenied
-
-        return super().dispatch(request, *args, **kwargs)
+        # The analysis_request_create permission has been removed as part of
+        # sunsetting interactive.
+        raise PermissionDenied
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
@@ -241,9 +230,9 @@ class WorkspaceDetail(View):
 
         honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)
 
-        is_interactive_user = has_permission(
-            request.user, permissions.analysis_request_create, project=workspace.project
-        )
+        # The analysis_request_create permission has been removed as part of
+        # sunsetting interactive.
+        is_interactive_user = False
         show_interactive_button = is_interactive_user and workspace.is_interactive
 
         outputs = self.get_output_permissions(request.user, workspace)
