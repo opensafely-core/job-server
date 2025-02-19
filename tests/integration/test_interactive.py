@@ -8,12 +8,10 @@ from bs4 import BeautifulSoup
 from django.core.exceptions import PermissionDenied
 from interactive_templates import git
 
-from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import (
     InteractiveReporter,
     StaffAreaAdministrator,
-    permissions,
 )
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
@@ -117,8 +115,8 @@ def test_interactive_submission_fails_for_interactivereporter(
 
 
 @pytest.mark.slow_test
-def test_interactive_submission_success(
-    rf, local_repo, enable_network, project_membership, role_factory
+def test_interactive_submission_denied(
+    rf, local_repo, enable_network, project_membership
 ):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
@@ -134,7 +132,6 @@ def test_interactive_submission_success(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
 
     # hit the submission view with form data
@@ -158,28 +155,10 @@ def test_interactive_submission_success(
     request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
     request.user = user
 
-    response = AnalysisRequestCreate.as_view(
-        get_opencodelists_api=AsthmaOpenCodelistsAPI
-    )(request, project_slug=project.slug)
-
-    # check the view redirects, a 200 means we have validation errors
-    assert response.status_code == 302, response.context_data["form"].errors
-
-    ar_slug = response.url.rpartition("/")[0].rpartition("/")[-1]
-    ar_pk = ar_slug.rpartition("-")[-1]
-    analysis_request = AnalysisRequest.objects.get(slug=ar_slug)
-
-    # Setting the Git SHA is done as a result of calling
-    # interactive_template's create_commit function. This renders the analysis
-    # code based on the contents of the template data. So if the template data
-    # hasn't changed, all variables will be replaced in the project definition
-    # and a commit will be made with the SHA saved to the job request.
-    assert isinstance(analysis_request.job_request.sha, str)
-    assert (
-        f"generate_study_population_{ar_pk}"
-        in analysis_request.job_request.project_definition
-    )
-    assert "{{" not in analysis_request.job_request.project_definition
+    with pytest.raises(PermissionDenied):
+        AnalysisRequestCreate.as_view(get_opencodelists_api=AsthmaOpenCodelistsAPI)(
+            request, project_slug=project.slug
+        )
 
 
 def test_interactive_publishing_report_success(

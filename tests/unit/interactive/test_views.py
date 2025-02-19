@@ -6,9 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
-from interactive_templates.dates import END_DATE, START_DATE
 
-from interactive.models import AnalysisRequest
 from interactive.views import (
     AnalysisRequestCreate,
     AnalysisRequestDetail,
@@ -32,29 +30,26 @@ from ...factories import (
 from ...fakes import FakeOpenCodelistsAPI
 
 
-def test_analysisrequestcreate_get_success(rf, project_membership, role_factory):
+def test_analysisrequestcreate_get_denied(rf, project_membership):
     project = ProjectFactory()
     user = UserFactory()
 
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
 
     request = rf.get("/")
     request.user = user
 
-    response = AnalysisRequestCreate.as_view(
-        get_opencodelists_api=FakeOpenCodelistsAPI
-    )(request, project_slug=project.slug)
-
-    assert response.status_code == 200
-    assert response.context_data["project"] == project
+    with pytest.raises(PermissionDenied):
+        AnalysisRequestCreate.as_view(get_opencodelists_api=FakeOpenCodelistsAPI)(
+            request, project_slug=project.slug
+        )
 
 
-def test_analysisrequestcreate_post_failure(
-    rf, interactive_repo, project_membership, role_factory
+def test_analysisrequestcreate_post_denied(
+    rf, interactive_repo, add_codelist, slack_messages, project_membership
 ):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
@@ -66,41 +61,7 @@ def test_analysisrequestcreate_post_failure(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
-
-    data = {
-        "timeScale": "months",
-    }
-    request = rf.post("/", data=json.dumps(data), content_type="application/json")
-    request.user = user
-
-    response = AnalysisRequestCreate.as_view(
-        get_opencodelists_api=FakeOpenCodelistsAPI
-    )(request, project_slug=project.slug)
-
-    assert response.status_code == 200, response.context_data["form"].errors
-
-    # TODO: check our error response here
-
-
-def test_analysisrequestcreate_post_success(
-    rf, interactive_repo, add_codelist, slack_messages, project_membership, role_factory
-):
-    BackendFactory(slug="tpp")
-    project = ProjectFactory()
-    user = UserFactory()
-    WorkspaceFactory(
-        project=project, repo=interactive_repo, name=f"{project.slug}-interactive"
-    )
-
-    project_membership(
-        project=project,
-        user=user,
-        roles=[role_factory(permission=permissions.analysis_request_create)],
-    )
-    add_codelist("bennett/event-codelist/event123")
-    add_codelist("bennett/medication-codelist/medication123")
 
     data = {
         "codelistA": {
@@ -126,20 +87,10 @@ def test_analysisrequestcreate_post_success(
     request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
     request.user = user
 
-    response = AnalysisRequestCreate.as_view(
-        get_opencodelists_api=FakeOpenCodelistsAPI
-    )(request, project_slug=project.slug)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-
-    analysis_request = AnalysisRequest.objects.first()
-    assert response.url == analysis_request.get_absolute_url()
-
-    # check dates were set properly
-    analysis_request.template_data["start_date"] == START_DATE
-    analysis_request.template_data["end_date"] == END_DATE
-
-    assert len(slack_messages) == 1
+    with pytest.raises(PermissionDenied):
+        AnalysisRequestCreate.as_view(get_opencodelists_api=FakeOpenCodelistsAPI)(
+            request, project_slug=project.slug
+        )
 
 
 def test_analysisrequestcreate_unauthorized(rf):

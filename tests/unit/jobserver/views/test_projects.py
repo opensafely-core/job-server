@@ -64,13 +64,9 @@ def test_projectdetail_success(rf, user):
     assert "Edit" not in response.context_data
 
 
-def test_projectdetail_for_interactive_button(
-    rf, user, project_membership, role_factory
-):
+def test_projectdetail_for_interactive(rf, user, project_membership):
     project = ProjectFactory(org=OrgFactory())
-    user = UserFactory(
-        roles=[role_factory(permission=permissions.analysis_request_create)]
-    )
+    user = UserFactory()
     project_membership(project=project, user=user)
 
     request = rf.get("/")
@@ -79,15 +75,12 @@ def test_projectdetail_for_interactive_button(
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, project_slug=project.slug
     )
-
     assert response.status_code == 200
-    assert "Run interactive analysis" in response.rendered_content
-
+    assert "Run interactive analysis" not in response.rendered_content
     user = UserFactory()
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.analysis_request_create)],
     )
 
     request = rf.get("/")
@@ -98,7 +91,7 @@ def test_projectdetail_for_interactive_button(
     )
 
     assert response.status_code == 200
-    assert "Run interactive analysis" in response.rendered_content
+    assert "Run interactive analysis" not in response.rendered_content
 
 
 def test_projectdetail_with_multiple_releases(rf, freezer):
