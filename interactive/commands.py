@@ -1,8 +1,6 @@
 from django.db import transaction
 
-from jobserver.authorization import InteractiveReporter
-from jobserver.commands import project_members as members
-from jobserver.models import OrgMembership, Report, User
+from jobserver.models import Report
 
 
 @transaction.atomic()
@@ -19,28 +17,3 @@ def create_report(*, analysis_request, rfile, user):
     analysis_request.save(update_fields=["report"])
 
     return report
-
-
-@transaction.atomic()
-def create_user(*, creator, email, name, project):
-    """Create an interactive user"""
-    user = User.objects.create(
-        fullname=name,
-        email=email,
-        username=email,
-        created_by=creator,
-    )
-
-    OrgMembership.objects.bulk_create(
-        OrgMembership(created_by=creator, org=org, user=user)
-        for org in project.orgs.all()
-    )
-
-    members.add(
-        project=project,
-        user=user,
-        roles=[InteractiveReporter],
-        by=creator,
-    )
-
-    return user
