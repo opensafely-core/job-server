@@ -9,12 +9,10 @@ from jobserver.authorization import (
     ProjectDeveloper,
 )
 from jobserver.commands import project_members
-from jobserver.models import User
 from jobserver.utils import set_from_qs
 from staff.views.users import (
     UserAuditLog,
     UserClearRoles,
-    UserCreate,
     UserDetail,
     UserDetailWithEmail,
     UserDetailWithOAuth,
@@ -31,7 +29,6 @@ from ....factories import (
     ProjectFactory,
     UserFactory,
     UserSocialAuthFactory,
-    WorkspaceFactory,
 )
 
 
@@ -178,73 +175,6 @@ def test_userclearroles_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         UserClearRoles.as_view()(request, username=user.username)
-
-
-def test_usercreate_get_success(rf, staff_area_administrator):
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = UserCreate.as_view()(request)
-
-    assert response.status_code == 200
-
-
-def test_usercreate_get_success_with_project_slug(rf, staff_area_administrator):
-    project = ProjectFactory()
-
-    request = rf.get(f"/?project-slug={project.slug}")
-    request.user = staff_area_administrator
-
-    response = UserCreate.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.context_data["form"].initial["project"] == project
-
-
-def test_usercreate_get_success_with_unknown_args(rf, staff_area_administrator):
-    request = rf.get("/?project-slug=test")
-    request.user = staff_area_administrator
-
-    response = UserCreate.as_view()(request)
-
-    assert response.status_code == 200
-    assert "org" not in response.context_data["form"].initial
-    assert "project" not in response.context_data["form"].initial
-
-
-def test_usercreate_post_success(rf, staff_area_administrator):
-    project = ProjectFactory()
-    WorkspaceFactory(project=project, name=project.interactive_slug)
-
-    data = {
-        "project": project.pk,
-        "name": "New Name-Name",
-        "email": "test@example.com",
-    }
-    request = rf.post("/", data)
-    request.user = staff_area_administrator
-
-    response = UserCreate.as_view()(request)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-
-    assert project.interactive_workspace
-    assert project.interactive_workspace.repo
-
-    user = User.objects.get(email="test@example.com")
-    assert response.url == user.get_staff_url()
-    assert user.created_by == staff_area_administrator
-    assert user.name == "New Name-Name"
-    assert set_from_qs(user.orgs.all()) == set_from_qs(project.orgs.all())
-    assert user.projects.first() == project
-
-
-def test_usercreate_unauthorized(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(PermissionDenied):
-        UserCreate.as_view()(request)
 
 
 def test_userdetail_with_email_user_invokes_userdetailwithemail(
