@@ -171,8 +171,18 @@ check: format django-upgrade lint
 
 check-migrations: devenv
     $BIN/python manage.py makemigrations --dry-run --check \
-    || echo "There is model state unaccounted for in the migrations, run python manage.py migrate to fix."
+    || echo "There is model state unaccounted for in the migrations, run `just migrate` to fix."
 
+# generate migrations for any model changes
+make-migrations: devenv
+    $BIN/python manage.py makemigrations
+
+# apply any unapplied migrations
+apply-migrations: devenv
+    $BIN/python manage.py migrate
+
+# generate migrations and apply unapplied ones
+migrate: make-migrations apply-migrations
 
 # fix formatting and import sort ordering
 fix: devenv
