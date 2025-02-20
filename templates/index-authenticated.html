@@ -59,26 +59,6 @@
 </div>
 
 <div class="grid gap-4 lg:grid-cols-2 mb-6">
-  {% if user.is_interactive_only or analysis_requests %}
-    {% #card title="Analysis requests" subtitle="OpenSAFELY Interactive analysis requests you have created" %}
-      {% #list_group %}
-        {% for analysis_request in analysis_requests %}
-          {% #list_group_item href=analysis_request.get_absolute_url %}
-            {{ analysis_request.title }}
-            {% pill class="ml-2" text=analysis_request.status variant=analysis_request.status|match:"pending:info,running:primary,awaiting report:info,succeeded:success,failed:danger"|default:"info" %}
-          {% /list_group_item %}
-        {% empty %}
-          {% list_group_empty icon=True title="No requests" description="You have not created any analysis requests" %}
-        {% endfor %}
-      {% /list_group %}
-
-      {# {% #card_footer no_container=True %} #}
-        {# {% url "interactive:list" as request_list_url %} #}
-        {# {% link href=request_list_url text="View all requests →" %} #}
-      {# {% /card_footer %} #}
-    {% /card %}
-  {% endif %}
-
   {% if not user.is_interactive_only %}
     {% #card title="Job requests" subtitle="Your most recent job requests" %}
       {% #list_group %}
