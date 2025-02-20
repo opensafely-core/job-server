@@ -3,7 +3,6 @@ from django.contrib.auth.models import AnonymousUser
 from jobserver.views.index import Index
 
 from ....factories import (
-    AnalysisRequestFactory,
     JobRequestFactory,
     ProjectFactory,
     UserFactory,
@@ -22,8 +21,6 @@ def test_index_authenticated(
 
     complete_application.created_by = user
     complete_application.save()
-
-    AnalysisRequestFactory(created_by=user)
 
     project1 = ProjectFactory()
     project_membership(project=project1, user=user)
@@ -50,11 +47,10 @@ def test_index_authenticated(
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(15):
+    with django_assert_num_queries(14):
         response = Index.as_view()(request)
 
         assert len(response.context_data["all_job_requests"]) == 10
-        assert len(response.context_data["analysis_requests"]) == 1
         assert len(response.context_data["applications"]) == 1
         assert len(response.context_data["job_requests"]) == 2
         assert len(response.context_data["projects"]) == 5
@@ -71,7 +67,7 @@ def test_index_authenticated_client(client, django_assert_num_queries):
     user = UserFactory()
     JobRequestFactory.create_batch(10)
 
-    with django_assert_num_queries(42):
+    with django_assert_num_queries(41):
         client.force_login(user)
         response = client.get("/")
         assert response.status_code == 200
