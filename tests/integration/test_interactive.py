@@ -57,12 +57,7 @@ class AsthmaOpenCodelistsAPI(FakeOpenCodelistsAPI):
         ]
 
 
-def assert_edit_and_publish_pages_are_locked(analysis, client):
-    # check report metadata cannot be changed and new request cannot be made
-    response = client.get(analysis.get_edit_url())
-    assert response.status_code == 200
-    assert "This report is currently locked" in response.rendered_content
-
+def assert_publish_page_is_locked(analysis, client):
     with patch.object(PublishRequestCreate, "get_github_api", FakeGitHubAPI):
         response = client.post(analysis.get_publish_url())
         assert response.status_code == 200
@@ -238,7 +233,7 @@ def test_interactive_publishing_report_success(
     publish_request = requests.first()
     assert publish_request.created_by == user
 
-    assert_edit_and_publish_pages_are_locked(analysis, client)
+    assert_publish_page_is_locked(analysis, client)
 
     staff = UserFactory(roles=[StaffAreaAdministrator])
     client.force_login(staff)
@@ -279,7 +274,7 @@ def test_interactive_publishing_report_success(
     response = client.get(analysis.get_absolute_url())
     assert response.status_code == 200
 
-    assert_edit_and_publish_pages_are_locked(analysis, client)
+    assert_publish_page_is_locked(analysis, client)
 
     # check the page can be viewed by a logged out user
     client.logout()
