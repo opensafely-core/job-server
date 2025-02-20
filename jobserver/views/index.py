@@ -26,10 +26,6 @@ class Index(View):
                 },
             )
 
-        analysis_requests = self.request.user.analysis_requests.select_related(
-            "project"
-        ).order_by("-created_at")
-
         applications = self.request.user.applications.order_by("-created_at")
 
         projects = [
@@ -62,7 +58,6 @@ class Index(View):
 
         context = {
             "all_job_requests": job_requests[:10],
-            "analysis_requests": analysis_requests[:5],
             "applications": applications[:5],
             "counts": counts,
             "job_requests": user_job_requests[:5],
