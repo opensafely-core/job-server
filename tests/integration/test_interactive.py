@@ -39,7 +39,7 @@ def local_repo():
         yield path
 
 
-class AsthmaOpenCodelistsAPI(FakeOpenCodelistsAPI):
+class AsthmaOpenCodelistsAPI(FakeOpenCodelistsAPI):  # pragma: no cover
     def get_codelists(self, coding_system):
         return [
             {

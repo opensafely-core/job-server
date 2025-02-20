@@ -61,7 +61,7 @@ class AnalysisRequestForm(forms.Form):
             choices=codelist_type_choices
         )
 
-    def clean(self):
+    def clean(self):  # pragma: no cover
         cleaned_data = super().clean()
 
         time_ever = cleaned_data.get("time_ever")

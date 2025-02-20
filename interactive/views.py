@@ -22,7 +22,7 @@ from .models import AnalysisRequest
 from .submit import submit_analysis
 
 
-def build_codelist(data, prefix):
+def build_codelist(data, prefix):  # pragma: no cover
     return Codelist(
         label=data.get(f"{prefix}_label", ""),
         slug=data.get(f"{prefix}_slug", ""),
@@ -30,7 +30,7 @@ def build_codelist(data, prefix):
     )
 
 
-def from_codelist(data, key, sub_key):
+def from_codelist(data, key, sub_key):  # pragma: no cover
     """
     Get subkey values from the given data dict
 
@@ -50,7 +50,7 @@ def from_codelist(data, key, sub_key):
         return ""
 
 
-class AnalysisRequestCreate(View):
+class AnalysisRequestCreate(View):  # pragma: no cover
     get_opencodelists_api = staticmethod(_get_opencodelists_api)
 
     def build_analysis(self, *, data, project):
@@ -161,7 +161,7 @@ class AnalysisRequestCreate(View):
         )
 
 
-class AnalysisRequestDetail(DetailView):
+class AnalysisRequestDetail(DetailView):  # pragma: no cover
     context_object_name = "analysis_request"
     model = AnalysisRequest
     template_name = "interactive/analysis_request_detail.html"

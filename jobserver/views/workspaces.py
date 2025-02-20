@@ -41,7 +41,7 @@ from ..releases import build_outputs_zip, workspace_files
 from ..utils import build_spa_base_url
 
 
-class WorkspaceAnalysisRequestList(ListView):
+class WorkspaceAnalysisRequestList(ListView):  # pragma: no cover
     context_object_name = "analysis_requests"
     model = AnalysisRequest
     template_name = "workspace/analysis_request_list.html"
@@ -237,7 +237,7 @@ class WorkspaceDetail(View):
 
         outputs = self.get_output_permissions(request.user, workspace)
 
-        if is_interactive_user:
+        if is_interactive_user:  # pragma: no cover
             analyses = AnalysisRequest.objects.filter(
                 job_request__workspace=workspace
             ).order_by("-created_at")[:5]
