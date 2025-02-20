@@ -94,34 +94,6 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 
-class ProjectCreateForm(forms.Form):
-    application_url = forms.URLField()
-    copilot = UserModelChoiceField(queryset=User.objects.all())
-    name = forms.CharField()
-    number = forms.IntegerField()
-    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by("name"))
-
-    def clean_number(self):
-        number = self.cleaned_data["number"]
-
-        # We have a constraint ensuring Project.number is unique (ignoring
-        # nulls).  Unfortunately that fires when we save a model, giving us an
-        # IntegrityError.  We have to handle this in the view if we're using a
-        # plain Form, while a ModelForm will put the failure message in the form
-        # instance's non_field_errors unless we manually handle the failure and
-        # attach it to the number field on the form.
-        #
-        # Neither of these are ideal so we're also validating it here so that it
-        # gets attached to the number field on forms using this mixin.
-        #
-        # We can't abstract this with ProjectEditForm since we have no Project
-        # instance to exclude here.
-        if Project.objects.exclude(number=None).filter(number=number).exists():
-            raise forms.ValidationError("Project number must be unique")
-
-        return number
-
-
 class ProjectEditForm(forms.ModelForm):
     orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
 
@@ -163,9 +135,6 @@ class ProjectEditForm(forms.ModelForm):
         #
         # Neither of these are ideal so we're also validating it here so that it
         # gets attached to the number field on forms using this mixin.
-        #
-        # We can't abstract this with ProjectCreateForm since we have to filter
-        # out the current Project instance here too.
         if (
             Project.objects.exclude(pk=self.instance.pk)
             .exclude(number=None)

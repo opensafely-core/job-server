@@ -15,12 +15,7 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% url "staff:project-create" as staff_project_create_url %}
-{% #staff_hero title="Projects" %}
-  {% #button type="link" href=staff_project_create_url variant="primary" %}
-    Create an Interactive Project
-  {% /button %}
-{% /staff_hero %}
+{% staff_hero title="Projects" %}
 {% endblock hero %}
 
 {% block content %}

@@ -6,13 +6,11 @@ from django.http import Http404
 from applications.models import Application
 from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.commands import project_members
-from jobserver.github import RepoAlreadyExists
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
 from staff.views.projects import (
     ProjectAddMember,
     ProjectAuditLog,
-    ProjectCreate,
     ProjectDetail,
     ProjectEdit,
     ProjectLinkApplication,
@@ -27,7 +25,6 @@ from ....factories import (
     ProjectFactory,
     UserFactory,
 )
-from ....fakes import FakeGitHubAPI
 
 
 def test_projectaddmember_get_success(rf, staff_area_administrator):
@@ -183,169 +180,6 @@ def test_projectauditlog_unknown_project(rf, staff_area_administrator):
 
     with pytest.raises(Http404):
         ProjectAuditLog.as_view()(request, slug="")
-
-
-def test_projectcreate_get_success(rf, staff_area_administrator):
-    request = rf.get("/")
-    request.htmx = False
-    request.user = staff_area_administrator
-
-    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
-
-    assert response.status_code == 200
-    assert response.template_name == ["staff/project/create.html"]
-
-
-def test_projectcreate_get_htmx_success(rf, staff_area_administrator):
-    request = rf.get("/")
-    request.htmx = True
-    request.user = staff_area_administrator
-
-    response = ProjectCreate.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == ["staff/project/create.htmx.html"]
-
-
-def test_projectcreate_post_htmx_success_with_next(rf, staff_area_administrator):
-    user = UserFactory()
-
-    data = {
-        "application_url": "http://example.com",
-        "copilot": user.pk,
-        "name": "new-name",
-        "number": "7",
-        "orgs": [OrgFactory().pk],
-    }
-    request = rf.post("/?next=/next/page/", data)
-    request.htmx = True
-    request.user = staff_area_administrator
-
-    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
-
-    assert response.status_code == 200
-    assert response.headers["HX-Redirect"] == "/next/page/?project-slug=new-name"
-
-
-def test_projectcreate_post_htmx_success_without_next(rf, staff_area_administrator):
-    user = UserFactory()
-
-    data = {
-        "application_url": "http://example.com",
-        "copilot": user.pk,
-        "name": "new-name",
-        "number": "7",
-        "orgs": [OrgFactory().pk],
-    }
-    request = rf.post("/", data)
-    request.htmx = True
-    request.user = staff_area_administrator
-
-    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
-
-    assert response.status_code == 200
-
-    project = Project.objects.first()
-    expected = project.get_staff_url() + "?project-slug=new-name"
-    assert response.headers["HX-Redirect"] == expected
-
-
-def test_projectcreate_post_success(rf, staff_area_administrator):
-    org1 = OrgFactory()
-    org2 = OrgFactory()
-    user = UserFactory()
-
-    assert not Project.objects.exists()
-
-    data = {
-        "application_url": "http://example.com",
-        "copilot": user.pk,
-        "name": "new-name",
-        "number": "7",
-        "orgs": [org1.pk, org2.pk],
-    }
-    request = rf.post("/", data)
-    request.htmx = False
-    request.user = staff_area_administrator
-
-    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-
-    project = Project.objects.first()
-    assert response.url == project.get_staff_url()
-    assert project.created_by == staff_area_administrator
-    assert project.name == "new-name"
-    assert set_from_qs(project.orgs.all()) == {org1.pk, org2.pk}
-
-    collaboration1, collaboration2 = project.collaborations.all()
-    assert collaboration1.is_lead
-    assert not collaboration2.is_lead
-
-
-def test_projectcreate_post_with_github_failure(rf, staff_area_administrator):
-    org = OrgFactory()
-    user = UserFactory()
-
-    data = {
-        "application_url": "example.com",
-        "copilot": user.pk,
-        "name": "New Name-Name",
-        "number": "7",
-        "orgs": [org.pk],
-    }
-    request = rf.post("/", data)
-    request.htmx = False
-    request.user = staff_area_administrator
-
-    class FailingGitHubAPI(FakeGitHubAPI):
-        def get_repo(self, *args, **kwargs):
-            raise RepoAlreadyExists
-
-    response = ProjectCreate.as_view(get_github_api=FailingGitHubAPI)(request)
-
-    assert response.status_code == 200, response.url
-
-    assert response.context_data["form"].errors == {
-        "__all__": [
-            "An error occurred when trying to create the required Repo on GitHub"
-        ],
-    }
-
-
-def test_projectcreate_post_with_unique_number_failure(rf, staff_area_administrator):
-    org = OrgFactory()
-    user = UserFactory()
-
-    # create a project with the same number we want to use
-    ProjectFactory(number=7)
-
-    data = {
-        "application_url": "example.com",
-        "copilot": user.pk,
-        "name": "New Name-Name",
-        "number": "7",
-        "orgs": [org.pk],
-    }
-    request = rf.post("/", data)
-    request.htmx = False
-    request.user = staff_area_administrator
-
-    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
-
-    assert response.status_code == 200, response.url
-
-    assert response.context_data["form"].errors == {
-        "number": ["Project number must be unique"],
-    }
-
-
-def test_projectcreate_unauthorized(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(PermissionDenied):
-        ProjectCreate.as_view()(request)
 
 
 def test_projectdetail_success(rf, staff_area_administrator):

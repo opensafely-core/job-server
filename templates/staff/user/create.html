@@ -39,13 +39,7 @@
     {% endif %}
 
     <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
-      {% fragment as select_hint_text %}
-        If the project doesn't exist, you can
-        {% url "staff:project-create" as staff_project_create_url %}
-        {% var new_project_url=staff_project_create_url|add:"?next="|add:request.path %}
-        {% link href=new_project_url text="add a new project" append_after="." hx-get=new_project_url hx-target="dialog#addNewProject" hx-trigger="click" %}
-      {% endfragment %}
-      {% form_select field=form.fields.project choices=form.fields.project.choices selected=form.project.value id="id_project" name="project" label="Select a project" hint_text=select_hint_text %}
+      {% form_select field=form.fields.project choices=form.fields.project.choices selected=form.project.value id="id_project" name="project" label="Select a project" %}
       {% form_input field=form.name label="Name" %}
       {% form_input field=form.email label="Email address" inputmode="email" %}
     </div>

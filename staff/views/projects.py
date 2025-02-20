@@ -5,19 +5,16 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import (
-    CreateView,
     DetailView,
     FormView,
     ListView,
     UpdateView,
     View,
 )
-from django_htmx.http import HttpResponseClientRedirect
 from furl import furl
 from markdown import markdown
 
 from applications.models import Application
-from interactive.commands import create_repo, create_workspace
 from jobserver import html_utils
 from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization import StaffAreaAdministrator
@@ -25,17 +22,14 @@ from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
 from jobserver.commands import project_members as members
 from jobserver.commands import projects
-from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, User
 
 from ..forms import (
     ProjectAddMemberForm,
-    ProjectCreateForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
     ProjectMembershipForm,
 )
-from ..htmx_tools import get_redirect_url
 from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
 
@@ -124,79 +118,6 @@ class ProjectAuditLog(ListView):
             qs = qs.filter(type__in=types)
 
         return qs.distinct()
-
-
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
-class ProjectCreate(CreateView):
-    form_class = ProjectCreateForm
-    get_github_api = staticmethod(_get_github_api)
-
-    def form_valid(self, form):
-        # wrap the transaction in a try so it can rollback when that fires
-        try:
-            with transaction.atomic():
-                project = projects.add(**form.cleaned_data, by=self.request.user)
-
-                # make sure the relevant interactive repo exists on GitHub
-                repo_url = create_repo(
-                    name=project.interactive_slug,
-                    get_github_api=self.get_github_api,
-                )
-
-                # make sure the expected workspace exists
-                create_workspace(
-                    creator=self.request.user,
-                    project=project,
-                    repo_url=repo_url,
-                )
-        except GitHubError:
-            form.add_error(
-                None,
-                "An error occurred when trying to create the required Repo on GitHub",
-            )
-            return self.form_invalid(form)
-
-        project_detail = project.get_staff_url()
-
-        if not self.request.htmx:
-            return redirect(project_detail)
-
-        url = get_redirect_url(
-            self.request.GET,
-            project_detail,
-            {"project-slug": project.slug},
-        )
-        return HttpResponseClientRedirect(url)
-
-    def get_context_data(self, **kwargs):
-        f = furl(reverse("staff:project-create"))
-
-        # set the query args of the furl object, f, with the query args on
-        # the current request.
-        f.args.update(self.request.GET)
-
-        return super().get_context_data(**kwargs) | {
-            "application_url_attributes": {"type": "url"},
-            "number_attributes": {
-                "inputmode": "numeric",
-                "pattern": "[0-9]*",
-            },
-            "post_url": f.url,
-        }
-
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super().get_form_kwargs(**kwargs)
-
-        # ProjectCreateForm isn't a ModelForm so don't pass instance to it
-        del kwargs["instance"]
-
-        return kwargs
-
-    def get_template_names(self):
-        suffix = ".htmx" if self.request.htmx else ""
-        template_name = f"staff/project/create{suffix}.html"
-
-        return [template_name]
 
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")

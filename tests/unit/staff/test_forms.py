@@ -2,7 +2,6 @@ from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ApplicationApproveForm,
-    ProjectCreateForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
     UserCreateForm,
@@ -14,7 +13,6 @@ from ...factories import (
     BackendFactory,
     OrgFactory,
     ProjectFactory,
-    UserFactory,
 )
 
 
@@ -129,25 +127,6 @@ def test_projecteditform_number_is_not_required():
 
     form = ProjectEditForm(data=data | {"number": 123})
     assert form.is_valid(), form.errors
-
-
-def test_projectcreateform_with_duplicate_number():
-    copilot = UserFactory()
-    org = OrgFactory()
-    project = ProjectFactory(number=42)
-
-    data = {
-        "application_url": "http://example.com",
-        "copilot": str(copilot.pk),
-        "name": "Test",
-        "number": project.number,
-        "orgs": [str(org.pk)],
-    }
-    form = ProjectCreateForm(data=data)
-
-    assert not form.is_valid()
-
-    assert form.errors == {"number": ["Project number must be unique"]}
 
 
 def test_projecteditform_with_duplicate_number():
