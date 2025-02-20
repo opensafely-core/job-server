@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import (
     DetailView,
@@ -11,7 +10,6 @@ from django.views.generic import (
     UpdateView,
     View,
 )
-from furl import furl
 from markdown import markdown
 
 from applications.models import Application
@@ -57,17 +55,8 @@ class ProjectAddMember(FormView):
         return redirect(self.project.get_staff_url())
 
     def get_context_data(self, **kwargs):
-        f = furl(reverse("staff:user-create"))
-        f.args.update(
-            {
-                "project-slug": self.project.slug,
-                "next": self.project.get_staff_url(),
-            }
-        )
-
         return super().get_context_data(**kwargs) | {
             "project": self.project,
-            "user_create_url": f.url,
         }
 
     def get_form_kwargs(self):
