@@ -82,10 +82,6 @@ class ProjectDetail(View):
                 key=operator.itemgetter("name"),
             )
 
-        is_interactive_user = has_permission(
-            request.user, permissions.analysis_request_create, project=project
-        )
-
         with self.tracer.start_as_current_span("reports"):
             all_reports = project.reports.filter(
                 publish_requests__decision=PublishRequest.Decisions.APPROVED
@@ -100,7 +96,6 @@ class ProjectDetail(View):
             "can_create_workspaces": can_create_workspaces,
             "counts": counts,
             "first_job_ran_at": first_job_ran_at,
-            "is_interactive_user": is_interactive_user,
             "is_member": is_member,
             "memberships": memberships,
             "outputs": self.get_outputs(workspaces),

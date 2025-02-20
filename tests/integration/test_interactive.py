@@ -1,60 +1,26 @@
-import json
 import re
-import tempfile
 from unittest.mock import patch
 
-import pytest
 from bs4 import BeautifulSoup
-from django.core.exceptions import PermissionDenied
-from interactive_templates import git
 
-from interactive.models import AnalysisRequest
-from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import (
     InteractiveReporter,
     StaffAreaAdministrator,
-    permissions,
 )
 from jobserver.models import PublishRequest
 from jobserver.views.reports import PublishRequestCreate
 
 from ..factories import (
     AnalysisRequestFactory,
-    BackendFactory,
     JobFactory,
     JobRequestFactory,
     OrgFactory,
     ProjectFactory,
-    RepoFactory,
     ReportFactory,
     UserFactory,
     WorkspaceFactory,
 )
-from ..fakes import FakeGitHubAPI, FakeOpenCodelistsAPI
-
-
-@pytest.fixture
-def local_repo():
-    with tempfile.TemporaryDirectory() as path:
-        git("init", "--bare", ".", "--initial-branch", "main", cwd=path)
-
-        yield path
-
-
-class AsthmaOpenCodelistsAPI(FakeOpenCodelistsAPI):
-    def get_codelists(self, coding_system):
-        return [
-            {
-                "slug": "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15",
-                "name": "Asthma Inhaler Salbutamol Medication",
-                "organisation": "OpenSAFELY",
-            },
-            {
-                "slug": "pincer/ast/v1.8",
-                "name": "Asthma",
-                "organisation": "PINCER",
-            },
-        ]
+from ..fakes import FakeGitHubAPI
 
 
 def assert_publish_page_is_locked(analysis, client):
@@ -64,117 +30,6 @@ def assert_publish_page_is_locked(analysis, client):
         assert (
             response.template_name == "interactive/publish_request_create_locked.html"
         )
-
-
-@pytest.mark.slow_test
-def test_interactive_submission_fails_for_interactivereporter(
-    rf, local_repo, enable_network, project_membership
-):
-    BackendFactory(slug="tpp")
-    project = ProjectFactory()
-    repo = RepoFactory(url=local_repo)
-    workspace = WorkspaceFactory(
-        project=project, repo=repo, name=project.interactive_slug
-    )
-
-    assert workspace.is_interactive
-    assert project.interactive_workspace
-
-    user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
-
-    # hit the submission view with form data
-    data = {
-        "title": "Asthma Inhaler Salbutamol Medication & Asthma",
-        "codelistA": {
-            "label": "Asthma Inhaler Salbutamol Medication",
-            "organisation": "OpenSAFELY",
-            "type": "medication",
-            "value": "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15",
-        },
-        "codelistB": {
-            "label": "Asthma",
-            "organisation": "PINCER",
-            "type": "event",
-            "value": "pincer/ast/v1.8",
-        },
-        "filterPopulation": "all",
-        "purpose": "For… science!",
-    }
-    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
-    request.user = user
-
-    # InteractiveReporter has had permission to run interactive reports removed
-    with pytest.raises(PermissionDenied):
-        AnalysisRequestCreate.as_view(get_opencodelists_api=AsthmaOpenCodelistsAPI)(
-            request, project_slug=project.slug
-        )
-
-
-@pytest.mark.slow_test
-def test_interactive_submission_success(
-    rf, local_repo, enable_network, project_membership, role_factory
-):
-    BackendFactory(slug="tpp")
-    project = ProjectFactory()
-    repo = RepoFactory(url=local_repo)
-    workspace = WorkspaceFactory(
-        project=project, repo=repo, name=project.interactive_slug
-    )
-
-    assert workspace.is_interactive
-    assert project.interactive_workspace
-
-    user = UserFactory()
-    project_membership(
-        project=project,
-        user=user,
-        roles=[role_factory(permission=permissions.analysis_request_create)],
-    )
-
-    # hit the submission view with form data
-    data = {
-        "title": "Asthma Inhaler Salbutamol Medication & Asthma",
-        "codelistA": {
-            "label": "Asthma Inhaler Salbutamol Medication",
-            "organisation": "OpenSAFELY",
-            "type": "medication",
-            "value": "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15",
-        },
-        "codelistB": {
-            "label": "Asthma",
-            "organisation": "PINCER",
-            "type": "event",
-            "value": "pincer/ast/v1.8",
-        },
-        "filterPopulation": "all",
-        "purpose": "For… science!",
-    }
-    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
-    request.user = user
-
-    response = AnalysisRequestCreate.as_view(
-        get_opencodelists_api=AsthmaOpenCodelistsAPI
-    )(request, project_slug=project.slug)
-
-    # check the view redirects, a 200 means we have validation errors
-    assert response.status_code == 302, response.context_data["form"].errors
-
-    ar_slug = response.url.rpartition("/")[0].rpartition("/")[-1]
-    ar_pk = ar_slug.rpartition("-")[-1]
-    analysis_request = AnalysisRequest.objects.get(slug=ar_slug)
-
-    # Setting the Git SHA is done as a result of calling
-    # interactive_template's create_commit function. This renders the analysis
-    # code based on the contents of the template data. So if the template data
-    # hasn't changed, all variables will be replaced in the project definition
-    # and a commit will be made with the SHA saved to the job request.
-    assert isinstance(analysis_request.job_request.sha, str)
-    assert (
-        f"generate_study_population_{ar_pk}"
-        in analysis_request.job_request.project_definition
-    )
-    assert "{{" not in analysis_request.job_request.project_definition
 
 
 def test_interactive_publishing_report_success(

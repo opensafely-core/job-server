@@ -189,25 +189,7 @@ def test_loginwithurl_bad_token(rf_messages):
     assert str(messages[0]).startswith("Invalid token, please try again")
 
 
-def test_loginwithurl_success_with_one_project(rf, project_membership):
-    project = ProjectFactory()
-    user = UserFactory()
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
-    WorkspaceFactory(project=project, name=project.interactive_slug)
-
-    signed_token = TimestampSigner(salt="login").sign("test")
-
-    request = rf.get("/")
-    request.session = SessionStore()
-    request.session["_login_token"] = (user.email, "test")
-
-    response = LoginWithURL.as_view()(request, token=signed_token)
-
-    assert response.status_code == 302
-    assert response.url == project.get_interactive_url()
-
-
-def test_loginwithurl_success_with_two_projects(rf, project_membership):
+def test_loginwithurl_success(rf, project_membership):
     user = UserFactory()
 
     project1 = ProjectFactory()

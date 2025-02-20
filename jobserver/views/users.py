@@ -148,10 +148,7 @@ class LoginWithURL(View):
 
         login(request, user, "django.contrib.auth.backends.ModelBackend")
 
-        if user.projects.count() > 1:
-            return redirect("/")
-        else:
-            return redirect(user.projects.first().get_interactive_url())
+        return redirect("/")
 
     def login_invalid(self):
         msg = (

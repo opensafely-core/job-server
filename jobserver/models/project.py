@@ -136,14 +136,6 @@ class Project(models.Model):
             },
         )
 
-    def get_interactive_url(self):
-        return reverse(
-            "interactive:analysis-create",
-            kwargs={
-                "project_slug": self.slug,
-            },
-        )
-
     def get_logs_url(self):
         return reverse(
             "project-event-log",

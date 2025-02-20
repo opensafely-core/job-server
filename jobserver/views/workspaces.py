@@ -244,7 +244,6 @@ class WorkspaceDetail(View):
         is_interactive_user = has_permission(
             request.user, permissions.analysis_request_create, project=workspace.project
         )
-        show_interactive_button = is_interactive_user and workspace.is_interactive
 
         outputs = self.get_output_permissions(request.user, workspace)
 
@@ -267,7 +266,6 @@ class WorkspaceDetail(View):
             "repo_is_private": repo_is_private,
             "reports": reports,
             "show_admin": show_admin,
-            "show_interactive_button": show_interactive_button,
             "show_publish_repo_warning": show_publish_repo_warning,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
