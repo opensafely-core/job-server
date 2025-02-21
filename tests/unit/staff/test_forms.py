@@ -4,7 +4,6 @@ from staff.forms import (
     ApplicationApproveForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
-    UserCreateForm,
     UserForm,
 )
 
@@ -196,18 +195,6 @@ def test_projectlinkapplicationform_with_unknown_application():
     assert not form.is_valid()
 
     assert form.errors == {"application": ["Unknown Application"]}
-
-
-def test_usercreateform_without_project():
-    data = {
-        "name": "test",
-        "email": "test@example.com",
-    }
-    form = UserCreateForm(data=data)
-
-    # we depend on project in UserCreateForm.clean so confirm the form can
-    # still be validated without throwing an exception when it's missing
-    assert not form.is_valid()
 
 
 def test_userform_success():
