@@ -9,8 +9,6 @@ from django.views.generic import FormView, ListView, UpdateView, View
 from django.views.generic.detail import SingleObjectMixin
 from social_django.models import UserSocialAuth
 
-from interactive.commands import create_user
-from interactive.emails import send_welcome_email
 from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization import permissions
 from jobserver.authorization.decorators import require_permission
@@ -28,7 +26,7 @@ from jobserver.models import (
 )
 from jobserver.utils import raise_if_not_int
 
-from ..forms import UserCreateForm, UserForm, UserOrgsForm
+from ..forms import UserForm, UserOrgsForm
 from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
 
@@ -91,41 +89,6 @@ class UserClearRoles(View):
         users.clear_all_roles(user=user, by=request.user)
 
         return redirect(get_next_url(request.GET, user.get_staff_roles_url()))
-
-
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
-class UserCreate(FormView):
-    form_class = UserCreateForm
-    template_name = "staff/user/create.html"
-
-    def get_initial(self):
-        initial = {}
-
-        # set the Project if a slug is included in the query args
-        if project_slug := self.request.GET.get("project-slug"):
-            try:
-                initial["project"] = Project.objects.get(slug=project_slug)
-            except Project.DoesNotExist:
-                pass
-
-        return initial
-
-    def form_valid(self, form):
-        project = form.cleaned_data["project"]
-
-        with transaction.atomic():
-            # set up the user with all the relevant permissions on the
-            # chosen Org and Project
-            user = create_user(
-                creator=self.request.user,
-                email=form.cleaned_data["email"],
-                name=form.cleaned_data["name"],
-                project=project,
-            )
-
-        send_welcome_email(user)
-
-        return redirect(get_next_url(self.request.GET, user.get_staff_url()))
 
 
 @method_decorator(require_permission(permissions.user_manage), name="dispatch")

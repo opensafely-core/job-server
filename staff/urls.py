@@ -57,7 +57,6 @@ from .views.researchers import ResearcherEdit
 from .views.users import (
     UserAuditLog,
     UserClearRoles,
-    UserCreate,
     UserDetail,
     UserList,
     UserRoleList,
@@ -212,7 +211,6 @@ sentry_urls = [
 
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
-    path("add/", UserCreate.as_view(), name="user-create"),
     path("<username>/", UserDetail.as_view(), name="user-detail"),
     path("<username>/audit-log/", UserAuditLog.as_view(), name="user-audit-log"),
     path("<username>/roles/", UserRoleList.as_view(), name="user-role-list"),

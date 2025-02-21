@@ -199,16 +199,6 @@ class ResearcherRegistrationEditForm(forms.ModelForm):
         model = ResearcherRegistration
 
 
-class UserCreateForm(forms.Form):
-    project = forms.ModelChoiceField(
-        queryset=Project.objects.filter(workspaces__name__endswith="interactive")
-        .distinct()
-        .order_by("-number", Lower("name"))
-    )
-    name = forms.CharField()
-    email = forms.EmailField()
-
-
 class UserForm(forms.Form):
     fullname = forms.CharField(required=False)
 
