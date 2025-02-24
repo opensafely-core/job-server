@@ -133,6 +133,8 @@ def test_neither_field_set(factory, at_name, by_name):
             ("jobserver.Project", "updated_at", "updated_by"),
             ("jobserver.PublishRequest", "updated_at", "updated_by"),
             ("jobserver.Report", "updated_at", "updated_by"),
+            ("jobserver.SiteAlert", "created_at", "_by"),
+            ("jobserver.SiteAlert", "updated_at", "updated_by"),
             ("jobserver.Workspace", "updated_at", "updated_by"),
         ]
         + MODELS_WITHOUT_FACTORIES,
@@ -158,6 +160,8 @@ def test_at_field_not_set_and_by_field_set(factory, at_name, by_name):
             ("jobserver.BackendMembership", "created_at", "created_by"),
             ("jobserver.Org", "created_at", "created_by"),
             ("jobserver.OrgMembership", "created_at", "created_by"),
+            ("jobserver.SiteAlert", "created_at", "created_by"),
+            ("jobserver.SiteAlert", "updated_at", "updated_by"),
         ]
         + MODELS_WITHOUT_FACTORIES,
     ),
