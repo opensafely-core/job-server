@@ -24,6 +24,7 @@ import services.slack
 from applications.form_specs import form_specs
 from jobserver.authorization.roles import StaffAreaAdministrator
 from jobserver.commands import project_members
+from jobserver.models import SiteAlert
 
 from .factories import (
     BackendFactory,
@@ -35,6 +36,7 @@ from .factories import (
     ReleaseFactory,
     ReleaseFileFactory,
     ReportFactory,
+    SiteAlertFactory,
     SnapshotFactory,
     UserFactory,
     UserSocialAuthFactory,
@@ -408,3 +410,9 @@ def role_factory():
         return Role
 
     return _role_factory
+
+
+@pytest.fixture
+def site_alert():
+    """A fixture providing a SiteAlert with a fixed level."""
+    return SiteAlertFactory(level=SiteAlert.Level.WARNING)
