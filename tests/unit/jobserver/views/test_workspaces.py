@@ -490,6 +490,8 @@ def test_workspacedetail_authorized_honeycomb(rf):
     )
 
 
+# Remove this as part of the OpenSAFELY Interactive removal.
+# It is retained for now, for placating coverage.
 def test_workspacedetail_for_interactive_button(rf, user, role_factory):
     workspace = WorkspaceFactory(name="testing-interactive")
     user = UserFactory(
@@ -506,7 +508,6 @@ def test_workspacedetail_for_interactive_button(rf, user, role_factory):
     )
 
     assert response.status_code == 200
-    assert "Run interactive analysis" in response.rendered_content
 
 
 def test_workspacedetail_logged_out(rf):

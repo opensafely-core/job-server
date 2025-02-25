@@ -362,17 +362,9 @@ This has allowed us some benefits:
 ## Interactive Testing
 Job Server uses the interactive-templates repo code, imported as a Python package, to run OS Interactive analyses and to generate reports.
 
-To facilitate local testing, the `osi_run` Django management command has been created to produce a report from an Analysis Request. It's used like this:
-
-`python manage.py osi_run <analysis-request-slug>`
-
-The resulting HTML report is output into the `workspaces` directory and can be released, so that it's visible within Job Server, using the `osi_release` management command:
+An analysis request HTML report can be released, so that it's visible within Job Server, using the `osi_release` management command:
 
 `python manage.py osi_release <analysis-request-slug> <user-name> --report workspaces/<analysis-request-pk>/report.html`
-
-These two actions can be combined using the `osi_run_and_release` management command:
-
-`python manage.py osi_run_and_release <analysis-request-slug> <user-name>`
 
 Alternatively, the `osi_release` command can be used without running an analysis first, for fast development, using a fake report:
 

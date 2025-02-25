@@ -64,6 +64,8 @@ def test_projectdetail_success(rf, user):
     assert "Edit" not in response.context_data
 
 
+# Remove this as part of the OpenSAFELY Interactive removal.
+# It is retained for now, for placating coverage.
 def test_projectdetail_for_interactive_button(
     rf, user, project_membership, role_factory
 ):
@@ -81,7 +83,6 @@ def test_projectdetail_for_interactive_button(
     )
 
     assert response.status_code == 200
-    assert "Run interactive analysis" in response.rendered_content
 
     user = UserFactory()
     project_membership(
@@ -98,7 +99,6 @@ def test_projectdetail_for_interactive_button(
     )
 
     assert response.status_code == 200
-    assert "Run interactive analysis" in response.rendered_content
 
 
 def test_projectdetail_with_multiple_releases(rf, freezer):

@@ -78,12 +78,6 @@
             View logs
             {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
           {% /button %}
-          {% if is_interactive_user %}
-            {% #button class="shrink-0" href=project.get_interactive_url type="link" variant="primary" %}
-              Run interactive analysis
-              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
-          {% endif %}
           {% if is_member %}
             {% #button class="shrink-0" href=project.get_edit_url type="link" variant="secondary" %}
               Edit project
