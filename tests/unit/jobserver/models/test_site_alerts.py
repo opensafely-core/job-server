@@ -1,3 +1,5 @@
+from django.urls import reverse
+
 from jobserver.models.site_alerts import SiteAlert
 from tests.factories import SiteAlertFactory
 
@@ -38,3 +40,13 @@ class TestSiteAlertModel:
         assert len(alerts) == 2
         assert alerts[0] == newer_alert
         assert alerts[1] == site_alert
+
+    def test_edit_url(self, site_alert):
+        """Test the edit_url property returns the correct URL."""
+        expected_url = reverse("staff:site-alerts:edit", kwargs={"pk": site_alert.pk})
+        assert site_alert.edit_url == expected_url
+
+    def test_delete_url(self, site_alert):
+        """Test the delete_url property returns the correct URL."""
+        expected_url = reverse("staff:site-alerts:delete", kwargs={"pk": site_alert.pk})
+        assert site_alert.delete_url == expected_url

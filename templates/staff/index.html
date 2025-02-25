@@ -43,6 +43,8 @@
           {% #list_group_item href=staff_report_list %}Reports{% /list_group_item %}
           {% url "staff:sentry:index" as staff_sentry_index %}
           {% #list_group_item href=staff_sentry_index %}Sentry{% /list_group_item %}
+          {% url "staff:site-alerts:list" as staff_site_alerts_list %}
+          {% #list_group_item href=staff_site_alerts_list %}Site alerts{% /list_group_item %}
           {% url "staff:user-list" as staff_user_list %}
           {% #list_group_item href=staff_user_list %}Users{% /list_group_item %}
           {% url "staff:workspace-list" as staff_workspace_list %}

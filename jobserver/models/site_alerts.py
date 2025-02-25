@@ -1,6 +1,7 @@
 """Site-wide alerts to display to authenticated users."""
 
 from django.db import models
+from django.urls import reverse
 
 from .user import User
 
@@ -58,3 +59,13 @@ class SiteAlert(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+    @property
+    def edit_url(self):
+        """URL to edit the site alert."""
+        return reverse("staff:site-alerts:edit", kwargs={"pk": self.pk})
+
+    @property
+    def delete_url(self):
+        """URL to delete the site alert."""
+        return reverse("staff:site-alerts:delete", kwargs={"pk": self.pk})

@@ -54,6 +54,12 @@ from .views.reports import (
 )
 from .views.repos import RepoDetail, RepoList, RepoSignOff
 from .views.researchers import ResearcherEdit
+from .views.site_alerts import (
+    SiteAlertCreate,
+    SiteAlertDelete,
+    SiteAlertList,
+    SiteAlertUpdate,
+)
 from .views.users import (
     UserAuditLog,
     UserClearRoles,
@@ -208,6 +214,12 @@ sentry_urls = [
     path("message", sentry.message, name="message"),
 ]
 
+site_alert_urls = [
+    path("", SiteAlertList.as_view(), name="list"),
+    path("add/", SiteAlertCreate.as_view(), name="create"),
+    path("edit/<int:pk>/", SiteAlertUpdate.as_view(), name="edit"),
+    path("delete/<int:pk>/", SiteAlertDelete.as_view(), name="delete"),
+]
 
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
@@ -237,6 +249,10 @@ urlpatterns = [
     path("repos/", include(repo_urls)),
     path("reports/", include(report_urls)),
     path("sentry/", include((sentry_urls, "sentry"), namespace="sentry")),
+    path(
+        "site-alerts/",
+        include((site_alert_urls, "site-alerts"), namespace="site-alerts"),
+    ),
     path("users/", include(user_urls)),
     path("workspaces/", include(workspace_urls)),
 ]
