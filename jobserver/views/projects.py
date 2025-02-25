@@ -82,9 +82,7 @@ class ProjectDetail(View):
                 key=operator.itemgetter("name"),
             )
 
-        is_interactive_user = has_permission(
-            request.user, permissions.analysis_request_create, project=project
-        )
+        is_interactive_user = False
 
         with self.tracer.start_as_current_span("reports"):
             all_reports = project.reports.filter(
