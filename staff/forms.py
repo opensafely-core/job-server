@@ -6,7 +6,7 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, User, Workspace
+from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
 
 
 def user_label_from_instance(obj):
@@ -259,3 +259,11 @@ class WorkspaceEditForm(forms.ModelForm):
         self.fields["project"] = WorkspaceModelChoiceField(
             queryset=Project.objects.order_by("number", Lower("name")),
         )
+
+
+class SiteAlertForm(forms.ModelForm):
+    """Form to create or update a SiteAlert."""
+
+    class Meta:
+        model = SiteAlert
+        fields = ["title", "message", "level"]

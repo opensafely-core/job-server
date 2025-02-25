@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block metatitle %}Site alerts: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:site-alerts:list" as staff_site_alerts_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Site Alerts" url=staff_site_alerts_list_url %}
+    {% breadcrumb title="Site Alert" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% if object %}
+{% with staff_hero_title=object class="text-ellipsis" %}
+  {% #staff_hero title="Site alert" %}
+      <dl id="siteAlertInfo"class="text-sm">
+        <div class="flex flex-row gap-1">
+          <dt class="font-semibold">Title: </dt>
+            <dt class="text-ellipsis"/>
+              {{ object.title }}
+            </dt>
+          </dt>
+        </div>
+        <div class="flex flex-row gap-1">
+          <dt class="font-semibold">Message: </dt>
+            <dt class="text-ellipsis"/>
+              {{ object.message }}
+            </dt>
+          </dt>
+        </div>
+      <dl id="siteAlertInfo"class="text-sm">
+        <div class="flex flex-row gap-1">
+          <dt class="font-semibold">Level: </dt>
+            {% pill variant=object.level text=object.get_level_display class="self-start" %}
+        </div>
+        <div class="flex flex-row gap-1">
+          <dt class="font-semibold">Created by: </dt>
+          <dd>{{object.created_by.name}} at {{ object.created_at|date:"D, M j Y H:i" }}</dd>
+        </div>
+        <div class="flex flex-row gap-1">
+          <dt class="font-semibold">Updated by: </dt>
+        <dd>{{object.updated_by.name}} at {{ object.updated_at|date:"D, M j Y H:i" }}</dd>
+        </div>
+      </dl>
+
+        {% #modal id="deleteSiteAlert" button_text="Delete" button_variant="danger" request=request %}
+            {% #card container=True title="Delete site alert?" %}
+              <dd class="mb-4">This cannot be undone.</dd>
+              <form method="POST" action="{{ object.delete_url }}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    {% #alert variant="danger" class="mb-6" %}
+                      {{ error }}
+                    {% /alert %}
+                {% endfor %}
+                {% endif %}
+
+                <div class="flex flex-row flex-wrap gap-2">
+                  {% #button variant="danger" type="submit" %}Confirm{% /button %}
+                  {% #button variant="info" type="cancel" %}Cancel{% /button %}
+                </div>
+            </form>
+            {% /card %}
+        {% /modal %}
+  {% /staff_hero %}
+{% endwith %}
+
+{% else %}
+  {% staff_hero title="New site alert" %}
+{% endif %}
+{% endblock hero %}
+
+
+{% block content %}
+  {% url "staff:site-alerts:list" as staff_site_alerts_list_url %}
+
+  <form method="POST" class="max-w-3xl flex flex-col gap-y-6">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
+
+    {% #card container=True container_class="flex flex-col gap-y-6" %}
+      {% form_legend text="Editing site alert" %}
+      {% form_textarea class="w-full max-w-[65ch]" field=form.title resize=True rows="2" %}
+      {% form_textarea class="w-full max-w-[65ch]" field=form.message resize=True rows="8" %}
+      {% form_select field=form.fields.level choices=form.fields.level.choices selected=form.level.value id="id_level" name="level" class="self-start" hint_text=form.fields.level.help_text %}
+      {% #alert variant="warning" %}
+        Saved changes will take effect immediately for all authenticated users.
+      {% /alert %}
+      {% #form_fieldset class="w-full flex flex-row gap-4 items-center" %}
+        {% #button variant="success" type="submit" class="self-start" %}
+          Save
+        {% /button %}
+        {% #button variant="danger" type="link" href=staff_site_alerts_list_url class="self-start" %}
+          Cancel
+        {% /button %}
+      {% /form_fieldset %}
+    {% /card %}
+  </form>
+{% endblock %}

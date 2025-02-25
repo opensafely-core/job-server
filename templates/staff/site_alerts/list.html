@@ -1,0 +1,50 @@
+{% extends "staff/base.html" %}
+
+{% block metatitle %}Site alerts: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:site-alerts:list" as staff_site_alerts_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Site Alerts" url=staff_site_alerts_list_url active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% url "staff:site-alerts:create" as staff_site_alerts_form_url %}
+
+  {% #staff_hero title="Site Alerts" %}
+    {% #button type="link" href=staff_site_alerts_form_url variant="primary" %}
+      Add a site alert
+    {% /button %}
+  {% /staff_hero %}
+
+{% endblock hero %}
+
+{% block content %}
+<div class="flex flex-col gap-y-6 lg:col-span-2">
+  <div class="flex flex-col gap-y-6 lg:col-span-2">
+    {% #card %}
+      {% #list_group small=True %}
+        {% for site_alert in object_list %}
+          {% #list_group_rich_item type="Site Alert" title=site_alert url=site_alert.edit_url %}
+          {% pill variant=site_alert.level text=site_alert.get_level_display class="self-start" %}
+            <dl class="text-sm">
+              <div class="flex flex-row gap-1">
+                <dt class="font-semibold">Created by: </dt>
+                <dd>{{site_alert.created_by.name}} at {{ site_alert.created_at|date:"D, M j Y H:i" }}</dd>
+              </div>
+              <div class="flex flex-row gap-1">
+                <dt class="font-semibold">Updated by: </dt>
+                <dd>{{site_alert.updated_by.name}} at {{ site_alert.updated_at|date:"D, M j Y H:i" }}</dd>
+              </div>
+            </dl>
+          {% /list_group_rich_item %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
+</div>
+
+{% endblock content %}
