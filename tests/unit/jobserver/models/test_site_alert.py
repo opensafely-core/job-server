@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from jobserver.models.site_alerts import SiteAlert
+from jobserver.models import SiteAlert
 from tests.factories import SiteAlertFactory
 
 
