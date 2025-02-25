@@ -21,7 +21,7 @@ class SiteAlert(models.Model):
         blank=True,
         help_text="Summary of the reason for the alert, to display in the title of the alert (optional)",
     )
-    """Optional heading summarizing the reason for the alert"""
+    """Optional heading summarising the reason for the alert"""
     message = models.TextField(
         help_text="The message to display in the alert (required)"
     )
