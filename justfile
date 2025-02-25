@@ -171,8 +171,19 @@ check: format django-upgrade lint
 
 check-migrations: devenv
     $BIN/python manage.py makemigrations --dry-run --check \
-    || echo "There is model state unaccounted for in the migrations, run python manage.py migrate to fix."
+    || echo "There is model state unaccounted for in the migrations, run just migrate to fix."
 
+make-migrations: devenv
+    $BIN/python manage.py makemigrations
+
+# This both checks model changes for migrations and runs migrate. That's what
+# devs want to do when changing models or when there are new migrations to
+# apply from a pull. It's convenient that it's a single command with a short name.
+# In the rare case you want to makemigrations without running them (for
+# example, to check or to edit them first), you can use make-migrations or run
+# manage.py commands manually.
+migrate: make-migrations
+    $BIN/python manage.py migrate
 
 # fix formatting and import sort ordering
 fix: devenv
