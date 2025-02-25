@@ -4,10 +4,9 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, resolve_url
 from django.template.response import TemplateResponse
-from django.views.generic import DetailView, FormView, View
+from django.views.generic import DetailView, View
 from interactive_templates.dates import END_DATE, START_DATE, WEEK_OF_LATEST_EXTRACT
 from interactive_templates.schema import Codelist, v2
 
@@ -17,7 +16,7 @@ from jobserver.opencodelists import _get_opencodelists_api
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
-from .forms import AnalysisRequestEditForm, AnalysisRequestForm
+from .forms import AnalysisRequestForm
 from .models import AnalysisRequest
 from .submit import submit_analysis
 
@@ -218,62 +217,3 @@ class AnalysisRequestDetail(DetailView):
         return super().get_context_data(**kwargs) | {
             "report": report,
         }
-
-
-# TODO: this view is specific to AnalysisRequest report edits currently, as we
-# render the AnalysisRequest details above the form for context in the
-# template. But it may move to jobserver/views/reports.py in future.
-class ReportEdit(FormView):
-    form_class = AnalysisRequestEditForm
-    template_name = "interactive/report_edit.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        # keep hold of the AnalysisRequest object so we can easily use it for
-        # the success_url
-        self.analysis_request = get_object_or_404(
-            AnalysisRequest, slug=self.kwargs["slug"]
-        )
-
-        if not has_permission(
-            request.user,
-            permissions.analysis_request_view,
-            project=self.analysis_request.project,
-        ):
-            raise PermissionDenied
-
-        if not self.analysis_request.report:
-            raise Http404
-
-        if self.analysis_request.report.is_locked:
-            publish_request = self.analysis_request.report.publish_requests.order_by(
-                "-created_at"
-            ).first()
-            return TemplateResponse(
-                request,
-                "interactive/report_edit_locked.html",
-                context={
-                    "analysis_request": self.analysis_request,
-                    "publish_request": publish_request,
-                },
-            )
-
-        self.report = self.analysis_request.report
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "analysis_request": self.analysis_request,
-        }
-
-    def get_form_kwargs(self):
-        return super().get_form_kwargs() | {
-            "instance": self.report,
-        }
-
-    def get_success_url(self):
-        return self.analysis_request.get_absolute_url()
