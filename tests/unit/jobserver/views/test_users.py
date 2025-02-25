@@ -645,7 +645,7 @@ def test_userdetail_num_queries(rf, django_assert_num_queries):
         response = UserDetail.as_view()(request, username=user.username)
         assert response.status_code == 200
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response.render()
 
 
@@ -685,7 +685,7 @@ def test_usereventlog_num_queries(rf, django_assert_num_queries):
         response = UserEventLog.as_view()(request, username=user.username)
         assert response.status_code == 200
 
-    with django_assert_num_queries(9):
+    with django_assert_num_queries(10):
         response.render()
 
 
@@ -723,5 +723,5 @@ def test_userlist_num_queries(rf, django_assert_num_queries):
         response = UserList.as_view()(request)
         assert response.status_code == 200
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response.render()

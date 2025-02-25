@@ -1227,7 +1227,7 @@ def test_jobrequestdetail_with_permission_num_queries(
         )
         assert response.status_code == 200
 
-    with django_assert_num_queries(4):
+    with django_assert_num_queries(5):
         response.render()
 
 

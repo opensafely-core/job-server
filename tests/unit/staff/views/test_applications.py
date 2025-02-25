@@ -67,7 +67,7 @@ def test_applicationapprove_num_queries(
         )
         assert response.status_code == 200
 
-    with django_assert_num_queries(1):
+    with django_assert_num_queries(2):
         response.render()
 
 
@@ -413,7 +413,7 @@ def test_applicationedit_num_queries(
         )
         assert response.status_code == 200
 
-    with django_assert_num_queries(1):
+    with django_assert_num_queries(2):
         response.render()
 
 
@@ -549,7 +549,7 @@ def test_applicationlist_num_queries(
         response = ApplicationList.as_view()(request)
         assert response.status_code == 200
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response.render()
 
 

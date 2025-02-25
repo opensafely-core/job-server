@@ -6,6 +6,7 @@ from django.urls import reverse
 from furl import furl
 
 from .authorization import StaffAreaAdministrator, has_role
+from .models import SiteAlert
 from .nav import NavItem, iter_nav
 
 
@@ -23,7 +24,21 @@ def can_view_staff_area(request):
 
 
 def disable_creating_jobs(request):
-    return {"disable_creating_jobs": settings.DISABLE_CREATING_JOBS}
+    return {
+        "disable_creating_jobs": settings.DISABLE_CREATING_JOBS,
+    }
+
+
+def site_alerts(request):
+    """Add all SiteAlert instances to the context for authenticated users.
+
+    Unauthenticated users probably don't need details of alerts that affect
+    users of the site."""
+    return {
+        "site_alerts": SiteAlert.objects.all()
+        if request.user.is_authenticated
+        else None,
+    }
 
 
 def nav(request):
