@@ -115,6 +115,7 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "jobserver.context_processors.can_view_staff_area",
                 "jobserver.context_processors.nav",
+                "jobserver.context_processors.site_alerts",
                 "jobserver.context_processors.disable_creating_jobs",
                 "jobserver.context_processors.login_url",
             ],

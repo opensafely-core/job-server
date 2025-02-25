@@ -1,6 +1,7 @@
+from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 
-from jobserver.context_processors import can_view_staff_area, nav
+from jobserver.context_processors import can_view_staff_area, nav, site_alerts
 
 from ...factories import UserFactory
 
@@ -57,3 +58,25 @@ def test_nav_makes_no_db_queries(rf, django_assert_num_queries):
 
     with django_assert_num_queries(0):
         assert nav(request)
+
+
+class TestSiteAlertContextProcessor:
+    """Tests of the site_alerts context processor."""
+
+    def test_authenticated(self, rf, staff_area_administrator, site_alert):
+        """Test that authenticated users get site_alerts in the context."""
+        request = rf.get("/")
+        request.user = staff_area_administrator
+        context = site_alerts(request)
+        assert "site_alerts" in context
+        assert len(context["site_alerts"]) == 1
+        assert context["site_alerts"].first() == site_alert
+
+    def test_unauthenticated(self, rf, staff_area_administrator, site_alert):
+        """Test that unauthenticated users don't get site_alerts in the context."""
+        request = rf.get("/")
+        request.user = AnonymousUser()
+
+        context = site_alerts(request)
+        assert "site_alerts" in context
+        assert context["site_alerts"] is None

@@ -65,7 +65,7 @@
 
     <main class="min-h-[66vh] grow pb-12 bg-slate-100">
       <div class="container xl:max-w-(--breakpoint-xl) pt-2 md:pt-6 pb-4" id="content">
-        {% alerts disable_creating_jobs=disable_creating_jobs messages=messages %}
+        {% alerts disable_creating_jobs=disable_creating_jobs site_alerts=site_alerts messages=messages %}
         {% block content %}{% endblock %}
       </div>
       {% block full_width_content %}{% endblock full_width_content %}

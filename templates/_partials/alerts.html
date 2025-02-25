@@ -1,9 +1,34 @@
-{% if messages or disable_creating_jobs %}
+{% if messages or disable_creating_jobs or site_alerts %}
   <div class="max-w-(--breakpoint-md) mx-auto pt-3 pb-6">
     {% if disable_creating_jobs %}
-      {% #alert variant="warning" title="Job creation issue" %}
+      {% #alert variant="warning" title=disable_creating_jobs_title %}
+        {{ disable_creating_jobs_message }}
         Creating jobs is temporarily unavailable, please try again later.
       {% /alert %}
+    {% endif %}
+
+
+
+    {% if site_alerts %}
+      {% for alert in site_alerts %}
+        {% if alert.level == "info" %}
+          {% #alert variant="info" title=alert.title|safe %}
+            {{ alert.message|safe }}
+          {% /alert %}
+        {% elif alert.level == "success" %}
+          {% #alert variant="success" title=alert.title|safe %}
+            {{ alert.message|safe }}
+          {% /alert %}
+        {% elif alert.level == "warning" %}
+          {% #alert variant="warning" title=alert.title|safe %}
+            {{ alert.message|safe }}
+          {% /alert %}
+        {% elif alert.level == "danger" %}
+          {% #alert variant="danger" title=alert.title|safe %}
+            {{ alert.message|safe }}
+          {% /alert %}
+        {% endif %}
+      {% endfor %}
     {% endif %}
 
     {% if messages %}
