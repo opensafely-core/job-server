@@ -360,7 +360,6 @@ This has allowed us some benefits:
 
 
 ## Interactive Testing
-Job Server uses the interactive-templates repo code, imported as a Python package, to run OS Interactive analyses and to generate reports.
 
 An analysis request HTML report can be released, so that it's visible within Job Server, using the `osi_release` management command:
 
