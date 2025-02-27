@@ -359,17 +359,6 @@ This has allowed us some benefits:
 1. Run: `dokku config:set job-server INTERACTIVE_GITHUB_TOKEN=<the new token>`
 
 
-## Interactive Testing
-Job Server uses the interactive-templates repo code, imported as a Python package, to run OS Interactive analyses and to generate reports.
-
-An analysis request HTML report can be released, so that it's visible within Job Server, using the `osi_release` management command:
-
-`python manage.py osi_release <analysis-request-slug> <user-name> --report workspaces/<analysis-request-pk>/report.html`
-
-Alternatively, the `osi_release` command can be used without running an analysis first, for fast development, using a fake report:
-
-`python manage.py osi_release <analysis-request-slug> <user-name>`
-
 ## Dumping co-pilot reporting data
 Co-pilots [have a report](https://github.com/ebmdatalab/copiloting/tree/copiloting-report) they run every few months, building on data from this service.
 
