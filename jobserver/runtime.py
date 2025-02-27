@@ -1,16 +1,11 @@
-from attrs import define, field
+from dataclasses import dataclass
 
 
-def less_than_60(instance, attribute, value):
-    if value > 59:
-        raise ValueError(f"{attribute} should be less than 60")
-
-
-@define
+@dataclass(frozen=True)
 class Runtime:
     hours: int = 0
-    minutes: int = field(default=0, validator=[less_than_60])
-    seconds: int = field(default=0, validator=[less_than_60])
+    minutes: int = 0
+    seconds: int = 0
     total_seconds: int = 0
 
     def __bool__(self):
@@ -24,3 +19,11 @@ class Runtime:
             return "-"
 
         return f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
+
+    def _less_than_60(self, attribute, value):
+        if value > 59:
+            raise ValueError(f"{attribute} should be less than 60")
+
+    def __post_init__(self):
+        self._less_than_60("minutes", self.minutes)
+        self._less_than_60("seconds", self.seconds)
