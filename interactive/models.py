@@ -84,15 +84,6 @@ class AnalysisRequest(models.Model):
     def __str__(self):
         return f"{self.title}"
 
-    def get_absolute_url(self):
-        return reverse(
-            "interactive:analysis-detail",
-            kwargs={
-                "project_slug": self.project.slug,
-                "slug": self.slug,
-            },
-        )
-
     def get_publish_url(self):
         return reverse(
             "interactive:publish-request-create",

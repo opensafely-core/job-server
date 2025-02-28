@@ -22,10 +22,7 @@ from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from interactive.commands import create_report
-from interactive.emails import send_report_uploaded_notification
 from interactive.models import AnalysisRequest
-from interactive.slacks import notify_report_uploaded
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import (
@@ -390,17 +387,6 @@ class ReleaseAPI(APIView):
             raise ValidationError({"detail": str(exc)})
 
         slacks.notify_release_file_uploaded(rfile)
-
-        if analysis_request := is_interactive_report(rfile):
-            with transaction.atomic():
-                create_report(
-                    analysis_request=analysis_request,
-                    rfile=rfile,
-                    user=analysis_request.created_by,
-                )
-
-                send_report_uploaded_notification(analysis_request)
-                notify_report_uploaded(analysis_request)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id
