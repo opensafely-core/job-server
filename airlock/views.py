@@ -68,11 +68,15 @@ class AirlockEvent:
         org = data.get("org")
         repo = data.get("repo")
         if org is None:
-            lookup = (
-                workspace.project.slug
-                if workspace.project.slug in ORG_OUTPUT_CHECKING_REPOS
-                else "default"
-            )
+            lookup = "default"
+            # We check to see whether any of the project's organisations do their own
+            # output checking.  If a project has multiple organisations and more than
+            # one does its own output checking, we choose one arbitrarily but
+            # consistently.  At time of writing (March 2025) this is a hypothetical
+            # situation.
+            for org in workspace.project.orgs.order_by("slug"):
+                if org.slug in ORG_OUTPUT_CHECKING_REPOS:
+                    lookup = org.slug
             org = ORG_OUTPUT_CHECKING_REPOS[lookup]["org"]
             repo = ORG_OUTPUT_CHECKING_REPOS[lookup]["repo"]
 
