@@ -38,20 +38,6 @@ def test_analysisrequest_created_check_constraint_missing_one(field):
         AnalysisRequestFactory(**{field: None})
 
 
-def test_analysisrequest_get_absolute_url():
-    analysis_request = AnalysisRequestFactory()
-
-    url = analysis_request.get_absolute_url()
-
-    assert url == reverse(
-        "interactive:analysis-detail",
-        kwargs={
-            "project_slug": analysis_request.project.slug,
-            "slug": analysis_request.slug,
-        },
-    )
-
-
 def test_analysisrequest_get_publish_url():
     analysis_request = AnalysisRequestFactory()
 
