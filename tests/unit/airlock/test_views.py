@@ -2,10 +2,13 @@ from unittest.mock import patch
 
 import pytest
 
+from airlock.config import ORG_OUTPUT_CHECKING_REPOS
 from airlock.views import AirlockEvent, EventType, airlock_event_view
 from tests.factories import (
     BackendFactory,
     BackendMembershipFactory,
+    OrgFactory,
+    ProjectFactory,
     ReleaseFactory,
     UserFactory,
     WorkspaceFactory,
@@ -95,7 +98,10 @@ def test_api_post_release_request_event(
 def test_api_post_release_request_custom_org_and_repo(mock_create_issue, api_rf):
     mock_create_issue.return_value = "http://example.com"
     author = UserFactory(username="author")
-    workspace = WorkspaceFactory(name="test-workspace")
+    workspace = WorkspaceFactory(
+        name="test-workspace",
+        project=ProjectFactory(org=OrgFactory(slug="test-org")),
+    )
     backend = BackendFactory(auth_token="test", name="test-backend")
     BackendMembershipFactory(backend=backend, user=author)
 
@@ -133,10 +139,64 @@ def test_api_post_release_request_custom_org_and_repo(mock_create_issue, api_rf)
 
 @patch("airlock.views._get_github_api", FakeGitHubAPI)
 @patch("airlock.views.create_output_checking_issue")
+def test_api_post_release_request_non_default_org_and_repo(
+    mock_create_issue, api_rf, monkeypatch
+):
+    repos = ORG_OUTPUT_CHECKING_REPOS.copy()
+    repos["non-default-university"] = {
+        "org": "ebmdatalab",
+        "repo": "opensafely-output-review-non-default",
+    }
+    monkeypatch.setattr("airlock.views.ORG_OUTPUT_CHECKING_REPOS", repos)
+
+    mock_create_issue.return_value = "http://example.com"
+    author = UserFactory(username="author")
+    workspace = WorkspaceFactory(
+        name="test-workspace",
+        project=ProjectFactory(org=OrgFactory(slug="non-default-university")),
+    )
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=author)
+
+    data = {
+        "event_type": "request_submitted",
+        "updates": None,
+        "workspace": "test-workspace",
+        "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
+        "request_author": author.username,
+        "user": author.username,
+    }
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": "test",
+            "os-user": author.username,
+        },
+    )
+    response = airlock_event_view(request)
+    assert response.status_code == 201
+    assert response.data == {"status": "ok"}
+
+    assert list(mock_create_issue.call_args.args[:-1]) == [
+        workspace,
+        "01AAA1AAAAAAA1AAAAA11A1AAA",
+        author,
+        "ebmdatalab",
+        "opensafely-output-review-non-default",
+    ]
+
+
+@patch("airlock.views._get_github_api", FakeGitHubAPI)
+@patch("airlock.views.create_output_checking_issue")
 def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf):
     mock_create_issue.return_value = "http://example.com"
     author = UserFactory(username="author")
-    workspace = WorkspaceFactory(name="test-workspace")
+    workspace = WorkspaceFactory(
+        name="test-workspace",
+        project=ProjectFactory(org=OrgFactory(slug="test-org")),
+    )
     backend = BackendFactory(auth_token="test", name="test-backend")
     BackendMembershipFactory(backend=backend, user=author)
 
