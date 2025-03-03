@@ -32,8 +32,6 @@
   "dependencies": {
     "@fontsource/public-sans": "^5.1.2",
     "@github/filter-input-element": "^0.1.1",
-    "@headlessui/react": "^2.2.0",
-    "@heroicons/react": "^2.1.5",
     "@remotedevforce/tom-select": "^2.2.8",
     "@sentry/react": "^9.1.0",
     "@tailwindcss/forms": "^0.5.10",
@@ -42,7 +40,6 @@
     "@tanstack/react-query": "^5.66.9",
     "@tanstack/react-query-devtools": "^5.66.9",
     "@zachleat/details-utils": "^2.0.2",
-    "formik": "^2.4.6",
     "highlight.js": "^11.11.1",
     "html2pdf.js": "^0.10.2",
     "htmx.org": "^2.0.4",
@@ -56,8 +53,6 @@
     "react-toastify": "^10.0.6",
     "simple-datatables": "^10.0.0",
     "slugify": "^1.6.6",
-    "tailwindcss": "^4.0.6",
-    "wouter": "^3.6.0",
-    "yup": "^1.6.1"
+    "tailwindcss": "^4.0.6"
   }
 }
