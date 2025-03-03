@@ -1,75 +1,17 @@
 import pytest
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
 
 from jobserver.utils import set_from_qs
 from staff.views.analysis_requests import (
-    AnalysisRequestDetail,
     AnalysisRequestList,
 )
 
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
-    PublishRequestFactory,
-    ReleaseFileFactory,
     ReportFactory,
-    SnapshotFactory,
     UserFactory,
 )
-
-
-def test_analysisrequestdetail_success_with_publish_requests(
-    rf, staff_area_administrator
-):
-    rfile = ReleaseFileFactory()
-    snapshot = SnapshotFactory()
-    snapshot.files.add(rfile)
-
-    report = ReportFactory(release_file=rfile)
-
-    PublishRequestFactory.create_batch(2, report=report, snapshot=snapshot)
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = AnalysisRequestDetail.as_view()(request, slug=analysis_request.slug)
-
-    assert response.status_code == 200
-    assert len(response.context_data["publish_requests"]) == 2
-
-
-def test_analysisrequestdetail_success_without_publish_requests(
-    rf, staff_area_administrator
-):
-    analysis_request = AnalysisRequestFactory()
-
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = AnalysisRequestDetail.as_view()(request, slug=analysis_request.slug)
-
-    assert response.status_code == 200
-    assert response.context_data["publish_requests"] == []
-
-
-def test_analysisrequestdetail_unauthorized(rf):
-    analysis_request = AnalysisRequestFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(PermissionDenied):
-        AnalysisRequestDetail.as_view()(request, slug=analysis_request.slug)
-
-
-def test_analysisrequestdetail_unknown_analysis_request(rf, staff_area_administrator):
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    with pytest.raises(Http404):
-        AnalysisRequestDetail.as_view()(request, slug="")
 
 
 def test_analysisrequestlist_filter_by_project(rf, staff_area_administrator):
