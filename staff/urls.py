@@ -2,7 +2,6 @@ from django.urls import include, path
 
 from .views import sentry
 from .views.analysis_requests import (
-    AnalysisRequestDetail,
     AnalysisRequestList,
 )
 from .views.applications import (
@@ -76,9 +75,6 @@ app_name = "staff"
 
 analysis_request_urls = [
     path("", AnalysisRequestList.as_view(), name="analysis-request-list"),
-    path(
-        "<str:slug>/", AnalysisRequestDetail.as_view(), name="analysis-request-detail"
-    ),
 ]
 
 application_urls = [

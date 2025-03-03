@@ -123,7 +123,7 @@
     {% #card %}
       {% #list_group small=True %}
         {% for analysis_request in object_list %}
-          {% #list_group_rich_item type="Analysis Request" title=analysis_request.title url=analysis_request.get_staff_url no_truncate=True %}
+          {% #list_group_rich_item type="Analysis Request" title=analysis_request.title %}
             <dl class="text-sm">
               <div class="flex flex-row gap-1">
                 <dt class="font-semibold">Created by:</dt>

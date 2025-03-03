@@ -102,9 +102,6 @@ class AnalysisRequest(models.Model):
             },
         )
 
-    def get_staff_url(self):
-        return reverse("staff:analysis-request-detail", kwargs={"slug": self.slug})
-
     @property
     def publish_request(self):
         """

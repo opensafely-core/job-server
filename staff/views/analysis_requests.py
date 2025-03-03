@@ -1,6 +1,6 @@
 from django.db.models.functions import Lower
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView
+from django.views.generic import ListView
 
 from interactive.models import AnalysisRequest
 from jobserver.authorization import StaffAreaAdministrator
@@ -8,25 +8,6 @@ from jobserver.authorization.decorators import require_role
 from jobserver.models import Project, User
 
 from .qwargs_tools import qwargs
-
-
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
-class AnalysisRequestDetail(DetailView):
-    context_object_name = "analysis_request"
-    model = AnalysisRequest
-    template_name = "staff/analysis_request/detail.html"
-
-    def get_context_data(self, **kwargs):
-        publish_requests = (
-            self.object.report.publish_requests.all() if self.object.report else []
-        )
-
-        return super().get_context_data(**kwargs) | {
-            "publish_requests": publish_requests,
-        }
-
-    def get_queryset(self):
-        return super().get_queryset().select_related("created_by", "project")
 
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")

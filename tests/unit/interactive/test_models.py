@@ -66,16 +66,6 @@ def test_analysisrequest_get_publish_url():
     )
 
 
-def test_analysisrequest_get_staff_url():
-    analysis_request = AnalysisRequestFactory()
-
-    url = analysis_request.get_staff_url()
-
-    assert url == reverse(
-        "staff:analysis-request-detail", kwargs={"slug": analysis_request.slug}
-    )
-
-
 def test_analysisrequest_publish_request_success():
     report = ReportFactory()
     snapshot = SnapshotFactory()
