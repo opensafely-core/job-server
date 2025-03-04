@@ -118,6 +118,9 @@ upgrade-pipeline: && requirements-prod
 run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
 
+# run a Django management command
+manage command *args:
+    $BIN/python manage.py {{command}} {{args}}
 
 test-ci *args: assets
     #!/bin/bash
