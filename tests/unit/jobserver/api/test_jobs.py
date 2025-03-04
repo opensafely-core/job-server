@@ -16,7 +16,6 @@ from jobserver.api.jobs import (
 from jobserver.authorization import ProjectDeveloper, StaffAreaAdministrator
 from jobserver.models import Job, JobRequest, Stats
 from tests.factories import (
-    AnalysisRequestFactory,
     BackendFactory,
     JobFactory,
     JobRequestFactory,
@@ -397,9 +396,6 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
     mocked_send_finished = mocker.patch(
         "jobserver.api.jobs.send_finished_notification", autospec=True
     )
-    mocked_create_output_checking_request = mocker.patch(
-        "jobserver.api.jobs.issues.create_output_checking_request", autospec=True
-    )
 
     data = [
         {
@@ -426,7 +422,6 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     mocked_send_finished.assert_not_called()
-    mocked_create_output_checking_request.assert_not_called()
     assert response.status_code == 200
 
 
@@ -582,89 +577,6 @@ def test_jobapiupdate_post_with_flags(api_rf):
 
     backend.refresh_from_db()
     assert backend.jobrunner_state["mode"]["v"] == "test"
-
-
-def test_jobapiupdate_post_with_failed_job_request_from_interactive(
-    api_rf, slack_messages
-):
-    workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace)
-    AnalysisRequestFactory(job_request=job_request)
-    job = JobFactory(job_request=job_request, status="running")
-
-    now = timezone.now()
-
-    data = [
-        {
-            "identifier": job.identifier,
-            "job_request_id": job_request.identifier,
-            "action": "test",
-            "run_command": "do-research",
-            "status": "failed",
-            "status_code": "",
-            "status_message": "",
-            "created_at": minutes_ago(now, 2),
-            "started_at": minutes_ago(now, 1),
-            "updated_at": now,
-            "completed_at": seconds_ago(now, 30),
-        },
-    ]
-    request = api_rf.post(
-        "/",
-        HTTP_AUTHORIZATION=job_request.backend.auth_token,
-        data=data,
-        format="json",
-    )
-
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
-
-    assert response.status_code == 200
-
-    assert len(slack_messages) == 1
-    text, channel = slack_messages[0]
-
-    assert channel == "tech-support-channel"
-    assert job_request.get_absolute_url() in text
-
-
-def test_jobapiupdate_post_with_successful_job_request_from_interactive(api_rf, mocker):
-    workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace)
-    job = JobFactory(job_request=job_request, status="running")
-    AnalysisRequestFactory(job_request=job_request)
-
-    # build a mock of the GitHubAPI so we can test that it was invoked as
-    # expected
-    mocked_api = mocker.patch("jobserver.github.GitHubAPI", autospec=True)()
-
-    now = timezone.now()
-
-    data = [
-        {
-            "identifier": job.identifier,
-            "job_request_id": job_request.identifier,
-            "action": "test",
-            "run_command": "do-research",
-            "status": "succeeded",
-            "status_code": "",
-            "status_message": "",
-            "created_at": minutes_ago(now, 2),
-            "started_at": minutes_ago(now, 1),
-            "updated_at": now,
-            "completed_at": seconds_ago(now, 30),
-        },
-    ]
-    request = api_rf.post(
-        "/",
-        headers={"authorization": job_request.backend.auth_token},
-        data=data,
-        format="json",
-    )
-
-    response = JobAPIUpdate.as_view(get_github_api=lambda: mocked_api)(request)
-
-    assert response.status_code == 200
-    mocked_api.create_issue.assert_called_once()
 
 
 def test_jobapiupdate_unknown_job_request(api_rf):
