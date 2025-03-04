@@ -41,7 +41,6 @@
     "@tanstack/react-query-devtools": "^5.66.11",
     "@zachleat/details-utils": "^2.0.2",
     "highlight.js": "^11.11.1",
-    "html2pdf.js": "^0.10.3",
     "htmx.org": "^2.0.4",
     "just-debounce-it": "^3.2.0",
     "pretty-bytes": "^6.1.1",
