@@ -10,8 +10,6 @@ export default defineConfig(({ mode }) => ({
     manifest: true,
     rollupOptions: {
       input: {
-        "analysis-request-detail":
-          "./assets/src/scripts/analysis-request-detail.js",
         "application-form": "./assets/src/scripts/application-form.js",
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
         "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
