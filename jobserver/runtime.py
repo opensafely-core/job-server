@@ -1,16 +1,11 @@
-from attrs import define, field
+from dataclasses import dataclass
 
 
-def less_than_60(instance, attribute, value):
-    if value > 59:
-        raise ValueError(f"{attribute} should be less than 60")
-
-
-@define
+@dataclass(frozen=True)
 class Runtime:
     hours: int = 0
-    minutes: int = field(default=0, validator=[less_than_60])
-    seconds: int = field(default=0, validator=[less_than_60])
+    minutes: int = 0
+    seconds: int = 0
     total_seconds: int = 0
 
     def __bool__(self):
@@ -24,3 +19,21 @@ class Runtime:
             return "-"
 
         return f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"
+
+    def _valid_base_60(self, attribute):
+        if getattr(self, attribute) > 59:
+            raise ValueError(f"{attribute} should be < 60")
+
+    def _valid_positive(self, attribute):
+        if getattr(self, attribute) < 0:
+            raise ValueError(f"{attribute} should be positive")
+
+    # This validation being invariant relies on the dataclass being frozen.
+    # If the dataclass objects are to be modified,
+    # then this validation should also be checked on modification
+    # (for example, with a property.setter).
+    def __post_init__(self):
+        for attribute in vars(self):
+            self._valid_positive(attribute)
+            if attribute not in ("hours", "total_seconds"):
+                self._valid_base_60(attribute)

@@ -1,17 +1,6 @@
 import pytest
 
-from jobserver.runtime import Runtime, less_than_60
-
-
-def test_lessthan60_success():
-    output = less_than_60(None, "an_attribute", 20)
-
-    assert output is None
-
-
-def test_lessthan60_failure():
-    with pytest.raises(ValueError):
-        less_than_60(None, "an_attribute", 61)
+from jobserver.runtime import Runtime
 
 
 def test_runtime_bool():
@@ -39,6 +28,34 @@ def test_runtime_str_with_zero_runtime():
     assert str(Runtime(0, 0, 0)) == "-"
 
 
-def test_runtime_validation():
+def test_runtime_hours_60():
+    assert Runtime(60, 0, 0)
+
+
+@pytest.mark.parametrize(
+    ["hours", "minutes", "seconds", "total_seconds"],
+    [
+        (1, 60, 1, 0),
+        (1, 1, 60, 0),
+        (-1, 1, 1, 0),
+        (1, -1, 1, 0),
+        (1, 1, -1, 0),
+        (1, 1, 1, -1),
+    ],
+    ids=[
+        "minutes_more_than_59",
+        "seconds_more_than_59",
+        "negative_hours",
+        "negative_minutes",
+        "negative_seconds",
+        "negative_total_seconds",
+    ],
+)
+def test_runtime_validation(hours, minutes, seconds, total_seconds):
     with pytest.raises(ValueError):
-        Runtime(hours=1, minutes=62, seconds=3)
+        Runtime(
+            hours=hours,
+            minutes=minutes,
+            seconds=seconds,
+            total_seconds=total_seconds,
+        )
