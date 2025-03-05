@@ -51,7 +51,7 @@
 
         {% if report.analysis_request %}
           {% #description_item title="Analysis request" %}
-            {% link href=report.analysis_request.get_staff_url text=report.analysis_request.title %}
+            {{ report.analysis_request.title }}
           {% /description_item %}
         {% endif %}
 
