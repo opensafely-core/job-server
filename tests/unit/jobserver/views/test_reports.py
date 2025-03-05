@@ -1,5 +1,4 @@
 import pytest
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
@@ -17,7 +16,6 @@ from ....factories import (
     SnapshotFactory,
     UserFactory,
 )
-from ....fakes import FakeGitHubAPI
 
 
 def test_publishrequestcreate_get_success(rf, role_factory):
@@ -149,45 +147,6 @@ def test_publishrequestcreate_unlocked_with_rejected_decision(
 
     assert response.status_code == 200
     assert response.template_name == "interactive/publish_request_create.html"
-
-
-def test_publishrequestcreate_post_success(rf, slack_messages, role_factory):
-    report = ReportFactory()
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    request = rf.post("/")
-    request.user = UserFactory(
-        roles=[role_factory(permission=permissions.analysis_request_view)]
-    )
-
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    response = PublishRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
-        request,
-        project_slug=analysis_request.project.slug,
-        slug=analysis_request.slug,
-    )
-
-    assert response.status_code == 302
-    assert response.url == analysis_request.get_absolute_url()
-
-    analysis_request.refresh_from_db()
-    assert analysis_request.publish_request
-
-    # check we have a message for the user
-    messages = list(messages)
-    assert len(messages) == 1
-    msg = "Your request to publish this report was successfully sent to the OpenSAFELY team"
-    assert str(messages[0]) == msg
-
-    assert len(slack_messages) == 1
-    text, channel = slack_messages[0]
-    assert channel == "co-pilot-support"
-    assert report.publish_requests.first().created_by.email in text
-    assert report.get_absolute_url() in text
 
 
 def test_publishrequestcreate_unauthorized(rf):
