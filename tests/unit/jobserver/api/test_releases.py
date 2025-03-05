@@ -20,7 +20,6 @@ from jobserver.api.releases import (
     SnapshotCreateAPI,
     SnapshotPublishAPI,
     WorkspaceStatusAPI,
-    is_interactive_report,
     validate_release_access,
     validate_upload_access,
 )
@@ -38,10 +37,8 @@ from jobserver.models import (
 )
 from jobserver.utils import set_from_qs
 from tests.factories import (
-    AnalysisRequestFactory,
     BackendFactory,
     BackendMembershipFactory,
-    JobRequestFactory,
     ProjectFactory,
     PublishRequestFactory,
     ReleaseFactory,
@@ -52,32 +49,6 @@ from tests.factories import (
     WorkspaceFactory,
 )
 from tests.fakes import FakeGitHubAPI
-
-
-def test_is_interactive_report_no_match():
-    # not 3 parts
-    assert is_interactive_report(ReleaseFileFactory(name="no_match")) is None
-
-    # starts with output but not endswith report.html
-    assert is_interactive_report(ReleaseFileFactory(name="output/foo/file.txt")) is None
-
-    # ends with report.html but does not start with output
-    assert (
-        is_interactive_report(ReleaseFileFactory(name="other/foo/report.txt")) is None
-    )
-
-    # no analysis request with id foo exists
-    assert (
-        is_interactive_report(ReleaseFileFactory(name="output/foo/report.html")) is None
-    )
-
-
-def test_is_interactive_report_matches():
-    AnalysisRequestFactory.create(id="foo")
-    assert (
-        is_interactive_report(ReleaseFileFactory(name="output/foo/report.html"))
-        is not None
-    )
 
 
 def test_releaseapi_get_unknown_release(api_rf):
@@ -325,69 +296,7 @@ def test_releaseapi_post_success(api_rf, slack_messages, build_release, file_con
     assert release.backend.name in text
 
 
-def test_releaseapi_post_success_for_analysis_request(
-    api_rf, slack_messages, build_release, file_content
-):
-    creating_user = UserFactory()
-    uploading_user = UserFactory(roles=[OutputChecker])
-    backend = BackendFactory(name="test-backend")
-
-    job_request = JobRequestFactory(created_by=creating_user)
-    analysis_request = AnalysisRequestFactory(
-        created_by=creating_user,
-        job_request=job_request,
-        report_title="report title",
-    )
-
-    assert not analysis_request.report
-
-    filename = f"output/{analysis_request.pk}/report.html"
-
-    release = build_release([filename], backend=backend, created_by=creating_user)
-
-    BackendMembershipFactory(backend=release.backend, user=creating_user)
-    BackendMembershipFactory(backend=release.backend, user=uploading_user)
-
-    request = api_rf.post(
-        "/",
-        content_type="application/octet-stream",
-        data=file_content,
-        headers={
-            "content-disposition": f"attachment; filename={filename}",
-            "authorization": release.backend.auth_token,
-            "os-user": uploading_user.username,
-        },
-    )
-
-    response = ReleaseAPI.as_view()(request, release_id=release.id)
-
-    rfile = release.files.first()
-    assert response.status_code == 201, response.data
-    assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
-    assert response.headers["File-Id"] == rfile.id
-
-    assert len(slack_messages) == 2
-
-    text, channel = slack_messages[0]
-    assert channel == "opensafely-releases"
-    assert f"{uploading_user.get_staff_url()}|{uploading_user.name}>" in text
-    assert f"{release.get_absolute_url()}|release>" in text
-    assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
-    assert release.backend.name in text
-
-    text, channel = slack_messages[1]
-    assert channel == "interactive-requests"
-    assert analysis_request.report_title in text
-    assert analysis_request.get_absolute_url() in text
-
-    analysis_request.refresh_from_db()
-    assert analysis_request.report
-    assert analysis_request.report.title == analysis_request.report_title
-    assert analysis_request.report.description == ""
-    assert analysis_request.report.created_by == analysis_request.created_by
-
-
-def test_releaseapi_post_success_for_html_not_linked_to_an_analysis_request(
+def test_releaseapi_post_success_for_html(
     api_rf, slack_messages, build_release, file_content
 ):
     """
