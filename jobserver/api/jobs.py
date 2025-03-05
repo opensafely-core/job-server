@@ -12,8 +12,6 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from interactive import issues
-from interactive.slacks import notify_tech_support_of_failed_analysis
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
 from jobserver.github import _get_github_api
@@ -122,10 +120,6 @@ class JobAPIUpdate(APIView):
                 )
                 continue
 
-            # grab the status before any updates so we can track updates to it
-            # after saving the incoming changes
-            initial_status = job_request.status
-
             # bind the job request ID to further logs so looking them up in the UI is easier
             structlog.contextvars.bind_contextvars(job_request=job_request.id)
 
@@ -180,14 +174,6 @@ class JobAPIUpdate(APIView):
                 if newly_completed:
                     handle_job_notifications(job_request, job)
 
-            # refresh the JobRequest instance so we can get an updated status
-            job_request.refresh_from_db()
-            current_status = job_request.status
-            if current_status != initial_status and current_status in COMPLETED_STATES:
-                handle_job_request_notifications(
-                    job_request, current_status, self.get_github_api()
-                )
-
         logger.info(
             "Created or updated Jobs",
             created_job_ids=",".join(created_job_ids),
@@ -209,15 +195,6 @@ def handle_job_notifications(job_request, job):
             "Notified requesting user of completed job",
             user_id=job_request.created_by_id,
         )
-
-
-def handle_job_request_notifications(job_request, status, github_api):
-    if hasattr(job_request, "analysis_request"):
-        if status == "succeeded":
-            issues.create_output_checking_request(job_request, github_api)
-
-        if status == "failed":
-            notify_tech_support_of_failed_analysis(job_request)
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
