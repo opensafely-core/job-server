@@ -47,25 +47,6 @@ def send_github_login_email(user):
     )
 
 
-def send_login_email(user, login_url, timeout_minutes):
-    url = furl(settings.BASE_URL) / login_url
-
-    context = {
-        "timeout_minutes": timeout_minutes,
-        "url": url,
-    }
-
-    send(
-        to=user.email,
-        subject="Log into OpenSAFELY",
-        sender="notifications@jobs.opensafely.org",
-        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
-        template_name="emails/login.txt",
-        html_template_name="emails/login.html",
-        context=context,
-    )
-
-
 def send_repo_signed_off_notification_to_researchers(repo):
     creators = User.objects.filter(workspaces__repo=repo)
     emails = [u.email for u in creators]

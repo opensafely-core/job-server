@@ -7,7 +7,6 @@ from django.utils import timezone
 from jobserver.emails import (
     send_finished_notification,
     send_github_login_email,
-    send_login_email,
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
     send_report_published_email,
@@ -76,22 +75,6 @@ def test_github_login_email(mailoutbox):
     assert reverse("login") in html_content
 
     assert list(m.to) == [user.email]
-
-
-def test_login_email(mailoutbox):
-    user = UserFactory()
-
-    send_login_email(user, "login-url", timeout_minutes=5)
-
-    m = mailoutbox[0]
-    text_content = m.body
-    html_content = m.alternatives[0][0]
-
-    assert list(m.to) == [user.email]
-    assert "login-url" in text_content
-    assert "login-url" in html_content
-    assert "5 minutes" in text_content
-    assert "5 minutes" in html_content
 
 
 def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
