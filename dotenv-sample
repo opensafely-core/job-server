@@ -11,9 +11,6 @@ SECRET_KEY=12345
 # A GitHub API token, we use a PAT for this
 JOBSERVER_GITHUB_TOKEN=dummy
 
-# A GitHub API token, we use a PAT from our writeable user for this
-INTERACTIVE_GITHUB_TOKEN=dummy
-
 # The dev OAuth application credentials are stored in Bitwarden
 SOCIAL_AUTH_GITHUB_KEY=dummy
 SOCIAL_AUTH_GITHUB_SECRET=dummy
