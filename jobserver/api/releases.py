@@ -1,5 +1,4 @@
 from email.message import Message
-from pathlib import Path
 
 import sentry_sdk
 import structlog
@@ -22,10 +21,6 @@ from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from interactive.commands import create_report
-from interactive.emails import send_report_uploaded_notification
-from interactive.models import AnalysisRequest
-from interactive.slacks import notify_report_uploaded
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import (
@@ -65,35 +60,6 @@ def get_filename(headers):
     m = Message()
     m["Content-Disposition"] = headers["Content-Disposition"]
     return m.get_filename()
-
-
-def is_interactive_report(rfile):
-    """
-    Is the given ReleaseFile for an Interactive Report?
-
-    We match released outputs to their AnalysisRequest by setting the output
-    filenames in their project.yaml to
-
-        output/{{ analysis_request.pk }}/report.html
-
-    This function looks for HTML files with a name matching an AnalysisRequest
-    PK, banking on ULIDs being unique enough for there to not be a clash here.
-
-    It returns AnalysisRequest | None so it can be used with a walrus-like
-    check.
-    """
-
-    path = Path(rfile.name)
-    if (
-        len(path.parts) == 3
-        and path.parts[0] == "output"
-        and path.parts[2] == "report.html"
-    ):
-        identifier = path.parts[1]
-    else:
-        return
-
-    return AnalysisRequest.objects.filter(pk=identifier).first()
 
 
 def to_mb(value_in_bytes):
@@ -390,17 +356,6 @@ class ReleaseAPI(APIView):
             raise ValidationError({"detail": str(exc)})
 
         slacks.notify_release_file_uploaded(rfile)
-
-        if analysis_request := is_interactive_report(rfile):
-            with transaction.atomic():
-                create_report(
-                    analysis_request=analysis_request,
-                    rfile=rfile,
-                    user=analysis_request.created_by,
-                )
-
-                send_report_uploaded_notification(analysis_request)
-                notify_report_uploaded(analysis_request)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id
