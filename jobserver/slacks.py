@@ -7,11 +7,8 @@ them on a different channel.
 
 from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import naturalday
-from furl import furl
 
 from services import slack
-
-from .utils import strip_whitespace
 
 
 def notify_github_release(
@@ -133,21 +130,3 @@ def notify_copilots_of_repo_sign_off(
     message.append(f"Copilot: {copilot_link}")
 
     slack.post(text="\n".join(message), channel=channel)
-
-
-def notify_copilots_of_publish_request(
-    publish_request, report, issue_url, channel=settings.COPILOT_SUPPORT_SLACK_CHANNEL
-):
-    report_url = furl(settings.BASE_URL) / report.get_absolute_url()
-
-    message = f"""
-    *Request to publish a report*
-    By: {publish_request.created_by.email}
-    GitHub Issue: {issue_url}
-
-    {report_url}
-    """
-
-    message = strip_whitespace(message)
-
-    slack.post(text=message, channel=channel)

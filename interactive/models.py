@@ -93,15 +93,6 @@ class AnalysisRequest(models.Model):
             },
         )
 
-    def get_publish_url(self):
-        return reverse(
-            "interactive:publish-request-create",
-            kwargs={
-                "project_slug": self.project.slug,
-                "slug": self.slug,
-            },
-        )
-
     @property
     def publish_request(self):
         """
