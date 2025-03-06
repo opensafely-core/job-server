@@ -70,7 +70,7 @@
             Publish report
           {% /button %}
         {% elif object.publish_request is None or object.publish_request.is_rejected %}
-          {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
+          {% #button type="button" variant="success" disabled=True tooltip="Reports can no longer be submitted for publication request" %}
             Publish report
           {% /button %}
         {% endif %}
