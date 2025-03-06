@@ -2,12 +2,9 @@ from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.sessions.backends.db import SessionStore
-from django.core.signing import TimestampSigner
 from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
-from freezegun import freeze_time
 
 from jobserver.authorization import InteractiveReporter
 from jobserver.commands import users
@@ -15,7 +12,6 @@ from jobserver.utils import set_from_list
 from jobserver.views.users import (
     Login,
     LoginWithToken,
-    LoginWithURL,
     RequireName,
     Settings,
     UserDetail,
@@ -28,10 +24,8 @@ from ....factories import (
     BackendMembershipFactory,
     JobRequestFactory,
     PartialFactory,
-    ProjectFactory,
     UserFactory,
     UserSocialAuthFactory,
-    WorkspaceFactory,
 )
 
 
@@ -168,121 +162,6 @@ def test_login_post_unknown_user(rf_messages):
     assert len(messages) == 1
     msg = "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
-
-
-def test_loginwithurl_bad_token(rf_messages):
-    user = UserFactory()
-
-    signed_token = TimestampSigner(salt="login").sign("test")
-
-    request = rf_messages.get("/")
-    request.session["_login_token"] = (user.email, "bad token")
-
-    response = LoginWithURL.as_view()(request, token=signed_token)
-
-    assert response.status_code == 302
-    assert response.url == "/login/"
-
-    # check we have a message for the user
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert str(messages[0]).startswith("Invalid token, please try again")
-
-
-def test_loginwithurl_success(rf, project_membership):
-    user = UserFactory()
-
-    project1 = ProjectFactory()
-    project_membership(project=project1, user=user, roles=[InteractiveReporter])
-    WorkspaceFactory(project=project1, name=project1.interactive_slug)
-
-    project2 = ProjectFactory()
-    project_membership(project=project2, user=user, roles=[InteractiveReporter])
-    WorkspaceFactory(project=project2, name=project2.interactive_slug)
-
-    signed_token = TimestampSigner(salt="login").sign("test")
-
-    request = rf.get("/")
-    request.session = SessionStore()
-    request.session["_login_token"] = (user.email, "test")
-
-    response = LoginWithURL.as_view()(request, token=signed_token)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-
-def test_loginwithurl_unauthorized(rf_messages):
-    user = UserFactory()
-
-    signed_token = TimestampSigner(salt="login").sign("test")
-
-    request = rf_messages.get("/")
-    request.session = SessionStore()
-    request.session["_login_token"] = (user.email, "test")
-
-    response = LoginWithURL.as_view()(request, token=signed_token)
-
-    assert response.status_code == 302
-    assert response.url == "/login/"
-
-    # check we have a message for the user
-    messages = list(request._messages)
-    assert len(messages) == 1
-    msg = "Only users who have signed up to OpenSAFELY Interactive can log in via email"
-    assert str(messages[0]) == msg
-
-
-def test_loginwithurl_unknown_user(rf_messages):
-    request = rf_messages.get("/")
-    request.session["_login_token"] = ("unknown user", "token")
-
-    response = LoginWithURL.as_view()(request, token="")
-
-    assert response.status_code == 302
-    assert response.url == "/login/"
-
-    # check we have a message for the user
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert str(messages[0]).startswith("Invalid token, please try again")
-
-
-def test_loginwithurl_with_expired_token(rf_messages):
-    user = UserFactory()
-
-    new_time = timezone.now() - timedelta(hours=1, seconds=1)
-    with freeze_time(new_time):
-        signed_pk = TimestampSigner(salt="login").sign(user.pk)
-    pk, _, token = signed_pk.partition(":")
-
-    request = rf_messages.get("/")
-
-    response = LoginWithURL.as_view()(request, pk=pk, token=token)
-
-    assert response.status_code == 302
-    assert response.url == "/login/"
-
-    # check we have a message for the user
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert str(messages[0]).startswith("Invalid token, please try again")
-
-
-def test_loginwithurl_with_invalid_token(rf_messages):
-    user = UserFactory()
-
-    request = rf_messages.get("/")
-
-    response = LoginWithURL.as_view()(request, pk=user.pk, token="")
-
-    assert response.status_code == 302
-    assert response.url == "/login/"
-
-    # check we have a message for the user
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert str(messages[0]).startswith("Invalid token, please try again")
 
 
 def test_requirename_already_logged_in(rf):

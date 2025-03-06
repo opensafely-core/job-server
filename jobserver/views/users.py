@@ -1,28 +1,21 @@
-import secrets
-from datetime import timedelta
-
 import structlog
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.db.models import Count
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, FormView, ListView, View
 from furl import furl
 from opentelemetry import trace
 from social_django.utils import load_strategy
 
-from jobserver.authorization import InteractiveReporter
 from jobserver.commands import users
 
-from ..emails import send_github_login_email, send_login_email
-from ..forms import EmailLoginForm, RequireNameForm, SettingsForm, TokenLoginForm
+from ..emails import send_github_login_email
+from ..forms import RequireNameForm, SettingsForm, TokenLoginForm
 from ..models import JobRequest, User
 from ..utils import is_safe_path
 
@@ -31,10 +24,6 @@ INTERNAL_LOGIN_SESSION_TOKEN = "_login_token"
 
 logger = structlog.get_logger(__name__)
 tracer = trace.get_tracer(__name__)
-
-
-class BadToken(Exception):
-    pass
 
 
 def get_next_url(request):
@@ -52,7 +41,6 @@ def get_next_url(request):
 
 
 class Login(FormView):
-    form_class = EmailLoginForm
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -74,20 +62,6 @@ class Login(FormView):
                 # We can't email them with a link to the social auth entrypoint
                 # because it only accepts POSTs.
                 send_github_login_email(user)
-            elif InteractiveReporter in user.all_roles:
-                # generate a secret token we can sign for the URL
-                token = secrets.token_urlsafe(64)
-                signed_token = TimestampSigner(salt="login").sign(token)
-                login_url = reverse("login-with-url", kwargs={"token": signed_token})
-
-                # store the unsigned token and current user in the session so
-                # we can check the token from the URL (after unsigning) is valid
-                # when they try to use the URL, and also know which user to retrieve
-                self.request.session[INTERNAL_LOGIN_SESSION_TOKEN] = (user.email, token)
-
-                send_login_email(
-                    user, login_url, timeout_minutes=settings.LOGIN_URL_TIMEOUT_MINUTES
-                )
 
         msg = (
             "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. "
@@ -102,61 +76,6 @@ class Login(FormView):
             "next_url": self.next_url,
             "token_form": TokenLoginForm(),
         }
-
-
-class LoginWithURL(View):
-    def get(self, request, *args, **kwargs):
-        try:
-            # get the requested user email and the expected token from the session
-            # Note: we don't delete this until they successfully login since this
-            # method is dependent on a user using the same browser so we want them to
-            # be able to try again.
-            email, token = request.session[INTERNAL_LOGIN_SESSION_TOKEN]
-            url_token = TimestampSigner(salt="login").unsign(
-                self.kwargs["token"],
-                max_age=timedelta(minutes=settings.LOGIN_URL_TIMEOUT_MINUTES),
-            )
-            if url_token != token:
-                raise BadToken
-
-            user = User.objects.get(email=email)
-
-            # now that we've successfully logged in we can remove the token
-            del request.session[INTERNAL_LOGIN_SESSION_TOKEN]
-        except KeyError as e:
-            # catch and hide missing session data.  This prevents us getting
-            # Sentry errors for expected errors (eg a mail client prefetching
-            # the login URL) but still notifies honeycomb so we can look for
-            # rate changes.
-            trace.get_current_span().record_exception(e)
-            return self.login_invalid()
-        except (BadSignature, BadToken, SignatureExpired, User.DoesNotExist) as e:
-            # log and trace these exceptions to help us debug unexpected failures,
-            # and in particular spikes in failure rate.  Sentry will also be
-            # notified of these errors.
-            logger.exception("Login via emailed url failed")
-            trace.get_current_span().record_exception(e)  # also log to our metrics host
-
-            return self.login_invalid()
-
-        if InteractiveReporter not in user.all_roles:
-            messages.error(
-                request,
-                "Only users who have signed up to OpenSAFELY Interactive can log in via email",
-            )
-            return redirect("login")
-
-        login(request, user, "django.contrib.auth.backends.ModelBackend")
-
-        return redirect("/")
-
-    def login_invalid(self):
-        msg = (
-            "Invalid token, please try again. "
-            "The link will only work in the same browser you requested the login email from."
-        )
-        messages.error(self.request, msg)
-        return redirect("login")
 
 
 class LoginWithToken(View):
