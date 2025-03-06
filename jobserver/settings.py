@@ -385,10 +385,6 @@ initialise_sentry()
 # PROJECT SETTINGS
 DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
 
-# GitHub token with write permissions
-# TODO: remove default when we're happy with setting up CI with this token
-INTERACTIVE_GITHUB_TOKEN = env.str("INTERACTIVE_GITHUB_TOKEN", default="")
-
 # path to where local git repos live, used when developing locally, for the
 # interactive functionality
 LOCAL_GIT_REPOS = BASE_DIR / "repos"
