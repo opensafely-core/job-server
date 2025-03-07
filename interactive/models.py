@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Q
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from ulid import ULID
@@ -83,15 +82,6 @@ class AnalysisRequest(models.Model):
 
     def __str__(self):
         return f"{self.title}"
-
-    def get_absolute_url(self):
-        return reverse(
-            "interactive:analysis-detail",
-            kwargs={
-                "project_slug": self.project.slug,
-                "slug": self.slug,
-            },
-        )
 
     @property
     def publish_request(self):
