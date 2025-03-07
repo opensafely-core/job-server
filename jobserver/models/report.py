@@ -79,13 +79,10 @@ class Report(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        if hasattr(self, "analysis_request"):
-            return self.analysis_request.get_absolute_url()
-        else:
-            # we only have reports tied to analyses currently but we expect
-            # that to change in the future so rather than error out send the
-            # user _somewhere_.
-            return "/"
+        # we previously had reports tied to analyses, that may change in
+        # the future, so rather than error out send the user
+        # _somewhere_.
+        return "/"
 
     def get_staff_url(self):
         return reverse("staff:report-detail", kwargs={"pk": self.pk})
