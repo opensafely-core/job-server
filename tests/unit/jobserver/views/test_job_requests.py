@@ -809,12 +809,12 @@ def test_jobrequestcreate_post_with_codelists_error(
       generate_dataset:
         run: ehrql:v0 generate-dataset --output path/to/output.csv
         outputs:
-          moderately_sensitive:
+          highly_sensitive:
             cohort: path/to/output.csv
       generate_cohort:
         run: cohortextractor:latest generate_cohort
         outputs:
-          moderately_sensitive:
+          highly_sensitive:
             cohort: path/to/output1.csv
       generate_measures:
         run: ehrql:v0 generate-measures --output path/to/output2.csv
