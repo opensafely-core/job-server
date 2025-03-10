@@ -70,7 +70,6 @@ def test_url_redirects(client, url, redirect):
     "url,view",
     [
         ("/", index.Index),
-        ("/analyses/", yours.AnalysisRequestList),
         ("/api/v2/job-requests/", JobRequestAPIList),
         ("/api/v2/jobs/", JobAPIUpdate),
         ("/api/v2/release-notifications/", ReleaseNotificationAPICreate),

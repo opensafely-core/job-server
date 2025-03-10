@@ -295,7 +295,6 @@ urlpatterns = [
     path("500", server_error, name="server_error"),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
-    path("analyses/", yours.AnalysisRequestList.as_view(), name="your-analyses"),
     path("api/v2/", include((api_urls, "api"))),
     path("enter-your-name/", RequireName.as_view(), name="require-name"),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
