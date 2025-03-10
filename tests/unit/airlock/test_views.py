@@ -231,25 +231,39 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
 
 
 @pytest.mark.parametrize(
-    "event_type,updates,error",
+    "event_type,updates,error,slack_notified",
     [
-        ("request_submitted", None, "Error creating GitHub issue: An error occurred"),
-        ("request_rejected", None, "Error closing GitHub issue: An error occurred"),
+        (
+            "request_submitted",
+            None,
+            "Error creating GitHub issue: An error occurred",
+            False,
+        ),
+        (
+            "request_rejected",
+            None,
+            "Error closing GitHub issue: An error occurred",
+            False,
+        ),
         (
             "request_returned",
             None,
             "Error creating GitHub issue comment: An error occurred",
+            True,
         ),
         (
             "request_resubmitted",
             None,
             "Error creating GitHub issue comment: An error occurred",
+            True,
         ),
-        ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'"),
+        ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'", False),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
-def test_api_airlock_event_error(api_rf, event_type, updates, error):
+def test_api_airlock_event_error(
+    api_rf, slack_messages, event_type, updates, error, slack_notified
+):
     author = UserFactory()
     user = UserFactory()
     WorkspaceFactory(name="test-workspace")
@@ -279,6 +293,15 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
         "status": "error",
         "message": error,
     }
+
+    # For notifications that send slack messages, GitHub errors don't prevent
+    # the slack notifications from being sent. The github error is reported
+    # in the slack message.
+    if slack_notified:
+        assert len(slack_messages) == 1
+        assert "A GitHub error occurred" in slack_messages[0][0]
+    else:
+        assert len(slack_messages) == 0
 
 
 @patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
