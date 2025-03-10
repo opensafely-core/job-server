@@ -11,7 +11,7 @@ django-vite
 djangorestframework
 environs[django]
 furl
-opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.02.10.092559.zip
+opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip
 gunicorn
 incuna-mail
 markdown
