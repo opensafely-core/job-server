@@ -1,5 +1,4 @@
 argon2-cffi
-bs4
 django
 django-anymail[mailgun]
 django-csp
