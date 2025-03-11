@@ -19,18 +19,18 @@ class SiteAlert(models.Model):
 
     title = models.TextField(
         blank=True,
-        help_text="Summary of the reason for the alert, to display in the title of the alert (optional)",
+        help_text="Short summary of the reason for the alert (optional)",
     )
     """Optional heading summarising the reason for the alert"""
     message = models.TextField(
-        help_text="The message to display in the alert (required)"
+        help_text="Main body message to display, which can include HTML tags"
     )
     """The body of the alert. Can include embedded HTML."""
     level = models.CharField(
         max_length=10,
         choices=Level.choices,
         default=Level.WARNING,
-        help_text="How significant the alert is, for UI styling.",
+        help_text="Style the message based on the severity of the alert",
     )
     """How significant the alert is, which affects UI styling."""
 
