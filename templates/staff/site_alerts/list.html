@@ -28,19 +28,43 @@
       {% #list_group small=True %}
         {% if object_list %}
           {% for site_alert in object_list %}
-            {% #list_group_rich_item type="Site Alert" title=site_alert url=site_alert.edit_url %}
-              {% pill variant=site_alert.level text=site_alert.get_level_display class="self-start" %}
-              <dl class="text-sm">
-                <div class="flex flex-row gap-1">
-                  <dt class="font-semibold">Created by: </dt>
-                  <dd>{{site_alert.created_by.name}} at {{ site_alert.created_at|date:"D, M j Y H:i" }}</dd>
+            <li class="relative transition-colors hover:bg-oxford-50 group">
+              <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+                <div class="flex gap-x-2">
+                  <dt class="sr-only">Site alert:</dt>
+                  <dd class="text-base font-semibold text-oxford-600 transition-colors truncate group-hover:text-oxford-900 group-focus:text-oxford-900">
+                    <a
+                      class="focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+                      href="{{ site_alert.edit_url }}"
+                    >
+                      {% if site_alert.title %}
+                        {{ site_alert.title }}
+                      {% else %}
+                        {{ site_alert|truncatechars:140 }}
+                      {% endif %}
+                    </a>
+                  </dd>
+                  <dt class="sr-only">Level:</dt>
+                  <dd class="ml-auto shrink-0">
+                    {% pill variant=site_alert.level text=site_alert.get_level_display %}
+                  </dd>
                 </div>
-                <div class="flex flex-row gap-1">
-                  <dt class="font-semibold">Updated by: </dt>
-                  <dd>{{site_alert.updated_by.name}} at {{ site_alert.updated_at|date:"D, M j Y H:i" }}</dd>
+                <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
+                  <dt class="sr-only">User:</dt>
+                  <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                    {% icon_user_group_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                    <span class="truncate">{{ site_alert.created_by.name }}</span>
+                  </dd>
+                  <dt class="sr-only">Created at:</dt>
+                  <dd class="flex flex-row shrink-0 items-start sm:ml-auto">
+                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                    <time datetime="{{ site_alert.created_at|date:"Y-m-d H:i:sO" }}">
+                      {{ site_alert.created_at|date:"d M Y" }}
+                    </time>
+                  </dd>
                 </div>
               </dl>
-            {% /list_group_rich_item %}
+            </li>
           {% endfor %}
         {% else %}
           {% list_group_empty icon=True title="No site alerts" description="There are currently no site alerts set up" %}
