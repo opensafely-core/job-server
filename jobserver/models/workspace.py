@@ -129,15 +129,6 @@ class Workspace(models.Model):
             },
         )
 
-    def get_analyses_url(self):
-        return reverse(
-            "workspace-analysis-request-list",
-            kwargs={
-                "project_slug": self.project.slug,
-                "workspace_slug": self.name,
-            },
-        )
-
     def get_archive_toggle_url(self):
         return reverse(
             "workspace-archive-toggle",
