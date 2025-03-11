@@ -7,14 +7,14 @@
     {% url "staff:index" as staff_url %}
     {% url "staff:site-alerts:list" as staff_site_alerts_list_url %}
     {% breadcrumb title="Staff area" url=staff_url %}
-    {% breadcrumb title="Site Alerts" url=staff_site_alerts_list_url active=True %}
+    {% breadcrumb title="Site alerts" url=staff_site_alerts_list_url active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
   {% url "staff:site-alerts:create" as staff_site_alerts_form_url %}
 
-  {% #staff_hero title="Site Alerts" %}
+  {% #staff_hero title="Site alerts" %}
     {% #button type="link" href=staff_site_alerts_form_url variant="primary" %}
       Add a site alert
     {% /button %}

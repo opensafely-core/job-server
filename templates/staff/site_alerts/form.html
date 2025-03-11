@@ -7,8 +7,12 @@
     {% url "staff:index" as staff_url %}
     {% url "staff:site-alerts:list" as staff_site_alerts_list_url %}
     {% breadcrumb title="Staff area" url=staff_url %}
-    {% breadcrumb title="Site Alerts" url=staff_site_alerts_list_url %}
-    {% breadcrumb title="Site Alert" active=True %}
+    {% breadcrumb title="Site alerts" url=staff_site_alerts_list_url %}
+    {% if object %}
+      {% breadcrumb title="Alert: "|add:object.title active=True %}
+    {% else %}
+      {% breadcrumb title="Add a site alert" active=True %}
+    {% endif %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
@@ -70,9 +74,9 @@
   {% /staff_hero %}
 {% endwith %}
 
-{% else %}
-  {% staff_hero title="New site alert" %}
-{% endif %}
+  {% else %}
+    {% staff_hero title="Add a site alert" %}
+  {% endif %}
 {% endblock hero %}
 
 
