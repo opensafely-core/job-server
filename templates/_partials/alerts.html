@@ -1,5 +1,5 @@
 {% if messages or disable_creating_jobs or site_alerts %}
-  <div class="max-w-(--breakpoint-md) mx-auto pt-3 pb-6">
+  <div class="max-w-(--breakpoint-md) mx-auto pt-3 pb-6 grid grid-cols-1 gap-3">
     {% if disable_creating_jobs %}
       {% #alert variant="warning" title=disable_creating_jobs_title %}
         {{ disable_creating_jobs_message }}
