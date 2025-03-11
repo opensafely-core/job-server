@@ -200,15 +200,30 @@ def airlock_event_view(request):
     token = request.headers.get("Authorization")
     # do token authentication
     get_backend_from_token(token)
-
     try:
         airlock_event = AirlockEvent.from_payload(request.data)
-        handle_notifications(airlock_event)
-    except NotificationError as e:
-        return Response({"status": "error", "message": str(e)}, status=201)
+    except NotificationError as err:
+        errors = [str(err)]
+    else:
+        errors = handle_notifications(airlock_event)
+
+    if errors:
+        return Response({"status": "error", "message": "; ".join(errors)}, status=201)
     return Response({"status": "ok"}, status=201)
 
 
 def handle_notifications(airlock_event: AirlockEvent):
+    """
+    Try each notify action in turn, catch any exceptions, and return
+    them as a list so that we can report them. This means that an
+    unexpected exception in one notification action won't prevent others
+    being tried, e.g. if we get a Github error updating an issue, we'll still
+    send a notification to slack.
+    """
+    errors = []
     for notify_fn in EVENT_NOTIFICATIONS[airlock_event.event_type]:
-        notify_fn(airlock_event)
+        try:
+            notify_fn(airlock_event)
+        except Exception as err:
+            errors.append(str(err))
+    return errors

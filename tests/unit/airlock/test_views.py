@@ -231,25 +231,39 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
 
 
 @pytest.mark.parametrize(
-    "event_type,updates,error",
+    "event_type,updates,error,slack_notified",
     [
-        ("request_submitted", None, "Error creating GitHub issue: An error occurred"),
-        ("request_rejected", None, "Error closing GitHub issue: An error occurred"),
+        (
+            "request_submitted",
+            None,
+            "Error creating GitHub issue: An error occurred",
+            False,
+        ),
+        (
+            "request_rejected",
+            None,
+            "Error closing GitHub issue: An error occurred",
+            False,
+        ),
         (
             "request_returned",
             None,
             "Error creating GitHub issue comment: An error occurred",
+            True,
         ),
         (
             "request_resubmitted",
             None,
             "Error creating GitHub issue comment: An error occurred",
+            True,
         ),
-        ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'"),
+        ("bad_event_type", None, "Unknown event type 'BAD_EVENT_TYPE'", False),
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
-def test_api_airlock_event_error(api_rf, event_type, updates, error):
+def test_api_airlock_event_error(
+    api_rf, slack_messages, event_type, updates, error, slack_notified
+):
     author = UserFactory()
     user = UserFactory()
     WorkspaceFactory(name="test-workspace")
@@ -279,6 +293,64 @@ def test_api_airlock_event_error(api_rf, event_type, updates, error):
         "status": "error",
         "message": error,
     }
+
+    # For notifications that send slack messages, GitHub errors don't prevent
+    # the slack notifications from being sent. The github error is reported
+    # in the slack message.
+    if slack_notified:
+        assert len(slack_messages) == 1
+        assert "A GitHub error occurred" in slack_messages[0][0]
+    else:
+        assert len(slack_messages) == 0
+
+
+@patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
+@patch("airlock.emails.send")
+def test_api_airlock_event_multiple_errors(mock_send, api_rf, slack_messages):
+    mock_send.side_effect = Exception("Error sending email")
+    author = UserFactory()
+    user = UserFactory()
+    WorkspaceFactory(name="test-workspace")
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=user)
+    ReleaseFactory(id="01AAA1AAAAAAA1AAAAA11A1AAA")
+
+    # A request approved event sends 3 notifications:
+    # - sends an email that includes the release URL,
+    # - updates the github issue
+    # - posts to slack
+    # This notification attempt will error on sending the email, and then
+    # it'll also error creating the GitHub issue update. All events will
+    # be attempted, and the two errors will be reported in the response
+    data = {
+        "event_type": "request_approved",
+        "updates": None,
+        "workspace": "test-workspace",
+        "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
+        "request_author": author.username,
+        "user": user.username,
+    }
+
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": "test",
+            "os-user": user.username,
+        },
+    )
+    response = airlock_event_view(request)
+    assert response.status_code == 201
+    assert response.data == {
+        "status": "error",
+        "message": (
+            "Error sending email; "
+            "Error creating GitHub issue comment: An error occurred"
+        ),
+    }
+    # still sends the slack message
+    assert len(slack_messages) == 1
 
 
 @pytest.mark.parametrize(
