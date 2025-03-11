@@ -141,7 +141,6 @@ def test_url_redirects(client, url, redirect):
         ("/p/new-workspace/", workspaces.WorkspaceCreate),
         ("/p/releases/", releases.ProjectReleaseList),
         ("/p/w/", workspaces.WorkspaceDetail),
-        ("/p/w/analyses/", workspaces.WorkspaceAnalysisRequestList),
         ("/p/w/archive-toggle/", workspaces.WorkspaceArchiveToggle),
         ("/p/w/logs/", workspaces.WorkspaceEventLog),
         ("/p/w/notifications-toggle/", workspaces.WorkspaceNotificationsToggle),
