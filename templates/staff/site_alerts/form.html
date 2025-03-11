@@ -9,7 +9,11 @@
     {% breadcrumb title="Staff area" url=staff_url %}
     {% breadcrumb title="Site alerts" url=staff_site_alerts_list_url %}
     {% if object %}
-      {% breadcrumb title="Alert: "|add:object.title active=True %}
+      {% if object.title %}
+        {% breadcrumb title="Alert: "|add:object.title active=True %}
+      {% else %}
+        {% breadcrumb title="Alert: "|add:object.message|truncatechars:140 active=True %}
+      {% endif %}
     {% else %}
       {% breadcrumb title="Add a site alert" active=True %}
     {% endif %}
@@ -19,7 +23,12 @@
 {% block hero %}
   {% if object %}
     {% with staff_hero_title=object class="text-ellipsis" %}
-      {% #staff_hero title="Edit site alert: "|add:object.title %}
+      {% if object.title %}
+        {% var alert_title=object.title %}
+      {% else %}
+        {% var alert_title=object.message|truncatechars:140 %}
+      {% endif %}
+      {% #staff_hero title="Edit site alert: "|add:alert_title %}
         <dl class="flex flex-col gap-2 mt-1">
           <div class="flex flex-row flex-wrap gap-1">
             <dt class="font-semibold">Created by:</dt>
