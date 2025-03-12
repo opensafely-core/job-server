@@ -385,10 +385,6 @@ initialise_sentry()
 # PROJECT SETTINGS
 DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
 
-# path to where local git repos live, used when developing locally, for the
-# interactive functionality
-LOCAL_GIT_REPOS = BASE_DIR / "repos"
-
 # Released files per-file size limit
 RELEASE_FILE_SIZE_LIMIT = env.int(
     "RELEASE_FILE_SIZE_LIMIT",
