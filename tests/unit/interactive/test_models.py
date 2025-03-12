@@ -7,10 +7,8 @@ from ...factories import (
     AnalysisRequestFactory,
     JobFactory,
     JobRequestFactory,
-    PublishRequestFactory,
     ReleaseFileFactory,
     ReportFactory,
-    SnapshotFactory,
     UserFactory,
 )
 
@@ -35,29 +33,6 @@ def test_analysisrequest_constraints_missing_updated_at_or_updated_by():
 def test_analysisrequest_created_check_constraint_missing_one(field):
     with pytest.raises(IntegrityError):
         AnalysisRequestFactory(**{field: None})
-
-
-def test_analysisrequest_publish_request_success():
-    report = ReportFactory()
-    snapshot = SnapshotFactory()
-    snapshot.files.set([report.release_file])
-    publish_request = PublishRequestFactory(report=report, snapshot=snapshot)
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    assert analysis_request.publish_request == publish_request
-
-
-def test_analysisrequest_publish_request_without_report():
-    analysis_request = AnalysisRequestFactory()
-
-    assert analysis_request.publish_request is None
-
-
-def test_analysisrequest_publish_request_without_publish_request():
-    report = ReportFactory()
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    assert analysis_request.publish_request is None
 
 
 def test_analysisrequest_status_awaiting_report():

@@ -84,21 +84,6 @@ class AnalysisRequest(models.Model):
         return f"{self.title}"
 
     @property
-    def publish_request(self):
-        """
-        Return the publish request tied to this AnalysisRequest's report
-
-        We don't want to relate an AnalysisRequest to a PublishRequest since
-        that will couple it to Interactive, when a PublishRequest is intended
-        to be a generic object for reports.  However, an AnalysisRequest has a
-        nullable relation to Report so we can use that.
-        """
-        if not self.report:
-            return None
-
-        return self.report.publish_requests.order_by("-created_at").first()
-
-    @property
     def report_content(self):
         if not self.report:
             return ""
