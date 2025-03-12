@@ -24,7 +24,6 @@
 - [Components](#components)
 - [Backends](#backends)
 - [Rotating the GitHub token](#rotating-the-github-token)
-- [Interactive testing](#interactive-testing)
 - [Dumping co-pilot reporting data](#dumping-copilot-reporting-data)
 - [Ensuring paired field state with CheckConstraints](#ensuring-paired-field-state-with-checkconstraint)
   - [Common patterns](#common-patterns)
