@@ -41,41 +41,6 @@ from ..releases import build_outputs_zip, workspace_files
 from ..utils import build_spa_base_url
 
 
-class WorkspaceAnalysisRequestList(ListView):
-    context_object_name = "analysis_requests"
-    model = AnalysisRequest
-    template_name = "workspace/analysis_request_list.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.workspace = get_object_or_404(
-            Workspace,
-            project__slug=self.kwargs["project_slug"],
-            name=self.kwargs["workspace_slug"],
-        )
-
-        if not has_permission(
-            request.user,
-            permissions.analysis_request_create,
-            project=self.workspace.project,
-        ):
-            raise PermissionDenied
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "workspace": self.workspace,
-        }
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(job_request__workspace=self.workspace)
-            .select_related("created_by", "project")
-        )
-
-
 class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(
