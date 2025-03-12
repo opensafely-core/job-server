@@ -83,17 +83,6 @@ class AnalysisRequest(models.Model):
     def __str__(self):
         return f"{self.title}"
 
-    @property
-    def report_content(self):
-        if not self.report:
-            return ""
-
-        path = self.report.release_file.absolute_path()
-        if not path.exists():
-            return ""
-
-        return path.read_text()
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = f"{slugify(self.title)}-{self.pk}"
