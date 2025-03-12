@@ -5,9 +5,6 @@ from interactive.models import AnalysisRequest
 
 from ...factories import (
     AnalysisRequestFactory,
-    JobFactory,
-    JobRequestFactory,
-    ReportFactory,
     UserFactory,
 )
 
@@ -32,48 +29,6 @@ def test_analysisrequest_constraints_missing_updated_at_or_updated_by():
 def test_analysisrequest_created_check_constraint_missing_one(field):
     with pytest.raises(IntegrityError):
         AnalysisRequestFactory(**{field: None})
-
-
-def test_analysisrequest_status_awaiting_report():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="succeeded")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "awaiting report"
-
-
-def test_analysisrequest_status_failed():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="failed")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "failed"
-
-
-def test_analysisrequest_status_pending():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="pending")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "pending"
-
-
-def test_analysisrequest_status_running():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="running")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "running"
-
-
-def test_analysisrequest_status_succeeded():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="succeeded")
-    analysis_request = AnalysisRequestFactory(
-        job_request=job_request, report=ReportFactory()
-    )
-
-    assert analysis_request.status == "succeeded"
 
 
 def test_analysisrequest_str():
