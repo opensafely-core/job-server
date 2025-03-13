@@ -28,7 +28,6 @@ MUTABLE_MODELS = [
         "applications.StudyPurposePage",
         "applications.TeamDetailsPage",
         "applications.TypeOfStudyPage",
-        "interactive.AnalysisRequest",
         "jobserver.AuditableEvent",
         "jobserver.Backend",
         "jobserver.BackendMembership",
