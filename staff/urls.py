@@ -42,12 +42,6 @@ from .views.projects import (
     ProjectMembershipRemove,
 )
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
-from .views.reports import (
-    ReportDetail,
-    ReportList,
-    ReportPublishRequestApprove,
-    ReportPublishRequestReject,
-)
 from .views.repos import RepoDetail, RepoList, RepoSignOff
 from .views.researchers import ResearcherEdit
 from .views.site_alerts import (
@@ -174,29 +168,6 @@ repo_urls = [
     path("<repo_url>/sign-off/", RepoSignOff.as_view(), name="repo-sign-off"),
 ]
 
-report_urls = [
-    path("", ReportList.as_view(), name="report-list"),
-    path("<int:pk>/", ReportDetail.as_view(), name="report-detail"),
-    path(
-        "<int:pk>/publish-requests/<int:publish_request_pk>/",
-        include(
-            [
-                path(
-                    "approve/",
-                    ReportPublishRequestApprove.as_view(),
-                    name="publish-request-approve",
-                ),
-                path(
-                    "reject/",
-                    ReportPublishRequestReject.as_view(),
-                    name="publish-request-reject",
-                ),
-            ]
-        ),
-    ),
-]
-
-
 sentry_urls = [
     path("", sentry.index, name="index"),
     path("error", sentry.error, name="error"),
@@ -235,7 +206,6 @@ urlpatterns = [
     path("projects/", include(project_urls)),
     path("redirects/", include(redirect_urls)),
     path("repos/", include(repo_urls)),
-    path("reports/", include(report_urls)),
     path("sentry/", include((sentry_urls, "sentry"), namespace="sentry")),
     path(
         "site-alerts/",

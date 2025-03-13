@@ -32,12 +32,9 @@ from .factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
-    PublishRequestFactory,
     ReleaseFactory,
     ReleaseFileFactory,
-    ReportFactory,
     SiteAlertFactory,
-    SnapshotFactory,
     UserFactory,
     UserSocialAuthFactory,
 )
@@ -326,17 +323,6 @@ def github_api():
             }
 
     return CapturingGitHubAPI()
-
-
-@pytest.fixture
-def publish_request_with_report():
-    rfile = ReleaseFileFactory()
-    snapshot = SnapshotFactory()
-    snapshot.files.set([rfile])
-
-    report = ReportFactory(release_file=rfile)
-
-    return PublishRequestFactory(report=report, snapshot=snapshot)
 
 
 @pytest.fixture
