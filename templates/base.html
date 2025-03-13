@@ -46,6 +46,14 @@
 
     {% vite_hmr_client %}
     {% vite_asset "assets/src/scripts/base.js" %}
+    {% comment %}
+      If running in development, display a soothing green strip at the top of
+      each page to reassure dev users that they are not accidentally on the
+      real live production site.
+    {% endcomment %}
+    {% if not in_production %}
+      {% vite_asset "assets/src/scripts/debug-hint-strip.js" %}
+    {% endif %}
 
     {% block extra_styles %}{% endblock %}
 

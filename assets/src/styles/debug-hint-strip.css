@@ -1,0 +1,14 @@
+body {
+  position: relative;
+  top: 1rem;
+}
+
+body::before {
+  background-color: var(--color-lime-400);
+  content: "";
+  height: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 256000;
+}

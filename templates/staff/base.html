@@ -2,5 +2,13 @@
 {% load django_vite %}
 
 {% block extra_meta %}
-{% vite_asset "assets/src/scripts/staff-base.js" %}
+  {% vite_asset "assets/src/scripts/staff-base.js" %}
+  {% comment %}
+    If on the real live production site, display a scary red strip at
+    the top of the staff pages to warn staff users that their changes will affect
+    real live production data.
+  {% endcomment %}
+  {% if in_production %}
+    {% vite_asset "assets/src/scripts/staff-warning-strip.js" %}
+  {% endif %}
 {% endblock extra_meta %}

@@ -15,6 +15,8 @@ export default defineConfig(({ mode }) => ({
         "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
         "staff-base": "./assets/src/scripts/staff-base.js",
         base: "./assets/src/scripts/base.js",
+        "staff-warning-strip": "./assets/src/scripts/staff-warning-strip.js",
+        "debug-hint-strip": "./assets/src/scripts/debug-hint-strip.js",
         components: "./assets/src/scripts/components.js",
         job_request_create: "./assets/src/scripts/job_request_create.js",
         multiselect: "./templates/_components/multiselect/multiselect.js",
