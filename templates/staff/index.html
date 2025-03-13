@@ -21,8 +21,6 @@
     {% #grid_col_span_1 %}
       {% #card title="Go to…" %}
         {% #list_group %}
-          {% url "staff:analysis-request-list" as staff_analysis_request_list %}
-          {% #list_group_item href=staff_analysis_request_list %}Analysis Requests{% /list_group_item %}
           {% url "staff:application-list" as staff_application_list %}
           {% #list_group_item href=staff_application_list %}Applications{% /list_group_item %}
           {% url "staff:backend-list" as staff_backend_list %}

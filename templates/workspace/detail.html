@@ -279,10 +279,6 @@
           {% empty %}
           {% list_group_empty description="No analyses requested for this workspace" %}
           {% endfor %}
-          {% #card_footer no_container=True %}
-            {% url "job-list" as job_list_url %}
-            {% link href=workspace.get_analyses_url text="View all Interactive analyses →" %}
-          {% /card_footer %}
         {% /list_group %}
       {% /card %}
       {% endif %}

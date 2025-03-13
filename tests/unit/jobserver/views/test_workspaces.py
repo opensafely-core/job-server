@@ -10,9 +10,7 @@ from django.utils import timezone
 
 from jobserver.authorization import StaffAreaAdministrator, permissions
 from jobserver.models import PublishRequest, Workspace
-from jobserver.utils import set_from_qs
 from jobserver.views.workspaces import (
-    WorkspaceAnalysisRequestList,
     WorkspaceArchiveToggle,
     WorkspaceCreate,
     WorkspaceDetail,
@@ -27,7 +25,6 @@ from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 from tests.utils import minutes_ago
 
 from ....factories import (
-    AnalysisRequestFactory,
     BackendFactory,
     BackendMembershipFactory,
     JobFactory,
@@ -1171,71 +1168,6 @@ def test_workspaceoutputlist_unknown_workspace(rf):
 
     with pytest.raises(Http404):
         WorkspaceOutputList.as_view()(
-            request,
-            project_slug=project.slug,
-            workspace_slug="",
-        )
-
-
-def test_workspaceanalaysisrequestlist_success(rf, role_factory):
-    workspace = WorkspaceFactory()
-
-    job_request1 = JobRequestFactory(workspace=workspace)
-    analysis_request1 = AnalysisRequestFactory(job_request=job_request1)
-
-    job_request2 = JobRequestFactory(workspace=workspace)
-    analysis_request2 = AnalysisRequestFactory(job_request=job_request2)
-
-    job_request3 = JobRequestFactory(workspace=workspace)
-    analysis_request3 = AnalysisRequestFactory(job_request=job_request3)
-
-    request = rf.get("/")
-    request.user = UserFactory(
-        roles=[role_factory(permission=permissions.analysis_request_create)]
-    )
-
-    response = WorkspaceAnalysisRequestList.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-
-    expected = {
-        analysis_request1.pk,
-        analysis_request2.pk,
-        analysis_request3.pk,
-    }
-
-    # check our updated queryset is working, and confirm the configuration
-    # of context_object_name
-    output = set_from_qs(response.context_data["analysis_requests"])
-    assert output == expected
-
-
-def test_workspaceanalaysisrequestlist_unauthorized(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(PermissionDenied):
-        WorkspaceAnalysisRequestList.as_view()(
-            request,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
-
-
-def test_workspaceanalaysisrequestlist_unknown_workspace(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        WorkspaceAnalysisRequestList.as_view()(
             request,
             project_slug=project.slug,
             workspace_slug="",
