@@ -83,58 +83,11 @@ class AnalysisRequest(models.Model):
     def __str__(self):
         return f"{self.title}"
 
-    @property
-    def publish_request(self):
-        """
-        Return the publish request tied to this AnalysisRequest's report
-
-        We don't want to relate an AnalysisRequest to a PublishRequest since
-        that will couple it to Interactive, when a PublishRequest is intended
-        to be a generic object for reports.  However, an AnalysisRequest has a
-        nullable relation to Report so we can use that.
-        """
-        if not self.report:
-            return None
-
-        return self.report.publish_requests.order_by("-created_at").first()
-
-    @property
-    def report_content(self):
-        if not self.report:
-            return ""
-
-        path = self.report.release_file.absolute_path()
-        if not path.exists():
-            return ""
-
-        return path.read_text()
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = f"{slugify(self.title)}-{self.pk}"
 
         return super().save(*args, **kwargs)
-
-    @property
-    def status(self):
-        """
-        Expose the status of an Analysis
-
-        This builds on top of JobRequest.status, which is deriving a single
-        state from its related Jobs.  However we also need to account for the
-        job having finished but the output not having been released.
-        """
-        jr_status = self.job_request.status
-        if jr_status != "succeeded":
-            return jr_status
-
-        # when the JobRequest has succeeded we still need to check if there has
-        # been a file released by looking for a related Report.
-        # TODO: handle manual overrides here too
-        if not self.report:
-            return "awaiting report"
-
-        return jr_status
 
     @property
     def ulid(self):

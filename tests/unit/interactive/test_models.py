@@ -5,12 +5,6 @@ from interactive.models import AnalysisRequest
 
 from ...factories import (
     AnalysisRequestFactory,
-    JobFactory,
-    JobRequestFactory,
-    PublishRequestFactory,
-    ReleaseFileFactory,
-    ReportFactory,
-    SnapshotFactory,
     UserFactory,
 )
 
@@ -37,71 +31,6 @@ def test_analysisrequest_created_check_constraint_missing_one(field):
         AnalysisRequestFactory(**{field: None})
 
 
-def test_analysisrequest_publish_request_success():
-    report = ReportFactory()
-    snapshot = SnapshotFactory()
-    snapshot.files.set([report.release_file])
-    publish_request = PublishRequestFactory(report=report, snapshot=snapshot)
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    assert analysis_request.publish_request == publish_request
-
-
-def test_analysisrequest_publish_request_without_report():
-    analysis_request = AnalysisRequestFactory()
-
-    assert analysis_request.publish_request is None
-
-
-def test_analysisrequest_publish_request_without_publish_request():
-    report = ReportFactory()
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    assert analysis_request.publish_request is None
-
-
-def test_analysisrequest_status_awaiting_report():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="succeeded")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "awaiting report"
-
-
-def test_analysisrequest_status_failed():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="failed")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "failed"
-
-
-def test_analysisrequest_status_pending():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="pending")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "pending"
-
-
-def test_analysisrequest_status_running():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="running")
-    analysis_request = AnalysisRequestFactory(job_request=job_request)
-
-    assert analysis_request.status == "running"
-
-
-def test_analysisrequest_status_succeeded():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, status="succeeded")
-    analysis_request = AnalysisRequestFactory(
-        job_request=job_request, report=ReportFactory()
-    )
-
-    assert analysis_request.status == "succeeded"
-
-
 def test_analysisrequest_str():
     analysis_request = AnalysisRequestFactory()
 
@@ -124,27 +53,6 @@ def test_analysisrequest_visible_to_other_user():
     analysis_request = AnalysisRequestFactory()
 
     assert not analysis_request.visible_to(UserFactory())
-
-
-def test_analysisrequest_report_content_success():
-    rfile = ReleaseFileFactory()
-    rfile.absolute_path().write_text("testing")
-    report = ReportFactory(release_file=rfile)
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    assert analysis_request.report_content == "testing"
-
-
-def test_analysisrequest_report_content_with_no_release_file():
-    rfile = ReleaseFileFactory()
-    report = ReportFactory(release_file=rfile)
-    analysis_request = AnalysisRequestFactory(report=report)
-
-    assert analysis_request.report_content == ""
-
-
-def test_analysisrequest_report_content_with_no_report():
-    assert AnalysisRequestFactory().report_content == ""
 
 
 def test_analysisrequest_ulid():
