@@ -129,7 +129,6 @@ def test_neither_field_set(factory, at_name, by_name):
         "_by",
         exclude=[
             # "at" has auto_now=True
-            ("interactive.AnalysisRequest", "updated_at", "updated_by"),
             ("jobserver.Project", "updated_at", "updated_by"),
             ("jobserver.PublishRequest", "updated_at", "updated_by"),
             ("jobserver.Report", "updated_at", "updated_by"),

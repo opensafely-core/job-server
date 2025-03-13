@@ -35,8 +35,6 @@ class ReportDetail(DetailView):
             super()
             .get_queryset()
             .select_related(
-                "analysis_request",
-                "analysis_request__project",
                 "created_by",
                 "release_file__workspace__project",
             )

@@ -49,12 +49,6 @@
           {% link href=report.release_file.workspace.project.get_staff_url text=report.release_file.workspace.project.name %}
         {% /description_item %}
 
-        {% if report.analysis_request %}
-          {% #description_item title="Analysis request" %}
-            {{ report.analysis_request.title }}
-          {% /description_item %}
-        {% endif %}
-
         {% #description_item title="Description" %}
           <div class="prose prose-sm prose-oxford">
             {{ report.description }}
