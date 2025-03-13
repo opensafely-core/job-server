@@ -109,19 +109,6 @@ def test_project_get_releases_url():
     )
 
 
-def test_project_get_reports_url():
-    project = ProjectFactory()
-
-    url = project.get_reports_url()
-
-    assert url == reverse(
-        "project-report-list",
-        kwargs={
-            "project_slug": project.slug,
-        },
-    )
-
-
 def test_project_get_staff_url():
     project = ProjectFactory()
 

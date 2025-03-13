@@ -11,7 +11,6 @@ from jobserver.views.projects import (
     ProjectDetail,
     ProjectEdit,
     ProjectEventLog,
-    ProjectReportList,
 )
 from tests.fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 from tests.utils import minutes_ago
@@ -23,7 +22,6 @@ from ....factories import (
     ProjectFactory,
     PublishRequestFactory,
     RepoFactory,
-    ReportFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -422,66 +420,3 @@ def test_projecteventlog_unknown_project(rf):
 
     with pytest.raises(Http404):
         ProjectEventLog.as_view()(request, project_slug="")
-
-
-def test_projectreportlist_success(rf, project_membership, release, role_factory):
-    project = ProjectFactory()
-    user = UserFactory()
-
-    report1 = ReportFactory(project=project)
-
-    report2 = ReportFactory(project=project, release_file=release.files.first())
-    snapshot = SnapshotFactory()
-    snapshot.files.set(release.files.all())
-    PublishRequestFactory(
-        report=report2,
-        snapshot=snapshot,
-        decision=PublishRequest.Decisions.APPROVED,
-        decision_at=timezone.now(),
-        decision_by=UserFactory(),
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = ProjectReportList.as_view()(request, project_slug=project.slug)
-
-    assert response.status_code == 200
-    assert set_from_qs(response.context_data["object_list"]) == {report2.pk}
-
-    # test the page again now the user has permissions to view drafts
-    project_membership(
-        project=project,
-        user=user,
-        roles=[role_factory(permission=permissions.release_file_view)],
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = ProjectReportList.as_view()(request, project_slug=project.slug)
-
-    assert response.status_code == 200
-    assert set_from_qs(response.context_data["object_list"]) == {report1.pk, report2.pk}
-
-
-def test_projectreportlist_unknown_project(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        ProjectReportList.as_view()(request, project_slug="")
-
-
-def test_projectreportlist_with_no_reports(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = ProjectReportList.as_view()(request, project_slug=project.slug)
-
-    assert response.status_code == 200
-    assert (
-        "currently no published reports for this project" in response.rendered_content
-    )
