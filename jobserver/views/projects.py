@@ -82,19 +82,8 @@ class ProjectDetail(View):
                 key=operator.itemgetter("name"),
             )
 
-        with self.tracer.start_as_current_span("reports"):
-            all_reports = project.reports.filter(
-                publish_requests__decision=PublishRequest.Decisions.APPROVED
-            ).order_by("-created_at")
-            reports = all_reports[:5]
-
-        counts = {
-            "reports": all_reports.count(),
-        }
-
         context = {
             "can_create_workspaces": can_create_workspaces,
-            "counts": counts,
             "first_job_ran_at": first_job_ran_at,
             "is_member": is_member,
             "memberships": memberships,
@@ -103,7 +92,6 @@ class ProjectDetail(View):
             "private_repos": private_repos,
             "public_repos": public_repos,
             "project_org_in_user_orgs": project_org_in_user_orgs,
-            "reports": reports,
             "status": self.get_status(project),
             "workspaces": workspaces,
         }
@@ -241,32 +229,3 @@ class ProjectEventLog(ListView):
             .prefetch_related("workspace__project__orgs")
             .order_by("-pk")
         )
-
-
-class ProjectReportList(ListView):
-    template_name = "project/report_list.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
-
-        self.can_view_unpublished_reports = has_permission(
-            self.request.user, permissions.release_file_view, project=self.project
-        )
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "project": self.project,
-            "user_can_view_unpublished_reports": self.can_view_unpublished_reports,
-        }
-
-    def get_queryset(self):
-        reports = self.project.reports.order_by("-created_at")
-
-        if not self.can_view_unpublished_reports:
-            reports = reports.filter(
-                publish_requests__decision=PublishRequest.Decisions.APPROVED
-            )
-
-        return reports

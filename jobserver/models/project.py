@@ -152,14 +152,6 @@ class Project(models.Model):
             },
         )
 
-    def get_reports_url(self):
-        return reverse(
-            "project-report-list",
-            kwargs={
-                "project_slug": self.slug,
-            },
-        )
-
     def get_staff_url(self):
         return reverse("staff:project-detail", kwargs={"slug": self.slug})
 

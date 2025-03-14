@@ -45,7 +45,6 @@ from .views.projects import (
     ProjectDetail,
     ProjectEdit,
     ProjectEventLog,
-    ProjectReportList,
 )
 from .views.releases import (
     ProjectReleaseList,
@@ -258,7 +257,6 @@ project_urls = [
     path("logs/", ProjectEventLog.as_view(), name="project-event-log"),
     path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("releases/", ProjectReleaseList.as_view(), name="project-release-list"),
-    path("reports/", ProjectReportList.as_view(), name="project-report-list"),
     path("<str:workspace_slug>/", include(workspace_urls)),
 ]
 
