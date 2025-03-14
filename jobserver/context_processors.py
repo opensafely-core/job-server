@@ -13,6 +13,13 @@ from .nav import NavItem, iter_nav
 logger = structlog.get_logger(__name__)
 
 
+def in_production(request):
+    """Is the site operating in production mode?
+
+    As determined by settings.py / environment variables."""
+    return {"in_production": not settings.DEBUG}
+
+
 def _is_active(request, prefix):
     return request.path.startswith(prefix)
 

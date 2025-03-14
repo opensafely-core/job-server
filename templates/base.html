@@ -55,8 +55,12 @@
     <link rel="manifest" href="{% static "manifest.webmanifest" %}">
   </head>
 
-  <body class="preload flex flex-col min-h-screen text-slate bg-white">
+  <body class="preload flex flex-col min-h-screen text-slate bg-white {% if not in_production %}mt-9{% endif %}">
     {% skip_link %}
+    {% block ribbon %}
+      {% include "_partials/dev-banner.html" %}
+    {% endblock ribbon %}
+
     {% header csrf_token=csrf_token login_url=login_url nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
 
     {% block breadcrumbs %}{% endblock %}
