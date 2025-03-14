@@ -1,5 +1,4 @@
 import pytest
-from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import PublishRequest, Snapshot
@@ -120,30 +119,6 @@ def test_publishrequest_create_from_report_success():
     assert request.created_by == user
     assert request.report == report
     assert request.updated_by == user
-
-
-def test_publishrequest_get_approve_url(publish_request_with_report):
-    url = publish_request_with_report.get_approve_url()
-
-    assert url == reverse(
-        "staff:publish-request-approve",
-        kwargs={
-            "pk": publish_request_with_report.report.pk,
-            "publish_request_pk": publish_request_with_report.pk,
-        },
-    )
-
-
-def test_publishrequest_get_reject_url(publish_request_with_report):
-    url = publish_request_with_report.get_reject_url()
-
-    assert url == reverse(
-        "staff:publish-request-reject",
-        kwargs={
-            "pk": publish_request_with_report.report.pk,
-            "publish_request_pk": publish_request_with_report.pk,
-        },
-    )
 
 
 def test_publishrequest_is_approved():

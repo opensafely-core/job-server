@@ -1,7 +1,6 @@
 import structlog
 from django.db import models, transaction
 from django.db.models import Q
-from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.utils import set_from_qs
@@ -201,24 +200,6 @@ class PublishRequest(models.Model):
             files=[report.release_file],
             report=report,
             user=user,
-        )
-
-    def get_approve_url(self):
-        return reverse(
-            "staff:publish-request-approve",
-            kwargs={
-                "pk": self.report.pk,
-                "publish_request_pk": self.pk,
-            },
-        )
-
-    def get_reject_url(self):
-        return reverse(
-            "staff:publish-request-reject",
-            kwargs={
-                "pk": self.report.pk,
-                "publish_request_pk": self.pk,
-            },
         )
 
     @property

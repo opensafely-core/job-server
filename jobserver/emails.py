@@ -81,26 +81,6 @@ def send_repo_signed_off_notification_to_staff(repo):
     )
 
 
-def send_report_published_email(publish_request):
-    url = furl(settings.BASE_URL) / publish_request.report.get_absolute_url()
-
-    context = {
-        "name": publish_request.created_by.name,
-        "title": publish_request.report.title,
-        "url": url,
-    }
-
-    send(
-        to=publish_request.created_by.email,
-        subject="Your report has been published",
-        sender="notifications@jobs.opensafely.org",
-        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
-        template_name="emails/report_published.txt",
-        html_template_name="emails/report_published.html",
-        context=context,
-    )
-
-
 def send_token_login_generated_email(user):
     send(
         to=user.email,

@@ -1,7 +1,6 @@
 import structlog
 from django.db import models
 from django.db.models import Q
-from django.urls import reverse
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
@@ -83,9 +82,6 @@ class Report(models.Model):
         # the future, so rather than error out send the user
         # _somewhere_.
         return "/"
-
-    def get_staff_url(self):
-        return reverse("staff:report-detail", kwargs={"pk": self.pk})
 
     @property
     def is_draft(self):

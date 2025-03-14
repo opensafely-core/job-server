@@ -9,7 +9,6 @@ from jobserver.emails import (
     send_github_login_email,
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
-    send_report_published_email,
 )
 
 from ...factories import (
@@ -130,16 +129,3 @@ def test_send_repo_signed_off_notification_to_staff(mailoutbox):
     assert repo.researcher_signed_off_by.name in html_content
     assert repo.get_staff_url() in text_content
     assert repo.get_staff_url() in html_content
-
-
-def test_send_report_published_email(publish_request_with_report, mailoutbox):
-    send_report_published_email(publish_request_with_report)
-
-    report = publish_request_with_report.report
-    m = mailoutbox[0]
-    text_content = m.body
-    html_content = m.alternatives[0][0]
-
-    assert m.subject == "Your report has been published"
-    assert report.get_absolute_url() in text_content
-    assert report.get_absolute_url() in html_content

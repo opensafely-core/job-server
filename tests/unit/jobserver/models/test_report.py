@@ -1,6 +1,5 @@
 import pytest
 from django.db import IntegrityError
-from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import PublishRequest, Report
@@ -26,14 +25,6 @@ def test_report_get_absolute_url_without_analysis_request():
     url = report.get_absolute_url()
 
     assert url == "/"
-
-
-def test_report_get_staff_url():
-    report = ReportFactory()
-
-    url = report.get_staff_url()
-
-    assert url == reverse("staff:report-detail", kwargs={"pk": report.pk})
 
 
 def test_report_is_draft():
