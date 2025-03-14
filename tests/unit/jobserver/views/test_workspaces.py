@@ -487,26 +487,6 @@ def test_workspacedetail_authorized_honeycomb(rf):
     )
 
 
-# Remove this as part of the OpenSAFELY Interactive removal.
-# It is retained for now, for placating coverage.
-def test_workspacedetail_for_interactive_button(rf, user, role_factory):
-    workspace = WorkspaceFactory(name="testing-interactive")
-    user = UserFactory(
-        roles=[role_factory(permission=permissions.analysis_request_create)]
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-
-
 def test_workspacedetail_logged_out(rf):
     workspace = WorkspaceFactory()
 
