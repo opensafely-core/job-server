@@ -50,7 +50,6 @@ class RedirectList(ListView):
 
         if q := self.request.GET.get("q"):
             fields = [
-                "analysis_request__title",
                 "created_by__fullname",
                 "created_by__username",
                 "old_url",

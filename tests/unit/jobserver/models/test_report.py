@@ -19,7 +19,7 @@ def test_report_created_check_constraint_missing_one(field):
         ReportFactory(**{field: None})
 
 
-def test_report_get_absolute_url_without_analysis_request():
+def test_report_get_absolute_url():
     report = ReportFactory()
 
     url = report.get_absolute_url()

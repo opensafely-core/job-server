@@ -18,12 +18,6 @@ def validate_not_empty(value):  # pragma: no cover
 
 
 class Redirect(models.Model):
-    analysis_request = models.ForeignKey(
-        "interactive.AnalysisRequest",
-        on_delete=models.CASCADE,
-        related_name="redirects",
-        null=True,
-    )
     org = models.ForeignKey(
         "jobserver.Org",
         on_delete=models.CASCADE,
@@ -91,25 +85,16 @@ class Redirect(models.Model):
             models.CheckConstraint(
                 condition=(
                     Q(
-                        analysis_request__isnull=False,
-                        org__isnull=True,
-                        project__isnull=True,
-                        workspace__isnull=True,
-                    )
-                    | Q(
-                        analysis_request__isnull=True,
                         org__isnull=False,
                         project__isnull=True,
                         workspace__isnull=True,
                     )
                     | Q(
-                        analysis_request__isnull=True,
                         org__isnull=True,
                         project__isnull=False,
                         workspace__isnull=True,
                     )
                     | Q(
-                        analysis_request__isnull=True,
                         org__isnull=True,
                         project__isnull=True,
                         workspace__isnull=False,
