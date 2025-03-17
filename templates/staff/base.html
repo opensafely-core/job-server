@@ -2,5 +2,12 @@
 {% load django_vite %}
 
 {% block extra_meta %}
-{% vite_asset "assets/src/scripts/staff-base.js" %}
+  {% vite_asset "assets/src/scripts/staff-base.js" %}
 {% endblock extra_meta %}
+
+{% block ribbon %}
+  {% include "_partials/dev-banner.html" %}
+  <div class="bg-bn-ribbon-700 text-white p-2 text-xs font-semibold uppercase text-center leading-none block">
+    Staff area
+  </div>
+{% endblock ribbon %}
