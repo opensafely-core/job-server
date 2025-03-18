@@ -6,7 +6,6 @@ from jobserver.utils import set_from_qs
 from tests.factories import (
     PublishRequestFactory,
     ReleaseFileFactory,
-    ReportFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -110,17 +109,6 @@ def test_publishrequest_create_from_files_with_multiple_workspaces():
         PublishRequest.create_from_files(files=rfiles, user=user)
 
 
-def test_publishrequest_create_from_report_success():
-    report = ReportFactory()
-    user = UserFactory()
-
-    request = PublishRequest.create_from_report(report=report, user=user)
-
-    assert request.created_by == user
-    assert request.report == report
-    assert request.updated_by == user
-
-
 def test_publishrequest_is_approved():
     publish_request = PublishRequestFactory(
         decision=PublishRequest.Decisions.APPROVED,
@@ -158,22 +146,6 @@ def test_publishrequest_reject(freezer):
     assert request.decision_at == now
     assert request.decision_by == user
     assert request.decision == PublishRequest.Decisions.REJECTED
-
-
-def test_publishrequest_save():
-    # a publish request with no report FK should work
-    snapshot = SnapshotFactory()
-    PublishRequestFactory(snapshot=snapshot)
-
-    # a publish request with the wrong report should return an error
-    report1 = ReportFactory()
-
-    report2 = ReportFactory()
-    snapshot = SnapshotFactory()
-    snapshot.files.set([report2.release_file])
-
-    with pytest.raises(PublishRequest.IncorrectReportError):
-        PublishRequestFactory(snapshot=snapshot, report=report1)
 
 
 def test_publishrequest_str():

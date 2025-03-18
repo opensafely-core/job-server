@@ -42,7 +42,6 @@ MUTABLE_MODELS = [
         "jobserver.ReleaseFile",
         "jobserver.ReleaseFileReview",
         "jobserver.Repo",
-        "jobserver.Report",
         "jobserver.SiteAlert",
         "jobserver.Snapshot",
         "jobserver.Stats",
