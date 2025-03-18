@@ -15,7 +15,6 @@ from .release import *  # noqa: F401, F403
 from .release_file import *  # noqa: F401, F403
 from .release_file_review import *  # noqa: F401, F403
 from .repo import *  # noqa: F401, F403
-from .report import *  # noqa: F401, F403
 from .site_alert import *  # noqa: F401, F403
 from .snapshot import *  # noqa: F401, F403
 from .stats import *  # noqa: F401, F403

@@ -14,13 +14,6 @@ class PublishRequest(models.Model):
         APPROVED = "approved", "Approved"
         REJECTED = "rejected", "Rejected"
 
-    # a convenience link to a report if one exists
-    report = models.ForeignKey(
-        "Report",
-        on_delete=models.PROTECT,
-        related_name="publish_requests",
-        null=True,
-    )
     snapshot = models.ForeignKey(
         "Snapshot",
         on_delete=models.CASCADE,
@@ -106,9 +99,6 @@ class PublishRequest(models.Model):
             ),
         ]
 
-    class IncorrectReportError(Exception):
-        pass
-
     class MultipleWorkspacesFound(Exception):
         pass
 
@@ -127,7 +117,7 @@ class PublishRequest(models.Model):
 
     @classmethod
     @transaction.atomic()
-    def create_from_files(cls, *, files, report=None, user):
+    def create_from_files(cls, *, files, user):
         """
         Create a PublishRequest from the given files.
 
@@ -188,18 +178,8 @@ class PublishRequest(models.Model):
         return cls.objects.create(
             created_by=user,
             updated_by=user,
-            report=report,
             snapshot=snapshot,
             workspace=workspace,
-        )
-
-    @classmethod
-    def create_from_report(self, *, report, user):
-        """Convenience wrapper for reports"""
-        return PublishRequest.create_from_files(
-            files=[report.release_file],
-            report=report,
-            user=user,
         )
 
     @property
@@ -219,12 +199,3 @@ class PublishRequest(models.Model):
         self.decision_by = user
         self.decision = self.Decisions.REJECTED
         self.save(update_fields=["decision_at", "decision_by", "decision"])
-
-    def save(self, *args, **kwargs):
-        # check our convenience FK points at the right report for this publish
-        # request by checking the reports release file is in our target
-        # snapshot
-        if self.report and self.report.release_file not in self.snapshot.files.all():
-            raise self.IncorrectReportError()
-
-        return super().save(*args, **kwargs)
