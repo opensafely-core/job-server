@@ -13,7 +13,6 @@ from .release import Release
 from .release_file import ReleaseFile
 from .release_file_review import ReleaseFileReview
 from .repo import Repo
-from .report import Report
 from .site_alert import SiteAlert
 from .snapshot import Snapshot
 from .stats import Stats
@@ -37,7 +36,6 @@ __all__ = [
     "ReleaseFile",
     "ReleaseFileReview",
     "Repo",
-    "Report",
     "SiteAlert",
     "Snapshot",
     "Stats",

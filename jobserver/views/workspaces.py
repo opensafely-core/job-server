@@ -32,7 +32,6 @@ from ..models import (
     Project,
     PublishRequest,
     Repo,
-    Report,
     Workspace,
 )
 from ..releases import build_outputs_zip, workspace_files
@@ -206,8 +205,6 @@ class WorkspaceDetail(View):
 
         outputs = self.get_output_permissions(request.user, workspace)
 
-        reports = Report.objects.filter(release_file__workspace=workspace)
-
         context = {
             "first_job": first_job,
             "honeycomb_can_view_links": honeycomb_can_view_links,
@@ -215,7 +212,6 @@ class WorkspaceDetail(View):
             "is_member": is_member,
             "outputs": outputs,
             "repo_is_private": repo_is_private,
-            "reports": reports,
             "show_admin": show_admin,
             "show_publish_repo_warning": show_publish_repo_warning,
             "user_can_archive_workspace": can_archive_workspace,
