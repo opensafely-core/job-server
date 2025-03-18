@@ -161,14 +161,6 @@ class Project(models.Model):
     def get_staff_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 
-    @property
-    def interactive_slug(self):
-        return f"{self.slug}-interactive"
-
-    @property
-    def interactive_workspace(self):
-        return self.workspaces.get(name=self.interactive_slug)
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)

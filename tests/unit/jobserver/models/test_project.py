@@ -10,7 +10,6 @@ from ....factories import (
     ProjectCollaborationFactory,
     ProjectFactory,
     UserFactory,
-    WorkspaceFactory,
 )
 
 
@@ -159,13 +158,3 @@ def test_project_org():
     lead_org = OrgFactory()
     ProjectCollaborationFactory(org=lead_org, project=project, is_lead=True)
     assert project.org == lead_org
-
-
-# Remove this as part of the OpenSAFELY Interactive removal.
-# This is a temporarily added test to placate coverage,
-# before removing the remaining OpenSAFELY Interactive functionality
-# that uses the Project.interactive_workspace property.
-def test_get_interactive_workspace():
-    project = ProjectFactory(slug="test-get-workspace")
-    workspace = WorkspaceFactory(project=project, name="test-get-workspace-interactive")
-    assert workspace == project.interactive_workspace
