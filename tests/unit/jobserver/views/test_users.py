@@ -1,15 +1,11 @@
-from datetime import timedelta
-
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
-from django.utils import timezone
 
 from jobserver.commands import users
 from jobserver.utils import set_from_list
 from jobserver.views.users import (
     Login,
-    LoginWithToken,
     RequireName,
     Settings,
     UserDetail,
@@ -18,7 +14,6 @@ from jobserver.views.users import (
 )
 
 from ....factories import (
-    BackendFactory,
     BackendMembershipFactory,
     JobRequestFactory,
     PartialFactory,
@@ -283,137 +278,6 @@ def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
     assert "foo bar baz" not in response.rendered_content
     messages = list(request._messages)
     assert str(messages[-1]) == "Your account is not allowed to generate a login token"
-
-
-@pytest.mark.parametrize("attr", ["username", "email", "email"])
-def test_loginwittoken_success(attr, rf_messages, token_login_user, mailoutbox):
-    token = users.generate_login_token(token_login_user)
-
-    data = {"user": getattr(token_login_user, attr), "token": token}
-    request = rf_messages.post("/login-with-token", data)
-    request.backend = token_login_user.backends.first()
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "You have been logged in using a single use token. That token is now invalid."
-    )
-
-    assert "login token was used" in mailoutbox[1].body
-
-
-def test_loginwittoken_not_from_backend(rf_messages):
-    request = rf_messages.post("/login-with-token", {})
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "login.html"
-    messages = list(request._messages)
-    assert str(messages[-1]) == "Token login only allowed from Level 4"
-
-
-def test_loginwittoken_no_user(rf_messages):
-    data = {"user": "doesnotexist", "token": "token"}
-    request = rf_messages.post("/login-with-token", data)
-    request.backend = BackendFactory()
-
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "login.html"
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "Login failed. The user or token may be incorrect, or the token may have expired."
-    )
-
-
-def test_loginwittoken_invalid_user(rf_messages):
-    user = UserFactory()
-    backend = BackendFactory()
-
-    data = {"user": user.email, "token": "token"}
-    request = rf_messages.post("/login-with-token", data)
-    request.backend = backend
-
-    response = LoginWithToken.as_view()(request)
-    assert response.status_code == 200
-    assert response.template_name == "login.html"
-    messages = list(request._messages)
-    assert (
-        str(messages[-1])
-        == "Login failed. The user or token may be incorrect, or the token may have expired."
-    )
-
-    UserSocialAuthFactory(user=user)
-
-    response = LoginWithToken.as_view()(request)
-    assert response.status_code == 200
-    assert response.template_name == "login.html"
-    messages = list(request._messages)
-    assert (
-        str(messages[-1])
-        == "Login failed. The user or token may be incorrect, or the token may have expired."
-    )
-
-
-def test_loginwittoken_invalid_form(rf_messages, token_login_user):
-    request = rf_messages.post("/login-with-token", {})
-    request.backend = token_login_user.backends.first()
-
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "login.html"
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "Login failed. The user or token may be incorrect, or the token may have expired."
-    )
-
-
-def test_loginwittoken_bad_token(rf_messages, token_login_user):
-    data = {"user": token_login_user.email, "token": "no token"}
-    request = rf_messages.post("/login-with-token", data)
-    request.backend = token_login_user.backends.first()
-
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "login.html"
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "Login failed. The user or token may be incorrect, or the token may have expired."
-    )
-
-
-def test_loginwittoken_expired_token(rf_messages, token_login_user):
-    token = users.generate_login_token(token_login_user)
-    token_login_user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
-    token_login_user.save()
-
-    data = {"user": token_login_user.email, "token": token}
-    request = rf_messages.post("/login-with-token", data)
-    request.backend = token_login_user.backends.first()
-
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "login.html"
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "Login failed. The user or token may be incorrect, or the token may have expired."
-    )
 
 
 def test_userdetail_success(rf):

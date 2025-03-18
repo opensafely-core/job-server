@@ -1,6 +1,5 @@
 import structlog
 from django.contrib import messages
-from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.db.models.functions import Lower
@@ -14,7 +13,7 @@ from social_django.utils import load_strategy
 
 from jobserver.commands import users
 
-from ..forms import RequireNameForm, SettingsForm, TokenLoginForm
+from ..forms import RequireNameForm, SettingsForm
 from ..models import JobRequest, User
 from ..utils import is_safe_path
 
@@ -51,53 +50,6 @@ class Login(View):
             "login.html",
             {
                 "next_url": self.next_url,
-            },
-        )
-
-
-class LoginWithToken(View):
-    def post(self, request, *args, **kwargs):
-        form = TokenLoginForm(request.POST)
-
-        if getattr(request, "backend", None) is None:
-            return self.login_invalid(form, "Token login only allowed from Level 4")
-
-        if not form.is_valid():
-            return self.login_invalid(form)
-
-        user_value = form.cleaned_data["user"]
-
-        try:
-            user = users.validate_login_token(user_value, form.cleaned_data["token"])
-        except (
-            User.DoesNotExist,
-            users.TokenLoginException,
-        ) as e:
-            logger.info(f"Login with token failed for user {user_value}: {e}")
-            trace.get_current_span().record_exception(e)
-            return self.login_invalid(form)
-
-        login(self.request, user, "django.contrib.auth.backends.ModelBackend")
-        logger.info(f"User {user} logged in with login token")
-        messages.success(
-            self.request,
-            "You have been logged in using a single use token. That token is now invalid.",
-        )
-
-        next_url = get_next_url(self.request)
-        return redirect(next_url)
-
-    def login_invalid(self, form, msg=None):
-        if msg is None:
-            msg = "Login failed. The user or token may be incorrect, or the token may have expired."
-        messages.error(self.request, msg)
-
-        return TemplateResponse(
-            self.request,
-            template="login.html",
-            context={
-                "token_form": form,
-                "next_url": get_next_url(self.request),
             },
         )
 
