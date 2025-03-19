@@ -1,8 +1,10 @@
 # 10. Creating Interactive queries v2
+
 Date: 2022-04-14
 
 ## Status
-Accepted
+
+Deprecated (see [ADR 29](0029-sunset-osi-interactive.md), sunsetting Interactive.
 
 ## Context
 In ADR-0003 we defined how OSIv1 would write a new commit for each AnalysisRequest.

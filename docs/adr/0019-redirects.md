@@ -2,7 +2,8 @@
 Date: 2023-04-10
 
 ## Status
-Accepted
+
+Deprecated (see [ADR 29](0029-sunset-osi-interactive.md), sunsetting Interactive.
 
 ## Context
 After identifying that Organisations should be able to collaborate on Projects, the first task was to remove Organisation slugs from the root of all relevant URLs.  To do so would affect the vast majority of URLs in the system, so we looked at ways to do redirects, knowing that we would likely need to do this for more than Projects in the long term.

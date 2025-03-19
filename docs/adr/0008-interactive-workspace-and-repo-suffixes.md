@@ -1,10 +1,10 @@
 # 8. Interactive Workspace and Repo suffixes
+
 Date: 2023-02-22
 
-
 ## Status
-Accepted
 
+Deprecated (see [ADR 29](0029-sunset-osi-interactive.md), sunsetting Interactive.
 
 ## Context
 Interactive studies fit into our general platform system in that they exist a project under which workspaces, jobs, etc all exist.

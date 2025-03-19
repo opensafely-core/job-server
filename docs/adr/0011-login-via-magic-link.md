@@ -2,7 +2,8 @@
 Date: 2023-03-13
 
 ## Status
-Accepted
+
+Deprecated (see [ADR 29](0029-sunset-osi-interactive.md), sunsetting Interactive.
 
 ## Context
 Our current user base writes code to use the platform, and we require that the code is hosted on GitHub.

@@ -4,7 +4,7 @@ Date: 2022-04-08
 
 ## Status
 
-Accepted
+Deprecated (see [ADR 29](0029-sunset-osi-interactive.md), sunsetting Interactive.
 
 ## Context
 
