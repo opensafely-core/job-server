@@ -1,12 +1,10 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.emails import (
     send_finished_notification,
-    send_github_login_email,
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
 )
@@ -59,21 +57,6 @@ def test_send_finished_notification(mailoutbox):
     assert job.get_absolute_url() in html_content
     assert settings.BASE_URL in text_content
     assert settings.BASE_URL in html_content
-
-
-def test_github_login_email(mailoutbox):
-    user = UserFactory()
-
-    send_github_login_email(user)
-
-    m = mailoutbox[0]
-    text_content = m.body
-    html_content = m.alternatives[0][0]
-
-    assert reverse("login") in text_content
-    assert reverse("login") in html_content
-
-    assert list(m.to) == [user.email]
 
 
 def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
