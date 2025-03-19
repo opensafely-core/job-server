@@ -254,18 +254,6 @@ class User(AbstractBaseUser):
 
         return True
 
-    def is_interactive_only(self):
-        """
-        TODO:remove as part of the interactive removal initiative
-
-        Does this user only have access the Interactive part of the platform?
-
-        Because a user can have the InteractiveReporter role globally or via
-        any project, along with other roles, we needed an easy way to identify
-        when a user has only this role.
-        """
-        return False
-
     @property
     def name(self):
         """Unify the available names for a User."""
