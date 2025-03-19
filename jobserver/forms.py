@@ -61,11 +61,6 @@ class JobRequestCreateForm(forms.ModelForm):
                 )
 
 
-class TokenLoginForm(forms.Form):
-    user = forms.CharField()
-    token = forms.CharField()
-
-
 class RequireNameForm(forms.Form):
     name = forms.CharField()
 
