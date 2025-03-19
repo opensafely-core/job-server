@@ -267,7 +267,3 @@ class Workspace(models.Model):
         with connection.cursor() as cursor:
             cursor.execute(sql, [self.name])
             return dict(cursor.fetchall())
-
-    @property
-    def is_interactive(self):
-        return self.name.endswith("-interactive")
