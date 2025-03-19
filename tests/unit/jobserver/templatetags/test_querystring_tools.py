@@ -1,22 +1,7 @@
 from jobserver.templatetags.querystring_tools import (
-    redirect_with_querystring,
     url_with_querystring,
     url_without_querystring,
 )
-
-
-def test_redirect_with_querystring(rf, mocker):
-    # patch here so we don't couple this test to any configured URL
-    mocker.patch(
-        "jobserver.templatetags.querystring_tools.reverse",
-        autospec=True,
-        return_value="/an_url",
-    )
-
-    context = {"request": rf.get("/?foo=bar")}
-    output = redirect_with_querystring(context, view_name="derp")
-
-    assert output == "/an_url?foo=bar"
 
 
 def test_url_with_querystring_setting_other_arg_set_with_no_page(rf):

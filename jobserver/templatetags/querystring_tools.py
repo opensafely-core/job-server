@@ -1,18 +1,8 @@
 from django import template
-from django.urls import reverse
 from furl import furl
 
 
 register = template.Library()
-
-
-@register.simple_tag(takes_context=True)
-def redirect_with_querystring(context, view_name):
-    request = context["request"]
-    f = furl(request.get_full_path())
-    f.path = reverse(view_name)
-
-    return f.url
 
 
 @register.simple_tag(takes_context=True)
