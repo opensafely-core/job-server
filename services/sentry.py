@@ -46,7 +46,7 @@ def monitor_config(schedule):
         "max_runtime": 10,
         # It'll take `failure_issue_threshold` consecutive failed
         # check-ins to create an issue
-        "failure_issue_threshold": 1,
+        "failure_issue_threshold": 2,
         # It'll take `recovery_threshold` OK check-ins to resolve
         # an issue
         "recovery_threshold": 1,
