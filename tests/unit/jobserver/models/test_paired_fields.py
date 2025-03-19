@@ -87,7 +87,6 @@ def test_fields_are_paired(model, lsuffix, rsuffix):
             ("jobserver.PublishRequest", "decision_at", "decision_by", "decision"),
             # Missing ReleaseFileReviewFactory.comments
             ("jobserver.ReleaseFileReview",),
-            # Missing RedirectFactory.analysis_request
             ("redirects.Redirect",),
         ]
         + MODELS_WITHOUT_FACTORIES,
@@ -107,7 +106,6 @@ def test_both_fields_set(factory, at_name, by_name):
         "_at",
         "_by",
         exclude=[
-            # Missing RedirectFactory.analysis_request
             ("redirects.Redirect",),
         ]
         + MODELS_WITHOUT_FACTORIES,
