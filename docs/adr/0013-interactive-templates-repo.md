@@ -2,6 +2,7 @@
 Date: 2023-03-24
 
 ## Status
+
 Deprecated (see [ADR 28](0028-remove-the-use-of-interactive-templates-repo.md)).
 
 ## Context

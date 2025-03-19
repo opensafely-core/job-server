@@ -2,7 +2,8 @@
 Date: 2023-04-10
 
 ## Status
-Accepted
+
+Deprecated (see [ADR 29](0029-sunset-osi-interactive.md), sunsetting Interactive.
 
 ## Context
 We already have a process for publishing outputs via the Snapshot models and the outputs-viewer.
