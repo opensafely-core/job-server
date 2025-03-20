@@ -15,7 +15,6 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
 
-from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesArrayField
 from ..hash_utils import hash_user_pat
 
@@ -159,7 +158,7 @@ class User(AbstractBaseUser):
         we want to check all the roles available to a user.  This property
         allows us to use typical python membership checks when doing that, eg:
 
-            if InteractiveReporter not in user.all_roles:
+            if ProjectDeveloper not in user.all_roles:
         """
         membership_roles = list(
             itertools.chain.from_iterable(
@@ -254,17 +253,6 @@ class User(AbstractBaseUser):
             return False
 
         return True
-
-    @property
-    def is_interactive_only(self):
-        """
-        Does this user only have access the Interactive part of the platform?
-
-        Because a user can have the InteractiveReporter role globally or via
-        any project, along with other roles, we needed an easy way to identify
-        when a user has only this role.
-        """
-        return self.all_roles == {InteractiveReporter}
 
     @property
     def name(self):

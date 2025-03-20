@@ -3,7 +3,6 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404
 
 from jobserver.authorization import (
-    InteractiveReporter,
     OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -415,7 +414,7 @@ def test_userdetailwithoauth_with_email_only_user_invokes_userdetailwithemail(
 
     # link the user to the Org&Project
     OrgMembershipFactory(org=org, user=user)
-    project_membership(project=project, user=user, roles=[InteractiveReporter])
+    project_membership(project=project, user=user)
 
     request = rf.get("/")
     request.user = staff_area_administrator
