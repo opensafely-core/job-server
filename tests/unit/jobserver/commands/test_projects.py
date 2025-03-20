@@ -9,7 +9,7 @@ from tests.factories import (
 )
 
 
-def test_add_interactive_project():
+def test_add_project_with_copilot_and_application():
     org1 = OrgFactory()
     org2 = OrgFactory()
 
@@ -51,7 +51,7 @@ def test_add_interactive_project():
     assert collaboration2.updated_by == actor
 
 
-def test_add_standard_project():
+def test_add_project_without_copilot_and_application():
     org1 = OrgFactory()
     org2 = OrgFactory()
 
