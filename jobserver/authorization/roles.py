@@ -48,15 +48,14 @@ class StaffAreaAdministrator:
 
 
 class InteractiveReporter:
-    display_name = "Interactive Reporter"
-    description = """View analysis requests and reports for projects that used OpenSAFELY Interactive."""
-    models = [
-        "jobserver.models.project_membership.ProjectMembership",
-        "jobserver.models.user.User",
-    ]
-    permissions = [
-        release_file_view,
-    ]
+    """
+    Vestigial role class to support data migration to remove assignments of this role to users.
+    Not to be used outside of this migration.
+    Must be removed once this data migration is eliminated.
+    """
+
+    models = []
+    permissions = []
 
 
 class OutputChecker:

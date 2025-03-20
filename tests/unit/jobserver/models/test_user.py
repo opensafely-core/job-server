@@ -6,10 +6,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.authorization.roles import (
-    InteractiveReporter,
     OutputChecker,
     ProjectCollaborator,
-    ProjectDeveloper,
 )
 from jobserver.models.user import User
 
@@ -209,27 +207,6 @@ def test_user_initials_with_names(name, initials):
 def test_user_name():
     assert UserFactory(fullname="first last", username="test").name == "first last"
     assert UserFactory(username="username").name == "username"
-
-
-def test_user_is_interactive_only(project_membership):
-    # user ONLY has the InteractiveReporter role
-    assert UserFactory(roles=[InteractiveReporter]).is_interactive_only
-
-    user = UserFactory()
-    project_membership(user=user, roles=[InteractiveReporter])
-    assert user.is_interactive_only
-
-    # user has the InteractiveReporter along with others
-    assert not UserFactory(
-        roles=[InteractiveReporter, ProjectDeveloper]
-    ).is_interactive_only
-
-    user = UserFactory()
-    project_membership(user=user, roles=[InteractiveReporter, ProjectCollaborator])
-    assert not user.is_interactive_only
-
-    # user has no roles
-    assert not UserFactory().is_interactive_only
 
 
 def test_user_rotate_token(freezer):
