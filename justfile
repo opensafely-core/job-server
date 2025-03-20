@@ -144,7 +144,7 @@ format *args=".": devenv
     $BIN/ruff format --check {{ args }}
 
 
-django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
+django-upgrade *args="$(find applications jobserver redirects services staff tests -name '*.py' -type f)": devenv
     $BIN/django-upgrade --target-version=5.0 {{ args }}
 
 
