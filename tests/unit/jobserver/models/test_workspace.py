@@ -30,6 +30,7 @@ def test_workspace_constraints_signed_off_at_and_signed_off_by_neither_set():
     WorkspaceFactory(signed_off_at=None, signed_off_by=None)
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_workspace_constraints_missing_signed_off_at_or_signed_off_by():
     with pytest.raises(IntegrityError):
@@ -43,6 +44,7 @@ def test_workspace_constraints_updated_at_and_updated_by_both_set():
     WorkspaceFactory(updated_by=UserFactory())
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_workspace_constraints_missing_updated_at_or_updated_by():
     with pytest.raises(IntegrityError):

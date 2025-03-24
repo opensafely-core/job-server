@@ -17,6 +17,7 @@ def test_project_constraints_created_at_and_created_by_both_set():
     ProjectFactory(created_at=timezone.now(), created_by=UserFactory())
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_project_constraints_created_at_and_created_by_only_one_set():
     with pytest.raises(IntegrityError):
@@ -30,6 +31,7 @@ def test_project_constraints_updated_at_and_updated_by_both_set():
     ProjectFactory(updated_at=timezone.now(), updated_by=UserFactory())
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_project_constraints_updated_at_and_updated_by_only_one_set():
     with pytest.raises(IntegrityError):

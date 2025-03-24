@@ -22,6 +22,7 @@ def test_application_constraints_deleted_at_and_deleted_by_neither_set():
     ApplicationFactory(deleted_at=None, deleted_by=None)
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_application_constraints_missing_approved_at_or_approved_by():
     msg = '^new row for relation "applications_application" violates check constraint "applications_application_both_approved_at_and_approved_by_set"'
@@ -33,6 +34,7 @@ def test_application_constraints_missing_approved_at_or_approved_by():
         ApplicationFactory(approved_at=None, approved_by=UserFactory())
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_application_constraints_missing_deleted_at_or_deleted_by():
     with pytest.raises(IntegrityError):

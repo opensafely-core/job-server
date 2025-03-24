@@ -36,6 +36,7 @@ def test_releasefile_constraints_deleted_at_and_deleted_by_neither_set():
     ReleaseFileFactory(deleted_at=None, deleted_by=None)
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_releasefile_constraints_missing_deleted_at_or_deleted_by():
     with pytest.raises(IntegrityError):
