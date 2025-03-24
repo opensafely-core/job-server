@@ -41,7 +41,6 @@ parallel = true
 source = [
   "airlock",
   "applications",
-  "interactive",
   "jobserver",
   "redirects",
   "services",

@@ -73,7 +73,6 @@ class MissingVariableErrorFilter(logging.Filter):
         "_partials",
         # As do two of our internal applications
         "applications/",
-        "interactive/",
     )
     ignored_variable_names = {
         # Some template variables are added by middleware, and so
