@@ -136,6 +136,7 @@ class Migration(migrations.Migration):
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
+                ("is_study_short_data_report", models.BooleanField(default=False)),
             ],
             options={
                 "abstract": False,
@@ -264,6 +265,12 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "read_analytic_methods_policy",
+                    models.BooleanField(
+                        choices=[(True, "Yes"), (False, "No")], null=True
                     ),
                 ),
             ],
@@ -949,11 +956,6 @@ class Migration(migrations.Migration):
                 name="applications_application_both_submitted_at_and_submitted_by_set",
             ),
         ),
-        migrations.AddField(
-            model_name="typeofstudypage",
-            name="is_study_short_data_report",
-            field=models.BooleanField(default=False),
-        ),
         migrations.CreateModel(
             name="ShortDataReportPage",
             fields=[
@@ -990,12 +992,5 @@ class Migration(migrations.Migration):
             options={
                 "abstract": False,
             },
-        ),
-        migrations.AddField(
-            model_name="studyinformationpage",
-            name="read_analytic_methods_policy",
-            field=models.BooleanField(
-                choices=[(True, "Yes"), (False, "No")], null=True
-            ),
         ),
     ]
