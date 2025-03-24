@@ -1,4 +1,5 @@
 import factory
+import pytest
 from django.urls import reverse
 
 from ..factories import UserFactory
@@ -20,6 +21,7 @@ def url_builder(application):
     return url
 
 
+@pytest.mark.slow_test
 def test_successful_application(client, mailoutbox, slack_messages):
     user = UserFactory()
 
