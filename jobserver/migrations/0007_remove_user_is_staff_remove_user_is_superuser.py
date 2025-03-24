@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("jobserver", "0006_remove_user_socialauth_token_type"),
+        ("jobserver", "0004_remove_orgmembership_roles"),
     ]
 
     operations = [

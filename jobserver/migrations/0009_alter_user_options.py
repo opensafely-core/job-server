@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("jobserver", "0008_coredeveloper_to_staffareaadministrator"),
+        ("jobserver", "0007_remove_user_is_staff_remove_user_is_superuser"),
     ]
 
     operations = [
