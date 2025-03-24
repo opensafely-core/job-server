@@ -19,17 +19,6 @@ from .permissions import (
 )
 
 
-class CoreDeveloper:
-    """
-    Vestigial role class to support data migration from CoreDeveloper to StaffAreaAdministrator.
-    Not to be used outside of this migration.
-    Must be removed once this data migration is eliminated.
-    """
-
-    models = []
-    permissions = []
-
-
 class StaffAreaAdministrator:
     display_name = "Staff Area Administrator"
     description = """Access the Staff Area.
@@ -45,17 +34,6 @@ class StaffAreaAdministrator:
         org_create,
         user_manage,
     ]
-
-
-class InteractiveReporter:
-    """
-    Vestigial role class to support data migration to remove assignments of this role to users.
-    Not to be used outside of this migration.
-    Must be removed once this data migration is eliminated.
-    """
-
-    models = []
-    permissions = []
 
 
 class OutputChecker:
