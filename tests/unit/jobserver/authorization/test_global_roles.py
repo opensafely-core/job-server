@@ -5,7 +5,6 @@ def test_global_role_names():
     assert set(GLOBAL_ROLE_NAMES) & set(
         [
             "DeploymentAdministrator",
-            "InteractiveReporter",
             "OutputChecker",
             "OutputPublisher",
             "ProjectCollaborator",

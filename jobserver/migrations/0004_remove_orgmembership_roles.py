@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("jobserver", "0003_remove_global_projectdeveloper"),
+        ("jobserver", "0001_squashed_2024_06"),
     ]
 
     operations = [
