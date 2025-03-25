@@ -9,29 +9,32 @@
       - [Installing on macOS](#installing-on-macos)
       - [Installing on Linux](#installing-on-linux)
       - [Creating a database](#creating-a-database)
-      - [Restoring Backups](#restoring-backups)
+    - [Restoring Backups](#restoring-backups)
     - [Steps](#steps)
   - [Docker Compose](#docker-compose)
   - [Frontend development (CSS/JS)](#frontend-development-cssjs)
   - [Running the local asset server](#running-the-local-asset-server)
   - [Compiling assets](#compiling-assets)
-  - [Data Setup](#data-setup)
-  - [Upgrade OpenTelemetry dependencies](#pip-opentelemetry)
+  - [Setting up a fresh install](#setting-up-a-fresh-install)
+  - [Upgrade OpenTelemetry dependencies](#upgrade-opentelemetry-dependencies)
 - [Deployment](#deployment)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
 - [`django-upgrade`](#django-upgrade)
 - [Components](#components)
+- [Icons](#icons)
 - [Backends](#backends)
-- [Rotating the GitHub token](#rotating-the-github-token)
-- [Dumping co-pilot reporting data](#dumping-copilot-reporting-data)
-- [Ensuring paired field state with CheckConstraints](#ensuring-paired-field-state-with-checkconstraint)
+- [Rotating the read only GitHub token](#rotating-the-read-only-github-token)
+- [Dumping co-pilot reporting data](#dumping-co-pilot-reporting-data)
+- [Ensuring paired field state with CheckConstraints](#ensuring-paired-field-state-with-checkconstraints)
   - [Common patterns](#common-patterns)
+    - [Both set or null](#both-set-or-null)
+    - [updated\_at and updated\_by](#updated_at-and-updated_by)
 - [Auditing events](#auditing-events)
   - [Presenters](#presenters)
 - [Interfaces](#interfaces)
-  - [Job Runner](#job-runner-interface)
-  - [Airlock](#airlock-interface)
+  - [Job Runner interface](#job-runner-interface)
+  - [Airlock interface](#airlock-interface)
 
 ## Local development
 
@@ -250,7 +253,7 @@ In that situation you can follow the steps below to set up your local copy of th
 Workspace creation currently requires a link to a repo, so from this point onwards you will need to make changes directly in the database to create a workspace, and make job requests.
 
 
-### pip-opentelemetry
+### Upgrade OpenTelemetry dependencies
 
 The opentelemetry dependencies need to be upgraded as a group. To do this, bump the relevant versions in `requirements.prod.in` and then attempt to manually resolve the dependencies by upgrading a number of packages simultaneously. A recent example of this is:
 
@@ -281,6 +284,17 @@ just test-ci
 
 More details on testing can be found in [TESTING.md](TESTING.md).
 
+### Slack Testing
+
+With a valid bot token, you can run tests and have any slack messages generated
+actually sent to a test channel by setting some environment variables:
+
+```
+export SLACK_BOT_TOKEN=...
+export SLACK_TEST_CHANNEL=job-server-testing
+just test-dev
+```
+
 ## `django-upgrade`
 
 [`django-upgrade`](https://github.com/adamchainz/django-upgrade) is used
@@ -297,17 +311,6 @@ When upgrading to a new Django minor or major version:
   and any changes `django-upgrade` makes committed.
 * Update the Django version used for the invocation of `django-upgrade`
   in the `django-upgrade` recipe in the `justfile`.
-
-### Slack Testing
-
-With a valid bot token, you can run tests and have any slack messages generated
-actually sent to a test channel by setting some environment variables:
-
-```
-export SLACK_BOT_TOKEN=...
-export SLACK_TEST_CHANNEL=job-server-testing
-just test-dev
-```
 
 
 ## Components
