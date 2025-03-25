@@ -1,36 +1,124 @@
-argon2-cffi
+###########################################################
+# Django and packages that interact directly with it
+###########################################################
+
+# The main Django web framework for building applications.
 django
-django-anymail[mailgun]
-django-csp
-django-extensions
-django-htmx
-django-permissions-policy
-django-structlog
-django-vite
-djangorestframework
-environs[django]
-furl
-opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip
+
+# A WSGI HTTP server for running Django in production.
 gunicorn
-incuna-mail
-markdown
-nh3
+
+# PostgreSQL database adapter for Python binary.
 psycopg[binary]
-pygments
-python-ulid
-opentelemetry-exporter-otlp-proto-http==1.29.0
-opentelemetry-instrumentation-django==0.50b0
-opentelemetry-instrumentation-requests==0.50b0
-opentelemetry-instrumentation-psycopg2==0.50b0
-opentelemetry-sdk==1.29.0
-requests
-sentry-sdk
-slack-sdk
+
+# Password hasher. django.contrib.auth.hashers.Argon2PasswordHasher in settings.py.
+argon2-cffi
+
+# Email backend integration for Mailgun, used to send emails in Django. See settings.py.
+django-anymail[mailgun]
+
+# Content Security Policy headers for web app security. Search 'csp' in settings.py.
+django-csp
+
+# Provides additional management commands and utilities for Django projects.
+# See jobserver/jobs.
+django-extensions
+
+# Integration for using HTMX with Django, enabling server-driven interactivity.
+django-htmx
+
+# Adds Permissions-Policy headers for feature policy management in Django.
+# See PERMISSIONS_POLICY in settings.py.
+django-permissions-policy
+
+# Integration of the structlog logging library with Django.
+django-structlog
+
+# Helps integrate Vite.js (frontend tooling) into a Django project.
+django-vite
+
+# Simplifies building Django templates with Tailwind CSS and Alpine.js.
 slippers
+
+# Toolkit for building REST APIs in Django. Search "from rest_framework"
+djangorestframework
+
+# Simplifies environment variable management. Used in some services and app code.
+environs[django]
+
+# Integration of social authentication for Django projects.
 social-auth-app-django
+
+# Core library for handling social authentication workflows.
 social-auth-core
-structlog
+
 # Serves static files. Dependabot wasn't updating past 6.3.0 for
 # unclear reasons, and we want fix #612 from 6.8.0.
 whitenoise[brotli]>=6.8.0
+
+###########################################################
+# OpenTelemetry for Honeycomb and Sentry
+###########################################################
+
+# OpenTelemetry exporter for sending traces/metrics via OTLP over HTTP.
+opentelemetry-exporter-otlp-proto-http==1.29.0
+
+# Instrumentation for tracing Django applications using OpenTelemetry.
+opentelemetry-instrumentation-django==0.50b0
+
+# Instrumentation for tracing HTTP requests made with the `requests` library.
+opentelemetry-instrumentation-requests==0.50b0
+
+# Instrumentation for tracing database queries made via psycopg2.
+opentelemetry-instrumentation-psycopg2==0.50b0
+
+# SDK for working with OpenTelemetry tracing and metrics.
+opentelemetry-sdk==1.29.0
+
+###########################################################
+# Integrations with third-party services
+###########################################################
+
+# Client for error reporting and performance monitoring with Sentry.
+sentry-sdk
+
+# Slack SDK for building integrations with Slack (e.g., bots, notifications).
+slack-sdk
+
+###########################################################
+# Packages used in application code
+###########################################################
+
+# URL manipulation and building. Used pervasively.
+furl
+
+# A specific version of the OpenSAFELY Pipeline for health data analysis.
+# Search 'pipeline' in jobserver/
+opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip
+
+# Email utilities/wrappers. See jobserver/emails.py and airlock/emails.py.
+incuna-mail
+
+# Handling markdown. Used in some views and snippets.
+markdown
+
+# HTML sanitization. See jobserver/html_utils.py. clean_html() is used in a few views.
+nh3
+
+# Syntax highlighter. See jobserver/pipeline_config.py where it's used to convert YAML to HTML.
+pygments
+
+# Generates and parses ULID (Universally Unique Lexicographically Sortable Identifier).
+# https://github.com/ulid/spec
+# Search 'ulid' in jobserver/models/
+python-ulid
+
+# Making HTTP requests. Used pervasively.
+requests
+
+# Structured logging. Used pervasively.
+structlog
+
+# Password generator. See jobserver/commands/users.py.
 xkcdpass
+###########################################################
