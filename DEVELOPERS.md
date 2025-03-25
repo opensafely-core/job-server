@@ -9,29 +9,32 @@
       - [Installing on macOS](#installing-on-macos)
       - [Installing on Linux](#installing-on-linux)
       - [Creating a database](#creating-a-database)
-      - [Restoring Backups](#restoring-backups)
+    - [Restoring Backups](#restoring-backups)
     - [Steps](#steps)
   - [Docker Compose](#docker-compose)
   - [Frontend development (CSS/JS)](#frontend-development-cssjs)
   - [Running the local asset server](#running-the-local-asset-server)
   - [Compiling assets](#compiling-assets)
-  - [Data Setup](#data-setup)
-  - [Upgrade OpenTelemetry dependencies](#pip-opentelemetry)
+  - [Setting up a fresh install](#setting-up-a-fresh-install)
+  - [Upgrade OpenTelemetry dependencies](#upgrade-opentelemetry-dependencies)
 - [Deployment](#deployment)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
 - [`django-upgrade`](#django-upgrade)
 - [Components](#components)
+- [Icons](#icons)
 - [Backends](#backends)
-- [Rotating the GitHub token](#rotating-the-github-token)
-- [Dumping co-pilot reporting data](#dumping-copilot-reporting-data)
-- [Ensuring paired field state with CheckConstraints](#ensuring-paired-field-state-with-checkconstraint)
+- [Rotating the read only GitHub token](#rotating-the-read-only-github-token)
+- [Dumping co-pilot reporting data](#dumping-co-pilot-reporting-data)
+- [Ensuring paired field state with CheckConstraints](#ensuring-paired-field-state-with-checkconstraints)
   - [Common patterns](#common-patterns)
+    - [Both set or null](#both-set-or-null)
+    - [updated\_at and updated\_by](#updated_at-and-updated_by)
 - [Auditing events](#auditing-events)
   - [Presenters](#presenters)
 - [Interfaces](#interfaces)
-  - [Job Runner](#job-runner-interface)
-  - [Airlock](#airlock-interface)
+  - [Job Runner interface](#job-runner-interface)
+  - [Airlock interface](#airlock-interface)
 
 ## Local development
 
@@ -222,31 +225,35 @@ Vite builds the assets and outputs them to the `assets/dist` folder.
 
 [Django Staticfiles app](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/) then collects the files and places them in the `staticfiles/assets` folder, with the manifest file located at `assets/dist/.vite/manifest.json`.
 
-### Data Setup
+### Setting up a fresh install
+
 Sometimes it's useful to have a fresh local installation or you may not have authorization to download a production backup.
 In that situation you can follow the steps below to set up your local copy of the site:
 
 1. Create [a GitHub OAuth application](https://github.com/settings/applications/new).
-   * The callback URL must be `http://localhost:8000/complete/github/`.
-   * The other fields don't matter too much for local development.
-1. Register a user account on your local version of job-server by clicking Login
-1. Set the `SOCIAL_AUTH_GITHUB_KEY` (aka "Client ID") and `SOCIAL_AUTH_GITHUB_SECRET` environment variables with values from that OAuth application.
-1. Give your user the `StaffAreaAdministrator` role by running:
+   - The callback URL must be `http://localhost:8000/complete/github/`.
+   - The other fields don't matter too much for local development.
+1. Set the `SOCIAL_AUTH_GITHUB_KEY` (aka "Client ID") and `SOCIAL_AUTH_GITHUB_SECRET` environment variables with values from that OAuth application
+1. Register a user account on your local version of job-server by logging in to your local site
+1. Once you have created an account, give your user the `StaffAreaAdministrator` role by running:
 
    ```sh
-   > python manage.py create_user <your_username> -s
+   python manage.py create_user <your_github_username> -s
    ```
-1. Click on your avatar in the top right-hand corner of the site to access the Staff Area.
-1. Create an Org, Project, and Backend in the Staff Area.
-1. On your User page in the Staff Area link it to the Backend and Org you created.
-1. Assign your user account to the Project with `ProjectDeveloper` and `ProjectCollaborator` roles on the Project page within the Staff Area.
-1. Navigate to the Project page in the main site using the "View on Site" button.
-1. Create a Workspace for the Project.
-1. Create a JobRequest in the Workspace.
 
-If you need one or more Jobs linked to the JobRequest you will need to create them in the database or with the Django shell.
+1. Click on your avatar in the top right-hand corner of the site to access the Staff Area from the dropdown menu
+1. First, create a Backend – you do not need to enter a Level 4 URL
+1. Then create an Organisation
+1. Within your Organisation, add yourself as a Member
+1. Click on Account in the header, then Applications, then start a new application
+1. Once you've completed your application, go back to the Staff Area, head to the Applications and Approve your application
+1. Once approved you will have a Project, add yourself to the project as a "Project Developer"
+1. View your project on the site, and now you have permissions you can "Create a new workspace"
 
-### pip-opentelemetry
+Workspace creation currently requires a link to a repo, so from this point onwards you will need to make changes directly in the database to create a workspace, and make job requests.
+
+
+### Upgrade OpenTelemetry dependencies
 
 The opentelemetry dependencies need to be upgraded as a group. To do this, bump the relevant versions in `requirements.prod.in` and then attempt to manually resolve the dependencies by upgrading a number of packages simultaneously. A recent example of this is:
 
@@ -277,6 +284,17 @@ just test-ci
 
 More details on testing can be found in [TESTING.md](TESTING.md).
 
+### Slack Testing
+
+With a valid bot token, you can run tests and have any slack messages generated
+actually sent to a test channel by setting some environment variables:
+
+```
+export SLACK_BOT_TOKEN=...
+export SLACK_TEST_CHANNEL=job-server-testing
+just test-dev
+```
+
 ## `django-upgrade`
 
 [`django-upgrade`](https://github.com/adamchainz/django-upgrade) is used
@@ -293,17 +311,6 @@ When upgrading to a new Django minor or major version:
   and any changes `django-upgrade` makes committed.
 * Update the Django version used for the invocation of `django-upgrade`
   in the `django-upgrade` recipe in the `justfile`.
-
-### Slack Testing
-
-With a valid bot token, you can run tests and have any slack messages generated
-actually sent to a test channel by setting some environment variables:
-
-```
-export SLACK_BOT_TOKEN=...
-export SLACK_TEST_CHANNEL=job-server-testing
-just test-dev
-```
 
 
 ## Components
