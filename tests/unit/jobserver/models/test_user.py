@@ -42,6 +42,7 @@ def test_user_constraints_pat_token_and_pat_expires_at_neither_set():
     UserFactory(pat_token=None, pat_expires_at=None)
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_user_constraints_missing_pat_token_or_pat_expires_at():
     with pytest.raises(IntegrityError):

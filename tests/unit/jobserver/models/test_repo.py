@@ -16,6 +16,7 @@ def test_repo_constraints_internal_signed_off_at_and_internal_signed_off_by_neit
     RepoFactory(internal_signed_off_at=None, internal_signed_off_by=None)
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_repo_constraints_missing_internal_signed_off_at_or_internal_signed_off_by():
     with pytest.raises(IntegrityError):
@@ -35,6 +36,7 @@ def test_repo_constraints_researcher_signed_off_at_and_researcher_signed_off_by_
     RepoFactory(researcher_signed_off_at=None, researcher_signed_off_by=None)
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_repo_constraints_missing_researcher_signed_off_at_or_researcher_signed_off_by():
     with pytest.raises(IntegrityError):

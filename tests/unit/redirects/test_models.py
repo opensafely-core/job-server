@@ -59,6 +59,7 @@ def test_redirect_constraints_deleted_at_and_deleted_by_neither_set():
     )
 
 
+@pytest.mark.slow_test
 @pytest.mark.django_db(transaction=True)
 def test_redirect_constraints_deleted_at_and_deleted_by_only_one_set():
     with pytest.raises(IntegrityError):
