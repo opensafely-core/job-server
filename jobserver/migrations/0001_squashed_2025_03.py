@@ -11,7 +11,6 @@ import django.core.validators
 import django.db.models.deletion
 import django.db.models.functions.text
 import django.utils.timezone
-import django_extensions.db.fields
 from django.conf import settings
 from django.db import migrations, models
 
@@ -532,66 +531,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name="Report",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("title", models.TextField()),
-                (
-                    "slug",
-                    django_extensions.db.fields.AutoSlugField(
-                        blank=True,
-                        editable=False,
-                        max_length=100,
-                        populate_from=["title"],
-                        unique=True,
-                    ),
-                ),
-                ("description", models.TextField()),
-                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "created_by",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="reports_created",
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                (
-                    "project",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="reports",
-                        to="jobserver.project",
-                    ),
-                ),
-                (
-                    "release_file",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="reports",
-                        to="jobserver.releasefile",
-                    ),
-                ),
-                (
-                    "updated_by",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="reports_updated",
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-            ],
-        ),
-        migrations.CreateModel(
             name="ReleaseFileReview",
             fields=[
                 (
@@ -684,15 +623,6 @@ class Migration(migrations.Migration):
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="publish_requests_decisions",
                         to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                (
-                    "report",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="publish_requests",
-                        to="jobserver.report",
                     ),
                 ),
                 (
@@ -1042,36 +972,6 @@ class Migration(migrations.Migration):
                     _connector="OR",
                 ),
                 name="jobserver_snapshot_both_created_at_and_created_by_set",
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="report",
-            constraint=models.CheckConstraint(
-                condition=models.Q(
-                    models.Q(
-                        ("created_at__isnull", True), ("created_by__isnull", True)
-                    ),
-                    models.Q(
-                        ("created_at__isnull", False), ("created_by__isnull", False)
-                    ),
-                    _connector="OR",
-                ),
-                name="jobserver_report_both_created_at_and_created_by_set",
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="report",
-            constraint=models.CheckConstraint(
-                condition=models.Q(
-                    models.Q(
-                        ("updated_at__isnull", True), ("updated_by__isnull", True)
-                    ),
-                    models.Q(
-                        ("updated_at__isnull", False), ("updated_by__isnull", False)
-                    ),
-                    _connector="OR",
-                ),
-                name="jobserver_report_both_updated_at_and_updated_by_set",
             ),
         ),
         migrations.AddConstraint(
@@ -1602,12 +1502,5 @@ class Migration(migrations.Migration):
             options={
                 "ordering": ["-created_at"],
             },
-        ),
-        migrations.RemoveField(
-            model_name="publishrequest",
-            name="report",
-        ),
-        migrations.DeleteModel(
-            name="Report",
         ),
     ]
