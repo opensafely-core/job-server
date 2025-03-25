@@ -72,16 +72,12 @@ class Migration(migrations.Migration):
                 ),
                 ("email", models.EmailField(blank=True, max_length=254, unique=True)),
                 ("fullname", models.TextField(default="")),
-                ("is_active", models.BooleanField(default=True)),
-                ("is_staff", models.BooleanField(default=False)),
-                ("is_superuser", models.BooleanField(default=False)),
                 (
                     "date_joined",
                     models.DateTimeField(
                         default=django.utils.timezone.now, verbose_name="date joined"
                     ),
                 ),
-                ("is_approved", models.BooleanField(default=False)),
                 ("pat_token", models.TextField(null=True, unique=True)),
                 ("pat_expires_at", models.DateTimeField(null=True)),
                 ("login_token", models.TextField(null=True)),
@@ -229,14 +225,6 @@ class Migration(migrations.Migration):
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="created_projects",
                         to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                (
-                    "org",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="projects",
-                        to="jobserver.org",
                     ),
                 ),
                 (
@@ -415,12 +403,6 @@ class Migration(migrations.Migration):
                 ("is_archived", models.BooleanField(default=False)),
                 ("should_notify", models.BooleanField(default=False)),
                 ("purpose", models.TextField(default="")),
-                (
-                    "db",
-                    models.TextField(
-                        choices=[("full", "Full database")], default="full"
-                    ),
-                ),
                 ("uses_new_release_flow", models.BooleanField(default=True)),
                 ("signed_off_at", models.DateTimeField(null=True)),
                 ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
@@ -709,14 +691,6 @@ class Migration(migrations.Migration):
                         primary_key=True,
                         serialize=False,
                         verbose_name="ID",
-                    ),
-                ),
-                (
-                    "roles",
-                    jobserver.authorization.fields.RolesArrayField(
-                        base_field=jobserver.authorization.fields.RoleField(),
-                        default=list,
-                        size=None,
                     ),
                 ),
                 ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
@@ -1192,10 +1166,6 @@ class Migration(migrations.Migration):
                 ("objects", jobserver.models.user.UserManager()),
             ],
         ),
-        migrations.RemoveField(
-            model_name="user",
-            name="is_approved",
-        ),
         migrations.AddField(
             model_name="jobrequest",
             name="codelists_ok",
@@ -1244,14 +1214,6 @@ class Migration(migrations.Migration):
             options={
                 "unique_together": {("org", "project")},
             },
-        ),
-        migrations.RemoveField(
-            model_name="workspace",
-            name="db",
-        ),
-        migrations.RemoveField(
-            model_name="project",
-            name="org",
         ),
         migrations.AddField(
             model_name="project",
@@ -1407,18 +1369,6 @@ class Migration(migrations.Migration):
                 ("objects", jobserver.models.job.JobManager()),
             ],
         ),
-        migrations.RemoveField(
-            model_name="orgmembership",
-            name="roles",
-        ),
-        migrations.RemoveField(
-            model_name="user",
-            name="is_staff",
-        ),
-        migrations.RemoveField(
-            model_name="user",
-            name="is_superuser",
-        ),
         migrations.AlterModelOptions(
             name="user",
             options={
@@ -1432,10 +1382,6 @@ class Migration(migrations.Migration):
                     django.db.models.functions.text.Lower("username"),
                 ]
             },
-        ),
-        migrations.RemoveField(
-            model_name="user",
-            name="is_active",
         ),
         migrations.CreateModel(
             name="SiteAlert",
