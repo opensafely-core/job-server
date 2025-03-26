@@ -657,9 +657,9 @@ python-dotenv==1.1.0 \
     --hash=sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5 \
     --hash=sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d
     # via environs
-python-ipware==2.0.1 \
-    --hash=sha256:1992920ef553165dfa35e6ea5a90762f64f3b943cc22ee6b4ec02e2c86d31178 \
-    --hash=sha256:9ba4805152ebb85ad5b53797185cd1ce6231e1db60155834f326c8cd61e8af34
+python-ipware==3.0.0 \
+    --hash=sha256:9117b1c4dddcb5d5ca49e6a9617de2fc66aec2ef35394563ac4eecabdf58c062 \
+    --hash=sha256:fc936e6e7ec9fcc107f9315df40658f468ac72f739482a707181742882e36b60
     # via django-ipware
 python-ulid==3.0.0 \
     --hash=sha256:e4c4942ff50dbd79167ad01ac725ec58f924b4018025ce22c858bfcff99a5e31 \
