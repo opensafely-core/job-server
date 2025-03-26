@@ -79,7 +79,7 @@ def test_pipeline_with_new_user(slack_messages, strategy):
 
     user = output["user"]
     assert user.email == "test@example.com"
-    assert user.name == "Test User"
+    assert user.fullname == "Test User"
     assert user.username == "dummy-user"
 
     social = output["social"]
@@ -137,4 +137,4 @@ def test_pipeline_without_name(rf, slack_messages):
         response=github_response,
     )
 
-    assert output["user"].name == "Test User"
+    assert output["user"].fullname == "Test User"

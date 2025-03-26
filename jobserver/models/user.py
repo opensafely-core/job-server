@@ -86,8 +86,6 @@ class User(AbstractBaseUser):
     # 'fullname' instead of 'full_name' because social auth already uses
     # 'fullname' and life is too short to work out which classes we should map
     # 'fullname' -> 'full_name' in.
-    # TODO: rename name and remove the name property once all users have filled
-    # in their names
     fullname = models.TextField()
 
     date_joined = models.DateTimeField("date joined", default=timezone.now)
@@ -144,7 +142,7 @@ class User(AbstractBaseUser):
         ]
 
     def __str__(self):
-        return self.name
+        return self.fullname
 
     @cached_property
     def has_any_roles(self):
@@ -157,10 +155,10 @@ class User(AbstractBaseUser):
 
     @property
     def initials(self):
-        if self.name == self.username:
-            return self.name[0].upper()
+        if self.fullname == self.username:
+            return self.fullname[0].upper()
 
-        return "".join(w[0].upper() for w in self.name.split(" "))
+        return "".join(w[0].upper() for w in self.fullname.split(" "))
 
     def get_absolute_url(self):
         return reverse("user-detail", kwargs={"username": self.username})
@@ -240,11 +238,6 @@ class User(AbstractBaseUser):
             return False
 
         return True
-
-    @property
-    def name(self):
-        """Unify the available names for a User."""
-        return self.fullname or self.username
 
     def rotate_token(self):
         # Ticket to look at signing request.

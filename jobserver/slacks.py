@@ -36,7 +36,9 @@ def notify_release_created(release, channel=settings.RELEASES_SLACK_CHANNEL):
         release.workspace.get_absolute_url(), release.workspace.name
     )
     release_url = slack.link(release.get_absolute_url(), "release")
-    user_url = slack.link(release.created_by.get_staff_url(), release.created_by.name)
+    user_url = slack.link(
+        release.created_by.get_staff_url(), release.created_by.fullname
+    )
 
     message = f"New {release_url} requested by {user_url}. {len(release.requested_files)} files for {workspace_url} from `{release.backend.name}`"
 
@@ -50,7 +52,7 @@ def notify_release_file_uploaded(rfile, channel=settings.RELEASES_SLACK_CHANNEL)
     workspace_url = slack.link(
         release.workspace.get_absolute_url(), release.workspace.name
     )
-    user_url = slack.link(user.get_staff_url(), user.name)
+    user_url = slack.link(user.get_staff_url(), user.fullname)
     release_url = slack.link(release.get_absolute_url(), "release")
     file_url = slack.link(rfile.get_absolute_url(), rfile.name)
 
@@ -100,7 +102,7 @@ def notify_copilots_of_repo_sign_off(
 
     user_link = slack.link(
         repo.researcher_signed_off_by.get_staff_url(),
-        repo.researcher_signed_off_by.name,
+        repo.researcher_signed_off_by.fullname,
     )
 
     project = repo.workspaces.first().project
@@ -120,7 +122,7 @@ def notify_copilots_of_repo_sign_off(
 
     copilot = project.copilot
     if copilot:
-        copilot_link = slack.link(copilot.get_staff_url(), copilot.name)
+        copilot_link = slack.link(copilot.get_staff_url(), copilot.fullname)
     else:  # pragma: no cover
         copilot_link = "none"
     message.append(f"Copilot: {copilot_link}")

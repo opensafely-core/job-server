@@ -40,7 +40,7 @@
                     {{ job_request.workspace.project.name }}
                   {% /table_cell %}
                   {% #table_cell nowrap=True %}
-                    {{ job_request.created_by.name }}
+                    {{ job_request.created_by.fullname }}
                   {% /table_cell %}
                   {% #table_cell nowrap=True title=job_request.started_at %}
                     <span class="relative group{% if job_request.started_at %} cursor-pointer{% endif %}">

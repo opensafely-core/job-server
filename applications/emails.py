@@ -10,7 +10,7 @@ def send_submitted_application_email(email, application):
 
     context = {
         "url": f.url,
-        "applicant": application.submitted_by.name,
+        "applicant": application.submitted_by.fullname,
         "reference": application.pk_hash,
     }
 

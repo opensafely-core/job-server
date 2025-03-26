@@ -320,7 +320,7 @@ class WorkspaceReleaseList(View):
             created_at = (
                 f'<span title="{release.created_at.isoformat()}">{created_at}</span>'
             )
-            suffix = f" by {release.created_by.name} from {release.backend.name} {created_at}"
+            suffix = f" by {release.created_by.fullname} from {release.backend.name} {created_at}"
             prefix = "Files released" if release.files else "Released"
 
             return mark_safe(prefix + suffix)

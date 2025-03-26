@@ -120,7 +120,7 @@
         {% for user in object_list %}
           {% #list_group_item class="flex flex-col gap-2" type="User" href=user.get_staff_url %}
             <span>
-              {{ user.name }}
+              {{ user.fullname }}
             </span>
 
             {% if user.is_github_user %}

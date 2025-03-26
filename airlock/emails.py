@@ -12,7 +12,7 @@ def get_email_context(airlock_event, include_release_url=False):
 
     context = {
         "release_request_id": airlock_event.release_request_id,
-        "request_author": airlock_event.request_author.name,
+        "request_author": airlock_event.request_author.fullname,
         "workspace": airlock_event.workspace.name,
         "updates": updates,
     }

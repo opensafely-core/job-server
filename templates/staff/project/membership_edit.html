@@ -2,7 +2,7 @@
 
 {% load roles %}
 
-{% block metatitle %}Edit project roles: {{ membership.user.name }} | {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Edit project roles: {{ membership.user.fullname }} | {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
@@ -11,21 +11,21 @@
     {% breadcrumb title="Staff area" url=staff_url %}
     {% breadcrumb title="Projects" url=staff_project_list_url %}
     {% breadcrumb title=membership.project.title url=membership.project.get_staff_url %}
-    {% breadcrumb title="Edit project roles: "|add:membership.user.name active=True %}
+    {% breadcrumb title="Edit project roles: "|add:membership.user.fullname active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block jumbotron %}
   <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
     <div class="container">
-      <h1 class="display-4">{{ membership.user.name }}</h1>
+      <h1 class="display-4">{{ membership.user.fullname }}</h1>
       <p class="lead"><span class="sr-only">Username: </span>{{ membership.user.username }}</p>
     </div>
   </div>
 {% endblock jumbotron %}
 
 {% block hero %}
-  {% #staff_hero title="Edit project roles: "|add:membership.user.name %}
+  {% #staff_hero title="Edit project roles: "|add:membership.user.fullname %}
     {% if membership.user.social_auth.exists %}
       <p><strong>GitHub Username:</strong> {{ membership.user.username }}</p>
     {% endif %}
@@ -38,7 +38,7 @@
     <form method="POST">
       {% csrf_token %}
 
-      {% #card title="Assign project roles" subtitle="Assign roles for "|add:membership.user.name|add:" on project "|add:membership.project.title container=True %}
+      {% #card title="Assign project roles" subtitle="Assign roles for "|add:membership.user.fullname|add:" on project "|add:membership.project.title container=True %}
         {% if form.non_field_errors %}
           {% for error in form.non_field_errors %}
             {% #alert variant="danger" class="mb-6" %}
@@ -93,7 +93,7 @@
 
         {% #form_fieldset %}
           {% fragment as legend_text %}
-            Do you want to remove {{ membership.user.name }} from {{ membership.project.title }}?
+            Do you want to remove {{ membership.user.fullname }} from {{ membership.project.title }}?
           {% endfragment %}
           {% form_legend text=legend_text %}
 
