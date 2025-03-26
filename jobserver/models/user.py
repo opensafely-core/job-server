@@ -88,7 +88,7 @@ class User(AbstractBaseUser):
     # 'fullname' -> 'full_name' in.
     # TODO: rename name and remove the name property once all users have filled
     # in their names
-    fullname = models.TextField(default="")
+    fullname = models.TextField()
 
     date_joined = models.DateTimeField("date joined", default=timezone.now)
 
