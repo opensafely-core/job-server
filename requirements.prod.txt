@@ -424,9 +424,9 @@ markdown==3.7 \
     --hash=sha256:2ae2471477cfd02dbbf038d5d9bc226d40def84b4fe2986e49b59b6b472bbed2 \
     --hash=sha256:7eb6df5690b81a1d7942992c97fad2938e956e79df20cbc6186e9c3a77b1c803
     # via -r requirements.prod.in
-marshmallow==3.20.2 \
-    --hash=sha256:4c1daff273513dc5eb24b219a8035559dc573c8f322558ef85f5438ddd1236dd \
-    --hash=sha256:c21d4b98fee747c130e6bc8f45c4b3199ea66bc00c12ee1f639f0aeca034d5e9
+marshmallow==3.26.1 \
+    --hash=sha256:3350409f20a70a7e4e11a27661187b77cdcaeb20abca41c1454fe33636bea09c \
+    --hash=sha256:e6d8affb6cb61d39d26402096dc0aee12d5a26d490a121f118d2e81dc0719dc6
     # via environs
 nh3==0.2.21 \
     --hash=sha256:087ffadfdcd497658c3adc797258ce0f06be8a537786a7217649fc1c0c60c293 \
