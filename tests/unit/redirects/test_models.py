@@ -1,12 +1,11 @@
 import inspect
 
 import pytest
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
 from django.urls import reverse
 from django.utils import timezone
 
-from redirects.models import Redirect, validate_not_empty
+from redirects.models import Redirect
 
 from ... import factories
 from ...factories import ProjectFactory, RedirectFactory, UserFactory
@@ -145,19 +144,3 @@ def test_redirect_str():
     redirect = RedirectFactory(project=ProjectFactory(), old_url="/testing/foo/")
 
     assert str(redirect) == "/testing/foo/"
-
-
-def test_validate_not_empty():
-    assert validate_not_empty("test") is None
-
-
-def test_validate_not_empty_with_content():
-    validate_not_empty("test")
-
-
-def test_validate_not_empty_without_content():
-    with pytest.raises(ValidationError):
-        validate_not_empty("")
-
-    with pytest.raises(ValidationError):
-        validate_not_empty(None)

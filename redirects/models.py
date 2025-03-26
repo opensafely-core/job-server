@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -9,12 +8,6 @@ from django.utils import timezone
 
 def default_expires_at():
     return timezone.now() + timedelta(days=365)
-
-
-# FIXME: remove next time we squash migrations
-def validate_not_empty(value):  # pragma: no cover
-    if not bool(value):
-        raise ValidationError("empty is not a valid value", params={"value": value})
 
 
 class Redirect(models.Model):
@@ -136,8 +129,3 @@ class Redirect(models.Model):
     @property
     def type(self):  # noqa: A003
         return self.obj.__class__.__name__
-
-    def save(self, *args, **kwargs):
-        # TODO: check old_url doesn't match any path for the given redirect target
-        # this avoids us creating a redirect loop by adding a redirect here
-        return super().save(*args, **kwargs)
