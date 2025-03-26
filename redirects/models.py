@@ -129,8 +129,3 @@ class Redirect(models.Model):
     @property
     def type(self):  # noqa: A003
         return self.obj.__class__.__name__
-
-    def save(self, *args, **kwargs):
-        # TODO: check old_url doesn't match any path for the given redirect target
-        # this avoids us creating a redirect loop by adding a redirect here
-        return super().save(*args, **kwargs)
