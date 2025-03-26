@@ -61,19 +61,19 @@ whitenoise[brotli]>=6.8.0
 ###########################################################
 
 # OpenTelemetry exporter for sending traces/metrics via OTLP over HTTP.
-opentelemetry-exporter-otlp-proto-http==1.29.0
+opentelemetry-exporter-otlp-proto-http
 
 # Instrumentation for tracing Django applications using OpenTelemetry.
-opentelemetry-instrumentation-django==0.50b0
+opentelemetry-instrumentation-django
 
 # Instrumentation for tracing HTTP requests made with the `requests` library.
-opentelemetry-instrumentation-requests==0.50b0
+opentelemetry-instrumentation-requests
 
 # Instrumentation for tracing database queries made via psycopg2.
-opentelemetry-instrumentation-psycopg2==0.50b0
+opentelemetry-instrumentation-psycopg2
 
 # SDK for working with OpenTelemetry tracing and metrics.
-opentelemetry-sdk==1.29.0
+opentelemetry-sdk
 
 ###########################################################
 # Integrations with third-party services
