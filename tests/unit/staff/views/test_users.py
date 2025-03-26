@@ -354,7 +354,7 @@ def test_userdetailwithoauth_post_success(
     project_membership(project=project1, user=user)
     project_membership(project=project2, user=user)
 
-    request = rf.post("/", {"backends": [backend.slug]})
+    request = rf.post("/", {"backends": [backend.slug], "fullname": user.fullname})
     request.user = staff_area_administrator
 
     response = UserDetailWithOAuth.as_view()(request, username=user.username)

@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-from django.db.models import Case, Q, When
+from django.db.models import Q
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils import timezone
@@ -88,7 +88,7 @@ class User(AbstractBaseUser):
     # 'fullname' -> 'full_name' in.
     # TODO: rename name and remove the name property once all users have filled
     # in their names
-    fullname = models.TextField(default="")
+    fullname = models.TextField()
 
     date_joined = models.DateTimeField("date joined", default=timezone.now)
 
@@ -132,15 +132,13 @@ class User(AbstractBaseUser):
                 ),
                 name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
             ),
+            models.CheckConstraint(
+                condition=~Q(fullname=""),
+                name="fullname_non_blank",
+            ),
         ]
         ordering = [
-            # Empty 'fullname' comes last.
-            Case(
-                When(fullname="", then=1),
-                default=0,
-                output_field=models.IntegerField(),
-            ),
-            # Then order by fullname then username, case-insensitive.
+            # Order by fullname then username, case-insensitive.
             Lower("fullname"),
             Lower("username"),
         ]

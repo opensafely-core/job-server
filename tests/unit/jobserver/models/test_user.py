@@ -199,9 +199,13 @@ def test_user_get_staff_url():
 
 
 def test_user_initials_with_email():
-    user = UserFactory(
-        email="test@example.com", fullname="", username="test@example.com"
-    )
+    user = UserFactory(email="test@example.com", username="test@example.com")
+
+    assert user.initials == "T"
+
+
+def test_user_initials_with_username_as_fullname():
+    user = UserFactory(username="Testuser", fullname="Testuser")
 
     assert user.initials == "T"
 
@@ -221,7 +225,7 @@ def test_user_initials_with_names(name, initials):
 
 def test_user_name():
     assert UserFactory(fullname="first last", username="test").name == "first last"
-    assert UserFactory(username="username").name == "username"
+    assert UserFactory(username="username").name == "Username"
 
 
 def test_user_rotate_token(freezer):
@@ -284,10 +288,6 @@ def test_user_valid_pat_with_invalid_token():
 
 
 def test_user_ordering():
-    # Last due to empty fullname.
-    user0 = UserFactory(fullname="", username="a")
-    # Case-insensitive on username.
-    user1 = UserFactory(fullname="", username="AA")
     # fullname has precedence over usename.
     user2 = UserFactory(fullname="alice", username="c")
     # Case-insensitive on fullname
@@ -298,7 +298,7 @@ def test_user_ordering():
     user6 = UserFactory(fullname="Alice", username="CC")
 
     users = User.objects.all()
-    assert list(users) == [user2, user6, user4, user3, user5, user0, user1]
+    assert list(users) == [user2, user6, user4, user3, user5]
 
 
 def test_create_user():
@@ -306,7 +306,13 @@ def test_create_user():
     username = "Ⅳan"  # Note initial unicode character.
     email = "tEsT@TeSt.tEST"  # Note uppercase characters.
     password = "hunter2"
-    user = User.objects.create(username=username, email=email, password=password)
+    fullname = "Test user"
+    user = User.objects.create(
+        username=username,
+        email=email,
+        password=password,
+        fullname=fullname,
+    )
 
     # Username unicode gets normalized.
     assert user.username == "IVan"
@@ -314,3 +320,10 @@ def test_create_user():
     assert user.email == "test@test.test"
     # Password is not stored in plaintext.
     assert user.password != password
+
+
+def test_user_fullname_non_blank():
+    """Test the non-blank constraint on User.fullname"""
+    with pytest.raises(IntegrityError):
+        u = User(username="foo", email="foo@bar.com", fullname="")
+        u.save()

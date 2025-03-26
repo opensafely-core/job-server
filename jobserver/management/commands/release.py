@@ -83,7 +83,9 @@ class Command(BaseCommand):
                     "metadata": "",
                 }
             )
-        user = get_or_maybe_create(create, User, {"username": username})
+        user = get_or_maybe_create(
+            create, User, {"username": username, "fullname": username}
+        )
 
         try:
             workspace = Workspace.objects.get(name=workspace_name)
