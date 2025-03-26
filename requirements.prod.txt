@@ -374,9 +374,9 @@ django-htmx==1.23.0 \
     --hash=sha256:71e6242ac6bd32a0e14fcb12b340f901c9a924f0b4e9b461a5e6a6eea8d9c6dd \
     --hash=sha256:bca2d7590f3df8611a32a436b9f098d8bccb9762b99b01c08dc42336966700a0
     # via -r requirements.prod.in
-django-ipware==6.0.4 \
-    --hash=sha256:09c502ee3b1f8ae08d197d5e1f4397e965d0b201c83de7b5721db1fc460e6ab6 \
-    --hash=sha256:614d0f0a911f8a765e55b6d358b1715bb85eeb63d1ebb77447d09d645f1343e8
+django-ipware==7.0.1 \
+    --hash=sha256:d9ec43d2bf7cdf216fed8d494a084deb5761a54860a53b2e74346a4f384cff47 \
+    --hash=sha256:db16bbee920f661ae7f678e4270460c85850f03c6761a4eaeb489bdc91f64709
     # via django-structlog
 django-permissions-policy==4.25.0 \
     --hash=sha256:083a411c31964dd06c9aec4058147dda46bc1c3e04a799cbae7603578d979944 \
