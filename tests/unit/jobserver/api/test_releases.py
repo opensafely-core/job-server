@@ -290,7 +290,7 @@ def test_releaseapi_post_success(api_rf, slack_messages, build_release, file_con
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
     assert channel == "opensafely-releases"
-    assert f"{uploading_user.get_staff_url()}|{uploading_user.name}>" in text
+    assert f"{uploading_user.get_staff_url()}|{uploading_user.fullname}>" in text
     assert f"{release.get_absolute_url()}|release>" in text
     assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
     assert release.backend.name in text
@@ -576,7 +576,7 @@ def test_releaseworkspaceapi_post_create_release(
     text, channel = slack_messages[0]
 
     assert channel == "opensafely-releases"
-    assert f"{user.get_staff_url()}|{user.name}>" in text
+    assert f"{user.get_staff_url()}|{user.fullname}>" in text
     assert f"{release.get_absolute_url()}|release>" in text
     assert f"{workspace.get_absolute_url()}|{workspace.name}>" in text
     assert backend.name in text

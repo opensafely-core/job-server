@@ -186,7 +186,8 @@ def test_user_get_staff_url():
 
 def test_user_initials_with_email():
     user = UserFactory(
-        email="test@example.com", fullname="", username="test@example.com"
+        email="test@example.com",
+        username="test@example.com",
     )
 
     assert user.initials == "T"
@@ -205,9 +206,9 @@ def test_user_initials_with_names(name, initials):
     assert UserFactory(fullname=name).initials == initials
 
 
-def test_user_name():
-    assert UserFactory(fullname="first last", username="test").name == "first last"
-    assert UserFactory(username="username").name == "username"
+def test_user_fullname():
+    assert UserFactory(fullname="first last", username="test").fullname == "first last"
+    assert UserFactory(username="username", fullname="username").fullname == "username"
 
 
 def test_user_rotate_token(freezer):

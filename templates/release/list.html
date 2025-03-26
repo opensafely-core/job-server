@@ -64,7 +64,7 @@
 
                 {% if file.is_deleted %}
                 <span class="text-xs text-slate-600 font-normal mr-auto">
-                  (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                  (Deleted by {{ file.deleted_by.fullname }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
                 </span>
                 {% endif %}
 
@@ -131,7 +131,7 @@
 
                   {% if file.is_deleted %}
                   <span class="text-xs text-slate-600 font-normal mr-auto">
-                    (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                    (Deleted by {{ file.deleted_by.fullname }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
                   </span>
                   {% endif %}
 

@@ -36,7 +36,7 @@ def create_output_checking_request(release, github_api):
     workspace_url = base_url / release.workspace.get_absolute_url()
 
     body = f"""
-    Requested by: [{release.created_by.name}]({requester_url})
+    Requested by: [{release.created_by.fullname}]({requester_url})
     Release: [{release.id}]({release_url})
     GitHub repo: [{release.workspace.repo.name}]({release.workspace.repo.url})
     Workspace: [{release.workspace.name}]({workspace_url})
@@ -65,7 +65,7 @@ def create_switch_repo_to_public_request(repo, user, github_api):
     body = f"""
     The [{repo.name}]({repo.url}) repo is ready to be made public.
 
-    This repo has been checked and approved by {user.name} - @{user.username}.
+    This repo has been checked and approved by {user.fullname} - @{user.username}.
 
     An owner of the `opensafely` org is required to make this change, they can do so on the [repo settings page]({repo.url}/settings).
 

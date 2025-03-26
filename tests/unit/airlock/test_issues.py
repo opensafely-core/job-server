@@ -37,7 +37,7 @@ def test_create_output_checking_request_external(github_api):
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
 
     lines = issue.body.split("\n")
-    assert user.name in lines[0]
+    assert user.fullname in lines[0]
     assert lines[1] == "Release request ID: 01AAA1AAAAAAA1AAAAA11A1AAA"
     assert workspace.repo.name in lines[2]
     assert workspace.name in lines[3]
@@ -69,7 +69,7 @@ def test_create_output_checking_request_internal(github_api):
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
 
     lines = issue.body.split("\n")
-    assert user.name in lines[0]
+    assert user.fullname in lines[0]
     assert lines[1] == "Release request ID: 01AAA1AAAAAAA1AAAAA11A1AAA"
     assert workspace.repo.name in lines[2]
     assert workspace.name in lines[3]

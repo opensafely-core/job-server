@@ -21,7 +21,7 @@ def create_output_checking_issue(
     workspace_url = base_url / workspace.get_absolute_url()
 
     body = f"""
-    Requested by: [{request_author.name}]({requester_url})
+    Requested by: [{request_author.fullname}]({requester_url})
     Release request ID: {release_request_id}
     GitHub repo: [{workspace.repo.name}]({workspace.repo.url})
     Workspace: [{workspace.name}]({workspace_url})

@@ -3,7 +3,7 @@
 {% block content %}
 Hello workspace creator,
 
-The repository, {{ repo.name }}, has been signed off by {{ repo.researcher_signed_off_by.name }}.
+The repository, {{ repo.name }}, has been signed off by {{ repo.researcher_signed_off_by.fullname }}.
 It will now be reviewed by the OpenSAFELY team and if everything is in order we will mark the repo as public.
 
 If you think this has been done in error, please email publications@opensafely.org

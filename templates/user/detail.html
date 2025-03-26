@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
-{% block metatitle %}{{ user.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}{{ user.fullname }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title=user.name active=True %}
+    {% breadcrumb title=user.fullname active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% #article_header title=user.name class="mb-6" %}
+  {% #article_header title=user.fullname class="mb-6" %}
     <div class="flex flex-row flex-wrap gap-2">
       {% url "user-event-log" username=user.username as user_event_log_url %}
       {% #button href=user_event_log_url type="link" variant="primary" %}

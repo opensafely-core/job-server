@@ -95,7 +95,7 @@
                   {% link href=group.workspace.get_absolute_url new_tab=True text=group.workspace.name %}
                 {% /table_cell %}
                 {% #table_cell class="min-w-[18ch] break-words" %}
-                  {% link href=group.created_by.get_absolute_url new_tab=True text=group.created_by.name %}
+                  {% link href=group.created_by.get_absolute_url new_tab=True text=group.created_by.fullname %}
                 {% /table_cell %}
                 {% #table_cell %}
                   {{ group.num_completed }}/{{ group.jobs.all|length }}

@@ -2,7 +2,7 @@
 
 {% load humanize %}
 
-{% block metatitle %}Staff Area: {{ user.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Staff Area: {{ user.fullname }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
@@ -15,7 +15,7 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% #staff_hero title="User: "|add:user.name %}
+  {% #staff_hero title="User: "|add:user.fullname %}
     <div class="flex flex-row gap-2 mt-2">
       {% #button type="link" href=user.get_staff_roles_url variant="danger" %}
         Edit roles

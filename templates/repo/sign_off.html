@@ -138,7 +138,7 @@
                 <p class="flex flex-row">
                   {% icon_check_outline class="text-green-500 mr-2" %}
                   Signed off by
-                  {{ workspace.signed_off_by.name }}
+                  {{ workspace.signed_off_by.fullname }}
                   at
                   <time datetime="{{ workspace.signed_off_at.isoformat }}">
                     {{ workspace.signed_off_at|date:"G:i jS F Y" }}
@@ -217,7 +217,7 @@
                   </span>
                   <span class="text-sm text-slate-700">
                     Signed off for publishing by
-                    {{ workspace.signed_off_by.name }}
+                    {{ workspace.signed_off_by.fullname }}
                     at
                     <time datetime="{{ workspace.signed_off_at.isoformat }}">
                       {{ workspace.signed_off_at|date:"G:i jS F Y" }}
@@ -255,7 +255,7 @@
       {% #card container=True container_class="grid gap-y-3" %}
         <p>
           This repository was signed off to be made public by
-          {{ repo.researcher_signed_off_by.name }}
+          {{ repo.researcher_signed_off_by.fullname }}
           on
           {{ repo.researcher_signed_off_at }}.
         </p>

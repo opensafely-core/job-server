@@ -38,11 +38,11 @@
         </div>
         <div class="flex flex-row gap-1">
           <dt class="font-semibold">Created by: </dt>
-          <dd>{{object.created_by.name}} at {{ object.created_at|date:"D, M j Y H:i" }}</dd>
+          <dd>{{object.created_by.fullname}} at {{ object.created_at|date:"D, M j Y H:i" }}</dd>
         </div>
         <div class="flex flex-row gap-1">
           <dt class="font-semibold">Updated by: </dt>
-        <dd>{{object.updated_by.name}} at {{ object.updated_at|date:"D, M j Y H:i" }}</dd>
+        <dd>{{object.updated_by.fullname}} at {{ object.updated_at|date:"D, M j Y H:i" }}</dd>
         </div>
       </dl>
 

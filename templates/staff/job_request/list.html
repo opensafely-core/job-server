@@ -66,7 +66,7 @@
         {% #multiselect custom_field=True name="user" placeholder="Select a user" %}
           {% for user in users.items %}
             {% is_filter_selected key="user" value=user.username as is_user_active %}
-            {% multiselect_option value=user.username name=user.name is_active=is_user_active%}
+            {% multiselect_option value=user.username name=user.fullname is_active=is_user_active%}
           {% endfor %}
         {% /multiselect %}
       {% /card %}
