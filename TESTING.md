@@ -54,9 +54,13 @@ Each view should have at least one integration test for the happy path.
 These tests should use [`Client` instances](https://docs.djangoproject.com/en/3.2/topics/testing/tools/#the-test-client).
 Ideally these tests would avoid mocking.
 
-This lets us test views with all the surrounding parts turned: URL routing, middleware, etc.
+This lets us test views with all the surrounding parts turned on: URL routing, middleware, etc.
 
 ### Notes for test authors
+
+We have a custom `@pytest.mark.slow_test` marker that should be used on test
+that take more than about 0.1s to run. These are excluded from `just test` to
+provide a quicker feedback loop.
 
 All tests have access to the database by default. You should mark up tests that
 don't require such access with `@pytest.mark.disable_db`. This significantly
@@ -64,6 +68,27 @@ speeds up executing the tests in isolation as the test DB doesn't need to be
 spun up and prepared. Note that you can apply this marker at test, class, or
 module level. [See the pytest
 docs](https://docs.pytest.org/en/7.1.x/example/markers.html).
+
+Avoid writing to the database when this isn't necessary, as this is costly.
+Model instances can be created with FactoryBoy's `build` rather than `create`
+strategy if they don't need to be saved to the database. Use `bulk_create` and
+FactoryBoy's `build_batch` where possible when creating multiple objects to
+reduce the number of transactions required.
+
+Tests that need to run in a transaction should use
+`@pytest.mark.django_db(transaction=True)`. For example, tests that involve
+constraints, database triggers, raw SQL, or multiple savepoints (such as using
+the `atomic` context manager within tests).  These tests should also be marked
+as `slow_test`.
+
+Model changes and migrations that only affect the schema are implicitly tested
+by `pytest-django` when it applies the migrations while building the test
+database. These types of migrations don't require separate unit tests. However,
+custom or hand-written migrations that perform additional tasks, such as data
+changes, won't be tested implicitly because the test database is generated
+empty. Such migrations should be tested manually against a recent production
+dataset and possibly with `pytest` test cases.
+
 
 ## Tooling
 We use [coverage.py](https://coverage.readthedocs.io/) to check test coverage on the code base and require 100% coverage for CI to pass.
@@ -88,12 +113,25 @@ We use a different env var, `GITHUB_TOKEN_TESTING`, to pass the required PAT in.
 
 
 ## Useful Flows
-`just test-ci` will run the tests as CI does, however as the suite grows this gets slower over time.
-Below is [very!] non-exhaustive list of useful methods we have found to make running tests easier.
 
-* `pytest -k <partial test name>`: working on a new view? `pytest -k yourviewname` is a quick way to only run those tests.
-* `pytest --lf`: run the tests which failed in the last run, good for iteratively fixing tests.
-* `pytest -x`: stop at the first test failure, good for iteratively working through known broken tests.
+`just test` will run most of the tests and runs quickly to provide a short feedback
+loop. `just test-ci` will run the tests as CI does, however as the suite grows
+this gets slower over time. One possible workflow is to run `just test`
+(possibly scoped to particular areas with parameters as below) until you have
+something you want to open a PR for, then run `just test-ci` to run all the
+tests and coverage before pushing.
+
+Some useful `pytest` / `just test*` parameters:
+
+* Passing the name of a test directory, file, class, or function will only run those tests.
+* `-k <partial test name>`: Run the tests matching a partial name.
+* `--lf` / --`last-failed`: run the tests which failed in the last run, good for iteratively fixing tests.
+* `-x`: stop at the first test failure, good for iteratively working through known broken tests.
+* `--pdb`: Enter the interactive Python debugger immediately after a failure, allowing you to inspect the state at the point of error.
+* `-v / --verbose`: Increase verbosity to see individual test names and results.
+* `--collect-only`: Display the list of all discovered tests without running them. Useful for checking test discovery.
+* `--nomigrations`: Set up the test DB directly from models instead of by applying migrations. Runs somewhat faster. Useful if migrations/models are not relevant to your changes.
+* `--durations=<N>`: Show the slowest N tests and setup/teardown times. Useful when trying to speed up the test suite. Note that the initial DB setup is included against the first test run per-worker.
 
 
 ## Testing Releases
