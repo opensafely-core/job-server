@@ -19,7 +19,7 @@
       {% if application.created_by %}
       <div class="flex flex-row flex-wrap gap-1">
         <dt class="font-semibold">Created by:</dt>
-        <dd>{% link href=application.created_by.get_staff_url text=application.created_by.name %}</dd>
+        <dd>{% link href=application.created_by.get_staff_url text=application.created_by.fullname %}</dd>
       </div>
       {% endif %}
       <div class="flex flex-row flex-wrap gap-1">
@@ -31,7 +31,7 @@
       {% if application.submitted_by %}
       <div class="flex flex-row flex-wrap gap-1">
         <dt class="font-semibold">Submitted by:</dt>
-        <dd>{% link href=application.submitted_by.get_staff_url text=application.submitted_by.name %}</dd>
+        <dd>{% link href=application.submitted_by.get_staff_url text=application.submitted_by.fullname %}</dd>
       </div>
       {% endif %}
       {% if application.submitted_at %}
@@ -45,7 +45,7 @@
       {% if application.deleted_by %}
       <div class="flex flex-row flex-wrap gap-1">
         <dt class="font-semibold">Deleted by:</dt>
-        <dd>{% link href=application.deleted_by.get_staff_url text=application.deleted_by.name %}</dd>
+        <dd>{% link href=application.deleted_by.get_staff_url text=application.deleted_by.fullname %}</dd>
       </div>
       {% endif %}
       {% if application.deleted_at %}
@@ -59,7 +59,7 @@
       {% if application.approved_by %}
       <div class="flex flex-row flex-wrap gap-1">
         <dt class="font-semibold">Approved by:</dt>
-        <dd>{% link href=application.approved_by.get_staff_url text=application.approved_by.name %}</dd>
+        <dd>{% link href=application.approved_by.get_staff_url text=application.approved_by.fullname %}</dd>
       </div>
       {% endif %}
       {% if application.approved_at %}

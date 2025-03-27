@@ -32,7 +32,7 @@
         {% for application in applications %}
           <li class="flex flex-row gap-2 px-4 py-4 sm:px-6">
             <span class="text-base text-slate-800 font-semibold">
-              {{ application.pk_hash }} by {{ application.created_by.name }}
+              {{ application.pk_hash }} by {{ application.created_by.fullname }}
             </span>
             <div class="flex flex-row gap-2 ml-auto">
               {% #button type="link" variant="secondary" href=application.get_staff_url small=True %}

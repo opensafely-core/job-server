@@ -114,7 +114,7 @@ class Application(models.Model):
         ]
 
     def __str__(self):
-        return f"Application {self.pk_hash} by {self.created_by.name}"
+        return f"Application {self.pk_hash} by {self.created_by.fullname}"
 
     @property
     def pk_hash(self):

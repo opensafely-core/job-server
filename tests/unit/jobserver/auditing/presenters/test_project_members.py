@@ -17,7 +17,7 @@ def test_added_with_known_objects():
 
     output = project_members.added(event=event)
 
-    assert output.context["actor"].display_value == actor.name
+    assert output.context["actor"].display_value == actor.fullname
     assert output.context["actor"].link == actor.get_staff_url()
 
     assert output.context["created_at"] == event.created_at
@@ -25,7 +25,7 @@ def test_added_with_known_objects():
     assert output.context["project"].display_value == project.name
     assert output.context["project"].link == project.get_staff_url()
 
-    assert output.context["user"].display_value == user.name
+    assert output.context["user"].display_value == user.fullname
     assert output.context["user"].link == user.get_staff_url()
 
     assert output.template_name == "staff/auditable_events/project/members/added.html"
@@ -65,7 +65,7 @@ def test_updated_roles_with_known_objects():
 
     output = project_members.updated_roles(event=event)
 
-    assert output.context["actor"].display_value == actor.name
+    assert output.context["actor"].display_value == actor.fullname
     assert output.context["actor"].link == actor.get_staff_url()
 
     assert output.context["created_at"] == event.created_at
@@ -73,7 +73,7 @@ def test_updated_roles_with_known_objects():
     assert output.context["project"].display_value == project.name
     assert output.context["project"].link == project.get_staff_url()
 
-    assert output.context["user"].display_value == user.name
+    assert output.context["user"].display_value == user.fullname
     assert output.context["user"].link == user.get_staff_url()
 
     assert output.context["before"] == "ProjectDeveloper"
@@ -127,7 +127,7 @@ def test_removed_with_known_objects():
 
     output = project_members.removed(event=event)
 
-    assert output.context["actor"].display_value == actor.name
+    assert output.context["actor"].display_value == actor.fullname
     assert output.context["actor"].link == actor.get_staff_url()
 
     assert output.context["created_at"] == event.created_at
@@ -135,7 +135,7 @@ def test_removed_with_known_objects():
     assert output.context["project"].display_value == project.name
     assert output.context["project"].link == project.get_staff_url()
 
-    assert output.context["user"].display_value == user.name
+    assert output.context["user"].display_value == user.fullname
     assert output.context["user"].link == user.get_staff_url()
 
     assert output.template_name == "staff/auditable_events/project/members/removed.html"

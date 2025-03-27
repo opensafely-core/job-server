@@ -158,7 +158,7 @@
                 <dd class="flex flex-row row-wrap gap-1">
                   {% for user in workspace.job_requesting_users %}
                     <span class="flex flex-row items-center gap-x-2">
-                      {{ user.name }}
+                      {{ user.fullname }}
                       {% if workspace.created_by.pk == user.pk %}
                         {% pill variant="info" text="Creator" %}
                       {% endif %}
@@ -170,7 +170,7 @@
                 <dt class="font-semibold min-w-[10ch]">Sign-off:</dt>
                 <dd>
                   {% if workspace.signed_off_at %}
-                    {{ workspace.signed_off_by.name }} at {{ workspace.signed_off_at|date:"d F Y" }}
+                    {{ workspace.signed_off_by.fullname }} at {{ workspace.signed_off_at|date:"d F Y" }}
                   {% else %}
                     -
                   {% endif %}

@@ -16,7 +16,7 @@ def test_send_finished_notification(mailoutbox):
     assert list(m.to) == ["test@example.com"]
     assert application.get_absolute_url() in text_content
     assert application.get_absolute_url() in html_content
-    assert application.submitted_by.name in text_content
-    assert application.submitted_by.name in html_content
+    assert application.submitted_by.fullname in text_content
+    assert application.submitted_by.fullname in html_content
     assert f"ref: {application.pk_hash}" in text_content
     assert f"ref: {application.pk_hash}" in html_content

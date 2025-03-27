@@ -33,11 +33,11 @@
             <dl class="text-sm">
               <div class="flex flex-row gap-1">
                 <dt class="font-semibold">Created by: </dt>
-                <dd>{{site_alert.created_by.name}} at {{ site_alert.created_at|date:"D, M j Y H:i" }}</dd>
+                <dd>{{site_alert.created_by.fullname}} at {{ site_alert.created_at|date:"D, M j Y H:i" }}</dd>
               </div>
               <div class="flex flex-row gap-1">
                 <dt class="font-semibold">Updated by: </dt>
-                <dd>{{site_alert.updated_by.name}} at {{ site_alert.updated_at|date:"D, M j Y H:i" }}</dd>
+                <dd>{{site_alert.updated_by.fullname}} at {{ site_alert.updated_at|date:"D, M j Y H:i" }}</dd>
               </div>
             </dl>
           {% /list_group_rich_item %}

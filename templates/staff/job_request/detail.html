@@ -47,7 +47,7 @@
           {% /description_item %}
 
           {% #description_item title="Created by" %}
-            {% link href=job_request.created_by.get_staff_url text=job_request.created_by.name %}
+            {% link href=job_request.created_by.get_staff_url text=job_request.created_by.fullname %}
           {% /description_item %}
 
           {% #description_item title="Created at" %}

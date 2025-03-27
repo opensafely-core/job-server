@@ -38,7 +38,7 @@ def test_create_github_issue_external_success(build_release_with_files, github_a
 
     lines = issue.body.split("\n")
 
-    assert release.created_by.name in lines[0]
+    assert release.created_by.fullname in lines[0]
     assert release.created_by.get_staff_url() in lines[0]
 
     assert release.id in lines[1]
@@ -74,7 +74,7 @@ def test_create_github_issue_internal_success(build_release_with_files, github_a
 
     lines = issue.body.split("\n")
 
-    assert release.created_by.name in lines[0]
+    assert release.created_by.fullname in lines[0]
     assert release.created_by.get_staff_url() in lines[0]
 
     assert release.id in lines[1]

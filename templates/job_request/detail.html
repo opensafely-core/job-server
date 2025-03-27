@@ -107,7 +107,7 @@
           <p>
             This page shows the technical details of what happened when
             the authorised researcher
-            <strong>{{ job_request.created_by.name }}</strong>
+            <strong>{{ job_request.created_by.fullname }}</strong>
             requested one or more actions to be run against real patient data
             in the
             {% spaceless %}
@@ -271,7 +271,7 @@
             {% link href=job_request.workspace.get_absolute_url text=job_request.workspace.name %}
           {% /description_item %}
           {% #description_item title="Requested by" stacked=True %}
-            {{ job_request.created_by.name }}
+            {{ job_request.created_by.fullname }}
             {% /description_item %}
           {% #description_item title="Branch" stacked=True %}
             {{ job_request.workspace.branch }}

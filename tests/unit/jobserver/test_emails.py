@@ -83,8 +83,8 @@ def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
 
     assert repo.name in text_content
     assert repo.name in html_content
-    assert repo.researcher_signed_off_by.name in text_content
-    assert repo.researcher_signed_off_by.name in html_content
+    assert repo.researcher_signed_off_by.fullname in text_content
+    assert repo.researcher_signed_off_by.fullname in html_content
 
 
 def test_send_repo_signed_off_notification_to_staff(mailoutbox):
@@ -108,7 +108,7 @@ def test_send_repo_signed_off_notification_to_staff(mailoutbox):
 
     assert repo.name in text_content
     assert repo.name in html_content
-    assert repo.researcher_signed_off_by.name in text_content
-    assert repo.researcher_signed_off_by.name in html_content
+    assert repo.researcher_signed_off_by.fullname in text_content
+    assert repo.researcher_signed_off_by.fullname in html_content
     assert repo.get_staff_url() in text_content
     assert repo.get_staff_url() in html_content

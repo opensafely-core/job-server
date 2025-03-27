@@ -43,7 +43,7 @@
           {% #card title="Release information" header_class="px-4!" %}
             <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
               {% #description_item class="py-2! px-4!" title="Released by" stacked %}
-                {{ release.created_by.name }}
+                {{ release.created_by.fullname }}
               {% /description_item %}
               {% #description_item class="py-2! px-4!" title="Released on" stacked %}
                 {% #time datetime=release.created_at %}
