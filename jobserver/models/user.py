@@ -149,6 +149,15 @@ class User(AbstractBaseUser):
         return self.name
 
     @cached_property
+    def has_any_roles(self):
+        project_roles = list(
+            itertools.chain.from_iterable(
+                [m.roles for m in self.project_memberships.all()]
+            )
+        )
+        return any(self.roles + project_roles)
+
+    @cached_property
     def all_roles(self):
         """
         All roles, including those given via memberships, for the User.
