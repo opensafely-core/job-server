@@ -3,7 +3,7 @@ name: Update python dependencies
 on:
   workflow_dispatch:
   schedule:
-    - cron:  "0 23 * * *"
+    - cron:  "0 23 * * SUN"
 
 jobs:
   update-dependencies:
@@ -24,6 +24,6 @@ jobs:
     - uses: bennettoxford/update-dependencies-action@v1
       with:
         token: ${{ steps.generate-token.outputs.token }}
-        # Note: just update pipeline library for now, as job-server uses dependabot for python upgrades
         update_command: |
           just upgrade-pipeline
+          just update-dependencies
