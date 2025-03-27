@@ -24,6 +24,16 @@ jobs:
     - uses: bennettoxford/update-dependencies-action@v1
       with:
         token: ${{ steps.generate-token.outputs.token }}
-        # Note: just update pipeline library for now, as job-server uses dependabot for python upgrades
         update_command: |
           just upgrade-pipeline
+
+    - name: Check weekday
+      run: |
+        echo "WEEKDAY=$(date +%A)" >> "$GITHUB_ENV"
+
+    - uses: bennettoxford/update-dependencies-action@v1
+      if: ${{ github.event_name != 'schedule' || env.WEEKDAY == 'Sunday' }}
+      with:
+        token: ${{ steps.generate-token.outputs.token }}
+        update_command: |
+          just compile-reqs -U
