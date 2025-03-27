@@ -100,14 +100,16 @@ install-precommit:
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
 
-# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
-upgrade env package="": virtualenv
+# compile all requirements.in files (by default only adds/removes packages; `-U` upgrades all; `-P <package>` upgrades one)
+compile-reqs *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    opts="--upgrade"
-    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
-    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
+    command="pip-compile --quiet --allow-unsafe --generate-hashes --strip-extras"
+    for req_file in requirements.prod.in requirements.dev.in; do
+      echo $command "$req_file" "$@"
+      $BIN/$command "$req_file" "$@"
+    done
 
 # upgrade our internal pipeline library
 upgrade-pipeline: && requirements-prod
