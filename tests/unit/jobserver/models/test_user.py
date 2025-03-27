@@ -18,22 +18,6 @@ from ....factories import (
 )
 
 
-def test_user_all_roles(project_membership):
-    org = OrgFactory()
-    project = ProjectFactory(orgs=[org])
-    user = UserFactory(roles=[OutputChecker])
-
-    project_membership(project=project, user=user, roles=[ProjectCollaborator])
-
-    expected = {OutputChecker, ProjectCollaborator}
-
-    assert user.all_roles == expected
-
-
-def test_user_all_roles_empty():
-    assert UserFactory().all_roles == set()
-
-
 def test_user_has_any_roles_with_a_global_role():
     user = UserFactory(roles=[OutputChecker])
     assert user.has_any_roles

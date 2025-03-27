@@ -157,26 +157,6 @@ class User(AbstractBaseUser):
         )
         return any(self.roles + project_roles)
 
-    @cached_property
-    def all_roles(self):
-        """
-        All roles, including those given via memberships, for the User.
-
-        Typically we look up whether the user has permission or a role in the
-        context of another object (eg a project).  However there are times when
-        we want to check all the roles available to a user.  This property
-        allows us to use typical python membership checks when doing that, eg:
-
-            if ProjectDeveloper not in user.all_roles:
-        """
-        membership_roles = list(
-            itertools.chain.from_iterable(
-                [m.roles for m in self.project_memberships.all()]
-            )
-        )
-
-        return set(self.roles + membership_roles)
-
     @property
     def initials(self):
         if self.name == self.username:
