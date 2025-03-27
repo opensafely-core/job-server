@@ -96,9 +96,6 @@ furl
 # Search 'pipeline' in jobserver/
 opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip
 
-# Email utilities/wrappers. See jobserver/emails.py and airlock/emails.py.
-incuna-mail
-
 # Handling markdown. Used in some views and snippets.
 markdown
 

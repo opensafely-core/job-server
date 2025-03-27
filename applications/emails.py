@@ -1,6 +1,7 @@
 from django.conf import settings
 from furl import furl
-from incuna_mail import send
+
+from jobserver.emails import send_html_email
 
 
 def send_submitted_application_email(email, application):
@@ -13,11 +14,11 @@ def send_submitted_application_email(email, application):
         "reference": application.pk_hash,
     }
 
-    send(
+    send_html_email(
         to=email,
-        sender="notifications@jobs.opensafely.org",
+        from_email="notifications@jobs.opensafely.org",
         subject="Acknowledgement of New COVID-19 Project Application",
-        template_name="applications/emails/submission_confirmation.txt",
+        text_template_name="applications/emails/submission_confirmation.txt",
         html_template_name="applications/emails/submission_confirmation.html",
         context=context,
     )

@@ -305,7 +305,7 @@ def test_api_airlock_event_error(
 
 
 @patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
-@patch("airlock.emails.send")
+@patch("airlock.emails.send_html_email")
 def test_api_airlock_event_multiple_errors(mock_send, api_rf, slack_messages):
     mock_send.side_effect = Exception("Error sending email")
     author = UserFactory()
