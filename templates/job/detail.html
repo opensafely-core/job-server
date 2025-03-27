@@ -209,7 +209,7 @@
       </dl>
     {% /card %}
 
-    {% if request.user.all_roles %}
+    {% if request.user.has_any_roles %}
     {% #card title="Job metrics" subtitle="Computed for the time spent running on the backend" %}
       <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
         {% #description_item title="Mean CPU usage" %}

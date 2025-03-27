@@ -18,20 +18,34 @@ from ....factories import (
 )
 
 
-def test_user_all_roles(project_membership):
-    org = OrgFactory()
-    project = ProjectFactory(orgs=[org])
+def test_user_has_any_roles_with_a_global_role():
     user = UserFactory(roles=[OutputChecker])
-
-    project_membership(project=project, user=user, roles=[ProjectCollaborator])
-
-    expected = {OutputChecker, ProjectCollaborator}
-
-    assert user.all_roles == expected
+    assert user.has_any_roles
 
 
-def test_user_all_roles_empty():
-    assert UserFactory().all_roles == set()
+def test_user_has_any_roles_with_a_project_role(project_membership):
+    user = UserFactory()
+    project_membership(user=user, roles=[ProjectCollaborator])
+
+    assert user.has_any_roles
+
+
+def test_user_has_any_roles_with_project_membership_but_no_role(project_membership):
+    user = UserFactory()
+    project_membership(user=user, roles=[])
+
+    assert not user.has_any_roles
+
+
+def test_user_has_any_roles_with_global_and_project_roles(project_membership):
+    user = UserFactory(roles=[OutputChecker])
+    project_membership(user=user, roles=[ProjectCollaborator])
+
+    assert user.has_any_roles
+
+
+def test_user_has_any_roles_with_no_roles():
+    assert not UserFactory().has_any_roles
 
 
 def test_user_constraints_pat_token_and_pat_expires_at_both_set():
