@@ -54,10 +54,6 @@ def notify_release_file_uploaded(rfile, channel=settings.RELEASES_SLACK_CHANNEL)
     release_url = slack.link(release.get_absolute_url(), "release")
     file_url = slack.link(rfile.get_absolute_url(), rfile.name)
 
-    size = round(rfile.size, 1)
-    if size < 1:  # pragma: no cover
-        size = "<1"
-
     message = f"{user_url} uploaded {file_url} ({rfile:Mb}) to a {release_url} for {workspace_url} from `{release.backend.name}`"
     slack.post(message, channel)
 
