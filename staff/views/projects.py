@@ -141,15 +141,6 @@ class ProjectEdit(UpdateView):
 
         return redirect(new.get_staff_url())
 
-    def get_context_data(self, **kwargs):
-        # we don't have a nice way to override the type of text input
-        # components yet so doing this here is a bit of a hack because we can't
-        # construct dicts in a template
-        return super().get_context_data(**kwargs) | {
-            "application_url_attributes": {"type": "url"},
-            "number_attributes": {"type": "number"},
-        }
-
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ProjectLinkApplication(UpdateView):
