@@ -99,7 +99,6 @@ class ProjectEditForm(forms.ModelForm):
 
     class Meta:
         fields = [
-            "application_url",
             "copilot",
             "copilot_notes",
             "copilot_support_ends_at",
@@ -115,7 +114,6 @@ class ProjectEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["application_url"].required = False
         self.fields["number"].required = False
 
         self.fields["copilot"] = UserModelChoiceField(

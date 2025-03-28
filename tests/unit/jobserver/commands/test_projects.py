@@ -9,7 +9,7 @@ from tests.factories import (
 )
 
 
-def test_add_project_with_copilot_and_application():
+def test_add_project_with_copilot():
     org1 = OrgFactory()
     org2 = OrgFactory()
 
@@ -21,14 +21,12 @@ def test_add_project_with_copilot_and_application():
         number=31337,
         orgs=[org1, org2],
         copilot=copilot,
-        application_url="http://example.com",
         by=actor,
     )
 
     assert project.name == "test"
     assert project.number == 31337
     assert project.copilot == copilot
-    assert project.application_url == "http://example.com"
     assert project.created_at
     assert project.created_by == actor
     assert project.updated_at
@@ -51,7 +49,7 @@ def test_add_project_with_copilot_and_application():
     assert collaboration2.updated_by == actor
 
 
-def test_add_project_without_copilot_and_application():
+def test_add_project_without_copilot():
     org1 = OrgFactory()
     org2 = OrgFactory()
 
@@ -62,7 +60,6 @@ def test_add_project_without_copilot_and_application():
     assert project.name == "test"
     assert project.number == 31337
     assert project.copilot is None
-    assert project.application_url == ""
     assert project.created_at
     assert project.created_by == actor
     assert project.updated_at
