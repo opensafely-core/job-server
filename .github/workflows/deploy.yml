@@ -57,6 +57,15 @@ jobs:
             docker tag "$IMAGE_NAME" "$PUBLIC_IMAGE_NAME:latest"
             docker push "$PUBLIC_IMAGE_NAME:latest"
 
+      - name: Create Sentry release
+        uses: getsentry/action-release@f6dfa3d84a1c740b94aa45255c5e032b744a095d # v1.9.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
+          SENTRY_ORG: ebm-datalab
+          SENTRY_PROJECT: job-server
+        with:
+          environment: production
+
       - name: Deploy image
         run: |
             ssh-agent -a "$SSH_AUTH_SOCK" > /dev/null
@@ -72,12 +81,3 @@ jobs:
           chmod 755 ./honeymarker
           # --dataset __all__ will ad an marker to *all* production datasets (this writekey is for production)
           ./honeymarker --writekey ${{ secrets.HC_MARKER_APIKEY }} --dataset job-server add --type deploy --msg "job-server deploy $GITHUB_SHA"
-
-      - name: Create Sentry release
-        uses: getsentry/action-release@f6dfa3d84a1c740b94aa45255c5e032b744a095d # v1.9.0
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
-          SENTRY_ORG: ebm-datalab
-          SENTRY_PROJECT: job-server
-        with:
-          environment: production
