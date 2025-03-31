@@ -84,7 +84,7 @@ class MissingVariableErrorFilter(logging.Filter):
         "q",
         # The following is a property on User but not AnonymousUser. It's non-trivial to
         # extend the latter to provide it, so we ignore it.
-        "all_roles",
+        "has_any_roles",
     }
 
     def filter(self, record):  # pragma: no cover
