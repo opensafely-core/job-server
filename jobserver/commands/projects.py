@@ -4,12 +4,11 @@ from ..models import Project, ProjectCollaboration
 
 
 @transaction.atomic()
-def add(*, by, name, number, orgs, application_url="", copilot=None):
+def add(*, by, name, number, orgs, copilot=None):
     project = Project.objects.create(
         name=name,
         number=number,
         copilot=copilot,
-        application_url=application_url,
         created_by=by,
         updated_by=by,
     )
