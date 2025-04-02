@@ -109,6 +109,13 @@ upgrade env package="": virtualenv
     test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
+# Upgrade all dev and prod dependencies.
+# This is the default input command to update-dependencies action
+# https://github.com/bennettoxford/update-dependencies-action
+update-dependencies:
+    just upgrade prod
+    just upgrade dev
+
 # upgrade our internal pipeline library
 upgrade-pipeline: && requirements-prod
     ./scripts/upgrade-pipeline.sh requirements.prod.in
