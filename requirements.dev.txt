@@ -209,9 +209,9 @@ django-debug-toolbar==5.1.0 \
     --hash=sha256:8a3b9da4aeab8d384a366e20304bd939a451f0242523c5b7b402248ad474eed2 \
     --hash=sha256:c0591e338ee9603bdfce5aebf8d18ca7341fdbb69595e2b0b34869be5857180e
     # via -r requirements.dev.in
-django-upgrade==1.23.1 \
-    --hash=sha256:9ec0f2a6d3384857154bf2dca14b2a94e063fcc690e395357df50e80ab8c6628 \
-    --hash=sha256:e4512611b56f3293fa8cc74f5c9d847b8f8eb2bef5afedf6efb5e7e292045928
+django-upgrade==1.24.0 \
+    --hash=sha256:198572f31130cd80b4f30c568aa331351176cccf1455741e45ebca272812271d \
+    --hash=sha256:d761d517f87338291ac73890e15b09775532c5cea8cf794f56ad159da9d63d9b
     # via -r requirements.dev.in
 execnet==2.1.1 \
     --hash=sha256:26dee51f1b80cebd6d0ca8e74dd8745419761d3bef34163928cbebbdc4749fdc \
@@ -485,5 +485,4 @@ setuptools==78.1.0 \
     --hash=sha256:3e386e96793c8702ae83d17b853fb93d3e09ef82ec62722e61da5cd22376dcd8
     # via
     #   -c requirements.prod.txt
-    #   nodeenv
     #   pip-tools
