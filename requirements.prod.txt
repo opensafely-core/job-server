@@ -756,16 +756,15 @@ ruyaml==0.91.0 \
     --hash=sha256:50e0ee3389c77ad340e209472e0effd41ae0275246df00cdad0a067532171755 \
     --hash=sha256:6ce9de9f4d082d696d3bde264664d1bcdca8f5a9dff9d1a1f1a127969ab871ab
     # via opensafely-pipeline
-sentry-sdk==2.24.1 \
-    --hash=sha256:36baa6a1128b9d98d2adc5e9b2f887eff0a6af558fc2b96ed51919042413556d \
-    --hash=sha256:8ba3c29990fa48865b908b3b9dc5ae7fa7e72407c7c9e91303e5206b32d7b8b1
+sentry-sdk==2.25.0 \
+    --hash=sha256:a6e623691ff03d1758f940fe421e5b65f313f4ac37638079ab94d1b6f052eb15 \
+    --hash=sha256:aa0f558209c1819391421d65e25b1c4000f49580e6ecf5c05ff0c6e74f74470b
     # via -r requirements.prod.in
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
     # via
     #   furl
-    #   incuna-mail
     #   orderedmultidict
 slack-sdk==3.35.0 \
     --hash=sha256:00933d171fbd8a068b321ebb5f89612cc781d3183d8e3447c85499eca9d865be \
