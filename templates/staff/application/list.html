@@ -66,11 +66,11 @@
               {% url_without_querystring user=user.username as remove_user_query_url %}
               {% #list_group_item href=remove_user_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
                 {% icon_check_outline class="h-5 w-5 stroke-green-700" %}
-                {{ user.name }}
+                {{ user.fullname }}
               {% /list_group_item %}
             {% else %}
               {% #list_group_item href=add_user_query_url role="checkbox" aria-checked="false" %}
-                {{ user.name }}
+                {{ user.fullname }}
               {% /list_group_item %}
             {% endif %}
           {% endfor %}
@@ -102,7 +102,7 @@
       {% #list_group small=True %}
         {% if application_list %}
           {% for application in application_list %}
-            {% var title=application.pk_hash|add:" by "|add:application.created_by.name %}
+            {% var title=application.pk_hash|add:" by "|add:application.created_by.fullname %}
             {% if not application.is_deleted %}
               {% #list_group_rich_item type="Application" title=title url=application.get_staff_url status_text=application.status %}
                 <dl class="text-sm -mt-2">

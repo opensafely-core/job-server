@@ -108,7 +108,7 @@
       {% #card title="Members" %}
         {% #list_group %}
           {% for user in members %}
-            {% #list_group_rich_item type="User:" title=user.name %}
+            {% #list_group_rich_item type="User:" title=user.fullname %}
               <div class="flex flex-row gap-2">
                 {% #button small=True variant="primary-outline" type="link" href=user.get_staff_url %}
                   Edit
@@ -144,7 +144,7 @@
         {% #description_list %}
           {% if org.created_by %}
             {% #description_item stacked=True title="Created by" %}
-              {% link href=org.created_by.get_staff_url text=org.created_by.name %}
+              {% link href=org.created_by.get_staff_url text=org.created_by.fullname %}
             {% /description_item %}
           {% endif %}
 

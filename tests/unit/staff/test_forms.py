@@ -12,6 +12,7 @@ from ...factories import (
     BackendFactory,
     OrgFactory,
     ProjectFactory,
+    UserFactory,
 )
 
 
@@ -201,6 +202,7 @@ def test_userform_success():
     backend1 = BackendFactory()
     backend2 = BackendFactory()
     BackendFactory()
+    user = UserFactory()
 
     data = {
         "backends": [backend1.slug, backend2.slug],
@@ -208,7 +210,7 @@ def test_userform_success():
     form = UserForm(
         available_backends=Backend.objects.all(),
         data=data,
-        fullname="",
+        fullname=user.fullname,
     )
 
     assert form.is_valid(), form.errors
@@ -217,12 +219,13 @@ def test_userform_success():
 
 
 def test_userform_with_no_backends():
+    user = UserFactory()
     available_backends = Backend.objects.filter(slug__in=["tpp"])
 
     form = UserForm(
         available_backends=available_backends,
         data={"backends": []},
-        fullname="",
+        fullname=user.fullname,
     )
 
     assert form.is_valid()
@@ -231,13 +234,14 @@ def test_userform_with_no_backends():
 
 def test_userform_with_unknown_backend():
     BackendFactory.create_batch(5)
+    user = UserFactory()
 
     available_backends = Backend.objects.exclude(slug="unknown")
 
     form = UserForm(
         available_backends=available_backends,
         data={"backends": ["unknown"]},
-        fullname="",
+        fullname=user.fullname,
     )
 
     assert not form.is_valid()

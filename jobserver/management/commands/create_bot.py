@@ -14,9 +14,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         username = options["username"]
+        fullname = username.replace("-", " ").title()
 
         try:
-            user = User.objects.create(username=username)
+            user = User.objects.create(username=username, fullname=fullname)
         except IntegrityError:
             sys.exit(f"User '{username}' already exists")
 

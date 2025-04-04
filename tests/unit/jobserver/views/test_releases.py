@@ -57,7 +57,7 @@ def test_projectreleaselist_success(rf, build_release):
 
     assert response.context_data["project"] == project
     assert len(response.context_data["releases"]) == 2
-    assert f"Files released by {r1.created_by.name}" in response.rendered_content
+    assert f"Files released by {r1.created_by.fullname}" in response.rendered_content
     assert f"{r1.backend.name}" in response.rendered_content
 
 
@@ -687,7 +687,7 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(
     assert not response.context_data["user_can_delete_files"]
     assert "Delete" not in response.rendered_content
     assert (
-        f"Files released by {release.created_by.name} from {release.backend.name}"
+        f"Files released by {release.created_by.fullname} from {release.backend.name}"
         in response.rendered_content
     )
 

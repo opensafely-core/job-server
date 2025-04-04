@@ -24,7 +24,7 @@
         <div class="text-slate-800 flex flex-col items-start gap-y-3 max-w-prose">
           <p class="mt-1">
             Published by
-            <strong>{{ publish_request.decision_by.name }}</strong>
+            <strong>{{ publish_request.decision_by.fullname }}</strong>
             on
             <strong>{{ publish_request.decision_at|date:"D jS M Y" }} at {{ publish_request.decision_at|date:"H:i" }}</strong>
           </p>
@@ -47,12 +47,12 @@
           <p class="mt-1">
             {% if snapshot.is_draft %}
               Prepared for publishing by
-              <strong>{{ release.created_by.name }}</strong>
+              <strong>{{ release.created_by.fullname }}</strong>
               on
               <strong>{{ snapshot.created_at|date:"j M Y" }} at {{ snapshot.created_at|date:"H:i" }}</strong>
             {% else %}
               Published by
-              <strong>{{ publish_request.decision_by.name }}</strong>
+              <strong>{{ publish_request.decision_by.fullname }}</strong>
               on
               <strong>{{ publish_request.decision_at|date:"j M Y" }} at {{ publish_request.decision_at|date:"H:i" }}</strong>
             {% endif %}

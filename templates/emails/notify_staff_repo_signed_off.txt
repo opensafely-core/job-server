@@ -1,6 +1,6 @@
 {{ staff_url }}
 
-The repository, {{ repo.name }}, has been signed off by {{ repo.researcher_signed_off_by.name }}.
+The repository, {{ repo.name }}, has been signed off by {{ repo.researcher_signed_off_by.fullname }}.
 
 This historic Github repo contains outputs released from a backend, and needs additional sign off.
 

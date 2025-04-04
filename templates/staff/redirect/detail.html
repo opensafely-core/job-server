@@ -29,7 +29,7 @@
     {% #card title="Details" %}
       {% #description_list %}
         {% #description_item title="Created by" %}
-          {% link href=redirect.created_by.get_staff_url text=redirect.created_by.name %}
+          {% link href=redirect.created_by.get_staff_url text=redirect.created_by.fullname %}
         {% /description_item %}
 
         {% #description_item title="Created at" %}
@@ -40,7 +40,7 @@
 
         {% if redirect.updated_by %}
           {% #description_item title="Updated by" %}
-            {% link href=redirect.updated_by.get_staff_url text=redirect.updated_by.name %}
+            {% link href=redirect.updated_by.get_staff_url text=redirect.updated_by.fullname %}
           {% /description_item %}
 
           {% #description_item title="Updated at" %}

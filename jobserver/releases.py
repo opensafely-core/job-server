@@ -58,7 +58,7 @@ def build_outputs_zip(release_files, url_builder_func):
 
             # explain why an on-disk file was deleted, and potentially
             # overwrite the previously unredacted version.
-            name = rfile.deleted_by.name if rfile.deleted_by else "Unknown"
+            name = rfile.deleted_by.fullname if rfile.deleted_by else "Unknown"
             deleted_at = rfile.deleted_at if rfile.deleted_at else "Unknown"
             first_line = f"This file was redacted by {name} on {deleted_at}"
 

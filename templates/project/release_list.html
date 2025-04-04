@@ -37,7 +37,7 @@
         <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6" data-expander-list="release-{{ release.id }}">
           <div class="flex flex-col md:flex-row gap-2 items-start justify-between">
             <span class="mr-auto">
-              Files released by {{ release.created_by.name }}
+              Files released by {{ release.created_by.fullname }}
               <ul>
                 <li><strong>Workspace:</strong> {% link href=release.workspace.get_absolute_url text=release.workspace.name %}</li>
                 <li><strong>Backend:</strong> {{ release.backend.name }}</li>
@@ -80,7 +80,7 @@
 
                   {% if file.is_deleted %}
                   <span class="text-xs text-slate-600 font-normal mr-auto">
-                    (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                    (Deleted by {{ file.deleted_by.fullname }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
                   </span>
                   {% endif %}
 

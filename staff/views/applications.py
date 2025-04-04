@@ -188,7 +188,7 @@ class ApplicationList(ListView):
         # get_full_name() or username depending on which one has been populated
         users = sorted(
             User.objects.filter(applications__isnull=False).distinct(),
-            key=lambda u: u.name.lower(),
+            key=lambda u: u.fullname.lower(),
         )
         return super().get_context_data(**kwargs) | {
             "q": self.request.GET.get("q", ""),

@@ -243,10 +243,10 @@
             >
               {% for membership in memberships %}
                 {% if not project_org_in_user_orgs %}
-                  <li>{{ membership.user.name }}</li>
+                  <li>{{ membership.user.fullname }}</li>
                 {% else %}
                   <li>
-                    {{ membership.user.name }}
+                    {{ membership.user.fullname }}
                     <ul class="list-disc ml-4 mb-1">
                       {% for role in membership.roles %}
                         <li>{{ role.display_name }}</li>
