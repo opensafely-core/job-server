@@ -2,13 +2,7 @@ import userEvent from "@testing-library/user-event";
 import React, { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import FileList from "../../../components/FileList/FileList";
-import {
-  csvFile,
-  fileList,
-  htmlFile,
-  pngFile,
-  txtFile,
-} from "../../helpers/files";
+import { csvFile, fileList, htmlFile } from "../../helpers/files";
 import props from "../../helpers/props";
 import { history, render, screen, waitFor } from "../../test-utils";
 

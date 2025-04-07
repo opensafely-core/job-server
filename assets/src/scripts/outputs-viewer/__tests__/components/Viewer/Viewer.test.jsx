@@ -275,9 +275,7 @@ describe("<Viewer />", () => {
   });
 
   it("throw error if fetch returns with a not ok response", async () => {
-    fetch.mockRejectOnce(() => ({
-      ok: false,
-    }));
+    fetch.mockRejectOnce(new Error(""));
 
     render(
       <Viewer
@@ -313,9 +311,7 @@ describe("<Viewer />", () => {
       />,
     );
 
-    fetch.mockRejectOnce(() => ({
-      ok: false,
-    }));
+    fetch.mockRejectOnce(new Error(""));
 
     await waitFor(() =>
       expect(screen.getByText("Error: Unable to load file")).toBeVisible(),
