@@ -24,7 +24,7 @@ def opencodelists_api():
     return OpenCodelistsAPI()
 
 
-def test_get_codelists(enable_network, opencodelists_api):
+def test_get_codelists(socket_enabled, opencodelists_api):
     args = ["snomedct"]
 
     real = opencodelists_api.get_codelists(*args)
@@ -35,7 +35,7 @@ def test_get_codelists(enable_network, opencodelists_api):
     assert real is not None
 
 
-def test_get_codelists_with_unknown_coding_system(enable_network, opencodelists_api):
+def test_get_codelists_with_unknown_coding_system(socket_enabled, opencodelists_api):
     args = ["test"]
 
     real = opencodelists_api.get_codelists(*args)
@@ -46,7 +46,7 @@ def test_get_codelists_with_unknown_coding_system(enable_network, opencodelists_
     assert real == []
 
 
-def test_check_codelists(enable_network, opencodelists_api):
+def test_check_codelists(socket_enabled, opencodelists_api):
     args = ["{}", ""]
 
     real = opencodelists_api.check_codelists(*args)

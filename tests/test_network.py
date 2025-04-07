@@ -3,7 +3,7 @@ import urllib
 
 import pytest
 import requests
-from pytest_network import NetworkUsageException
+from pytest_socket import SocketBlockedError
 
 
 @pytest.mark.django_db(False)
@@ -17,10 +17,10 @@ class TestNetworkBlocked:
 
     def test_network_blocked_requests(self):
         """Test that network/socket access is blocked via `requests`."""
-        with pytest.raises(NetworkUsageException):
+        with pytest.raises(SocketBlockedError):
             requests.get("https://example.com")
 
     def test_network_blocked_urllib(self):
         """Test that network/socket access is blocked via `urllib`."""
-        with pytest.raises(NetworkUsageException):
+        with pytest.raises(SocketBlockedError):
             urllib.request.urlopen("https://example.com")
