@@ -1,4 +1,4 @@
-import TomSelect from "@remotedevforce/tom-select";
+import TomSelect from "tom-select";
 import "./multiselect.css";
 
 const multiselectElements = document.querySelectorAll(`[data-multiselect]`);
