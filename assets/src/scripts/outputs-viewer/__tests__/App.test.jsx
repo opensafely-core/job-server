@@ -68,8 +68,10 @@ describe("<App />", () => {
     fetch.mockResponseOnce("hello,world");
     await user.click(screen.queryAllByRole("link")[0]);
 
-    expect(screen.getByText("Last modified at:")).toBeVisible();
-    expect(screen.getByText("hello")).toBeVisible();
-    expect(screen.getByText("world")).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText("Last modified at:")).toBeVisible();
+      expect(screen.getByText("hello")).toBeVisible();
+      expect(screen.getByText("world")).toBeVisible();
+    });
   });
 });
