@@ -16,6 +16,6 @@ export function toastError({ toastId, message, ...args }) {
     id: toastId,
     pauseOnHover: false,
     position: "top-right",
-    theme: "light",
+    theme: "colored",
   });
 }

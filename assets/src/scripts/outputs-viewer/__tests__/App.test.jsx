@@ -60,12 +60,12 @@ describe("<App />", () => {
 
   it("shows the Viewer if a file is selected", async () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
-    fetch.mockResponseOnce(["hello", "world"]);
 
     const user = userEvent.setup();
     render(<App {...props} />);
 
     await screen.findByText(csvFile.shortName);
+    fetch.mockResponseOnce("hello,world");
     await user.click(screen.queryAllByRole("link")[0]);
 
     expect(screen.getByText("Last modified at:")).toBeVisible();
