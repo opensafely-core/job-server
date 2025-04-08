@@ -82,7 +82,7 @@ def github_api():
     return GitHubAPI(token=Env().str("GITHUB_TOKEN_TESTING"))
 
 
-@pytest.mark.usefixtures("enable_network")
+@pytest.mark.usefixtures("socket_enabled")
 class TestGithubAPIPrivate:
     """Tests of the real GitHubAPI that require permissions on a private
     repo."""
@@ -244,7 +244,7 @@ class TestGithubAPIPrivate:
         assert repo["topics"] == ["testing"]
 
 
-@pytest.mark.usefixtures("enable_network")
+@pytest.mark.usefixtures("socket_enabled")
 class TestGithubAPINonPrivate:
     """Tests of the real GitHubAPI that don't require permissions on a private
     repo."""

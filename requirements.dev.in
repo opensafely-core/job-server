@@ -16,7 +16,7 @@ pytest-env
 pytest-freezer
 pytest-icdiff
 pytest-mock
-pytest-network
+pytest-socket
 pytest-xdist[psutil]
 responses
 ruff

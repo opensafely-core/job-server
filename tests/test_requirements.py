@@ -2,10 +2,13 @@
 # https://github.com/opensafely-core/airlock/blob/ca23669bcf22bf719bd79103ecc53da0a7c53e2f/tests/test_requirements.py
 from pathlib import Path
 
+import pytest
+
 
 PROJECT_ROOT = Path(__file__).parents[1]
 
 
+@pytest.mark.django_db(False)
 def test_requirements_are_consistent():
     # The production and development dependencies aren't intended to overlap (the dev
     # dependencies are supposed to be _extra_ packages needed for development) but
