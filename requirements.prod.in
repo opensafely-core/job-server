@@ -19,7 +19,7 @@ argon2-cffi
 django-anymail[mailgun]
 
 # Content Security Policy headers for web app security. Search 'csp' in settings.py.
-django-csp
+django-csp==3.8
 
 # Provides additional management commands and utilities for Django projects.
 # See jobserver/jobs.
