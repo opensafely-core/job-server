@@ -35,6 +35,7 @@
 - [Interfaces](#interfaces)
   - [Job Runner interface](#job-runner-interface)
   - [Airlock interface](#airlock-interface)
+- [Migrations deployment strategy](#migrations-deployment-strategy)
 
 ## Local development
 
@@ -560,3 +561,34 @@ issues. (Current as of 2024-09.)
 [Workspace]: jobserver/models/workspace.py
 [airlock_event_view]: airlock/views.py
 [airlock app]: airlock/
+
+
+## Migrations deployment strategy
+
+When deploying PRs that include migrations, there's a brief period where the
+old container may execute against a database that has been migrated, before
+cutting over to the new container. Additionally, migrations may execute during
+a deployment that ultimately fails, leaving the old container running. Either
+scenario can result in unhandled exceptions if the old container is
+incompatible with the migrated database.
+
+Django allows for model-database inconsistencies, raising database-layer errors
+only when actual issues arise. Certain changes, like adding a table or column,
+are generally safe because the old code won’t query the new fields. Similarly,
+making a field nullable is safe -- it won't cause database access failures and
+impacts application code only if non-null values are required.
+
+Problems arise when a table or column is removed and old code tries to access
+it, or when a field is made non-nullable and old code attempts to insert null
+values. For these cases, a safer deployment strategy is to split changes into
+multiple PRs. First, deploy the application changes in one PR. Then, deploy the
+migration in a separate PR. This approach ensures that during the migration PR
+deployment, the old container is compatible with both the pre- and
+post-migration database states, mitigating risks if the deployment or migration
+fails.
+
+Renaming a table or column is more complex. A good approach is to use three
+PRs: first, a PR with models and migrations to create the new table or column
+and replicate existing data; then a PR updating the application code to use the
+new table/column; and finally, a PR to remove the old field or model and the
+corresponding migration.
