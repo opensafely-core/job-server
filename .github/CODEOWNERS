@@ -7,3 +7,6 @@
 # https://github.com/opensafely/documentation/blob/af88baf1/docs/type-one-opt-outs.md
 
 jobserver/permissions/*    @opensafely-core/ig-team
+
+# Replacement for Dependabot reviewers
+**/package*.json @tomodwyer
