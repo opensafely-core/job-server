@@ -133,8 +133,6 @@ def jobrequest_link(job_request):
         breakdowns=["job", "name"],
         calculations=[
             {"op": "CONCURRENCY"},
-            {"op": "MAX", "column": "cpu_percentage"},
-            {"op": "MAX", "column": "memory_used"},
         ],
         orders=[{"op": "CONCURRENCY", "order": "descending"}],
         stacked=True,

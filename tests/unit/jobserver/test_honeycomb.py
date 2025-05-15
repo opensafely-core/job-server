@@ -117,8 +117,6 @@ def test_jobrequest_link(freezer):
         "breakdowns": ["job", "name"],
         "calculations": [
             {"op": "CONCURRENCY"},
-            {"op": "MAX", "column": "cpu_percentage"},
-            {"op": "MAX", "column": "memory_used"},
         ],
         "end_time": 1665594060,
         "filter_combination": "AND",
