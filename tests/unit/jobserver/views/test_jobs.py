@@ -220,6 +220,9 @@ def test_jobdetail_with_staff_area_administrator(rf, freezer):
     assert url in response.rendered_content
     assert job_request.identifier in response.rendered_content
 
+    assert honeycomb.metrics_link(job) in response.rendered_content
+    assert honeycomb.status_link(job) in response.rendered_content
+
 
 def test_jobdetail_with_staff_area_administrator_with_completed_at(rf, freezer):
     freezer.move_to("2022-06-15 13:00")

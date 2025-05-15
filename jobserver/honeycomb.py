@@ -105,7 +105,9 @@ def trace_link(job):
 
 
 def metrics_link(job):
-    """We change the cpu/mem telemetry was generated on 15/05/2025, jobs running after this will need this link"""
+    """We changed the way cpu/mem telemetry are generated on 15/05/2025.
+
+    Jobs that are run after this date will need this link for metrics"""
     start, end = format_honeycomb_timestamps(job)
     url = TemplatedUrl(
         start_time=start,
