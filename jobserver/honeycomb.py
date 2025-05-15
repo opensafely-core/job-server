@@ -104,6 +104,26 @@ def trace_link(job):
     return trace_link.url
 
 
+def metrics_link(job):
+    """We change the cpu/mem telemetry was generated on 15/05/2025, jobs running after this will need this link"""
+    start, end = format_honeycomb_timestamps(job)
+    url = TemplatedUrl(
+        start_time=start,
+        end_time=end,
+        calculations=[
+            {"op": "MAX", "column": "cpu_percentage"},
+            {"op": "MAX", "column": "memory_used"},
+        ],
+        stacked=True,
+        omit_missing=True,
+        filters=[
+            {"column": "name", "op": "=", "value": "METRICS"},
+            {"column": "job", "op": "=", "value": job.identifier},
+        ],
+    )
+    return url.url
+
+
 def status_link(job):
     start, end = format_honeycomb_timestamps(job)
     url = TemplatedUrl(
