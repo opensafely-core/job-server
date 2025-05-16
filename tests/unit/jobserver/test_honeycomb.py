@@ -96,6 +96,34 @@ def test_status_link(freezer):
     }
 
 
+def test_metrics_link(freezer):
+    freezer.move_to("2022-10-12 17:00")
+
+    job = JobFactory(completed_at=timezone.now(), identifier="test_identifier")
+    url = honeycomb.metrics_link(job)
+    parsed = honeycomb.TemplatedUrl.parse(url)
+
+    assert parsed.stacked
+    assert parsed.query == {
+        "breakdowns": [],
+        "calculations": [
+            {"op": "MAX", "column": "cpu_percentage"},
+            {"op": "MAX", "column": "memory_used"},
+        ],
+        "end_time": 1665594060,
+        "filter_combination": "AND",
+        "filters": [
+            {"column": "name", "op": "=", "value": "METRICS"},
+            {"column": "job", "op": "=", "value": "test_identifier"},
+        ],
+        "granularity": 0,
+        "havings": [],
+        "limit": 1000,
+        "orders": [],
+        "start_time": 1665593940,
+    }
+
+
 def test_jobrequest_link(freezer):
     freezer.move_to("2022-10-12 17:00")
 
@@ -117,8 +145,6 @@ def test_jobrequest_link(freezer):
         "breakdowns": ["job", "name"],
         "calculations": [
             {"op": "CONCURRENCY"},
-            {"op": "MAX", "column": "cpu_percentage"},
-            {"op": "MAX", "column": "memory_used"},
         ],
         "end_time": 1665594060,
         "filter_combination": "AND",
