@@ -80,6 +80,9 @@ class FakeGitHubAPI:
     def get_repo_is_private(self, org, repo):
         return self.get_repo(org, repo)["private"]
 
+    def get_labels(self, org, repo):
+        return ["internal", "external"]
+
     def get_repos_with_branches(self, org):
         return [
             {
@@ -213,6 +216,9 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def get_repo_is_private(self, org, repo):
+        raise GitHubError()
+
+    def get_labels(self, org, repo):
         raise GitHubError()
 
     def get_repos_with_branches(self, org):

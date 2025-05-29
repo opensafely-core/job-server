@@ -31,12 +31,21 @@ def create_output_checking_issue(
 
     body = strip_whitespace(body)
 
+    labels = {"internal" if is_internal else "external"}
+    # Ensure that we don't try to add labels if they don't exist for the repo
+    try:
+        repo_labels = set(github_api.get_labels(org=org, repo=repo))
+    except GitHubError:
+        repo_labels = set()
+
+    labels = labels & repo_labels
+
     data = github_api.create_issue(
         org=org,
         repo=repo,
         title=get_issue_title(workspace.name, release_request_id),
         body=body,
-        labels=["internal" if is_internal else "external"],
+        labels=list(labels),
     )
 
     return data["html_url"]

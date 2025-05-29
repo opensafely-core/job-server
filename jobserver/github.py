@@ -571,6 +571,27 @@ class GitHubAPI:
 
         return repo["private"]
 
+    def get_labels(self, org, repo):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "labels",
+        ]
+        url = self._url(path_segments)
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        if r.status_code == 404:
+            return []
+
+        self._raise_for_status(r)
+
+        return [label["name"] for label in r.json()]
+
     def get_repos_with_branches(self, org):
         """
         Get Repos (with branches) from the OpenSAFELY Researchers Team
