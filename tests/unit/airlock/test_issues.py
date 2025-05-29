@@ -75,6 +75,36 @@ def test_create_output_checking_request_internal(github_api):
     assert workspace.name in lines[3]
 
 
+def test_create_output_checking_request_no_label_matches(github_api):
+    class GithubApiWithMismatchedLabels(github_api.__class__):
+        def get_labels(self, org, repo):
+            return ["a label"]
+
+    user = UserFactory()
+    workspace = WorkspaceFactory(name="test-workspace")
+    github_api_with_mismatched_labels = GithubApiWithMismatchedLabels()
+    assert (
+        create_output_checking_issue(
+            workspace,
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            user,
+            "ebmdatalab",
+            "repo-without-internal-external-labels",
+            github_api_with_mismatched_labels,
+        )
+        == "http://example.com"
+    )
+
+    issue = next(i for i in github_api.issues if i)  # pragma: no branch
+
+    # the default label is "external", but it doesn't exist for this repo
+    # so we just ignore it
+    assert issue.labels == []
+    assert issue.org == "ebmdatalab"
+    assert issue.repo == "repo-without-internal-external-labels"
+    assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
+
+
 def test_close_output_checking_request(github_api):
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()

@@ -322,6 +322,9 @@ def github_api():
                 "html_url": "http://example.com/issues/comment",
             }
 
+        def get_labels(self, org, repo):
+            return ["internal", "external"]
+
     return CapturingGitHubAPI()
 
 
