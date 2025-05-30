@@ -243,6 +243,12 @@ class TestGithubAPIPrivate:
         repo = github_api.get_repo("opensafely-testing", "github-api-testing-topics")
         assert repo["topics"] == ["testing"]
 
+    def test_get_labels(self, github_api):
+        args = ["opensafely-testing", "github-api-testing-private"]
+        real = github_api.get_labels(*args)
+        fake = FakeGitHubAPI().get_labels(*args)
+        assert_deep_type_equality(fake, real)
+
 
 @pytest.mark.usefixtures("socket_enabled")
 class TestGithubAPINonPrivate:
@@ -363,6 +369,15 @@ class TestGithubAPINonPrivate:
 
     def test_get_repo_with_unknown_repo(self, github_api):
         assert github_api.get_repo("opensafely-testing", "unknown") is None
+
+    def test_get_labels(self, github_api):
+        args = ["opensafely-testing", "github-api-testing"]
+        real = github_api.get_labels(*args)
+        fake = FakeGitHubAPI().get_labels(*args)
+        assert_deep_type_equality(fake, real)
+
+    def test_get_labels_with_unknown_repo(self, github_api):
+        assert github_api.get_labels("opensafely-testing", "unknown") == []
 
     def test_get_repos_with_branches(self, github_api):
         args = ["opensafely-testing"]
