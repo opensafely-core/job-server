@@ -39,7 +39,7 @@ class StaffAreaAdministrator:
 class OutputChecker:
     display_name = "Output Checker"
     description = """View, upload, and delete any outputs that have been released to Job Server.
-    View unreleased files on the Level 4 Server."""
+    View unreleased outputs on Level 4 and release them to Job Server."""
     models = [
         "jobserver.models.user.User",
     ]
