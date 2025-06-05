@@ -1,3 +1,4 @@
+import datetime
 import itertools
 import json
 import operator
@@ -5,7 +6,6 @@ import operator
 import structlog
 from django.db.models import Q
 from django.http import Http404
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView
@@ -42,17 +42,26 @@ class CoercingCharFieldSerializer(serializers.CharField):
 
 
 def update_backend_state(backend, request):
-    # Record when we last heard from the backend, for availability reporting purposes
-    Stats.objects.update_or_create(
-        backend=backend,
-        url=request.path,
-        defaults={"api_last_seen": timezone.now()},
-    )
-    # Store backend state sent up from job-runner. We might rename the header this is
+    # Retrieve backend state sent up from job-runner. We might rename the header this is
     # passed in at some point but for now this is good enough.
-    if flags := request.headers.get("Flags", ""):
-        backend.jobrunner_state = json.loads(flags)
-        backend.save(update_fields=["jobrunner_state"])
+    flags = request.headers.get("Flags", "")
+    if not flags:
+        return
+
+    jobrunner_state = json.loads(flags)
+
+    # Record the time we're told this backend was last seen alive, for availability
+    # reporting purposes
+    if last_seen_at_flag := jobrunner_state.get("last-seen-at"):
+        last_seen_at_dt = datetime.datetime.fromisoformat(last_seen_at_flag["v"])
+        Stats.objects.update_or_create(
+            backend=backend,
+            url=request.path,
+            defaults={"api_last_seen": last_seen_at_dt},
+        )
+
+    backend.jobrunner_state = jobrunner_state
+    backend.save(update_fields=["jobrunner_state"])
 
 
 class JobAPIUpdate(APIView):
