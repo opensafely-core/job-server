@@ -14,7 +14,7 @@ __pycache__
 /htmlcov
 /jobserver.dump
 /jobserver.sqlite.zip
-/node_modules
+node_modules
 /release-hatch
 /releases
 /repos
