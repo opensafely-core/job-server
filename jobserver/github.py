@@ -59,6 +59,10 @@ class RepoNotYetCreated(HTTPError):
     """Tried to delete a repo that did not already exist."""
 
 
+class IssueNotFound(HTTPError):
+    """Tried to get an issue that did not already exist."""
+
+
 class GitHubAPI:
     """
     A thin wrapper around requests, furl, and the GitHub API.
@@ -339,6 +343,9 @@ class GitHubAPI:
             "Accept": "application/vnd.github.v3+json",
         }
         r = self._post(url, headers=headers, json=payload)
+
+        if r.status_code == 404:
+            raise IssueNotFound()
 
         self._raise_for_status(r)
 
