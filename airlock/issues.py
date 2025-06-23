@@ -179,8 +179,7 @@ def update_output_checking_issue(
     request_author,
     label,
 ):
-    updates_string = "\n".join([f"- {update}" for update in updates])
-    body = f"Release request updated:\n{updates_string}"
+    body = f"Release request updated:\n{updates}"
 
     github_error_msg = None
 
