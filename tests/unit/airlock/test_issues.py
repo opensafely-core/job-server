@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.conf import settings
 
 from airlock.issues import (
@@ -5,12 +7,14 @@ from airlock.issues import (
     create_output_checking_issue,
     update_output_checking_issue,
 )
+from jobserver.github import GitHubError
 from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,
     UserFactory,
     WorkspaceFactory,
 )
+from tests.fakes import FakeGitHubAPI
 
 
 def test_create_output_checking_request_external(github_api):
@@ -178,6 +182,7 @@ def test_update_output_checking_request_with_slack_notification(
             "opensafely-output-review",
             github_api,
             notify_slack=True,
+            request_author=user,
         )
         == "http://example.com/issues/comment"
     )
@@ -188,3 +193,27 @@ def test_update_output_checking_request_with_slack_notification(
             "test-channel",
         )
     ]
+
+
+def test_create_output_checking_issue_retry_error_and_success():
+    user = UserFactory()
+    workspace = WorkspaceFactory(name="test-workspace")
+
+    api = FakeGitHubAPI()
+
+    with patch.object(api, "create_issue") as mock_create_issue:
+        mock_create_issue.side_effect = [
+            GitHubError,
+            GitHubError,
+            {"html_url": "http://example.com"},
+        ]
+        mock_issue = create_output_checking_issue(
+            workspace,
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            user,
+            "ebmdatalab",
+            "opensafely-output-review",
+            api,
+        )
+    mock_create_issue.call_count == 3
+    assert mock_issue == "http://example.com"

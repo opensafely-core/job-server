@@ -157,7 +157,8 @@ def update_issue(airlock_event: AirlockEvent, github_api=None, notify_slack=Fals
             airlock_event.org,
             airlock_event.repo,
             github_api,
-            notify_slack=notify_slack,
+            notify_slack,
+            airlock_event.request_author,
         )
     except GitHubError as e:
         raise NotificationError(f"Error creating GitHub issue comment: {e}")
