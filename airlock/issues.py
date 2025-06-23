@@ -96,15 +96,13 @@ def notify_after_max_retries(details):
     comment_url = None
     github_error_msg = str(details["exception"])
 
-    if notify_slack:
-        if github_error_msg:
-            post_slack_update(
-                org,
-                comment_url,
-                get_issue_title(workspace_name, release_request_id),
-                updates,
-                github_error=github_error_msg,
-            )
+    post_slack_update(
+        org,
+        comment_url,
+        get_issue_title(workspace_name, release_request_id),
+        updates,
+        github_error=github_error_msg,
+    )
 
 
 @backoff.on_exception(
@@ -151,5 +149,5 @@ def update_output_checking_issue(
             updates,
             github_error=github_error_msg,
         )
-    if comment_url is not None:
-        return comment_url
+
+    return comment_url
