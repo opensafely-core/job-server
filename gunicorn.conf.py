@@ -24,6 +24,9 @@ workers = 9
 port = 8000
 bind = "0.0.0.0"
 
+# request timeout - more than the default of 30 for slow API requests
+timeout = 40
+
 
 def post_fork(server, worker):
     # opentelemetry initialisation needs these env vars to be set, so ensure they are
