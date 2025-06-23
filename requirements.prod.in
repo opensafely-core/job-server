@@ -90,6 +90,9 @@ slack-sdk
 # Packages used in application code
 ###########################################################
 
+# For exponential backoff
+backoff
+
 # URL manipulation and building. Used pervasively.
 furl
 
