@@ -147,11 +147,12 @@ def test_update_output_checking_request(github_api, slack_messages):
         update_output_checking_issue(
             "01AAA1AAAAAAA1AAAAA11A1AAA",
             "workspace",
-            ["file added (filegroup 'Group 1') by user test"],
+            "- file added (filegroup 'Group 1') by user test",
             "ebmdatalab",
             "opensafely-output-review",
             github_api,
             notify_slack=False,
+            request_author=user,
         )
         == "http://example.com/issues/comment"
     )
@@ -177,7 +178,7 @@ def test_update_output_checking_request_with_slack_notification(
         update_output_checking_issue(
             "01",
             "workspace",
-            ["request resubmitted by user test"],
+            "- request resubmitted by user test",
             "ebmdatalab",
             "opensafely-output-review",
             github_api,
