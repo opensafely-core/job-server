@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
 from jobserver.github import _get_github_api
-from jobserver.models import JobRequest, Stats, User, Workspace
+from jobserver.models import Job, JobRequest, Stats, User, Workspace
 
 
 COMPLETED_STATES = {"failed", "succeeded"}
@@ -271,9 +271,20 @@ class JobRequestAPIList(ListAPIView):
         return response
 
     def get_queryset(self):
+        active_job_request_ids = (
+            Job.objects.filter(status__in=["pending", "running"])
+            .values_list("job_request_id")
+            .distinct()
+        )
+        # A job request is acknowledged by the RAP Controller when it has at least one
+        # job created for it
+        acknowledged_job_request_ids = (
+            Job.objects.all().values_list("job_request_id").distinct()
+        )
         qs = (
             JobRequest.objects.filter(
-                Q(jobs__status__in=["pending", "running"]) | Q(jobs=None),
+                Q(id__in=active_job_request_ids)
+                | ~Q(id__in=acknowledged_job_request_ids),
             )
             .select_related(
                 "backend",
@@ -285,7 +296,6 @@ class JobRequestAPIList(ListAPIView):
             )
             .prefetch_related("workspace__project__orgs")
             .order_by("-created_at")
-            .distinct()
         )
 
         backend_slug = getattr(self.backend, "slug", None)
