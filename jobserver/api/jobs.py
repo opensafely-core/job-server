@@ -175,12 +175,11 @@ class JobAPIUpdate(APIView):
                         setattr(job, key, value)
                     job.save()
 
-                # round trip the Job to the db so all fields are converted to
-                # their python representations
-                job.refresh_from_db()
-
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:
+                    # round trip the Job to the db so all fields are converted to their
+                    # python representations as expected by the notification code
+                    job.refresh_from_db()
                     handle_job_notifications(job_request, job)
 
         logger.info(
