@@ -220,5 +220,5 @@ def test_update_output_checking_issue_retry_error_and_success():
             notify_slack=False,
             request_author=user,
         )
-    mock_create_issue_comment.call_count == 3
+    assert mock_create_issue_comment.call_count == 3
     assert mock_update_issue == "http://example.com/issues/comment"
