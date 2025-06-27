@@ -236,7 +236,7 @@ def test_update_output_checking_request_with_slack_notification(
     ]
 
 
-def test_create_output_checking_issue_retry_error_and_success():
+def test_update_output_checking_issue_retry_error_and_success():
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     workspace = WorkspaceFactory(name="test-workspace")
@@ -250,7 +250,7 @@ def test_create_output_checking_issue_retry_error_and_success():
             GitHubError,
             {"html_url": "http://example.com/issues/comment"},
         ]
-        mock_issue = update_output_checking_issue(
+        mock_update_issue = update_output_checking_issue(
             "01AAA1AAAAAAA1AAAAA11A1AAA",
             workspace,
             "- file added (filegroup 'Group 1') by user test",
@@ -261,4 +261,4 @@ def test_create_output_checking_issue_retry_error_and_success():
             request_author=user,
         )
     mock_create_issue_comment.call_count == 3
-    assert mock_issue == "http://example.com/issues/comment"
+    assert mock_update_issue == "http://example.com/issues/comment"
