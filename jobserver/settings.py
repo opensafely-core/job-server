@@ -432,6 +432,7 @@ DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = env.str(
 DEFAULT_OUTPUT_CHECKING_REPO = env.str(
     "DEFAULT_OUTPUT_CHECKING_REPO", "opensafely-output-review"
 )
+DEFAULT_MAX_GITHUB_RETRIES = env.int("DEFAULT_MAX_GITHUB_RETRIES", default=3)
 
 # These orgs are not copiloted
 BENNETT_ORG_PK = 3
