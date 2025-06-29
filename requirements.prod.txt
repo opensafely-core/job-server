@@ -426,9 +426,9 @@ django-extensions==4.1 \
     --hash=sha256:0699a7af28f2523bf8db309a80278519362cd4b6e1fd0a8cd4bf063e1e023336 \
     --hash=sha256:7b70a4d28e9b840f44694e3f7feb54f55d495f8b3fa6c5c0e5e12bcb2aa3cdeb
     # via -r requirements.prod.in
-django-htmx==1.23.1 \
-    --hash=sha256:45febb80d2e85ee1da01dca61429d6f835ef176949cda4ecc5ae2e729d2ff53d \
-    --hash=sha256:6a23ee1e74f54a28eca4ccb48191a585529fbad5cbd5b5c3d8ec1a16b8557090
+django-htmx==1.23.2 \
+    --hash=sha256:65a8c8825fcae983b94aedce26af96a70717ab185d55cdb8a7a4bb68863ab079 \
+    --hash=sha256:c288fe92bdcfa7c2ed9665d6d23cc55c6693a7cc8d22cf0a01e1e38318874030
     # via -r requirements.prod.in
 django-ipware==7.0.1 \
     --hash=sha256:d9ec43d2bf7cdf216fed8d494a084deb5761a54860a53b2e74346a4f384cff47 \
@@ -704,9 +704,9 @@ pyjwt==2.10.1 \
     --hash=sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953 \
     --hash=sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb
     # via social-auth-core
-python-dotenv==1.1.0 \
-    --hash=sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5 \
-    --hash=sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d
+python-dotenv==1.1.1 \
+    --hash=sha256:31f23644fe2602f88ff55e1f5c79ba497e01224ee7737937930c448e4d0e24dc \
+    --hash=sha256:a8a6399716257f45be6a007360200409fce5cda2661e3dec71d23dc15f6189ab
     # via environs
 python-ipware==3.0.0 \
     --hash=sha256:9117b1c4dddcb5d5ca49e6a9617de2fc66aec2ef35394563ac4eecabdf58c062 \
@@ -792,9 +792,9 @@ ruyaml==0.91.0 \
     --hash=sha256:50e0ee3389c77ad340e209472e0effd41ae0275246df00cdad0a067532171755 \
     --hash=sha256:6ce9de9f4d082d696d3bde264664d1bcdca8f5a9dff9d1a1f1a127969ab871ab
     # via opensafely-pipeline
-sentry-sdk==2.30.0 \
-    --hash=sha256:436369b02afef7430efb10300a344fb61a11fe6db41c2b11f41ee037d2dd7f45 \
-    --hash=sha256:59391db1550662f746ea09b483806a631c3ae38d6340804a1a4c0605044f6877
+sentry-sdk==2.32.0 \
+    --hash=sha256:6cf51521b099562d7ce3606da928c473643abe99b00ce4cb5626ea735f4ec345 \
+    --hash=sha256:9016c75d9316b0f6921ac14c8cd4fb938f26002430ac5be9945ab280f78bec6b
     # via -r requirements.prod.in
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
@@ -810,13 +810,13 @@ slippers==0.6.2 \
     --hash=sha256:4cb555b8822ba0d404e5405723f5d723994022c29046008ee917081031bc0cf1 \
     --hash=sha256:739e05f85354becbf0a65daab831eea62557d89e7512042209ab629af4378bca
     # via -r requirements.prod.in
-social-auth-app-django==5.4.3 \
-    --hash=sha256:d1f4286d5ca1e512c9b2f686e7ecb2a0128148f1a33d853b69dc07b58508362e \
-    --hash=sha256:db70b972faeb10ee1ec83d0dc7dbd0558d5f5830417bba317b712b10ff58d031
+social-auth-app-django==5.5.1 \
+    --hash=sha256:7a6aac52686b9703af57ad1f5935c55fb97404988067e94c4fa32143bc6a02a5 \
+    --hash=sha256:a1435c17227d07d690b06cca54ea47d4ed939de4749dac45dd4393c8a98dac17
     # via -r requirements.prod.in
-social-auth-core==4.6.1 \
-    --hash=sha256:1019fe2f7fe30f9ff7d15c04a32c15324ecdbd59f62fbe829031dab74071a21a \
-    --hash=sha256:563510844ccc043a727b120fe57726860c93158d4304fafa2c1e122f2deb4fd3
+social-auth-core==4.7.0 \
+    --hash=sha256:2bba127c7b7166a81085ddb0c248d93751b3bc3cdab8569f62d9f70c6bc4ed40 \
+    --hash=sha256:9eef9b49c332d1a3265b37dcc698a7ace97c3fc59df2d874b51576d11d31f6a6
     # via
     #   -r requirements.prod.in
     #   social-auth-app-django
