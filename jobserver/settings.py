@@ -264,6 +264,7 @@ MESSAGE_TAGS = {
 SILENCED_SYSTEM_CHECKS = [
     "security.W004",  # (SECURE_HSTS_SECONDS) TLS is handled by Nginx
     "security.W008",  # (SECURE_SSL_REDIRECT) HTTPS redirection is handled by CloudFlare
+    "security.W019",  # (X_FRAME_OPTIONS) Set to SAMEORIGIN to allow iframe elements in the outputs viewer
 ]
 
 # Security
