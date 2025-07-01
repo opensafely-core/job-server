@@ -1,7 +1,7 @@
 {% extends "emails/base.html" %}
 
 {% block content %}
-<p>Dear {{ request_author }},</p>
-<p>Release request {{ release_request_id }} for {{ workspace }} has been updated. The following updates have been made:</p>
-{% include "airlock/emails/includes/updates.html" %}
+  <p>Dear {{ request_author }},</p>
+  <p>Release request {{ release_request_id }} for {{ workspace }} has been updated. The following updates have been made:</p>
+  {% include "airlock/emails/includes/updates.html" %}
 {% endblock content %}
