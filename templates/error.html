@@ -1,33 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="min-h-full px-4 py-16 sm:px-6 sm:py-24 md:grid md:place-items-center lg:px-8">
-  <div class="flex flex-col gap-x-4 sm:flex-row">
-    <p class="text-left text-4xl font-extrabold text-oxford-600 mb-2 sm:mb-0 sm:text-5xl sm:text-right" aria-hidden="true">
-      {{ error_code }}
-    </p>
-    <div class="flex flex-col">
-      <div class="sm:border-l-2 sm:border-slate-300 sm:pl-4">
-        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
-          <span class="sr-only">
-            {{ error_code }}
-          </span>
-          {{ error_name }}
-        </h1>
-        <p class="mt-2 text-slate-600">
-          {{ error_message }}
-        </p>
-      </div>
-      <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:pl-4">
-        {% url 'home' as home_url %}
-        {% #button href=home_url type="link" variant="primary" %}
-          Go to the home page
-        {% /button %}
-        {% #button href="mailto:tech@opensafely.org" type="link" variant="secondary" %}
-          Contact support
-        {% /button %}
+  <div class="min-h-full px-4 py-16 sm:px-6 sm:py-24 md:grid md:place-items-center lg:px-8">
+    <div class="flex flex-col gap-x-4 sm:flex-row">
+      <p class="text-left text-4xl font-extrabold text-oxford-600 mb-2 sm:mb-0 sm:text-5xl sm:text-right" aria-hidden="true">
+        {{ error_code }}
+      </p>
+      <div class="flex flex-col">
+        <div class="sm:border-l-2 sm:border-slate-300 sm:pl-4">
+          <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
+            <span class="sr-only">
+              {{ error_code }}
+            </span>
+            {{ error_name }}
+          </h1>
+          <p class="mt-2 text-slate-600">
+            {{ error_message }}
+          </p>
+        </div>
+        <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:pl-4">
+          {% url 'home' as home_url %}
+          {% #button href=home_url type="link" variant="primary" %}
+            Go to the home page
+          {% /button %}
+          {% #button href="mailto:tech@opensafely.org" type="link" variant="secondary" %}
+            Contact support
+          {% /button %}
+        </div>
       </div>
     </div>
   </div>
-</div>
 {% endblock %}

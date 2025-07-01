@@ -5,47 +5,47 @@
 {% block metatitle %}Apply for research access to OpenSAFELY | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% url "home" as home_url %}
-{% url "applications:list" as applications_url %}
-{% url "applications:start" as start_url %}
+  {% url "home" as home_url %}
+  {% url "applications:list" as applications_url %}
+  {% url "applications:start" as start_url %}
 
-{% #breadcrumbs %}
-  {% breadcrumb title="Home" url=home_url %}
-  {% breadcrumb title="Applications" url=applications_url %}
-  {% breadcrumb title="Apply for research access to OpenSAFELY" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Applications" url=applications_url %}
+    {% breadcrumb title="Apply for research access to OpenSAFELY" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
-{% #article_header title="Apply for research access to OpenSAFELY" %}
-  <p class="text-lg text-slate-700 max-w-3xl">
-    This form is for researchers requesting access to the
-    {% link append_after="," text="OpenSAFELY-EMIS/-TPP COVID-19 research platform" href="https://www.england.nhs.uk/contact-us/privacy-notice/how-we-use-your-information/covid-19-response/coronavirus-covid-19-research-platform/" %}
-    which has been established by NHS England and NHSX; NHS England is
-    the data controller. One lead applicant — the application owner —
-    should complete this form on behalf of their research team.
-  </p>
-  <div>
-    {% url 'applications:list' as existing_url %}
-    {% #button variant="primary" type="link" href=existing_url %}
-      Continue an existing application
+  {% #article_header title="Apply for research access to OpenSAFELY" %}
+    <p class="text-lg text-slate-700 max-w-3xl">
+      This form is for researchers requesting access to the
+      {% link append_after="," text="OpenSAFELY-EMIS/-TPP COVID-19 research platform" href="https://www.england.nhs.uk/contact-us/privacy-notice/how-we-use-your-information/covid-19-response/coronavirus-covid-19-research-platform/" %}
+      which has been established by NHS England and NHSX; NHS England is
+      the data controller. One lead applicant — the application owner —
+      should complete this form on behalf of their research team.
+    </p>
+    <div>
+      {% url 'applications:list' as existing_url %}
+      {% #button variant="primary" type="link" href=existing_url %}
+        Continue an existing application
+      {% /button %}
+    </div>
+  {% /article_header %}
+
+  {% #card class="max-w-3xl mt-6 pb-6" container=True %}
+    <div class="prose prose-oxford mb-6" id="applicationForm">
+      {% snippet "start_page" %}
+    </div>
+
+    {% if request.user.is_authenticated %}
+      {% url 'applications:terms' as start_url %}
+    {% else %}
+      {% url 'applications:sign-in' as start_url %}
+    {% endif %}
+
+    {% #button variant="success" type="link" href=start_url %}
+      Start now
     {% /button %}
-  </div>
-{% /article_header %}
-
-{% #card class="max-w-3xl mt-6 pb-6" container=True %}
-  <div class="prose prose-oxford mb-6" id="applicationForm">
-    {% snippet "start_page" %}
-  </div>
-
-  {% if request.user.is_authenticated %}
-    {% url 'applications:terms' as start_url %}
-  {% else %}
-    {% url 'applications:sign-in' as start_url %}
-  {% endif %}
-
-  {% #button variant="success" type="link" href=start_url %}
-    Start now
-  {% /button %}
-{% /card %}
+  {% /card %}
 {% endblock %}

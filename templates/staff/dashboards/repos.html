@@ -110,18 +110,18 @@
             {% for repo in repos %}
               {% #table_row class="even:bg-slate-50" %}
                 {% #table_cell %}
-                <a href="{% url 'staff:repo-detail' repo_url=repo.quoted_url %}">{{ repo.name }}</a>
+                  <a href="{% url 'staff:repo-detail' repo_url=repo.quoted_url %}">{{ repo.name }}</a>
                 {% /table_cell %}
                 {% #table_cell %}
-                    <details class="group">
-                      <summary class="cursor-pointer">
-                        <span class="inline group-open:hidden">Show</span>
-                        <span class="hidden group-open:inline">Hide</span>
+                  <details class="group">
+                    <summary class="cursor-pointer">
+                      <span class="inline group-open:hidden">Show</span>
+                      <span class="hidden group-open:inline">Hide</span>
                       {{ repo.projects|length }} projects
                     </summary>
                     <ul class="list-disc mt-1 pl-2 ml-2">
                       {% for project in repo.projects %}
-                      <li><a href="{{ project.get_staff_url }}">{{ project.name }}</a></li>
+                        <li><a href="{{ project.get_staff_url }}">{{ project.name }}</a></li>
                       {% endfor %}
                     </ul>
                   </details>
@@ -142,7 +142,7 @@
                       </summary>
                       <ul class="list-disc mt-1 pl-2 ml-2">
                         {% for workspace in repo.workspaces %}
-                        <li><a href="{{ workspace.get_staff_url }}">{{ workspace.name }}</a></li>
+                          <li><a href="{{ workspace.get_staff_url }}">{{ workspace.name }}</a></li>
                         {% endfor %}
                       </ul>
                     </details>
