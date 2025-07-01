@@ -18,38 +18,38 @@
 {% endblock hero %}
 
 {% block content %}
-<form method="POST">
-  {% csrf_token %}
+  <form method="POST">
+    {% csrf_token %}
 
-  {% #card title="Organisations" class="max-w-3xl" container=True %}
-    {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
-        {% #alert variant="danger" class="mb-6" %}
-          {{ error }}
-        {% /alert %}
-      {% endfor %}
-    {% endif %}
-
-    <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
-      {% #form_fieldset %}
-        {% form_legend text="Select the orgs this user has access to" %}
-
-        {% for value, label in form.orgs.field.choices %}
-          {% with id=forloop.counter0|stringformat:"s" %}
-            {% if value in form.orgs.value %}
-              {% var checked=True %}
-            {% else %}
-              {% var checked=False %}
-            {% endif %}
-            {% form_checkbox custom_field=True name="orgs" id="id_orgs_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
-          {% endwith %}
+    {% #card title="Organisations" class="max-w-3xl" container=True %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
         {% endfor %}
-      {% /form_fieldset %}
-    </div>
+      {% endif %}
 
-    {% #button variant="success" type="submit" %}
-      Update
-    {% /button %}
-  {% /card %}
-</form>
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+        {% #form_fieldset %}
+          {% form_legend text="Select the orgs this user has access to" %}
+
+          {% for value, label in form.orgs.field.choices %}
+            {% with id=forloop.counter0|stringformat:"s" %}
+              {% if value in form.orgs.value %}
+                {% var checked=True %}
+              {% else %}
+                {% var checked=False %}
+              {% endif %}
+              {% form_checkbox custom_field=True name="orgs" id="id_orgs_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+            {% endwith %}
+          {% endfor %}
+        {% /form_fieldset %}
+      </div>
+
+      {% #button variant="success" type="submit" %}
+        Update
+      {% /button %}
+    {% /card %}
+  </form>
 {% endblock content %}

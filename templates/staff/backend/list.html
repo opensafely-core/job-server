@@ -5,34 +5,34 @@
 {% block metatitle %}Backends: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% breadcrumb title="Staff area" url=staff_url %}
-  {% breadcrumb title="Backends" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Backends" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% #staff_hero title="Backends" %}
-  {% url "staff:backend-create" as staff_backend_create_url %}
-  {% #button variant="primary" type="link" href=staff_backend_create_url %}
-    Create a backend
-  {% /button %}
-{% /staff_hero %}
+  {% #staff_hero title="Backends" %}
+    {% url "staff:backend-create" as staff_backend_create_url %}
+    {% #button variant="primary" type="link" href=staff_backend_create_url %}
+      Create a backend
+    {% /button %}
+  {% /staff_hero %}
 {% endblock hero %}
 
 {% block content %}
-{% #card %}
-  {% #list_group %}
-    {% for backend in object_list %}
-      {% #list_group_item href=backend.get_staff_url %}
-        {{ backend.name }}
-      {% /list_group_item %}
-    {% endfor %}
-  {% /list_group %}
+  {% #card %}
+    {% #list_group %}
+      {% for backend in object_list %}
+        {% #list_group_item href=backend.get_staff_url %}
+          {{ backend.name }}
+        {% /list_group_item %}
+      {% endfor %}
+    {% /list_group %}
 
-  {% if page_obj.has_previous or page_obj.has_next %}
-    {% card_pagination page_obj=page_obj request=request no_container=True %}
-  {% endif %}
-{% /card %}
+    {% if page_obj.has_previous or page_obj.has_next %}
+      {% card_pagination page_obj=page_obj request=request no_container=True %}
+    {% endif %}
+  {% /card %}
 {% endblock content %}

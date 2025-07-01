@@ -13,66 +13,66 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% if object %}
-{% with staff_hero_title=object class="text-ellipsis" %}
-  {% #staff_hero title="Site alert" %}
-      <dl id="siteAlertInfo"class="text-sm">
-        <div class="flex flex-row gap-1">
-          <dt class="font-semibold">Title: </dt>
+  {% if object %}
+    {% with staff_hero_title=object class="text-ellipsis" %}
+      {% #staff_hero title="Site alert" %}
+        <dl id="siteAlertInfo"class="text-sm">
+          <div class="flex flex-row gap-1">
+            <dt class="font-semibold">Title: </dt>
             <dt class="text-ellipsis"/>
-              {{ object.title }}
-            </dt>
+            {{ object.title }}
           </dt>
+        </dt>
         </div>
         <div class="flex flex-row gap-1">
           <dt class="font-semibold">Message: </dt>
-            <dt class="text-ellipsis"/>
-              {{ object.message }}
-            </dt>
-          </dt>
+          <dt class="text-ellipsis"/>
+          {{ object.message }}
+        </dt>
+        </dt>
         </div>
-      <dl id="siteAlertInfo"class="text-sm">
-        <div class="flex flex-row gap-1">
-          <dt class="font-semibold">Level: </dt>
+        <dl id="siteAlertInfo"class="text-sm">
+          <div class="flex flex-row gap-1">
+            <dt class="font-semibold">Level: </dt>
             {% pill variant=object.level text=object.get_level_display class="self-start" %}
-        </div>
-        <div class="flex flex-row gap-1">
-          <dt class="font-semibold">Created by: </dt>
-          <dd>{{object.created_by.fullname}} at {{ object.created_at|date:"D, M j Y H:i" }}</dd>
-        </div>
-        <div class="flex flex-row gap-1">
-          <dt class="font-semibold">Updated by: </dt>
-        <dd>{{object.updated_by.fullname}} at {{ object.updated_at|date:"D, M j Y H:i" }}</dd>
-        </div>
-      </dl>
+          </div>
+          <div class="flex flex-row gap-1">
+            <dt class="font-semibold">Created by: </dt>
+            <dd>{{object.created_by.fullname}} at {{ object.created_at|date:"D, M j Y H:i" }}</dd>
+          </div>
+          <div class="flex flex-row gap-1">
+            <dt class="font-semibold">Updated by: </dt>
+            <dd>{{object.updated_by.fullname}} at {{ object.updated_at|date:"D, M j Y H:i" }}</dd>
+          </div>
+        </dl>
 
         {% #modal id="deleteSiteAlert" button_text="Delete" button_variant="danger" request=request %}
-            {% #card container=True title="Delete site alert?" %}
-              <dd class="mb-4">This cannot be undone.</dd>
-              <form method="POST" action="{{ object.delete_url }}">
-                {% csrf_token %}
+          {% #card container=True title="Delete site alert?" %}
+            <dd class="mb-4">This cannot be undone.</dd>
+            <form method="POST" action="{{ object.delete_url }}">
+              {% csrf_token %}
 
-                {% if form.non_field_errors %}
+              {% if form.non_field_errors %}
                 {% for error in form.non_field_errors %}
-                    {% #alert variant="danger" class="mb-6" %}
-                      {{ error }}
-                    {% /alert %}
+                  {% #alert variant="danger" class="mb-6" %}
+                    {{ error }}
+                  {% /alert %}
                 {% endfor %}
-                {% endif %}
+              {% endif %}
 
-                <div class="flex flex-row flex-wrap gap-2">
-                  {% #button variant="danger" type="submit" %}Confirm{% /button %}
-                  {% #button variant="info" type="cancel" %}Cancel{% /button %}
-                </div>
+              <div class="flex flex-row flex-wrap gap-2">
+                {% #button variant="danger" type="submit" %}Confirm{% /button %}
+                {% #button variant="info" type="cancel" %}Cancel{% /button %}
+              </div>
             </form>
-            {% /card %}
+          {% /card %}
         {% /modal %}
-  {% /staff_hero %}
-{% endwith %}
+      {% /staff_hero %}
+    {% endwith %}
 
-{% else %}
-  {% staff_hero title="New site alert" %}
-{% endif %}
+  {% else %}
+    {% staff_hero title="New site alert" %}
+  {% endif %}
 {% endblock hero %}
 
 

@@ -3,29 +3,29 @@
 {% block metatitle %}Sentry: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
-  {% breadcrumb title="Sentry" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
+    {% breadcrumb title="Sentry" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% staff_hero title="Sentry" text="A collection of views for manually testing events are sent to Sentry." %}
+  {% staff_hero title="Sentry" text="A collection of views for manually testing events are sent to Sentry." %}
 {% endblock hero %}
 
 {% block content %}
-{% #card %}
-  {% #list_group no_border=True %}
-    {% url "staff:sentry:error" as staff_sentry_error_url %}
-    {% #list_group_rich_item type="Sentry trigger" title="Error" url=staff_sentry_error_url %}
-      <p>Trigger an exception</p>
-    {% /list_group_rich_item %}
+  {% #card %}
+    {% #list_group no_border=True %}
+      {% url "staff:sentry:error" as staff_sentry_error_url %}
+      {% #list_group_rich_item type="Sentry trigger" title="Error" url=staff_sentry_error_url %}
+        <p>Trigger an exception</p>
+      {% /list_group_rich_item %}
 
-    {% url "staff:sentry:message" as staff_sentry_message_url %}
-    {% #list_group_rich_item type="Sentry trigger" title="Message" url=staff_sentry_message_url %}
-      <p>Send a message to Sentry</p>
-    {% /list_group_rich_item %}
-  {% /list_group %}
-{% /card %}
+      {% url "staff:sentry:message" as staff_sentry_message_url %}
+      {% #list_group_rich_item type="Sentry trigger" title="Message" url=staff_sentry_message_url %}
+        <p>Send a message to Sentry</p>
+      {% /list_group_rich_item %}
+    {% /list_group %}
+  {% /card %}
 {% endblock content %}

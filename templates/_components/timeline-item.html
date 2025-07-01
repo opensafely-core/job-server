@@ -6,23 +6,23 @@
   {% endif %}
   <div class="relative flex space-x-3">
     <span class="h-8 w-8 rounded-full flex items-center justify-center
-      {% if background == "blue" %}
-        bg-oxford-400
-      {% elif background == "purple" %}
-        bg-bn-roman-500
-      {% elif background == "green" %}
-        bg-green-500
-      {% elif background == "yellow" %}
-        bg-bn-flamenco-400
-      {% elif background == "pink" %}
-        bg-bn-ribbon-400
-      {% elif background == "stone" %}
-        bg-stone-500
-      {% elif background == "slate" %}
-        bg-slate-500
-      {% endif %}
-      text-white
-    ">
+                 {% if background == "blue" %}
+                   bg-oxford-400
+                 {% elif background == "purple" %}
+                   bg-bn-roman-500
+                 {% elif background == "green" %}
+                   bg-green-500
+                 {% elif background == "yellow" %}
+                   bg-bn-flamenco-400
+                 {% elif background == "pink" %}
+                   bg-bn-ribbon-400
+                 {% elif background == "stone" %}
+                   bg-stone-500
+                 {% elif background == "slate" %}
+                   bg-slate-500
+                 {% endif %}
+                 text-white
+                ">
       {{ children }}
     </span>
     <div class="min-w-0 flex-1 flex justify-between space-x-4">

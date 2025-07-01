@@ -3,7 +3,7 @@
     {{ custom_button }}
   {% else %}
     {% #button class=button_class|default:"shrink-0" small=button_small|default:False variant=button_variant|default:"primary" tooltip=button_tooltip data-modal=id %}
-    {{ button_text }}
+      {{ button_text }}
     {% /button %}
   {% endif %}
 
@@ -30,7 +30,7 @@
 
   // useful for loading and imediately showing modals over htmx
   {% if autoshow %}
-  modal.showModal();
+    modal.showModal();
   {% endif %}
 
 </script>
