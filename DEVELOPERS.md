@@ -244,6 +244,7 @@ In that situation you can follow the steps below to set up your local copy of th
 
 1. Click on your avatar in the top right-hand corner of the site to access the Staff Area from the dropdown menu
 1. First, create a Backend – you do not need to enter a Level 4 URL
+1. In the User section of the Staff Area, give your user access to the new Backend
 1. Then create an Organisation
 1. Within your Organisation, add yourself as a Member
 1. Click on Account in the header, then Applications, then start a new application
