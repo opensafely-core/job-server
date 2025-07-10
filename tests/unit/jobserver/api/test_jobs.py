@@ -27,7 +27,6 @@ from tests.factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from tests.fakes import FakeGitHubAPI
 from tests.utils import minutes_ago, seconds_ago
 
 
@@ -187,7 +186,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
 
@@ -271,7 +270,7 @@ def test_jobapiupdate_all_new(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
     assert Job.objects.count() == 3
@@ -287,7 +286,7 @@ def test_jobapiupdate_invalid_payload(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     assert Job.objects.count() == 0
 
@@ -299,7 +298,7 @@ def test_jobapiupdate_invalid_payload(api_rf):
 
 def test_jobapiupdate_is_behind_auth(api_rf):
     request = api_rf.post("/")
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 403, response.data
 
@@ -362,7 +361,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
 
@@ -423,7 +422,7 @@ def test_jobapiupdate_notifications_on_with_move_to_succeeded(api_rf, mocker):
         format="json",
     )
 
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_called_once()
     assert response.status_code == 200
@@ -462,7 +461,7 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
         format="json",
     )
 
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     mocked_send_finished.assert_not_called()
     assert response.status_code == 200
@@ -495,7 +494,7 @@ def test_jobapiupdate_post_job_request_error(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
     assert Job.objects.count() == 1
@@ -506,27 +505,19 @@ def test_jobapiupdate_post_only(api_rf):
 
     # GET
     request = api_rf.get("/", headers={"authorization": backend.auth_token})
-    assert (
-        JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
-    )
+    assert JobAPIUpdate.as_view()(request).status_code == 405
 
     # HEAD
     request = api_rf.head("/", headers={"authorization": backend.auth_token})
-    assert (
-        JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
-    )
+    assert JobAPIUpdate.as_view()(request).status_code == 405
 
     # PATCH
     request = api_rf.patch("/", headers={"authorization": backend.auth_token})
-    assert (
-        JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
-    )
+    assert JobAPIUpdate.as_view()(request).status_code == 405
 
     # PUT
     request = api_rf.put("/", headers={"authorization": backend.auth_token})
-    assert (
-        JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
-    )
+    assert JobAPIUpdate.as_view()(request).status_code == 405
 
 
 @pytest.mark.parametrize(
@@ -561,14 +552,14 @@ def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     request_1 = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request_1)
+    JobAPIUpdate.as_view()(request_1)
 
     data[0]["status"] = "failed"
     data[0]["status_message"] = error_message
     request_2 = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request_2)
+    response = JobAPIUpdate.as_view()(request_2)
 
     assert response.status_code == 200, response.data
 
@@ -613,7 +604,7 @@ def test_jobapiupdate_post_with_flags(api_rf):
             "flags": flags,
         },
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
     assert Job.objects.count() == 1
@@ -647,7 +638,7 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+    response = JobAPIUpdate.as_view()(request)
 
     # Jobs associated with unknown requests should be ignored
     assert response.status_code == 200, response.data

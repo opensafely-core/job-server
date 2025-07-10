@@ -14,7 +14,6 @@ from rest_framework.views import APIView
 
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
-from jobserver.github import _get_github_api
 from jobserver.models import Job, JobRequest, Stats, User, Workspace
 
 
@@ -66,7 +65,6 @@ def update_backend_state(backend, request):
 
 class JobAPIUpdate(APIView):
     authentication_classes = [SessionAuthentication]
-    get_github_api = staticmethod(_get_github_api)
 
     class serializer_class(serializers.Serializer):
         job_request_id = serializers.CharField()
