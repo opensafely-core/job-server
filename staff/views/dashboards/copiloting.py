@@ -79,7 +79,7 @@ def build_repos_by_project(projects, get_github_api=_get_github_api):
 
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
-@method_decorator(csp_exempt, name="dispatch")
+@method_decorator(csp_exempt(), name="dispatch")
 class Copiloting(TemplateView):
     get_github_api = staticmethod(_get_github_api)
     template_name = "staff/dashboards/copiloting.html"
