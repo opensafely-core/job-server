@@ -66,6 +66,7 @@ class JobAPIUpdate(APIView):
     authentication_classes = [SessionAuthentication]
 
     class serializer_class(serializers.Serializer):
+        # Note job_request_id maps to JobRequest.identifier, not JobRequest.id
         job_request_id = serializers.CharField()
         identifier = serializers.CharField()
         action = serializers.CharField(allow_blank=True)
