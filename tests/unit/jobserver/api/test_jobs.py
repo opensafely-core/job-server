@@ -276,6 +276,80 @@ def test_jobapiupdate_all_new(api_rf):
     assert Job.objects.count() == 3
 
 
+def test_jobapiupdate_two_jobrequests(api_rf):
+    """Test that posting a Jobs update with three new jobs from two distinct
+    Job Requests, interleaved, results in all three Job objects being updated
+    and associated with the correct Job Request."""
+    backend = BackendFactory()
+    job_requests = (JobRequestFactory(), JobRequestFactory())
+
+    now = timezone.now()
+
+    assert Job.objects.count() == 0
+
+    data = [
+        {
+            "identifier": "job1",
+            "job_request_id": job_requests[0].identifier,
+            "action": "test-action",
+            "run_command": "do-research",
+            "status": "running",
+            "status_code": "",
+            "status_message": "",
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
+            "completed_at": None,
+        },
+        {
+            "identifier": "job2",
+            "action": "test-action",
+            "run_command": "do-research",
+            "job_request_id": job_requests[1].identifier,
+            "status": "pending",
+            "status_code": "",
+            "status_message": "",
+            "created_at": minutes_ago(now, 2),
+            "updated_at": now,
+            "started_at": None,
+            "completed_at": None,
+        },
+        {
+            "identifier": "job3",
+            "job_request_id": job_requests[0].identifier,
+            "action": "test-action",
+            "run_command": "do-research",
+            "status": "running",
+            "status_code": "",
+            "status_message": "",
+            "created_at": minutes_ago(now, 2),
+            "started_at": None,
+            "updated_at": now,
+            "completed_at": None,
+        },
+    ]
+
+    request = api_rf.post(
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
+    )
+    response = JobAPIUpdate.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert Job.objects.count() == 3
+    assert (
+        Job.objects.filter(identifier="job1").first().job_request_id
+        == job_requests[0].id
+    )
+    assert (
+        Job.objects.filter(identifier="job2").first().job_request_id
+        == job_requests[1].id
+    )
+    assert (
+        Job.objects.filter(identifier="job3").first().job_request_id
+        == job_requests[0].id
+    )
+
+
 def test_jobapiupdate_invalid_payload(api_rf):
     backend = BackendFactory()
 
