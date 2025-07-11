@@ -17,6 +17,7 @@ from .emails import (
     send_request_returned_email,
 )
 from .issues import (
+    IssueStatusLabel,
     close_output_checking_issue,
     create_output_checking_issue,
     update_output_checking_issue,
@@ -36,6 +37,18 @@ class EventType(Enum):
     REQUEST_RESUBMITTED = "request resubmitted"
     REQUEST_PARTIALLY_REVIEWED = "request reviewed"
     REQUEST_REVIEWED = "request reviewed"
+
+    def status_label(self):
+        """The GitHub Issue label that should be added for this request"""
+        match self:
+            case EventType.REQUEST_SUBMITTED | EventType.REQUEST_RESUBMITTED:
+                return IssueStatusLabel.PENDING_REVIEW
+            case EventType.REQUEST_PARTIALLY_REVIEWED | EventType.REQUEST_REVIEWED:
+                return IssueStatusLabel.UNDER_REVIEW
+            case EventType.REQUEST_RETURNED:
+                return IssueStatusLabel.WITH_REQUESTER
+            case _:
+                return None
 
 
 @dataclass(frozen=True)
@@ -158,6 +171,7 @@ def update_issue(airlock_event: AirlockEvent, github_api=None, notify_slack=Fals
             airlock_event.repo,
             github_api,
             notify_slack=notify_slack,
+            label=airlock_event.event_type.status_label(),
         )
     except GitHubError as e:
         raise NotificationError(f"Error creating GitHub issue comment: {e}")

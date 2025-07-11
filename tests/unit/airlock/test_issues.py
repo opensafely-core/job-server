@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from airlock.issues import (
+    IssueStatusLabel,
     close_output_checking_issue,
     create_output_checking_issue,
     update_output_checking_issue,
@@ -31,7 +32,7 @@ def test_create_output_checking_request_external(github_api):
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
-    assert issue.labels == ["external"]
+    assert set(issue.labels) == {"external", IssueStatusLabel.PENDING_REVIEW.value}
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -63,7 +64,7 @@ def test_create_output_checking_request_internal(github_api):
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
-    assert issue.labels == ["internal"]
+    assert set(issue.labels) == {"internal", IssueStatusLabel.PENDING_REVIEW.value}
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -99,10 +100,18 @@ def test_create_output_checking_request_no_label_matches(github_api):
 
     # the default label is "external", but it doesn't exist for this repo
     # so we just ignore it
-    assert issue.labels == []
+    assert issue.labels == [IssueStatusLabel.PENDING_REVIEW.value]
     assert issue.org == "ebmdatalab"
     assert issue.repo == "repo-without-internal-external-labels"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
+    # new labels (github_abi fixture returns just [] for the repo's labels)
+    assert len(github_api.labels) == 3
+    new_labels = {label.label_name for label in github_api.labels}
+    assert new_labels == {
+        IssueStatusLabel.PENDING_REVIEW.value,
+        IssueStatusLabel.UNDER_REVIEW.value,
+        IssueStatusLabel.WITH_REQUESTER.value,
+    }
 
 
 def test_close_output_checking_request(github_api):
@@ -127,6 +136,9 @@ def test_close_output_checking_request(github_api):
     assert issue.repo == "opensafely-output-review"
     assert issue.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
     assert issue.comment == f"Issue closed: Closed for reasons by {user.username}"
+    # status labels have been removed, but other remain
+    # (github api fixture always returns ["internal", "Under review"] for issue labels)
+    assert issue.labels == ["internal"]
 
     comment = next(c for c in github_api.comments if c)  # pragma: no branch
     assert comment.org == "ebmdatalab"
@@ -148,6 +160,7 @@ def test_update_output_checking_request(github_api, slack_messages):
             "opensafely-output-review",
             github_api,
             notify_slack=False,
+            label=IssueStatusLabel.WITH_REQUESTER,
         )
         == "http://example.com/issues/comment"
     )
@@ -160,7 +173,33 @@ def test_update_output_checking_request(github_api, slack_messages):
         comment.body
         == "Release request updated:\n- file added (filegroup 'Group 1') by user test"
     )
+    assert set(comment.labels) == {"internal", IssueStatusLabel.WITH_REQUESTER.value}
     assert slack_messages == []
+
+
+def test_update_output_checking_request_no_label(github_api, slack_messages):
+    org = OrgFactory(pk=settings.BENNETT_ORG_PK)
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+    assert (
+        update_output_checking_issue(
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            "workspace",
+            ["request approved by user test"],
+            "ebmdatalab",
+            "opensafely-output-review",
+            github_api,
+            notify_slack=False,
+            label=None,
+        )
+        == "http://example.com/issues/comment"
+    )
+
+    comment = next(c for c in github_api.comments if c)  # pragma: no branch
+    assert comment.org == "ebmdatalab"
+    assert comment.repo == "opensafely-output-review"
+    assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
+    assert set(comment.labels) == {"internal"}
 
 
 def test_update_output_checking_request_with_slack_notification(
@@ -178,6 +217,7 @@ def test_update_output_checking_request_with_slack_notification(
             "opensafely-output-review",
             github_api,
             notify_slack=True,
+            label=IssueStatusLabel.PENDING_REVIEW,
         )
         == "http://example.com/issues/comment"
     )

@@ -59,6 +59,10 @@ class RepoNotYetCreated(HTTPError):
     """Tried to delete a repo that did not already exist."""
 
 
+class LabelAlreadyExists(HTTPError):
+    """Tried to create a label that already existed."""
+
+
 class GitHubAPI:
     """
     A thin wrapper around requests, furl, and the GitHub API.
@@ -237,6 +241,7 @@ class GitHubAPI:
             print(f"Title: {title}")
             print("Message:")
             print(body)
+            print(f"Labels: {labels}")
             print("")
             return {"html_url": "http://example.com"}
         path_segments = [
@@ -305,7 +310,7 @@ class GitHubAPI:
             return items[0]["number"]
 
     def create_issue_comment(
-        self, org, repo, title_text, body, latest=True, issue_number=None
+        self, org, repo, title_text, body, latest=True, issue_number=None, labels=None
     ):
         if settings.DEBUG:  # pragma: no cover
             logger.info(
@@ -320,6 +325,7 @@ class GitHubAPI:
             print(f"Title text: {title_text}")
             print("Comment:")
             print(body)
+            print(f"Labels: {labels}")
             print("")
             return {"html_url": "http://example.com/issues/comment"}
 
@@ -342,11 +348,21 @@ class GitHubAPI:
 
         self._raise_for_status(r)
 
+        if labels is not None:
+            self._update_issue(org, repo, issue_number, labels=labels)
+
         return r.json()
 
-    def _change_issue_state(self, org, repo, issue_number, to_state):
+    def _update_issue(self, org, repo, issue_number, to_state=None, labels=None):
         path_segments = ["repos", org, repo, "issues", issue_number]
-        payload = {"state": to_state}
+        payload = {}
+        if to_state is not None:
+            payload["state"] = to_state
+        if labels is not None:
+            # labels is a list of labels to REPLACE this issue's current labels
+            # Note that if we're adding labels, we need to include any current ones, otherwise
+            # they will be removed. Pass an empty list to clear all labels.
+            payload["labels"] = labels
         headers = {
             "Accept": "application/vnd.github.v3+json",
         }
@@ -355,7 +371,16 @@ class GitHubAPI:
 
         self._raise_for_status(r)
 
-    def close_issue(self, org, repo, title_text, comment=None, latest=True):
+    def close_issue(
+        self,
+        org,
+        repo,
+        title_text,
+        comment=None,
+        latest=True,
+        issue_number=None,
+        labels=None,
+    ):
         if settings.DEBUG:  # pragma: no cover
             logger.info(
                 "Issue closed",
@@ -367,13 +392,17 @@ class GitHubAPI:
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
+            print(f"Labels: {labels}")
             print("")
             return {"html_url": "http://example.com/issues/closed"}
 
-        issue_number = self.get_issue_number_from_title(
-            org, repo, title_text, latest, state="open"
+        if issue_number is None:
+            issue_number = self.get_issue_number_from_title(
+                org, repo, title_text, latest, state="open"
+            )
+        r = self._update_issue(
+            org, repo, issue_number, to_state="closed", labels=labels
         )
-        r = self._change_issue_state(org, repo, issue_number, "closed")
 
         path_segments = ["repos", org, repo, "issues", issue_number]
         url = self._url(path_segments)
@@ -395,6 +424,18 @@ class GitHubAPI:
             )
 
         return r.json()
+
+    def get_issue_labels(self, org, repo, issue_number):
+        path_segments = ["repos", org, repo, "issues", issue_number, "labels"]
+        url = self._url(path_segments)
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        r.raise_for_status()
+
+        return [label["name"] for label in r.json()]
 
     def create_repo(self, org, repo):
         path_segments = [
@@ -591,6 +632,37 @@ class GitHubAPI:
         self._raise_for_status(r)
 
         return [label["name"] for label in r.json()]
+
+    def create_label(self, org, repo, label_name):
+        """Create a label for this repo"""
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "labels",
+        ]
+        payload = {"name": label_name}
+
+        if settings.DEBUG:  # pragma: no cover
+            logger.info("Label created", name=label_name)
+            print("")
+            print(f"Repo: https://github.com/{org}/{repo}/")
+            print(f"Label: {label_name}")
+            print("")
+            return {"name": label_name}
+
+        url = self._url(path_segments)
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+
+        r = self._post(url, headers=headers, json=payload)
+        if r.status_code == 422:
+            raise LabelAlreadyExists()
+
+        self._raise_for_status(r)
+
+        return r.json()
 
     def get_repos_with_branches(self, org):
         """
