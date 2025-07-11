@@ -1,7 +1,8 @@
+import stamina
 from django.conf import settings
 from furl import furl
 
-from jobserver.github import GitHubError
+from jobserver.github import GitHubError, IssueNotFound
 from jobserver.utils import strip_whitespace
 
 from .slack import post_slack_update
@@ -11,6 +12,11 @@ def get_issue_title(workspace_name, release_request_id):
     return f"{workspace_name} {release_request_id}"
 
 
+def get_github_max_retry():
+    return settings.DEFAULT_MAX_GITHUB_RETRIES
+
+
+@stamina.retry(on=GitHubError, attempts=get_github_max_retry(), wait_jitter=1.0)
 def create_output_checking_issue(
     workspace, release_request_id, request_author, org, repo, github_api
 ):
@@ -51,6 +57,7 @@ def create_output_checking_issue(
     return data["html_url"]
 
 
+@stamina.retry(on=GitHubError, attempts=get_github_max_retry(), wait_jitter=1.0)
 def close_output_checking_issue(
     release_request_id, user, reason, org, repo, github_api
 ):
@@ -64,13 +71,23 @@ def close_output_checking_issue(
     return data["html_url"]
 
 
-def update_output_checking_issue(
-    release_request_id, workspace_name, updates, org, repo, github_api, notify_slack
+@stamina.retry(
+    on=(IssueNotFound, GitHubError), attempts=get_github_max_retry(), wait_jitter=1.0
+)
+def _update_output_checking_issue(
+    release_request_id,
+    workspace_name,
+    updates,
+    org,
+    repo,
+    github_api,
+    notify_slack,
+    request_author,
 ):
-    updates_string = "\n".join([f"- {update}" for update in updates])
-    body = f"Release request updated:\n{updates_string}"
+    body = f"Release request updated:\n{updates}"
 
     github_error_msg = None
+
     try:
         data = github_api.create_issue_comment(
             org=org,
@@ -79,18 +96,58 @@ def update_output_checking_issue(
             body=body,
         )
         comment_url = data["html_url"]
+
+    # if issue was not created in the first instance, try to create the issue again and stamina retries creating a comment
+
+    except IssueNotFound as issue_error:
+        create_output_checking_issue(
+            workspace_name, release_request_id, request_author, org, repo, github_api
+        )
+        raise issue_error
+
+    if notify_slack:
+        post_slack_update(
+            org,
+            comment_url,
+            get_issue_title(workspace_name, release_request_id),
+            updates,
+            github_error=github_error_msg,
+        )
+
+    return comment_url
+
+
+def update_output_checking_issue(
+    release_request_id,
+    workspace_name,
+    updates,
+    org,
+    repo,
+    github_api,
+    notify_slack,
+    request_author,
+):
+    try:
+        return _update_output_checking_issue(
+            release_request_id,
+            workspace_name,
+            updates,
+            org,
+            repo,
+            github_api,
+            notify_slack,
+            request_author,
+        )
+
     except GitHubError as error:
         comment_url = None
         github_error_msg = str(error)
+
+        post_slack_update(
+            org,
+            comment_url,
+            get_issue_title(workspace_name, release_request_id),
+            updates,
+            github_error=github_error_msg,
+        )
         raise error
-    finally:
-        if notify_slack:
-            post_slack_update(
-                org,
-                comment_url,
-                get_issue_title(workspace_name, release_request_id),
-                updates_string,
-                github_error=github_error_msg,
-            )
-        if comment_url is not None:
-            return comment_url
