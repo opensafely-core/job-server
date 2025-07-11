@@ -37,6 +37,9 @@ class FakeGitHubAPI:
             "html_url": "http://example.com/issues/comment",
         }
 
+    def get_issue_labels(self, org, repo, issue_number):
+        return ["Pending review"]
+
     def create_repo(self, org, repo):
         return {
             "html_url": "http://example.com",

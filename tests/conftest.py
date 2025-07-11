@@ -328,6 +328,9 @@ def github_api():
         def get_labels(self, org, repo):
             return ["internal", "external"]
 
+        def get_issue_labels(self, org, repo, issue_number):
+            return ["Pending review"]
+
         def create_label(self, **kwargs):
             @dataclass
             class Label:

@@ -417,6 +417,18 @@ class GitHubAPI:
 
         return r.json()
 
+    def get_issue_labels(self, org, repo, issue_number):
+        path_segments = ["repos", org, repo, "issues", issue_number, "labels"]
+        url = self._url(path_segments)
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        r.raise_for_status()
+
+        return [label["name"] for label in r.json()]
+
     def create_repo(self, org, repo):
         path_segments = [
             "orgs",
