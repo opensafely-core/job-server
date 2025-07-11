@@ -372,7 +372,14 @@ class GitHubAPI:
         self._raise_for_status(r)
 
     def close_issue(
-        self, org, repo, title_text, comment=None, latest=True, labels=None
+        self,
+        org,
+        repo,
+        title_text,
+        comment=None,
+        latest=True,
+        issue_number=None,
+        labels=None,
     ):
         if settings.DEBUG:  # pragma: no cover
             logger.info(
@@ -389,9 +396,10 @@ class GitHubAPI:
             print("")
             return {"html_url": "http://example.com/issues/closed"}
 
-        issue_number = self.get_issue_number_from_title(
-            org, repo, title_text, latest, state="open"
-        )
+        if issue_number is None:
+            issue_number = self.get_issue_number_from_title(
+                org, repo, title_text, latest, state="open"
+            )
         r = self._update_issue(
             org, repo, issue_number, to_state="closed", labels=labels
         )

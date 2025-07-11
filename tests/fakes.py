@@ -31,7 +31,14 @@ class FakeGitHubAPI:
         }
 
     def close_issue(
-        self, org, repo, title_text, comment=None, latest=True, labels=None
+        self,
+        org,
+        repo,
+        title_text,
+        comment=None,
+        latest=True,
+        issue_number=None,
+        labels=None,
     ):
         return {
             "html_url": "http://example.com/issues/comment",
@@ -190,7 +197,7 @@ class FakeGitHubAPIWithErrors:
     def get_issue_number_from_title(
         self, org, repo, title_text, latest=True, state=None
     ):
-        raise GitHubError()
+        raise GitHubError("An error occurred")
 
     def create_issue_comment(
         self, org, repo, title_text, body, latest=True, issue_number=None, labels=None
@@ -199,7 +206,14 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError("An error occurred")
 
     def close_issue(
-        self, org, repo, title_text, comment=None, latest=True, labels=None
+        self,
+        org,
+        repo,
+        title_text,
+        comment=None,
+        latest=True,
+        issue_number=None,
+        labels=None,
     ):
         # Some unit tests want to check the message.
         raise GitHubError("An error occurred")
