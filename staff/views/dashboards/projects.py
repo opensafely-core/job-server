@@ -12,7 +12,7 @@ from jobserver.models import Org, Project, ReleaseFile
 
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
-@method_decorator(csp_exempt, name="dispatch")
+@method_decorator(csp_exempt(), name="dispatch")
 class ProjectsDashboard(TemplateView):
     template_name = "staff/dashboards/projects.html"
 

@@ -1,7 +1,6 @@
 import datetime
-import itertools
 import json
-import operator
+from collections import defaultdict
 
 import structlog
 from django.db.models import Q
@@ -14,7 +13,6 @@ from rest_framework.views import APIView
 
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
-from jobserver.github import _get_github_api
 from jobserver.models import Job, JobRequest, Stats, User, Workspace
 
 
@@ -66,9 +64,9 @@ def update_backend_state(backend, request):
 
 class JobAPIUpdate(APIView):
     authentication_classes = [SessionAuthentication]
-    get_github_api = staticmethod(_get_github_api)
 
     class serializer_class(serializers.Serializer):
+        # Note job_request_id maps to JobRequest.identifier, not JobRequest.id
         job_request_id = serializers.CharField()
         identifier = serializers.CharField()
         action = serializers.CharField(allow_blank=True)
@@ -104,18 +102,15 @@ class JobAPIUpdate(APIView):
         )
         job_request_lut = {jr.identifier: jr for jr in job_requests}
 
-        # sort the incoming data by JobRequest identifier to ensure the
-        # subsequent groupby call works correctly.
-        job_requests = sorted(
-            serializer.validated_data, key=operator.itemgetter("job_request_id")
-        )
-        # group Jobs by their JobRequest ID
-        jobs_by_request = itertools.groupby(
-            serializer.validated_data, key=operator.itemgetter("job_request_id")
-        )
+        # Map JobRequest identifiers to lists of associated Job instances for iteration.
+        jobs_by_request = defaultdict(list)
+        for job in serializer.validated_data:
+            jobs_by_request[job["job_request_id"]].append(job)
+
         created_job_ids = []
         updated_job_ids = []
-        for jr_identifier, jobs in jobs_by_request:
+
+        for jr_identifier, jobs in jobs_by_request.items():
             jobs = list(jobs)
 
             # get the JobRequest for this identifier

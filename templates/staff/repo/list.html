@@ -43,7 +43,7 @@
             {% url_with_querystring has_outputs="yes" as query_string_has_outputs_yes %}
           {% endif %}
           {% #list_group_item href=query_string_has_outputs_yes role="checkbox" aria-checked=is_has_outputs_yes_active class=yes_active_class %}
-          {% if is_has_outputs_yes_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
+            {% if is_has_outputs_yes_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
             Yes
           {% /list_group_item %}
 
@@ -55,7 +55,7 @@
             {% url_with_querystring has_outputs="no" as query_string_has_outputs_no %}
           {% endif %}
           {% #list_group_item href=query_string_has_outputs_no role="checkbox" aria-checked=is_has_outputs_no_active class=no_active_class %}
-          {% if is_has_outputs_no_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
+            {% if is_has_outputs_no_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
             No
           {% /list_group_item %}
         {% /list_group %}
@@ -93,8 +93,8 @@
             {% #list_group_item href=repo.get_staff_url %}
               {{ repo.name }}
             {% /list_group_item %}
-            {% empty %}
-              {% list_group_empty icon=True title="No repos found" description="Try a new search or clearing the filters" %}
+          {% empty %}
+            {% list_group_empty icon=True title="No repos found" description="Try a new search or clearing the filters" %}
           {% endfor %}
         {% /list_group %}
 
