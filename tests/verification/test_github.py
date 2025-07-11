@@ -11,6 +11,7 @@ from jobserver.github import (
     GitHubAPI,
     GitHubError,
     HTTPError,
+    IssueNotFound,
     LabelAlreadyExists,
     RepoAlreadyExists,
     RepoNotYetCreated,
@@ -166,6 +167,21 @@ class TestGithubAPIPrivate:
         assert_deep_type_equality(fake, real)
 
         assert real is not None
+
+    def test_create_issue_comment_issue_not_found(self, github_api):
+        # use a private repo to test here so we can mirror what the output checkers
+        # are doing
+        args = [
+            "opensafely-testing",
+            "github-api-testing-private",
+            new_ulid_str(),
+            "A test comment",
+            True,
+            None,
+        ]
+
+        with pytest.raises(IssueNotFound):
+            github_api.create_issue_comment(*args)
 
     @pytest.mark.parametrize(
         "comment,use_number", [(None, True), ("Closed with reason", False)]
