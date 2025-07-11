@@ -103,6 +103,14 @@ def test_create_output_checking_request_no_label_matches(github_api):
     assert issue.org == "ebmdatalab"
     assert issue.repo == "repo-without-internal-external-labels"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
+    # new labels (github_abi fixture returns just [] for the repo's labels)
+    assert len(github_api.labels) == 3
+    new_labels = {label.label_name for label in github_api.labels}
+    assert new_labels == {
+        IssueStatusLabel.PENDING_REVIEW.value,
+        IssueStatusLabel.UNDER_REVIEW.value,
+        IssueStatusLabel.WITH_REQUESTER.value,
+    }
 
 
 def test_close_output_checking_request(github_api):
