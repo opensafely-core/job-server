@@ -12,33 +12,33 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<section class="flex flex-col max-w-2xl gap-y-4">
-  <h1 class="text-3xl break-words font-bold text-slate-900 mt-2 md:mt-0 md:col-span-3 md:text-4xl">
-    Login
-  </h1>
+  <section class="flex flex-col max-w-2xl gap-y-4">
+    <h1 class="text-3xl break-words font-bold text-slate-900 mt-2 md:mt-0 md:col-span-3 md:text-4xl">
+      Login
+    </h1>
 
-  <div class="prose prose-lg mb-6">
+    <div class="prose prose-lg mb-6">
       <p class="lead">
-      OpenSAFELY Jobs uses your GitHub account to confirm your identity.
+        OpenSAFELY Jobs uses your GitHub account to confirm your identity.
       </p>
-  </div>
+    </div>
 
-  <div class="mb-6 pb-12">
+    <div class="mb-6 pb-12">
       {% #card title="GitHub Login" container=True %}
-      <div class="prose prose-sm mb-6">
+        <div class="prose prose-sm mb-6">
           <p>If you do not already have a GitHub account, then you will need to create one before signing in.</p>
-      </div>
-      <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST" action="{% url "auth-login" "github" %}">
+        </div>
+        <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST" action="{% url "auth-login" "github" %}">
           <input type="hidden" name="next" value="{{ next_url }}" />
           {% #button type="submit" variant="success" %}
-          Sign in with GitHub
+            Sign in with GitHub
           {% /button %}
           <p class="text-slate-700 text-lg">or</p>
           {% #button type="link" href="https://github.com/signup" variant="secondary" %}
-          Create a GitHub account
+            Create a GitHub account
           {% /button %}
-      </form>
+        </form>
       {% /card %}
-  </div>
+    </div>
 
 {% endblock content %}

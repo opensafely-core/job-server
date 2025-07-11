@@ -109,7 +109,7 @@ class PublishedSnapshotFile(View):
 
 
 class ReleaseDetail(View):
-    @csp_exempt
+    @csp_exempt()
     def get(self, request, *args, **kwargs):
         """
         Orchestrate viewing of a Release in the SPA
@@ -208,7 +208,7 @@ class ReleaseFileDelete(View):
 
 
 class SnapshotDetail(View):
-    @csp_exempt
+    @csp_exempt()
     def get(self, request, *args, **kwargs):
         snapshot = get_object_or_404(
             Snapshot,

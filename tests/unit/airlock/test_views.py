@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from airlock.config import ORG_OUTPUT_CHECKING_REPOS
+from airlock.issues import IssueStatusLabel
 from airlock.views import AirlockEvent, EventType, airlock_event_view
 from tests.factories import (
     BackendFactory,
@@ -432,3 +433,54 @@ def test_airlock_event_describe_updates(event_type, user, updates, descriptions)
     assert airlock_event.describe_updates_as_str() == "\n".join(
         [f"- {description}" for description in descriptions]
     )
+
+
+@pytest.mark.parametrize(
+    "event_type,label",
+    [
+        (EventType.REQUEST_RESUBMITTED, IssueStatusLabel.PENDING_REVIEW),
+        (EventType.REQUEST_PARTIALLY_REVIEWED, IssueStatusLabel.UNDER_REVIEW),
+        (EventType.REQUEST_REVIEWED, IssueStatusLabel.UNDER_REVIEW),
+        (EventType.REQUEST_RETURNED, IssueStatusLabel.WITH_REQUESTER),
+        (EventType.REQUEST_APPROVED, None),
+    ],
+)
+@patch("airlock.views._get_github_api", FakeGitHubAPI)
+@patch("airlock.views.update_output_checking_issue")
+def test_api_post_release_request_update_status_labels(
+    mock_update_issue, api_rf, event_type, label
+):
+    author = UserFactory(username="author")
+    WorkspaceFactory(
+        name="test-workspace",
+        project=ProjectFactory(org=OrgFactory(slug="test-org")),
+    )
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=author)
+    ReleaseFactory(id="01AAA1AAAAAAA1AAAAA11A1AAA")
+
+    data = {
+        "event_type": event_type.name.lower(),
+        "updates": None,
+        "workspace": "test-workspace",
+        "request": "01AAA1AAAAAAA1AAAAA11A1AAA",
+        "request_author": author.username,
+        "user": author.username,
+        "org": "foo",
+        "repo": "bar",
+    }
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": "test",
+            "os-user": author.username,
+        },
+    )
+    response = airlock_event_view(request)
+    assert response.status_code == 201
+    assert response.data == {"status": "ok"}
+
+    assert mock_update_issue.call_count == 1
+    assert mock_update_issue.call_args.kwargs["label"] == label

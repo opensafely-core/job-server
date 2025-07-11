@@ -3,41 +3,41 @@
 {% block metatitle %}Edit Application {{ application.pk_hash }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% url "staff:index" as staff_url %}
-  {% url "staff:application-list" as staff_application_list_url %}
-  {% breadcrumb title="Staff area" url=staff_url %}
-  {% breadcrumb title="Applications" url=staff_application_list_url %}
-  {% breadcrumb title="Application "|add:application.pk_hash url=application.get_staff_url %}
-  {% breadcrumb title="Edit" active=True %}
-{% /breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:application-list" as staff_application_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Applications" url=staff_application_list_url %}
+    {% breadcrumb title="Application "|add:application.pk_hash url=application.get_staff_url %}
+    {% breadcrumb title="Edit" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-{% staff_hero title="Edit: Application "|add:application.pk_hash %}
+  {% staff_hero title="Edit: Application "|add:application.pk_hash %}
 {% endblock hero %}
 
 {% block content %}
-<form method="POST">
-  {% csrf_token %}
+  <form method="POST">
+    {% csrf_token %}
 
-  {% #card class="max-w-3xl" container=True %}
-    {% if form.non_field_errors %}
-      {% for error in form.non_field_errors %}
-        {% #alert variant="danger" class="mb-6" %}
-          {{ error }}
-        {% /alert %}
-      {% endfor %}
-    {% endif %}
+    {% #card class="max-w-3xl" container=True %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
 
-    <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
-      {% form_select field=form.fields.status choices=form.fields.status.choices selected=form.status.value id="id_status" name="status" %}
-      {% form_textarea field=form.status_comment label="Status comment" resize=True rows=32 %}
-    </div>
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+        {% form_select field=form.fields.status choices=form.fields.status.choices selected=form.status.value id="id_status" name="status" %}
+        {% form_textarea field=form.status_comment label="Status comment" resize=True rows=32 %}
+      </div>
 
-    {% #button variant="success" type="submit" %}
-      Save
-    {% /button %}
-  {% /card %}
-</form>
+      {% #button variant="success" type="submit" %}
+        Save
+      {% /button %}
+    {% /card %}
+  </form>
 {% endblock content %}

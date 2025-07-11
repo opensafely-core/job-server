@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import re
 from pathlib import Path
 
+from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from environs import Env
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
     "django_htmx",
     "django_vite",
     "slippers",
+    "csp",
     "rest_framework",
     "social_django",
     "django.contrib.auth",
@@ -264,6 +266,7 @@ MESSAGE_TAGS = {
 SILENCED_SYSTEM_CHECKS = [
     "security.W004",  # (SECURE_HSTS_SECONDS) TLS is handled by Nginx
     "security.W008",  # (SECURE_SSL_REDIRECT) HTTPS redirection is handled by CloudFlare
+    "security.W019",  # (X_FRAME_OPTIONS) Set to SAMEORIGIN to allow iframe elements in the outputs viewer
 ]
 
 # Security
@@ -278,50 +281,46 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # CSP
 # https://django-csp.readthedocs.io/en/latest/configuration.html
-CSP_REPORT_ONLY = False
-CSP_EXCLUDE_URL_PREFIXES = ("/api/",)
-CSP_REPORT_URI = [env.str("CSP_REPORT_URI", default="")]
-CSP_DEFAULT_SRC = ["'none'"]
-CSP_CONNECT_SRC = [
-    "'self'",
+CONNECT_SRC = [
+    SELF,
     "https://plausible.io",
     "https://sentry.io",
     "https://*.ingest.sentry.io/",
 ]
-CSP_FONT_SRC = ["'self'", "data:"]
-CSP_IMG_SRC = [
-    "'self'",
-    "blob:",
-    "data: w3.org/svg/2000",
-    "https://github.com",
-    "https://avatars.githubusercontent.com",
-]
-CSP_MANIFEST_SRC = ["'self'"]
-
-# Duplicate the *_ELEM settings for Firefox
-# https://bugzilla.mozilla.org/show_bug.cgi?id=1529338
-CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = ["'self'", "https://plausible.io"]
-CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'"]
-
-# which directives to set a nonce for
-CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
+FONT_SRC = [SELF, "data:"]
+SCRIPT_SRC = [SELF, "https://plausible.io", NONCE]
+STYLE_SRC = [SELF]
 
 # configure django-csp to work with Vite when using it in dev mode
 if ASSETS_DEV_MODE:
-    CSP_CONNECT_SRC = [
-        "'self'",
-        "ws://localhost:5173/static/",
-        "https://plausible.io",
-        "https://sentry.io",
-        "https://*.ingest.sentry.io/",
-    ]
-    CSP_FONT_SRC = ["http://localhost:5173"]
-    CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = [
-        "'self'",
-        "https://plausible.io",
-        "http://localhost:5173",
-    ]
-    CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
+    CONNECT_SRC = SCRIPT_SRC + ["ws://localhost:5173/static/"]
+    FONT_SRC = FONT_SRC + ["http://localhost:5173"]
+    SCRIPT_SRC = SCRIPT_SRC + ["http://localhost:5173"]
+    STYLE_SRC = STYLE_SRC + [UNSAFE_INLINE]
+
+CONTENT_SECURITY_POLICY = {
+    "EXCLUDE_URL_PREFIXES": ["/api"],
+    "DIRECTIVES": {
+        "report-uri": env.str("CSP_REPORT_URI", default=""),
+        "connect-src": CONNECT_SRC,
+        "default-src": [NONE],
+        "font-src": FONT_SRC,
+        "img-src": [
+            SELF,
+            "blob:",
+            "data: w3.org/svg/2000",
+            "https://github.com",
+            "https://avatars.githubusercontent.com",
+        ],
+        "manifest-src": [SELF],
+        "script-src": SCRIPT_SRC,
+        "style-src": STYLE_SRC,
+        # Duplicate the *_ELEM settings for Firefox
+        # https://bugzilla.mozilla.org/show_bug.cgi?id=1529338
+        "script-src-elem": SCRIPT_SRC,
+        "style-src-elem": STYLE_SRC,
+    },
+}
 
 
 # CSRF error view

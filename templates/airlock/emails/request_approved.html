@@ -1,11 +1,11 @@
 {% extends "emails/base.html" %}
 
 {% block content %}
-<p>Dear {{ request_author }},</p>
-<p>Your release request for workspace {{ workspace }} has been approved.</p>
-<p>Your files will be uploaded <a href="{{ url }}">here</a>.
+  <p>Dear {{ request_author }},</p>
+  <p>Your release request for workspace {{ workspace }} has been approved.</p>
+  <p>Your files will be uploaded <a href="{{ url }}">here</a>.
     You will receive a notification when file uploads are complete.</p>
 
-{% include "airlock/emails/includes/updates.html" %}
+  {% include "airlock/emails/includes/updates.html" %}
 
 {% endblock content %}

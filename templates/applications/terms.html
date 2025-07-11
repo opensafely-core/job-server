@@ -16,24 +16,24 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-{% article_header title="Terms of use of OpenSAFELY" text="This section details the terms of use of OpenSAFELY. By agreeing to these terms, you can continue to submit your access request. Please review the terms carefully." %}
+  {% article_header title="Terms of use of OpenSAFELY" text="This section details the terms of use of OpenSAFELY. By agreeing to these terms, you can continue to submit your access request. Please review the terms carefully." %}
 
-{% #card class="max-w-3xl mt-6 pb-6" container=True %}
-  <div class="prose prose-oxford mb-6" id="applicationForm">
-    {% snippet "terms" %}
-  </div>
+  {% #card class="max-w-3xl mt-6 pb-6" container=True %}
+    <div class="prose prose-oxford mb-6" id="applicationForm">
+      {% snippet "terms" %}
+    </div>
 
-  {% if request.user.is_authenticated %}
-    {% url 'applications:terms' as start_url %}
-  {% else %}
-    {% url 'applications:sign-in' as start_url %}
-  {% endif %}
+    {% if request.user.is_authenticated %}
+      {% url 'applications:terms' as start_url %}
+    {% else %}
+      {% url 'applications:sign-in' as start_url %}
+    {% endif %}
 
-  <form method="POST">
-    {% csrf_token %}
-    {% #button variant="success" type="submit" %}
-      Continue
-    {% /button %}
-  </form>
-{% /card %}
+    <form method="POST">
+      {% csrf_token %}
+      {% #button variant="success" type="submit" %}
+        Continue
+      {% /button %}
+    </form>
+  {% /card %}
 {% endblock %}

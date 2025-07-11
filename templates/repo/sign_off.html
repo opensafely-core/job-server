@@ -30,8 +30,8 @@
         <p>
           As per our platform policy, this repository should now be publicly visible.
           {% if not repo.researcher_signed_off_at %}
-          <br>
-          You can use this page to request that the repository is set to be publicly visible.
+            <br>
+            You can use this page to request that the repository is set to be publicly visible.
           {% endif %}
         </p>
         <p>
@@ -76,7 +76,7 @@
     <div class="mt-6 pt-6 border-t border-t-slate-300">
       <h2 class="text-3xl leading-tight tracking-tight font-semibold mb-4">Linked workspaces</h2>
       <p class="text-lg mb-4">The following workspaces are linked to this repository and need signing
-         off before the repo can be made public:</p>
+        off before the repo can be made public:</p>
       <div class="grid lg:grid-cols-2 gap-6">
         {% for workspace in workspaces %}
           {% #card class="w-full" title=workspace.name %}
@@ -93,10 +93,10 @@
                 {% endif %}
               {% /description_item %}
 
-                {% #description_item title="Purpose" %}
-                  {{ workspace.purpose|default:"-"|linebreaksbr|urlize }}
-                  {% link href=workspace.get_edit_url text="Edit" %}
-                {% /description_item %}
+              {% #description_item title="Purpose" %}
+                {{ workspace.purpose|default:"-"|linebreaksbr|urlize }}
+                {% link href=workspace.get_edit_url text="Edit" %}
+              {% /description_item %}
 
               {% #description_item title="Project" %}
                 {% link href=workspace.project.get_absolute_url text=workspace.project.title %}

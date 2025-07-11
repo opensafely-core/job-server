@@ -23,28 +23,28 @@
 {% endblock hero %}
 
 {% block content %}
-<div class="flex flex-col gap-y-6 lg:col-span-2">
   <div class="flex flex-col gap-y-6 lg:col-span-2">
-    {% #card %}
-      {% #list_group small=True %}
-        {% for site_alert in object_list %}
-          {% #list_group_rich_item type="Site Alert" title=site_alert url=site_alert.edit_url %}
-          {% pill variant=site_alert.level text=site_alert.get_level_display class="self-start" %}
-            <dl class="text-sm">
-              <div class="flex flex-row gap-1">
-                <dt class="font-semibold">Created by: </dt>
-                <dd>{{site_alert.created_by.fullname}} at {{ site_alert.created_at|date:"D, M j Y H:i" }}</dd>
-              </div>
-              <div class="flex flex-row gap-1">
-                <dt class="font-semibold">Updated by: </dt>
-                <dd>{{site_alert.updated_by.fullname}} at {{ site_alert.updated_at|date:"D, M j Y H:i" }}</dd>
-              </div>
-            </dl>
-          {% /list_group_rich_item %}
-        {% endfor %}
-      {% /list_group %}
-    {% /card %}
+    <div class="flex flex-col gap-y-6 lg:col-span-2">
+      {% #card %}
+        {% #list_group small=True %}
+          {% for site_alert in object_list %}
+            {% #list_group_rich_item type="Site Alert" title=site_alert url=site_alert.edit_url %}
+              {% pill variant=site_alert.level text=site_alert.get_level_display class="self-start" %}
+              <dl class="text-sm">
+                <div class="flex flex-row gap-1">
+                  <dt class="font-semibold">Created by: </dt>
+                  <dd>{{site_alert.created_by.fullname}} at {{ site_alert.created_at|date:"D, M j Y H:i" }}</dd>
+                </div>
+                <div class="flex flex-row gap-1">
+                  <dt class="font-semibold">Updated by: </dt>
+                  <dd>{{site_alert.updated_by.fullname}} at {{ site_alert.updated_at|date:"D, M j Y H:i" }}</dd>
+                </div>
+              </dl>
+            {% /list_group_rich_item %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    </div>
   </div>
-</div>
 
 {% endblock content %}
