@@ -63,6 +63,10 @@ class IssueNotFound(HTTPError):
     """Tried to get an issue that did not already exist."""
 
 
+class LabelAlreadyExists(HTTPError):
+    """Tried to create a label that already existed."""
+
+
 class GitHubAPI:
     """
     A thin wrapper around requests, furl, and the GitHub API.
@@ -375,7 +379,14 @@ class GitHubAPI:
         self._raise_for_status(r)
 
     def close_issue(
-        self, org, repo, title_text, comment=None, latest=True, labels=None
+        self,
+        org,
+        repo,
+        title_text,
+        comment=None,
+        latest=True,
+        issue_number=None,
+        labels=None,
     ):
         if settings.DEBUG:  # pragma: no cover
             logger.info(
@@ -392,9 +403,10 @@ class GitHubAPI:
             print("")
             return {"html_url": "http://example.com/issues/closed"}
 
-        issue_number = self.get_issue_number_from_title(
-            org, repo, title_text, latest, state="open"
-        )
+        if issue_number is None:
+            issue_number = self.get_issue_number_from_title(
+                org, repo, title_text, latest, state="open"
+            )
         r = self._update_issue(
             org, repo, issue_number, to_state="closed", labels=labels
         )
@@ -419,6 +431,18 @@ class GitHubAPI:
             )
 
         return r.json()
+
+    def get_issue_labels(self, org, repo, issue_number):
+        path_segments = ["repos", org, repo, "issues", issue_number, "labels"]
+        url = self._url(path_segments)
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        r.raise_for_status()
+
+        return [label["name"] for label in r.json()]
 
     def create_repo(self, org, repo):
         path_segments = [
@@ -615,6 +639,37 @@ class GitHubAPI:
         self._raise_for_status(r)
 
         return [label["name"] for label in r.json()]
+
+    def create_label(self, org, repo, label_name):
+        """Create a label for this repo"""
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "labels",
+        ]
+        payload = {"name": label_name}
+
+        if settings.DEBUG:  # pragma: no cover
+            logger.info("Label created", name=label_name)
+            print("")
+            print(f"Repo: https://github.com/{org}/{repo}/")
+            print(f"Label: {label_name}")
+            print("")
+            return {"name": label_name}
+
+        url = self._url(path_segments)
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+
+        r = self._post(url, headers=headers, json=payload)
+        if r.status_code == 422:
+            raise LabelAlreadyExists()
+
+        self._raise_for_status(r)
+
+        return r.json()
 
     def get_repos_with_branches(self, org):
         """

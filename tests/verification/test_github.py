@@ -11,6 +11,7 @@ from jobserver.github import (
     GitHubAPI,
     GitHubError,
     HTTPError,
+    LabelAlreadyExists,
     RepoAlreadyExists,
     RepoNotYetCreated,
     Timeout,
@@ -142,7 +143,8 @@ class TestGithubAPIPrivate:
         real = github_api.get_issue_number_from_title(*args)
         assert real is None
 
-    def test_create_issue_comment(self, github_api):
+    @pytest.mark.parametrize("labels", [["Under review"], None])
+    def test_create_issue_comment(self, github_api, labels):
         # use a private repo to test here so we can mirror what the output checkers
         # are doing
         # We assume there's at least one existing issue entitled "Test Issue"
@@ -152,7 +154,11 @@ class TestGithubAPIPrivate:
             "github-api-testing-private",
             "Test Issue",
             "A test comment",
+            True,
+            None,
         ]
+        if labels is not None:
+            args.append(labels)
 
         real = github_api.create_issue_comment(*args)
         fake = FakeGitHubAPI().create_issue_comment(*args)
@@ -161,8 +167,10 @@ class TestGithubAPIPrivate:
 
         assert real is not None
 
-    @pytest.mark.parametrize("comment", [None, "Closed with reason"])
-    def test_close_issue(self, github_api, comment):
+    @pytest.mark.parametrize(
+        "comment,use_number", [(None, True), ("Closed with reason", False)]
+    )
+    def test_close_issue(self, github_api, comment, use_number):
         # use a private repo to test here so we can mirror what the output checkers
         # are doing
         # We assume there's at least one existing open issue entitled "Test Issue"
@@ -176,6 +184,10 @@ class TestGithubAPIPrivate:
             "asc",
         ]
 
+        if use_number:
+            issue_number = github_api.get_issue_number_from_title(*args[:3])
+            args.append(issue_number)
+
         real = github_api.close_issue(*args)
         fake = FakeGitHubAPI().close_issue(*args)
 
@@ -184,9 +196,48 @@ class TestGithubAPIPrivate:
         assert real is not None
 
         # reset the issue state
-        github_api._change_issue_state(
+        github_api._update_issue(
             "opensafely-testing", "github-api-testing-private", real["number"], "open"
         )
+
+    def test_get_issue_labels(self, github_api):
+        issue_args = ["opensafely-testing", "github-api-testing-private", "Test Issue"]
+        issue_number = github_api.get_issue_number_from_title(*issue_args)
+
+        args = ["opensafely-testing", "github-api-testing-private", issue_number]
+
+        real = github_api.get_issue_labels(*args)
+        fake = FakeGitHubAPI().get_issue_labels(*args)
+        assert_deep_type_equality(fake, real)
+
+    def test_create_label(self, github_api):
+        def delete_label():
+            reset_url = github_api._url(
+                [
+                    "repos",
+                    "opensafely-testing",
+                    "github-api-testing-private",
+                    "labels",
+                    "foo",
+                ]
+            )
+            headers = {
+                "Accept": "application/vnd.github.v3+json",
+            }
+            resp = github_api._delete(reset_url, headers=headers)
+            return resp
+
+        delete_label()
+        args = ["opensafely-testing", "github-api-testing-private", "foo"]
+        real = github_api.create_label(*args)
+        fake = FakeGitHubAPI().create_label(*args)
+        assert_deep_type_equality(fake, real)
+
+        with pytest.raises(LabelAlreadyExists):
+            github_api.create_label(*args)
+
+        # reset the label
+        assert delete_label().status_code == 204
 
     def test_create_repo(self, github_api):
         try:

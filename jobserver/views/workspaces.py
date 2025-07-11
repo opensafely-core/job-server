@@ -345,7 +345,7 @@ class WorkspaceLatestOutputsDetail(View):
     Workspace.
     """
 
-    @csp_exempt
+    @csp_exempt()
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
