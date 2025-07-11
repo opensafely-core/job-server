@@ -237,6 +237,7 @@ class GitHubAPI:
             print(f"Title: {title}")
             print("Message:")
             print(body)
+            print(f"Labels: {labels}")
             print("")
             return {"html_url": "http://example.com"}
         path_segments = [
@@ -305,7 +306,7 @@ class GitHubAPI:
             return items[0]["number"]
 
     def create_issue_comment(
-        self, org, repo, title_text, body, latest=True, issue_number=None
+        self, org, repo, title_text, body, latest=True, issue_number=None, labels=None
     ):
         if settings.DEBUG:  # pragma: no cover
             logger.info(
@@ -320,6 +321,7 @@ class GitHubAPI:
             print(f"Title text: {title_text}")
             print("Comment:")
             print(body)
+            print(f"Labels: {labels}")
             print("")
             return {"html_url": "http://example.com/issues/comment"}
 
@@ -342,11 +344,21 @@ class GitHubAPI:
 
         self._raise_for_status(r)
 
+        if labels is not None:
+            self._update_issue(org, repo, issue_number, labels=labels)
+
         return r.json()
 
-    def _change_issue_state(self, org, repo, issue_number, to_state):
+    def _update_issue(self, org, repo, issue_number, to_state=None, labels=None):
         path_segments = ["repos", org, repo, "issues", issue_number]
-        payload = {"state": to_state}
+        payload = {}
+        if to_state is not None:
+            payload["state"] = to_state
+        if labels is not None:
+            # labels is a list of labels to REPLACE this issue's current labels
+            # Note that if we're adding labels, we need to include any current ones, otherwise
+            # they will be removed. Pass an empty list to clear all labels.
+            payload["labels"] = labels
         headers = {
             "Accept": "application/vnd.github.v3+json",
         }
@@ -355,7 +367,9 @@ class GitHubAPI:
 
         self._raise_for_status(r)
 
-    def close_issue(self, org, repo, title_text, comment=None, latest=True):
+    def close_issue(
+        self, org, repo, title_text, comment=None, latest=True, labels=None
+    ):
         if settings.DEBUG:  # pragma: no cover
             logger.info(
                 "Issue closed",
@@ -367,13 +381,16 @@ class GitHubAPI:
             print("")
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
+            print(f"Labels: {labels}")
             print("")
             return {"html_url": "http://example.com/issues/closed"}
 
         issue_number = self.get_issue_number_from_title(
             org, repo, title_text, latest, state="open"
         )
-        r = self._change_issue_state(org, repo, issue_number, "closed")
+        r = self._update_issue(
+            org, repo, issue_number, to_state="closed", labels=labels
+        )
 
         path_segments = ["repos", org, repo, "issues", issue_number]
         url = self._url(path_segments)
