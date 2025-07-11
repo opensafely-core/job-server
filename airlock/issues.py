@@ -19,7 +19,12 @@ def get_issue_title(workspace_name, release_request_id):
     return f"{workspace_name} {release_request_id}"
 
 
-def ensure_issue_status_labels(org, repo, github_api, repo_labels):
+def ensure_issue_status_labels(org, repo, github_api):
+    try:
+        repo_labels = set(github_api.get_labels(org=org, repo=repo))
+    except GitHubError:
+        repo_labels = set()
+
     status_labels = {x.value for x in IssueStatusLabel}
     unknown_labels = status_labels - repo_labels
     for label in unknown_labels:
@@ -55,13 +60,9 @@ def create_output_checking_issue(
         "internal" if is_internal else "external",
         IssueStatusLabel.PENDING_REVIEW.value,
     }
-    try:
-        repo_labels = set(github_api.get_labels(org=org, repo=repo))
-    except GitHubError:
-        repo_labels = set()
 
     # Ensure all issue status labels exist on the repo
-    repo_labels = ensure_issue_status_labels(org, repo, github_api, repo_labels)
+    repo_labels = ensure_issue_status_labels(org, repo, github_api)
     # Ensure that we don't try to add labels if they don't exist for the repo
     labels = labels & repo_labels
 
@@ -76,20 +77,34 @@ def create_output_checking_issue(
     return data["html_url"]
 
 
+def get_non_status_issue_labels(org, repo, issue_number, github_api):
+    # get existing labels excluding any status labels
+    try:
+        labels = set(
+            github_api.get_issue_labels(org=org, repo=repo, issue_number=issue_number)
+        )
+    except GitHubError:
+        labels = set()
+    status_labels = {x.value for x in IssueStatusLabel}
+    labels = labels - status_labels
+    return labels
+
+
 def close_output_checking_issue(
     release_request_id, user, reason, org, repo, github_api
 ):
     title_text = release_request_id
-    issue_number = github_api.get_issue_number_from_title(
-        org=org, repo=repo, title_text=title_text
-    )
 
-    # get existing labels and remove any status labels from this closed issue
-    labels = set(
-        github_api.get_issue_labels(org=org, repo=repo, issue_number=issue_number)
-    )
-    status_labels = {x.value for x in IssueStatusLabel}
-    labels = labels - status_labels
+    try:
+        issue_number = github_api.get_issue_number_from_title(
+            org=org, repo=repo, title_text=title_text
+        )
+    except GitHubError:
+        # If we get an error here, ignore it and let create_issue_comment retry
+        issue_number = None
+
+    # remove any non-status labels for this closed issue
+    labels = get_non_status_issue_labels(org, repo, issue_number, github_api)
 
     data = github_api.close_issue(
         org=org,
@@ -104,18 +119,43 @@ def close_output_checking_issue(
 
 
 def update_output_checking_issue(
-    release_request_id, workspace_name, updates, org, repo, github_api, notify_slack
+    release_request_id,
+    workspace_name,
+    updates,
+    org,
+    repo,
+    github_api,
+    notify_slack,
+    label,
 ):
     updates_string = "\n".join([f"- {update}" for update in updates])
     body = f"Release request updated:\n{updates_string}"
 
     github_error_msg = None
+
+    title_text = release_request_id
+    try:
+        issue_number = github_api.get_issue_number_from_title(
+            org=org, repo=repo, title_text=title_text
+        )
+    except GitHubError:
+        # If we get an error here, ignore it and let create_issue_comment retry
+        issue_number = None
+
+    ensure_issue_status_labels(org, repo, github_api)
+    # get existing non-status labels and add the current one
+    labels = get_non_status_issue_labels(org, repo, issue_number, github_api)
+    if label is not None:
+        labels.add(label.value)
+
     try:
         data = github_api.create_issue_comment(
             org=org,
             repo=repo,
-            title_text=release_request_id,
+            title_text=title_text,
             body=body,
+            issue_number=issue_number,
+            labels=list(labels),
         )
         comment_url = data["html_url"]
     except GitHubError as error:

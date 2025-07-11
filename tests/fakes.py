@@ -236,6 +236,9 @@ class FakeGitHubAPIWithErrors:
     def get_file(self, org, repo, branch, filepath="project.yaml"):
         raise GitHubError()
 
+    def get_issue_labels(self, org, repo, issue_number):
+        raise GitHubError()
+
     def get_repo(self, org, repo):
         raise GitHubError()
 

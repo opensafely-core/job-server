@@ -160,6 +160,7 @@ def test_update_output_checking_request(github_api, slack_messages):
             "opensafely-output-review",
             github_api,
             notify_slack=False,
+            label=IssueStatusLabel.WITH_REQUESTER,
         )
         == "http://example.com/issues/comment"
     )
@@ -172,7 +173,33 @@ def test_update_output_checking_request(github_api, slack_messages):
         comment.body
         == "Release request updated:\n- file added (filegroup 'Group 1') by user test"
     )
+    assert set(comment.labels) == {"internal", IssueStatusLabel.WITH_REQUESTER.value}
     assert slack_messages == []
+
+
+def test_update_output_checking_request_no_label(github_api, slack_messages):
+    org = OrgFactory(pk=settings.BENNETT_ORG_PK)
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+    assert (
+        update_output_checking_issue(
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            "workspace",
+            ["request approved by user test"],
+            "ebmdatalab",
+            "opensafely-output-review",
+            github_api,
+            notify_slack=False,
+            label=None,
+        )
+        == "http://example.com/issues/comment"
+    )
+
+    comment = next(c for c in github_api.comments if c)  # pragma: no branch
+    assert comment.org == "ebmdatalab"
+    assert comment.repo == "opensafely-output-review"
+    assert comment.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
+    assert set(comment.labels) == {"internal"}
 
 
 def test_update_output_checking_request_with_slack_notification(
@@ -190,6 +217,7 @@ def test_update_output_checking_request_with_slack_notification(
             "opensafely-output-review",
             github_api,
             notify_slack=True,
+            label=IssueStatusLabel.PENDING_REVIEW,
         )
         == "http://example.com/issues/comment"
     )
