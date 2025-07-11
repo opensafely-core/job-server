@@ -79,11 +79,25 @@ def create_output_checking_issue(
 def close_output_checking_issue(
     release_request_id, user, reason, org, repo, github_api
 ):
+    title_text = release_request_id
+    issue_number = github_api.get_issue_number_from_title(
+        org=org, repo=repo, title_text=title_text
+    )
+
+    # get existing labels and remove any status labels from this closed issue
+    labels = set(
+        github_api.get_issue_labels(org=org, repo=repo, issue_number=issue_number)
+    )
+    status_labels = {x.value for x in IssueStatusLabel}
+    labels = labels - status_labels
+
     data = github_api.close_issue(
         org=org,
         repo=repo,
-        title_text=release_request_id,
+        title_text=title_text,
         comment=f"Issue closed: {reason} by {user.username}",
+        issue_number=issue_number,
+        labels=list(labels),
     )
 
     return data["html_url"]

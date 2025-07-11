@@ -136,6 +136,9 @@ def test_close_output_checking_request(github_api):
     assert issue.repo == "opensafely-output-review"
     assert issue.title_text == "01AAA1AAAAAAA1AAAAA11A1AAA"
     assert issue.comment == f"Issue closed: Closed for reasons by {user.username}"
+    # status labels have been removed, but other remain
+    # (github api fixture always returns ["internal", "Under review"] for issue labels)
+    assert issue.labels == ["internal"]
 
     comment = next(c for c in github_api.comments if c)  # pragma: no branch
     assert comment.org == "ebmdatalab"
