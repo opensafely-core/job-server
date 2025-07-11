@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from airlock.issues import (
+    IssueStatusLabel,
     close_output_checking_issue,
     create_output_checking_issue,
     update_output_checking_issue,
@@ -31,7 +32,7 @@ def test_create_output_checking_request_external(github_api):
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
-    assert issue.labels == ["external"]
+    assert set(issue.labels) == {"external", IssueStatusLabel.PENDING_REVIEW.value}
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -63,7 +64,7 @@ def test_create_output_checking_request_internal(github_api):
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
-    assert issue.labels == ["internal"]
+    assert set(issue.labels) == {"internal", IssueStatusLabel.PENDING_REVIEW.value}
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -99,7 +100,7 @@ def test_create_output_checking_request_no_label_matches(github_api):
 
     # the default label is "external", but it doesn't exist for this repo
     # so we just ignore it
-    assert issue.labels == []
+    assert issue.labels == [IssueStatusLabel.PENDING_REVIEW.value]
     assert issue.org == "ebmdatalab"
     assert issue.repo == "repo-without-internal-external-labels"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
