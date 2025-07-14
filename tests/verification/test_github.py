@@ -22,7 +22,7 @@ from ..fakes import FakeGitHubAPI, FakeGitHubAPIWithErrors
 from .utils import assert_deep_type_equality, assert_public_method_signature_equality
 
 
-pytestmark = [pytest.mark.verification, pytest.mark.disable_db]
+pytestmark = [pytest.mark.verification]
 
 
 class TestGitHubAPIAgainstFakes:

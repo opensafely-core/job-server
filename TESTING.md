@@ -62,12 +62,10 @@ We have a custom `@pytest.mark.slow_test` marker that should be used on test
 that take more than about 0.1s to run. These are excluded from `just test` to
 provide a quicker feedback loop.
 
-All tests have access to the database by default. You should mark up tests that
-don't require such access with `@pytest.mark.disable_db`. This significantly
-speeds up executing the tests in isolation as the test DB doesn't need to be
-spun up and prepared. Note that you can apply this marker at test, class, or
-module level. [See the pytest
-docs](https://docs.pytest.org/en/7.1.x/example/markers.html).
+All unit and integration tests have access to the database by default. You can
+use the `db` fixture fixture to provide access to other tests if required. Or
+search `enable_db_access_for_all_tests`to see how to enable it for a directory
+(via conftest.py) or in a module.
 
 Avoid writing to the database when this isn't necessary, as this is costly.
 Model instances can be created with FactoryBoy's `build` rather than `create`
