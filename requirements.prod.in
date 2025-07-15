@@ -3,8 +3,8 @@
 ###########################################################
 
 # The main Django web framework for building applications.
-# Pin to 5.1.x until we are happy with 5.2 compat
-django>=5.1,<5.2
+# Pin to 5.2.x until 6.0 is released and we are happy with 6.0 compatibility
+django~=5.2.0
 
 # A WSGI HTTP server for running Django in production.
 gunicorn
