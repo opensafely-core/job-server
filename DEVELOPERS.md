@@ -213,7 +213,7 @@ To run the development server:
 1. Update the `.env` file to `ASSETS_DEV_MODE=True`
 2. Run `just assets-run`
 
-This will start the Vite dev server at [localhost:5173](http://localhost:5173/) and inject the relevant scripts into the Django templates.
+This will start the Vite dev server at [localhost:8001](http://localhost:8001/) and inject the relevant scripts into the Django templates.
 
 ### Compiling assets
 

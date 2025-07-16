@@ -293,9 +293,9 @@ STYLE_SRC = [SELF]
 
 # configure django-csp to work with Vite when using it in dev mode
 if ASSETS_DEV_MODE:
-    CONNECT_SRC = SCRIPT_SRC + ["ws://localhost:5173/static/"]
-    FONT_SRC = FONT_SRC + ["http://localhost:5173"]
-    SCRIPT_SRC = SCRIPT_SRC + ["http://localhost:5173"]
+    CONNECT_SRC = SCRIPT_SRC + ["ws://localhost:8001/static/"]
+    FONT_SRC = FONT_SRC + ["http://localhost:8001"]
+    SCRIPT_SRC = SCRIPT_SRC + ["http://localhost:8001"]
     STYLE_SRC = STYLE_SRC + [UNSAFE_INLINE]
 
 CONTENT_SECURITY_POLICY = {
