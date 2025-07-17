@@ -42,7 +42,7 @@ repos:
         entry: djhtml --tabwidth 2 # Use a tabwidth of 2 for HTML files
         files: ^templates/.*\.html$ # Indent only HTML files in template directories
 
-  - repo: https://github.com/stratasan/hadolint-pre-commit
-    rev: cdefcb096e520a6daa9552b1d4636f5f1e1729cd
+  - repo: https://github.com/hadolint/hadolint
+    rev: b3555ba9c2bfd9401e79f2f0da68dd1ae38e10c7 # v2.12.0
     hooks:
-    - id: hadolint
+    - id: hadolint-docker
