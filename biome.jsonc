@@ -176,7 +176,6 @@
               "print",
               "removeEventListener",
               "resizeBy",
-              "resizeTo",
               "screen",
               "screenLeft",
               "screenTop",
