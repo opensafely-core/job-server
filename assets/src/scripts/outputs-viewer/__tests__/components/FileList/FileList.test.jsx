@@ -7,8 +7,7 @@ import props from "../../helpers/props";
 import { history, render, screen, waitFor } from "../../test-utils";
 
 function FileListWrapper() {
-  // biome-ignore lint/correctness/noUnusedVariables: ESLint to Biome legacy ignore
-  const [listVisible, setListVisible] = useState(true);
+  const [listVisible] = useState(true);
   const [_, setSelectedFile] = useState(false);
   return (
     <FileList

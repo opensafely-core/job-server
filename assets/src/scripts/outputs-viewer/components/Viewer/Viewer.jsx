@@ -21,6 +21,7 @@ import Text from "../Text/Text";
 function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ["FILE", fileUrl],
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: If statements used to be clear about when the fetch query runs
     queryFn: async () => {
       // If we can't display the file type
       // or the file size is too large (>20mb)
