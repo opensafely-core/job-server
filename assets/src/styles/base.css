@@ -9,8 +9,9 @@
 @source "../scripts/**/*.{js,jsx}";
 
 @theme {
-  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    "Public Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   --color-oxford-50: #f1f7ff;
   --color-oxford-100: #cfe5ff;

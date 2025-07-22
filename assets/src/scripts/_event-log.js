@@ -1,5 +1,3 @@
-/* global $ */
-
 if (document.getElementById("eventLog")) {
   document.querySelectorAll('[data-toggle="show-hide-btn"]').forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -19,9 +17,7 @@ if (document.getElementById("eventLog")) {
     });
   });
 
-  // biome-ignore lint/correctness/noUndeclaredVariables: ESLint to Biome legacy ignore
   $(() => {
-    // biome-ignore lint/correctness/noUndeclaredVariables: ESLint to Biome legacy ignore
     $('[data-toggle="tooltip"]').tooltip();
   });
 }
