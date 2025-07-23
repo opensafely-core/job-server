@@ -130,7 +130,7 @@ class GitHubAPI:
         try:
             request.raise_for_status()
         except requests.HTTPError as exc:
-            raise HTTPError(exc)
+            raise HTTPError from exc
 
     def _get_query_page(self, *, query, session, cursor, **kwargs):
         """

@@ -476,8 +476,9 @@ class TestGithubAPINonPrivate:
         try:
             assert GitHubAPI().get_repo("opensafely-testing", "github-api-testing")
         except HTTPError as e:  # pragma: no cover
-            forbidden = e.response.status_code == 403
-            rate_limited = "rate limit exceeded for url" in str(e)
+            requests_exception = e.__cause__
+            forbidden = requests_exception.response.status_code == 403
+            rate_limited = "rate limit exceeded for url" in str(requests_exception)
 
             if forbidden and rate_limited:
                 # being rate limited is still a valid access of the API
