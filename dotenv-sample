@@ -17,6 +17,9 @@ SOCIAL_AUTH_GITHUB_SECRET=dummy
 
 ASSETS_DEV_MODE=False
 
+# URL for controller api
+CONTROLLER_API_ENDPOINT=http://localhost:3000/
+
 # PRODUCTION ONLY
 # You only need to set the values below in Production by default.
 
