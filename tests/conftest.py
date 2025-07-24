@@ -274,6 +274,7 @@ def github_api():
         issues = []
         closed_issues = []
         comments = []
+        labels = []
 
         def create_issue(self, **kwargs):
             @dataclass
@@ -298,6 +299,8 @@ def github_api():
                 repo: str
                 title_text: str
                 comment: str | None
+                issue_number: int | None = None
+                labels: list[str] | None = None
 
             # capture all the values so they can interrogated later
             self.closed_issues.append(Issue(**kwargs))
@@ -314,6 +317,8 @@ def github_api():
                 repo: str
                 title_text: str
                 body: str
+                issue_number: int | None = None
+                labels: list[str] | None = None
 
             # capture all the values so they can interrogated later
             self.comments.append(IssueComment(**kwargs))
@@ -324,6 +329,23 @@ def github_api():
 
         def get_labels(self, org, repo):
             return ["internal", "external"]
+
+        def get_issue_labels(self, org, repo, issue_number):
+            return ["internal", "Under review"]
+
+        def get_issue_number_from_title(self, **kwargs):
+            return 1
+
+        def create_label(self, **kwargs):
+            @dataclass
+            class Label:
+                org: str
+                repo: str
+                label_name: str
+
+            self.labels.append(Label(**kwargs))
+
+            return {"name": kwargs["label_name"]}
 
     return CapturingGitHubAPI()
 

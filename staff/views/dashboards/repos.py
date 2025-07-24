@@ -23,7 +23,7 @@ logger = structlog.get_logger(__name__)
 class PrivateReposDashboard(View):
     get_github_api = staticmethod(_get_github_api)
 
-    @csp_exempt
+    @csp_exempt()
     def get(self, request, *args, **kwargs):
         """
         List private repos due for conversion to public.
@@ -149,7 +149,7 @@ class PrivateReposDashboard(View):
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
 class ReposWithMultipleProjects(View):
-    @csp_exempt
+    @csp_exempt()
     def get(self, request, *args, **kwargs):
         def iter_repos():
             repos = (

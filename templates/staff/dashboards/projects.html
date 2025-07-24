@@ -116,15 +116,15 @@
                       </summary>
                       <ul class="mt-1 mb-0 pl-2 ml-2">
                         {% for org in project.orgs %}
-                        <li>
-                          <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
-                        </li>
+                          <li>
+                            <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
+                          </li>
                         {% endfor %}
                       </ul>
                     </details>
                   {% else %}
                     {% for org in project.orgs %}
-                    <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
+                      <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
                     {% endfor %}
                   {% endif %}
                 {% /table_cell %}

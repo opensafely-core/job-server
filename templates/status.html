@@ -14,63 +14,63 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<h1 class="text-3xl break-words pt-2 pb-4 md:pt-0 md:pb-6 md:text-4xl font-bold text-slate-900">
-  Status
-</h1>
-<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
-  {% for backend in backends %}
-    {% #card %}
-      <div class="px-4 py-2 sm:px-6 sm:py-3">
-        <div class="flex flex-wrap items-center justify-between sm:flex-nowrap">
-          <h2 id="workspaces-title" class="text-xl font-semibold tracking-tight text-slate-900">
-            {{ backend.name }}
-          </h2>
-          {% if backend.show_warning %}
-          {% pill variant="warning" text="Missing" %}
-          {% endif %}
-        </div>
-      </div>
-      <div>
-        {% #description_item title="Running jobs" stacked=True %}
-          {{ backend.queue.running }}
-        {% /description_item %}
-        {% #description_item title="Pending jobs" stacked=True %}
-          {{ backend.queue.pending }}
-        {% /description_item %}
-        {% #description_item title="Last contact with "|add:backend.name|add:" backend" stacked=True %}
-          <time
-            class="
-              text-slate-900 group relative cursor-pointer
-              {% if not backend.last_seen %}text-bn-ribbon-900{% endif %}
-            "
-            datetime="{{ backend.last_seen|date:"Y-m-d H:i:sO" }}">
-            {{ backend.last_seen|naturaltime }}
-            {% if backend.last_seen %}
-            {% tooltip class="font-mono" position="-bottom-4" content=backend.last_seen|date:"d M Y H:i:s e" %}
+  <h1 class="text-3xl break-words pt-2 pb-4 md:pt-0 md:pb-6 md:text-4xl font-bold text-slate-900">
+    Status
+  </h1>
+  <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
+    {% for backend in backends %}
+      {% #card %}
+        <div class="px-4 py-2 sm:px-6 sm:py-3">
+          <div class="flex flex-wrap items-center justify-between sm:flex-nowrap">
+            <h2 id="workspaces-title" class="text-xl font-semibold tracking-tight text-slate-900">
+              {{ backend.name }}
+            </h2>
+            {% if backend.show_warning %}
+              {% pill variant="warning" text="Missing" %}
             {% endif %}
-          </time>
-        {% /description_item %}
-        {% #description_item title="Job requests not yet processed by "|add:backend.name|add:" backend" stacked=True %}
-          {{ backend.queue.unacked|floatformat:"-3g" }}
-        {% /description_item %}
-        {% #description_item title="Total job requests received by "|add:backend.name|add:" backend" stacked=True %}
-          {{ backend.queue.acked|floatformat:"-3g" }}
-        {% /description_item %}
-      </div>
-      {% #card_footer no_container class="border-t border-t-slate-200" %}
-        <p class="text-sm font-medium text-slate-600">
-          {{ backend.name }} backend is missing if OpenSAFELY Jobs does
-          not receive a response for {{ backend.alert_timeout|duration }}.
-        </p>
-      {% /card_footer %}
-    {% /card %}
-  {% endfor %}
-</div>
+          </div>
+        </div>
+        <div>
+          {% #description_item title="Running jobs" stacked=True %}
+            {{ backend.queue.running }}
+          {% /description_item %}
+          {% #description_item title="Pending jobs" stacked=True %}
+            {{ backend.queue.pending }}
+          {% /description_item %}
+          {% #description_item title="Last contact with "|add:backend.name|add:" backend" stacked=True %}
+            <time
+              class="
+                     text-slate-900 group relative cursor-pointer
+                     {% if not backend.last_seen %}text-bn-ribbon-900{% endif %}
+                    "
+              datetime="{{ backend.last_seen|date:"Y-m-d H:i:sO" }}">
+              {{ backend.last_seen|naturaltime }}
+              {% if backend.last_seen %}
+                {% tooltip class="font-mono" position="-bottom-4" content=backend.last_seen|date:"d M Y H:i:s e" %}
+              {% endif %}
+            </time>
+          {% /description_item %}
+          {% #description_item title="Job requests not yet processed by "|add:backend.name|add:" backend" stacked=True %}
+            {{ backend.queue.unacked|floatformat:"-3g" }}
+          {% /description_item %}
+          {% #description_item title="Total job requests received by "|add:backend.name|add:" backend" stacked=True %}
+            {{ backend.queue.acked|floatformat:"-3g" }}
+          {% /description_item %}
+        </div>
+        {% #card_footer no_container class="border-t border-t-slate-200" %}
+          <p class="text-sm font-medium text-slate-600">
+            {{ backend.name }} backend is missing if OpenSAFELY Jobs does
+            not receive a response for {{ backend.alert_timeout|duration }}.
+          </p>
+        {% /card_footer %}
+      {% /card %}
+    {% endfor %}
+  </div>
 
-{% #alert variant="info" title="OpenSAFELY status" class="max-w-prose" %}
-  <p>
-    If you are looking for the overall service status, go to our
-    {% link href="https://status.opensafely.org/" text="OpenSAFELY Status website" append_after="." %}
-  </p>
-{% /alert %}
+  {% #alert variant="info" title="OpenSAFELY status" class="max-w-prose" %}
+    <p>
+      If you are looking for the overall service status, go to our
+      {% link href="https://status.opensafely.org/" text="OpenSAFELY Status website" append_after="." %}
+    </p>
+  {% /alert %}
 {% endblock %}

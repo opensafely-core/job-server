@@ -24,16 +24,28 @@ class FakeGitHubAPI:
         return 1
 
     def create_issue_comment(
-        self, org, repo, title_text, body, latest=True, issue_number=None
+        self, org, repo, title_text, body, latest=True, issue_number=None, labels=None
     ):
         return {
             "html_url": "http://example.com/issues/comment",
         }
 
-    def close_issue(self, org, repo, title_text, comment=None, latest=True):
+    def close_issue(
+        self,
+        org,
+        repo,
+        title_text,
+        comment=None,
+        latest=True,
+        issue_number=None,
+        labels=None,
+    ):
         return {
             "html_url": "http://example.com/issues/comment",
         }
+
+    def get_issue_labels(self, org, repo, issue_number):
+        return ["Pending review"]
 
     def create_repo(self, org, repo):
         return {
@@ -82,6 +94,9 @@ class FakeGitHubAPI:
 
     def get_labels(self, org, repo):
         return ["internal", "external"]
+
+    def create_label(self, org, repo, label_name):
+        return {"name": label_name}
 
     def get_repos_with_branches(self, org):
         return [
@@ -182,15 +197,24 @@ class FakeGitHubAPIWithErrors:
     def get_issue_number_from_title(
         self, org, repo, title_text, latest=True, state=None
     ):
-        raise GitHubError()
+        raise GitHubError("An error occurred")
 
     def create_issue_comment(
-        self, org, repo, title_text, body, latest=True, issue_number=None
+        self, org, repo, title_text, body, latest=True, issue_number=None, labels=None
     ):
         # Some unit tests want to check the message.
         raise GitHubError("An error occurred")
 
-    def close_issue(self, org, repo, title_text, comment=None, latest=True):
+    def close_issue(
+        self,
+        org,
+        repo,
+        title_text,
+        comment=None,
+        latest=True,
+        issue_number=None,
+        labels=None,
+    ):
         # Some unit tests want to check the message.
         raise GitHubError("An error occurred")
 
@@ -212,6 +236,9 @@ class FakeGitHubAPIWithErrors:
     def get_file(self, org, repo, branch, filepath="project.yaml"):
         raise GitHubError()
 
+    def get_issue_labels(self, org, repo, issue_number):
+        raise GitHubError()
+
     def get_repo(self, org, repo):
         raise GitHubError()
 
@@ -219,6 +246,9 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def get_labels(self, org, repo):
+        raise GitHubError()
+
+    def create_label(self, org, repo, label_name):
         raise GitHubError()
 
     def get_repos_with_branches(self, org):

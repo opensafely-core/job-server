@@ -157,6 +157,7 @@ django-upgrade *args="$(find applications jobserver redirects services staff tes
 
 lint *args=".": devenv
     $BIN/ruff check --output-format=full {{ args }}
+    $BIN/djhtml --tabwidth 2 --check templates/
 
 
 # run the various dev checks but does not change any files
@@ -178,10 +179,11 @@ apply-migrations: devenv
 # generate migrations and apply unapplied ones
 migrate: make-migrations apply-migrations
 
-# fix formatting and import sort ordering
+# fix the things we can automate: linting, formatting, import sorting
 fix: devenv
     $BIN/ruff check --fix .
     $BIN/ruff format .
+    $BIN/djhtml --tabwidth 2 templates/
 
 
 load-dev-data: devenv
