@@ -85,6 +85,11 @@ def set_release_storage(monkeypatch, tmp_path):
     monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
 
 
+@pytest.fixture(autouse=True)
+def github_max_retry(monkeypatch):
+    monkeypatch.setattr(settings, "DEFAULT_MAX_GITHUB_RETRIES", 1)
+
+
 @pytest.fixture
 def user():
     """

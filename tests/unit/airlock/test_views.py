@@ -262,7 +262,6 @@ def test_api_post_release_request_default_org_and_repo(mock_create_issue, api_rf
     ],
 )
 @patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
-@patch("airlock.issues.settings.DEFAULT_MAX_GITHUB_RETRIES", 1)
 def test_api_airlock_event_error(
     api_rf, slack_messages, event_type, updates, error, slack_notified
 ):
@@ -308,7 +307,6 @@ def test_api_airlock_event_error(
 
 @patch("airlock.views._get_github_api", FakeGitHubAPIWithErrors)
 @patch("airlock.emails.send_html_email")
-@patch("airlock.issues.settings.DEFAULT_MAX_GITHUB_RETRIES", 1)
 def test_api_airlock_event_multiple_errors(mock_send, api_rf, slack_messages):
     mock_send.side_effect = Exception("Error sending email")
     author = UserFactory()
