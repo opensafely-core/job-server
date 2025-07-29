@@ -184,7 +184,7 @@ def _update_output_checking_issue(
             comment_url,
             get_issue_title(workspace_name, release_request_id),
             updates,
-            github_error=github_error_msg,
+            github_error_msg,
         )
 
     return comment_url
@@ -221,6 +221,6 @@ def update_output_checking_issue(
             comment_url,
             get_issue_title(workspace_name, release_request_id),
             updates,
-            github_error=github_error_msg,
+            github_error_msg,
         )
         raise error
