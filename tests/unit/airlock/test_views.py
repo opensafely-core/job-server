@@ -428,6 +428,10 @@ def test_airlock_event_describe_updates(event_type, user, updates, descriptions)
     )
     assert airlock_event.describe_updates() == descriptions
 
+    assert airlock_event.describe_updates_as_str() == "\n".join(
+        [f"- {description}" for description in descriptions]
+    )
+
 
 @pytest.mark.parametrize(
     "event_type,label",
