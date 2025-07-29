@@ -304,6 +304,9 @@ class GitHubAPI:
         }
         r = self._get(url, headers=headers, params=payload)
 
+        if r.status_code == 404:
+            raise IssueNotFound()
+
         self._raise_for_status(r)
 
         results = r.json()
@@ -349,9 +352,6 @@ class GitHubAPI:
             "Accept": "application/vnd.github.v3+json",
         }
         r = self._post(url, headers=headers, json=payload)
-
-        if r.status_code == 404:
-            raise IssueNotFound()
 
         self._raise_for_status(r)
 
