@@ -95,7 +95,7 @@ furl
 
 # A specific version of the OpenSAFELY Pipeline for health data analysis.
 # Search 'pipeline' in jobserver/
-opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip
+opensafely-pipeline[fastparser]@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip
 
 # Handling markdown. Used in some views and snippets.
 markdown
