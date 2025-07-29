@@ -1,9 +1,10 @@
 from enum import Enum
 
+import backoff
 from django.conf import settings
 from furl import furl
 
-from jobserver.github import GitHubError
+from jobserver.github import GitHubError, IssueNotFound
 from jobserver.utils import strip_whitespace
 
 from .slack import post_slack_update
@@ -36,6 +37,16 @@ def ensure_issue_status_labels(org, repo, github_api):
     return repo_labels
 
 
+def get_github_max_retry():
+    return settings.DEFAULT_MAX_GITHUB_RETRIES
+
+
+@backoff.on_exception(
+    backoff.expo,
+    GitHubError,
+    max_tries=get_github_max_retry,
+    jitter=backoff.full_jitter,
+)
 def create_output_checking_issue(
     workspace, release_request_id, request_author, org, repo, github_api
 ):
@@ -90,6 +101,12 @@ def get_non_status_issue_labels(org, repo, issue_number, github_api):
     return labels
 
 
+@backoff.on_exception(
+    backoff.expo,
+    GitHubError,
+    max_tries=get_github_max_retry,
+    jitter=backoff.full_jitter,
+)
 def close_output_checking_issue(
     release_request_id, user, reason, org, repo, github_api
 ):
@@ -118,6 +135,39 @@ def close_output_checking_issue(
     return data["html_url"]
 
 
+def notify_after_max_retries(details):
+    (
+        release_request_id,
+        workspace_name,
+        updates,
+        org,
+        repo,
+        github_api,
+        notify_slack,
+        request_author,
+    ) = details["args"]
+
+    comment_url = None
+    github_error_msg = str(details["exception"])
+
+    if notify_slack:
+        if github_error_msg:
+            post_slack_update(
+                org,
+                comment_url,
+                get_issue_title(workspace_name, release_request_id),
+                updates,
+                github_error=github_error_msg,
+            )
+
+
+@backoff.on_exception(
+    backoff.expo,
+    (IssueNotFound, GitHubError),
+    max_tries=get_github_max_retry,
+    jitter=backoff.full_jitter,
+    on_giveup=lambda details: notify_after_max_retries(details),
+)
 def update_output_checking_issue(
     release_request_id,
     workspace_name,
@@ -126,6 +176,7 @@ def update_output_checking_issue(
     repo,
     github_api,
     notify_slack,
+    request_author,
     label,
 ):
     updates_string = "\n".join([f"- {update}" for update in updates])
@@ -158,18 +209,21 @@ def update_output_checking_issue(
             labels=list(labels),
         )
         comment_url = data["html_url"]
-    except GitHubError as error:
-        comment_url = None
-        github_error_msg = str(error)
-        raise error
-    finally:
-        if notify_slack:
-            post_slack_update(
-                org,
-                comment_url,
-                get_issue_title(workspace_name, release_request_id),
-                updates_string,
-                github_error=github_error_msg,
-            )
-        if comment_url is not None:
-            return comment_url
+
+    # if issue was not created in the first instance, try to create the issue again and backoff retries creating a comment
+    except IssueNotFound as issue_error:
+        create_output_checking_issue(
+            workspace_name, release_request_id, request_author, org, repo, github_api
+        )
+        raise issue_error
+
+    if notify_slack:
+        post_slack_update(
+            org,
+            comment_url,
+            get_issue_title(workspace_name, release_request_id),
+            updates,
+            github_error=github_error_msg,
+        )
+    if comment_url is not None:
+        return comment_url
