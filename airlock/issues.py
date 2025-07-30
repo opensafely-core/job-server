@@ -197,6 +197,7 @@ def update_output_checking_issue(
     github_api,
     notify_slack,
     request_author,
+    label,
 ):
     try:
         return _update_output_checking_issue(
@@ -208,6 +209,7 @@ def update_output_checking_issue(
             github_api,
             notify_slack,
             request_author,
+            label,
         )
 
     except GitHubError as error:

@@ -195,6 +195,7 @@ def test_update_output_checking_request_no_label(github_api, slack_messages):
             "opensafely-output-review",
             github_api,
             notify_slack=False,
+            request_author=user,
             label=None,
         )
         == "http://example.com/issues/comment"
@@ -259,6 +260,7 @@ def test_update_output_checking_issue_retry_error_and_success():
             api,
             notify_slack=False,
             request_author=user,
+            label=None,
         )
     assert mock_create_issue_comment.call_count == 3
     assert mock_update_issue == "http://example.com/issues/comment"
