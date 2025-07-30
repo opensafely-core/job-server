@@ -1,6 +1,5 @@
 from enum import Enum
 
-import backoff
 from django.conf import settings
 from furl import furl
 
@@ -41,12 +40,6 @@ def get_github_max_retry():
     return settings.DEFAULT_MAX_GITHUB_RETRIES
 
 
-@backoff.on_exception(
-    backoff.expo,
-    GitHubError,
-    max_tries=get_github_max_retry,
-    jitter=backoff.full_jitter,
-)
 def create_output_checking_issue(
     workspace, release_request_id, request_author, org, repo, github_api
 ):
@@ -101,12 +94,6 @@ def get_non_status_issue_labels(org, repo, issue_number, github_api):
     return labels
 
 
-@backoff.on_exception(
-    backoff.expo,
-    GitHubError,
-    max_tries=get_github_max_retry,
-    jitter=backoff.full_jitter,
-)
 def close_output_checking_issue(
     release_request_id, user, reason, org, repo, github_api
 ):
@@ -159,13 +146,6 @@ def notify_after_max_retries(details):
     )
 
 
-@backoff.on_exception(
-    backoff.expo,
-    (IssueNotFound, GitHubError),
-    max_tries=get_github_max_retry,
-    jitter=backoff.full_jitter,
-    on_giveup=lambda details: notify_after_max_retries(details),
-)
 def update_output_checking_issue(
     release_request_id,
     workspace_name,
