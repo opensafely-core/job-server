@@ -240,6 +240,8 @@ SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY")
 SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 RAP_API_ENDPOINT = env.str("RAP_API_ENDPOINT")
+RAP_API_TOKEN = env.str("RAP_API_TOKEN")
+
 
 # Passwords
 # https://docs.djangoproject.com/en/4.0/ref/settings/#password-hashers

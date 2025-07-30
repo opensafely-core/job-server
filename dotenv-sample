@@ -19,6 +19,7 @@ ASSETS_DEV_MODE=False
 
 # URL for controller api
 RAP_API_ENDPOINT=http://localhost:3000/
+RAP_API_TOKEN=token
 
 # PRODUCTION ONLY
 # You only need to set the values below in Production by default.
