@@ -28,7 +28,9 @@ describe("<App />", () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} />);
 
-    window.resizeTo(500, 500);
+    window.innerWidth = 500;
+    window.innerHeight = 500;
+    window.dispatchEvent(new Event("resize"));
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
