@@ -1,6 +1,10 @@
 {
   "cron": [
     {
+      "command": "just manage check_controller_status",
+      "schedule": "* * * * *"
+    },
+    {
       "command": "python manage.py runjobs hourly",
       "schedule": "@hourly"
     },
