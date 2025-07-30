@@ -1,4 +1,5 @@
 import requests
+import structlog
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
@@ -25,4 +26,9 @@ class Command(BaseCommand):
         url = settings.RAP_API_ENDPOINT
         api_token = settings.RAP_API_TOKEN
 
-        print(self.check_controller_status(url, api_token))
+        logger = structlog.get_logger(__name__)
+
+        try:
+            logger.info(self.check_controller_status(url, api_token))
+        except CommandError as e:
+            logger.error(e)
