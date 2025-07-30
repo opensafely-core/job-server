@@ -17,7 +17,7 @@ SOCIAL_AUTH_GITHUB_SECRET=dummy
 
 ASSETS_DEV_MODE=False
 
-# URL for controller api
+# URL for rap api
 RAP_API_ENDPOINT=http://localhost:3000/
 RAP_API_TOKEN=token
 

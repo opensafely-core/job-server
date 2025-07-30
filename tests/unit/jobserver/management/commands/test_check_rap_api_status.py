@@ -2,10 +2,10 @@ import responses
 import responses.matchers
 from django.conf import settings
 
-from jobserver.management.commands.check_controller_status import Command as cd
+from jobserver.management.commands.check_rap_api_status import Command as cd
 
 
-def test_check_controller_status():
+def test_check_rap_api_status():
     with responses.RequestsMock() as rsps:
         # default rap api url
         url = settings.RAP_API_ENDPOINT
@@ -19,5 +19,5 @@ def test_check_controller_status():
             status=200,
         )
 
-        result = cd.check_controller_status(url, api_token)
+        result = cd.check_rap_api_status(url, api_token)
         assert result == b'{"method": "GET"}'
