@@ -11,8 +11,10 @@ function Iframe({ data, fileName, fileUrl }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: ESLint to Biome legacy ignore
   useLayoutEffect(() => {
     // On screens wider than 991px, we will set a height
+    // 991px is used as this is the size of the breakpoint in the sidebar CSS
     if (window.innerWidth > 991) {
       // If the iframe is offsetHeight is smaller than 1000 pixels, set it to 1000px
+      // This is a magic number of roughly a good height for most screens viewing content
       if (document.getElementById(id).offsetHeight < 1000)
         return setFrameHeight(1000);
       // Otherwise, set the height to be the height of the #outputsSPA element
