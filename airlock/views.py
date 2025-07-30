@@ -127,6 +127,12 @@ class AirlockEvent:
             updates.append(self._update_dict_to_string(update_dict))
         return updates
 
+    def describe_updates_as_str(self):
+        updates = self.describe_updates()
+
+        str_updates = "\n".join([f"- {update}" for update in updates])
+        return str_updates
+
 
 def create_issue(airlock_event: AirlockEvent, github_api=None):
     github_api = github_api or _get_github_api()
@@ -161,7 +167,8 @@ def close_issue(airlock_event: AirlockEvent, github_api=None):
 
 def update_issue(airlock_event: AirlockEvent, github_api=None, notify_slack=False):
     github_api = github_api or _get_github_api()
-    updates = airlock_event.describe_updates()
+    updates = airlock_event.describe_updates_as_str()
+
     try:
         update_output_checking_issue(
             airlock_event.release_request_id,
@@ -170,7 +177,8 @@ def update_issue(airlock_event: AirlockEvent, github_api=None, notify_slack=Fals
             airlock_event.org,
             airlock_event.repo,
             github_api,
-            notify_slack=notify_slack,
+            notify_slack,
+            airlock_event.request_author,
             label=airlock_event.event_type.status_label(),
         )
     except GitHubError as e:

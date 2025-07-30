@@ -119,4 +119,7 @@ structlog
 
 # Password generator. See jobserver/commands/users.py.
 xkcdpass
+
+# Handling exponential backoff. Used in managing github api call retries.
+stamina
 ###########################################################

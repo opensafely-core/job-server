@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.conf import settings
 
 from airlock.issues import (
@@ -6,12 +8,14 @@ from airlock.issues import (
     create_output_checking_issue,
     update_output_checking_issue,
 )
+from jobserver.github import GitHubError, IssueNotFound
 from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,
     UserFactory,
     WorkspaceFactory,
 )
+from tests.fakes import FakeGitHubAPI
 
 
 def test_create_output_checking_request_external(github_api):
@@ -155,11 +159,12 @@ def test_update_output_checking_request(github_api, slack_messages):
         update_output_checking_issue(
             "01AAA1AAAAAAA1AAAAA11A1AAA",
             "workspace",
-            ["file added (filegroup 'Group 1') by user test"],
+            "- file added (filegroup 'Group 1') by user test",
             "ebmdatalab",
             "opensafely-output-review",
             github_api,
             notify_slack=False,
+            request_author=user,
             label=IssueStatusLabel.WITH_REQUESTER,
         )
         == "http://example.com/issues/comment"
@@ -190,6 +195,7 @@ def test_update_output_checking_request_no_label(github_api, slack_messages):
             "opensafely-output-review",
             github_api,
             notify_slack=False,
+            request_author=user,
             label=None,
         )
         == "http://example.com/issues/comment"
@@ -212,11 +218,12 @@ def test_update_output_checking_request_with_slack_notification(
         update_output_checking_issue(
             "01",
             "workspace",
-            ["request resubmitted by user test"],
+            "- request resubmitted by user test",
             "ebmdatalab",
             "opensafely-output-review",
             github_api,
             notify_slack=True,
+            request_author=user,
             label=IssueStatusLabel.PENDING_REVIEW,
         )
         == "http://example.com/issues/comment"
@@ -228,3 +235,32 @@ def test_update_output_checking_request_with_slack_notification(
             "test-channel",
         )
     ]
+
+
+def test_update_output_checking_issue_retry_error_and_success():
+    org = OrgFactory(pk=settings.BENNETT_ORG_PK)
+    user = UserFactory()
+    workspace = WorkspaceFactory(name="test-workspace")
+    OrgMembershipFactory(org=org, user=user)
+
+    api = FakeGitHubAPI()
+
+    with patch.object(api, "create_issue_comment") as mock_create_issue_comment:
+        mock_create_issue_comment.side_effect = [
+            IssueNotFound,
+            GitHubError,
+            {"html_url": "http://example.com/issues/comment"},
+        ]
+        mock_update_issue = update_output_checking_issue(
+            "01AAA1AAAAAAA1AAAAA11A1AAA",
+            workspace,
+            "- file added (filegroup 'Group 1') by user test",
+            "ebmdatalab",
+            "opensafely-output-review",
+            api,
+            notify_slack=False,
+            request_author=user,
+            label=None,
+        )
+    assert mock_create_issue_comment.call_count == 3
+    assert mock_update_issue == "http://example.com/issues/comment"
