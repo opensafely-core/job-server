@@ -37,11 +37,10 @@ def ensure_issue_status_labels(org, repo, github_api):
     return repo_labels
 
 
-def get_github_max_retry():
-    return settings.DEFAULT_MAX_GITHUB_RETRIES
+MAX_RETRIES = settings.DEFAULT_MAX_GITHUB_RETRIES
 
 
-@stamina.retry(on=GitHubError, attempts=get_github_max_retry(), wait_jitter=1.0)
+@stamina.retry(on=GitHubError, attempts=MAX_RETRIES, wait_jitter=1.0)
 def create_output_checking_issue(
     workspace, release_request_id, request_author, org, repo, github_api
 ):
@@ -96,7 +95,7 @@ def get_non_status_issue_labels(org, repo, issue_number, github_api):
     return labels
 
 
-@stamina.retry(on=GitHubError, attempts=get_github_max_retry(), wait_jitter=1.0)
+@stamina.retry(on=GitHubError, attempts=MAX_RETRIES, wait_jitter=1.0)
 def close_output_checking_issue(
     release_request_id, user, reason, org, repo, github_api
 ):
@@ -125,9 +124,7 @@ def close_output_checking_issue(
     return data["html_url"]
 
 
-@stamina.retry(
-    on=(IssueNotFound, GitHubError), attempts=get_github_max_retry(), wait_jitter=1.0
-)
+@stamina.retry(on=(IssueNotFound, GitHubError), attempts=MAX_RETRIES, wait_jitter=1.0)
 def _update_output_checking_issue(
     release_request_id,
     workspace_name,
