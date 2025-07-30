@@ -239,7 +239,7 @@ LOGIN_URL_TIMEOUT_MINUTES = 60
 SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY")
 SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
-CONTROLLER_API_ENDPOINT = env.str("CONTROLLER_API_ENDPOINT")
+RAP_API_ENDPOINT = env.str("RAP_API_ENDPOINT")
 
 # Passwords
 # https://docs.djangoproject.com/en/4.0/ref/settings/#password-hashers

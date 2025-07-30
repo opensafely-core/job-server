@@ -4,9 +4,8 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
-        url = settings.CONTROLLER_API_ENDPOINT
-
+    @staticmethod
+    def check_controller_status(url):
         try:
             response = requests.get(url)
 
@@ -15,3 +14,10 @@ class Command(BaseCommand):
 
         if response.status_code != 200:
             raise CommandError("Controller endpoint returned an error")
+
+        return response.content
+
+    def handle(self, *args, **options):
+        url = settings.RAP_API_ENDPOINT
+
+        print(self.check_controller_status(url))
