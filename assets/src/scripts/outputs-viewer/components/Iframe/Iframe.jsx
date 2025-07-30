@@ -10,14 +10,18 @@ function Iframe({ data, fileName, fileUrl }) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: ESLint to Biome legacy ignore
   useLayoutEffect(() => {
-    const minHeight = 1000;
-    if (document.getElementById(id) && window.innerWidth > 991) {
-      const spaHeight = Math.round(
-        document?.getElementById("outputsSPA")?.offsetHeight,
-      );
-      if (!spaHeight || spaHeight < minHeight) return setFrameHeight(minHeight);
+    // On screens wider than 991px, we will set a height
+    // 991px is used as this is the size of the breakpoint in the sidebar CSS
+    if (window.innerWidth > 991) {
+      // If the iframe is offsetHeight is smaller than 1000 pixels, set it to 1000px
+      // This is a magic number of roughly a good height for most screens viewing content
+      if (document.getElementById(id).offsetHeight < 1000)
+        return setFrameHeight(1000);
+      // Otherwise, set the height to be the height of the #outputsSPA element
+      return setFrameHeight(document.getElementById("outputsSPA").offsetHeight);
     }
-    return setFrameHeight(minHeight);
+    // Otherwise, on small screens we will set the height to be the full height of the iframe content
+    return setFrameHeight(1000);
   }, [windowSize, id]);
 
   return (
