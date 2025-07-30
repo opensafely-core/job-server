@@ -8,7 +8,7 @@ from airlock.issues import (
     create_output_checking_issue,
     update_output_checking_issue,
 )
-from jobserver.github import GitHubError
+from jobserver.github import GitHubError, IssueNotFound
 from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,
@@ -237,24 +237,28 @@ def test_update_output_checking_request_with_slack_notification(
 
 
 def test_create_output_checking_issue_retry_error_and_success():
+    org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     workspace = WorkspaceFactory(name="test-workspace")
+    OrgMembershipFactory(org=org, user=user)
 
     api = FakeGitHubAPI()
 
-    with patch.object(api, "create_issue") as mock_create_issue:
-        mock_create_issue.side_effect = [
+    with patch.object(api, "create_issue_comment") as mock_create_issue_comment:
+        mock_create_issue_comment.side_effect = [
+            IssueNotFound,
             GitHubError,
-            GitHubError,
-            {"html_url": "http://example.com"},
+            {"html_url": "http://example.com/issues/comment"},
         ]
-        mock_issue = create_output_checking_issue(
-            workspace,
+        mock_issue = update_output_checking_issue(
             "01AAA1AAAAAAA1AAAAA11A1AAA",
-            user,
+            workspace,
+            "- file added (filegroup 'Group 1') by user test",
             "ebmdatalab",
             "opensafely-output-review",
             api,
+            notify_slack=False,
+            request_author=user,
         )
-    mock_create_issue.call_count == 3
-    assert mock_issue == "http://example.com"
+    mock_create_issue_comment.call_count == 3
+    assert mock_issue == "http://example.com/issues/comment"
