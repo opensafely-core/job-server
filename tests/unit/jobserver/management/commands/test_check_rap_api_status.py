@@ -2,7 +2,7 @@ import pytest
 import responses
 import responses.matchers
 from django.conf import settings
-from django.core.management.base import CommandError
+from django.core.management import CommandError, call_command
 
 from jobserver.management.commands.check_rap_api_status import Command as cd
 
@@ -52,3 +52,24 @@ def test_check_rap_api_status_not_available():
 
         with pytest.raises(CommandError, match="not available"):
             cd.check_rap_api_status(url, api_token)
+
+
+def test_command(capsys, log_output):
+    with responses.RequestsMock() as rsps:
+        # default rap api url
+        url = settings.RAP_API_ENDPOINT
+        api_token = settings.RAP_API_TOKEN
+
+        rsps.add(
+            responses.GET,
+            f"{url}/backend/status",
+            body=b'{"method": "GET"}',
+            match=[responses.matchers.header_matcher({"Authorization": api_token})],
+            status=200,
+        )
+        call_command("check_rap_api_status")
+
+        assert log_output.entries[0] == {
+            "event": b'{"method": "GET"}',
+            "log_level": "info",
+        }
