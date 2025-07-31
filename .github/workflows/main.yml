@@ -56,7 +56,7 @@ jobs:
         run: just assets-install --ignore-scripts
 
       - name: Lint assets
-        run: npm run lint
+        run: npm run lint:ci
 
       - name: Run JS tests
         run: just assets-test

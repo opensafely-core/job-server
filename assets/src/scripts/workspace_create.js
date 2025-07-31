@@ -11,6 +11,7 @@ const setBranches = (reposWithBranches, repoURL) => {
   }
 
   const select = document.getElementById("id_branch");
+  // biome-ignore lint/complexity/noForEach: update to biome v2
   repo.branches.forEach((branch) => {
     // Set master or main branches as the default selected option
     const selected = branch === "master" || branch === "main";
