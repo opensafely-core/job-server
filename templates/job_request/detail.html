@@ -27,7 +27,9 @@
 {% endblock breadcrumbs %}
 
 {% block above_content %}
-  {% db_maintenance_banner %}
+  {% if job_request.status != "succeeded" %}
+    {% db_maintenance_banner %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}
