@@ -16,6 +16,10 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
+{% block above_content %}
+  {% db_maintenance_banner %}
+{% endblock %}
+
 {% block content %}
   <article class="flex flex-col gap-y-4">
     {% if workspace.is_archived %}

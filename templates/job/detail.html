@@ -22,6 +22,10 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
+{% block above_content %}
+  {% db_maintenance_banner %}
+{% endblock %}
+
 {% block content %}
   {% var backendName=job.job_request.backend|stringformat:"s"|upper %}
 
