@@ -315,6 +315,8 @@ class GitHubAPI:
 
         if count > 0:
             return items[0]["number"]
+        else:
+            raise IssueNotFound()
 
     def create_issue_comment(
         self, org, repo, title_text, body, latest=True, issue_number=None, labels=None
