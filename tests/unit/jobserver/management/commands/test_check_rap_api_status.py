@@ -79,3 +79,11 @@ def test_command(endpoint, status_url, api_token, response_body, log_output):
             "event": response_body,
             "log_level": "info",
         }
+
+
+def test_command_error(endpoint, status_url, api_token, log_output):
+    with responses.RequestsMock():
+        call_command("check_rap_api_status")
+
+        assert "error" == log_output.entries[0]["log_level"]
+        assert "not available" in str(log_output.entries[0]["event"])
