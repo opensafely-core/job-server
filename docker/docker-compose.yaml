@@ -54,6 +54,8 @@ services:
       - SECRET_KEY=12345
       - SOCIAL_AUTH_GITHUB_KEY=test
       - SOCIAL_AUTH_GITHUB_SECRET=test
+      - RAP_API_ENDPOINT=http://localhost:3000
+      - RAP_API_TOKEN=token
 
 
   # base development service
