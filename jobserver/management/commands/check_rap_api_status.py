@@ -6,14 +6,14 @@ from django.core.management.base import BaseCommand, CommandError
 
 class Command(BaseCommand):
     @staticmethod
-    def check_rap_api_status(url, api_token):
+    def check_rap_api_status(endpoint, api_token):
         try:
             response = requests.get(
-                f"{url}/backend/status", headers={"Authorization": api_token}
+                f"{endpoint}/backend/status", headers={"Authorization": api_token}
             )
 
-        except requests.exceptions.RequestException:
-            raise CommandError("RAP API endpoint not available")
+        except requests.exceptions.RequestException as e:
+            raise CommandError(f"RAP API endpoint not available {e}")
 
         if response.status_code != 200:
             raise CommandError(
@@ -23,12 +23,12 @@ class Command(BaseCommand):
         return response.content
 
     def handle(self, *args, **options):
-        url = settings.RAP_API_ENDPOINT
+        endpoint = settings.RAP_API_ENDPOINT
         api_token = settings.RAP_API_TOKEN
 
         logger = structlog.get_logger(__name__)
 
         try:
-            logger.info(self.check_rap_api_status(url, api_token))
+            logger.info(self.check_rap_api_status(endpoint, api_token))
         except CommandError as e:
             logger.error(e)
