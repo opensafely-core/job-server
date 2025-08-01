@@ -16,6 +16,12 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
+{% block above_content %}
+  {% if tpp_maintenance_banner is True %}
+    {% db_maintenance_banner %}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   {% if workspace.is_archived %}
     {% #alert variant="warning" title="Archived Workspace" class="mb-6" %}
