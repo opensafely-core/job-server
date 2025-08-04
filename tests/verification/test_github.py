@@ -141,8 +141,8 @@ class TestGithubAPIPrivate:
 
     def test_get_issue_number_no_matches(self, github_api):
         args = ["opensafely-testing", "github-api-testing-private", new_ulid_str()]
-        real = github_api.get_issue_number_from_title(*args)
-        assert real is None
+        with pytest.raises(IssueNotFound):
+            github_api.get_issue_number_from_title(*args)
 
     @pytest.mark.parametrize("labels", [["Under review"], None])
     def test_create_issue_comment(self, github_api, labels):

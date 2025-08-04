@@ -304,9 +304,6 @@ class GitHubAPI:
         }
         r = self._get(url, headers=headers, params=payload)
 
-        if r.status_code == 404:
-            raise IssueNotFound()
-
         self._raise_for_status(r)
 
         results = r.json()
@@ -315,6 +312,7 @@ class GitHubAPI:
 
         if count > 0:
             return items[0]["number"]
+        raise IssueNotFound()
 
     def create_issue_comment(
         self, org, repo, title_text, body, latest=True, issue_number=None, labels=None
