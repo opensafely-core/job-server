@@ -1,29 +1,28 @@
 import pytest
 import responses
 import responses.matchers
-from _pytest.fixtures import fixture
 from django.conf import settings
 from django.core.management import CommandError, call_command
 
 from jobserver.management.commands.check_rap_api_status import Command as cd
 
 
-@fixture
+@pytest.fixture
 def base_url():
     return settings.RAP_API_BASE_URL
 
 
-@fixture
+@pytest.fixture
 def status_url(base_url):
     return f"{base_url}/backend/status"
 
 
-@fixture
+@pytest.fixture
 def api_token():
     return settings.RAP_API_TOKEN
 
 
-@fixture
+@pytest.fixture
 def response_body():
     return b'{"flags":{"test":{"paused":{"v":null,"ts":"2025-05-09T15:05:09.010195Z"},"last-seen-at":{"v":"2025-07-18T09:29:20.504634+00:00","ts":"2025-07-18T09:29:20.504842Z"}}}}'
 
