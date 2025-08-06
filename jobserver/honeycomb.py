@@ -8,7 +8,7 @@ from furl import furl
 def honeycomb_furl():
     # TODO: make this configurable?
     return furl(
-        "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner"
+        "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production"
     )
 
 
