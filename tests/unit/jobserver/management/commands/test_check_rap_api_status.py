@@ -9,13 +9,13 @@ from jobserver.management.commands.check_rap_api_status import Command as cd
 
 
 @fixture
-def endpoint():
-    return settings.RAP_API_ENDPOINT
+def base_url():
+    return settings.RAP_API_BASE_URL
 
 
 @fixture
-def status_url(endpoint):
-    return f"{endpoint}/backend/status"
+def status_url(base_url):
+    return f"{base_url}/backend/status"
 
 
 @fixture
@@ -28,7 +28,7 @@ def response_body():
     return b'{"flags":{"test":{"paused":{"v":null,"ts":"2025-05-09T15:05:09.010195Z"},"last-seen-at":{"v":"2025-07-18T09:29:20.504634+00:00","ts":"2025-07-18T09:29:20.504842Z"}}}}'
 
 
-def test_check_rap_api_status(endpoint, status_url, api_token, response_body):
+def test_check_rap_api_status(base_url, status_url, api_token, response_body):
     with responses.RequestsMock() as rsps:
         rsps.add(
             responses.GET,
@@ -38,11 +38,11 @@ def test_check_rap_api_status(endpoint, status_url, api_token, response_body):
             status=200,
         )
 
-        result = cd.check_rap_api_status(endpoint, api_token)
+        result = cd.check_rap_api_status(base_url, api_token)
         assert result == response_body
 
 
-def test_check_rap_api_status_bad_token(endpoint, status_url):
+def test_check_rap_api_status_bad_token(base_url, status_url):
     with responses.RequestsMock() as rsps:
         api_token_bad = "badtoken"
 
@@ -54,17 +54,17 @@ def test_check_rap_api_status_bad_token(endpoint, status_url):
         )
 
         with pytest.raises(CommandError, match="returned an error"):
-            cd.check_rap_api_status(endpoint, api_token_bad)
+            cd.check_rap_api_status(base_url, api_token_bad)
 
 
-def test_check_rap_api_status_not_available(endpoint, status_url, api_token):
+def test_check_rap_api_status_not_available(base_url, status_url, api_token):
     # Ask responses to intercept requests, but do not define any
     with responses.RequestsMock():
         with pytest.raises(CommandError, match="not available"):
-            cd.check_rap_api_status(endpoint, api_token)
+            cd.check_rap_api_status(base_url, api_token)
 
 
-def test_command(endpoint, status_url, api_token, response_body, log_output):
+def test_command(base_url, status_url, api_token, response_body, log_output):
     with responses.RequestsMock() as rsps:
         rsps.add(
             responses.GET,
@@ -81,7 +81,7 @@ def test_command(endpoint, status_url, api_token, response_body, log_output):
         }
 
 
-def test_command_error(endpoint, status_url, api_token, log_output):
+def test_command_error(base_url, status_url, api_token, log_output):
     with responses.RequestsMock():
         call_command("check_rap_api_status")
 
