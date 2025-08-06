@@ -1,7 +1,7 @@
 {
   "cron": [
     {
-      "command": "just manage check_controller_status",
+      "command": "python manage.py check_rap_api_status",
       "schedule": "* * * * *"
     },
     {
