@@ -270,7 +270,7 @@ class JobRequestAPIList(ListAPIView):
             .values_list("job_request_id")
             .distinct()
         )
-        # A job request is acknowledged by the RAP Controller when it has at least one
+        # A job request is acknowledged by the RAP API when it has at least one
         # job created for it
         acknowledged_job_request_ids = (
             Job.objects.all().values_list("job_request_id").distinct()

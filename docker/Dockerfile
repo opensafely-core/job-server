@@ -156,8 +156,8 @@ FROM job-server-base as job-server-prod
 # Adjust this metadata to fit project. Note that the base-docker image does set
 # some basic metadata.
 LABEL org.opencontainers.image.title="job-server" \
-      org.opencontainers.image.description="Job Server" \
-      org.opencontainers.image.source="https://github.com/opensafely-core/job-server"
+    org.opencontainers.image.description="Job Server" \
+    org.opencontainers.image.source="https://github.com/opensafely-core/job-server"
 
 # Expose the port to Dokku
 # https://dokku.com/docs/networking/port-management/#applications-using-expose
@@ -170,6 +170,8 @@ COPY . /app
 RUN SECRET_KEY=dummy-key \
     SOCIAL_AUTH_GITHUB_KEY=dummy-key \
     SOCIAL_AUTH_GITHUB_SECRET=dummy-secret \
+    RAP_API_BASE_URL=http://localhost:3000 \
+    RAP_API_TOKEN=dummy \
     python /app/manage.py collectstatic --no-input
 
 ENTRYPOINT ["/app/docker/entrypoints/prod.sh"]

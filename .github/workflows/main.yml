@@ -125,7 +125,7 @@ jobs:
         run: |
           just docker-serve prod -d
           sleep 5
-          just docker-smoke-test || { docker logs job-server_prod_1; exit 1; }
+          just docker-smoke-test || { docker logs job-server-prod-1; exit 1; }
 
       - name: Save docker image
         run: |
