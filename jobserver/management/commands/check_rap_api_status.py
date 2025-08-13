@@ -6,10 +6,16 @@ from django.core.management.base import BaseCommand, CommandError
 
 class Command(BaseCommand):
     @staticmethod
-    def check_rap_api_status(base_url, api_token):
+    def check_rap_api_status():
+        if not (settings.RAP_API_BASE_URL and settings.RAP_API_TOKEN):
+            raise CommandError(
+                "Required environment variables RAP_API_BASE_URL and RAP_API_TOKEN are not set"
+            )
+
         try:
             response = requests.get(
-                f"{base_url}/backend/status", headers={"Authorization": api_token}
+                f"{settings.RAP_API_BASE_URL}/backend/status/",
+                headers={"Authorization": settings.RAP_API_TOKEN},
             )
 
         except requests.exceptions.RequestException as e:
@@ -23,12 +29,9 @@ class Command(BaseCommand):
         return response.content
 
     def handle(self, *args, **options):
-        base_url = settings.RAP_API_BASE_URL
-        api_token = settings.RAP_API_TOKEN
-
         logger = structlog.get_logger(__name__)
 
         try:
-            logger.info(self.check_rap_api_status(base_url, api_token))
+            logger.info(self.check_rap_api_status())
         except CommandError as e:
             logger.error(e)

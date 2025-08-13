@@ -1,7 +1,7 @@
 {
   "cron": [
     {
-      "command": "python manage.py check_rap_api_status",
+      "command": "python manage.py runjobs minutely",
       "schedule": "* * * * *"
     },
     {
