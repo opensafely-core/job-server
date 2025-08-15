@@ -44,7 +44,7 @@
 _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords, but it is not a requirement.
 
 - Create a `.env` file; there is an existing `dotenv-sample` template that you can use to base your own `.env` file on.
-- Use `bw` to login to the Bitwarden account.
+- Use `bw login --sso` to login to the Bitwarden account.
 - When logged in to Bitwarden, run `scripts/dev-env.sh .env` to retrieve and write the credentials to the target environment file specified.
   - `.env` is already in `.gitignore` to help prevent an accidental
     commit of credentials.
@@ -59,6 +59,7 @@ _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/articl
 - **Node.js v20.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
 - **Postgres**
+- **Docker**
 
 #### `just` commands
 
