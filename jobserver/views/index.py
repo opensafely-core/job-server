@@ -56,8 +56,13 @@ class Index(View):
             "workspaces": workspaces.count(),
         }
 
+        backends_to_exclude = ["Test"]
+        visible_job_requests = job_requests.exclude(
+            backend__name__in=backends_to_exclude
+        )
+
         context = {
-            "all_job_requests": job_requests[:10],
+            "all_job_requests": visible_job_requests[:10],
             "applications": applications[:5],
             "counts": counts,
             "job_requests": user_job_requests[:5],
