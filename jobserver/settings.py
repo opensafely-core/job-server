@@ -120,6 +120,7 @@ TEMPLATES = [
                 "jobserver.context_processors.site_alerts",
                 "jobserver.context_processors.disable_creating_jobs",
                 "jobserver.context_processors.login_url",
+                "jobserver.context_processors.db_maintenance_mode",
             ],
             "builtins": ["slippers.templatetags.slippers"],
         },
