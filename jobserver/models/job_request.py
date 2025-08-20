@@ -193,16 +193,23 @@ class JobRequest(models.Model):
     def num_completed(self):
         return len([j for j in self.jobs.all() if j.status == "succeeded"])
 
-    def request_cancellation(self):
-        # Exclude succeeded jobs (failed or succeeded status, consistent with Job.is_completed method)
-        actions = list(
-            set(
-                self.jobs.exclude(status__in=["failed", "succeeded"]).values_list(
-                    "action", flat=True
-                )
+    def get_active_actions(self):
+        # Active actions are pending or running
+        return set(
+            self.jobs.exclude(status__in=["failed", "succeeded"]).values_list(
+                "action", flat=True
             )
         )
-        self.cancelled_actions = actions
+
+    @property
+    def has_cancellable_actions(self):
+        # Cancellable actions are ones that are running or pending, and have not already
+        # been requested for cancellation (i.e. are not already in self.cancelled_actions
+        return self.get_active_actions() - set(self.cancelled_actions)
+
+    def request_cancellation(self):
+        # Exclude succeeded jobs (failed or succeeded status, consistent with Job.is_completed method)
+        self.cancelled_actions = list(self.get_active_actions())
         self.save(update_fields=["cancelled_actions"])
 
     @property
