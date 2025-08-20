@@ -35,7 +35,7 @@
 
   {% if job_request.cancelled_actions and not job_request.is_completed %}
     {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
-      A User has requested this job is cancelled.
+      A User has requested that jobs in this request are cancelled.
     {% /alert %}
   {% endif %}
 
@@ -87,13 +87,13 @@
         {% if user_can_cancel_jobs %}
           <form class="d-inline-block" method="POST" action="{{ job_request.get_cancel_url }}">
             {% csrf_token %}
-            {% if job_request.is_completed or job_request.cancelled_actions %}
+            {% if job_request.is_completed or not job_request.has_cancellable_actions %}
               {% #button type="submit" disabled=True tooltip="This job request can no longer be cancelled" %}
-                Cancel this job
+                Cancel this job request
               {% /button %}
             {% else %}
               {% #button type="submit" variant="danger" %}
-                Cancel this job
+                Cancel this job request
               {% /button %}
             {% endif %}
           </form>
