@@ -6,8 +6,8 @@ from django.core.management import CommandError, call_command
 from jobserver.management.commands.check_rap_api_status import Command as cd
 
 
-TEST_BASE_URL = "http://example.com/rap"
-TEST_STATUS_URL = f"{TEST_BASE_URL}/backend/status/"
+TEST_BASE_URL = "http://example.com/rap/"
+TEST_STATUS_URL = f"{TEST_BASE_URL}backend/status/"
 TEST_API_TOKEN = "token"
 TEST_RESPONSE_BODY = b'{"flags":{"test":{"paused":{"v":null,"ts":"2025-05-09T15:05:09.010195Z"},"last-seen-at":{"v":"2025-07-18T09:29:20.504634+00:00","ts":"2025-07-18T09:29:20.504842Z"}}}}'
 
