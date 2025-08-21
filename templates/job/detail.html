@@ -51,11 +51,11 @@
           {% csrf_token %}
           {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
             {% #button type="submit" disabled=True tooltip="This job can no longer be cancelled" %}
-              Cancel this job
+         Cancel this job request
             {% /button %}
           {% else %}
             {% #button type="submit" variant="danger" %}
-              Cancel this job
+              Cancel this job request
             {% /button %}
           {% endif %}
         </form>
