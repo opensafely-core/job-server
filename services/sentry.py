@@ -34,22 +34,28 @@ def initialise_sentry():  # pragma: no cover
     )
 
 
-def monitor_config(schedule):
+def monitor_config(
+    schedule,
+    checkin_margin=30,
+    max_runtime=10,
+    failure_issue_threshold=2,
+    recovery_threshold=1,
+):
     return {
         "schedule": {"type": "crontab", "value": f"@{schedule}"},
         "timezone": "Etc/UTC",
         # If an expected check-in doesn't come in `checkin_margin`
         # minutes, it'll be considered missed
-        "checkin_margin": 30,
+        "checkin_margin": checkin_margin,
         # The check-in is allowed to run for `max_runtime` minutes
         # before it's considered failed
-        "max_runtime": 10,
+        "max_runtime": max_runtime,
         # It'll take `failure_issue_threshold` consecutive failed
         # check-ins to create an issue
-        "failure_issue_threshold": 2,
+        "failure_issue_threshold": failure_issue_threshold,
         # It'll take `recovery_threshold` OK check-ins to resolve
         # an issue
-        "recovery_threshold": 1,
+        "recovery_threshold": recovery_threshold,
     }
 
 
