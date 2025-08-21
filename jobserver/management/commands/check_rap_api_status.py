@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 import requests
 import structlog
 from django.conf import settings
@@ -14,7 +16,7 @@ class Command(BaseCommand):
 
         try:
             response = requests.get(
-                f"{settings.RAP_API_BASE_URL}/backend/status/",
+                urljoin(settings.RAP_API_BASE_URL, "backend/status/"),
                 headers={"Authorization": settings.RAP_API_TOKEN},
             )
 

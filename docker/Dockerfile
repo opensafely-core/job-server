@@ -170,7 +170,7 @@ COPY . /app
 RUN SECRET_KEY=dummy-key \
     SOCIAL_AUTH_GITHUB_KEY=dummy-key \
     SOCIAL_AUTH_GITHUB_SECRET=dummy-secret \
-    RAP_API_BASE_URL=http://localhost:3000 \
+    RAP_API_BASE_URL=http://localhost:3000/ \
     RAP_API_TOKEN=dummy \
     python /app/manage.py collectstatic --no-input
 
