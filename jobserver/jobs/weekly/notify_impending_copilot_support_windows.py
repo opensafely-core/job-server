@@ -12,7 +12,7 @@ class Job(WeeklyJob):
 
     @monitor(
         monitor_slug="notify_impending_copilot_support_windows",
-        monitor_config=monitor_config("weekly"),
+        monitor_config=monitor_config("0 0 * * 0"),
     )
     def execute(self):
         try:

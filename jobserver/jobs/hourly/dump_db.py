@@ -12,7 +12,7 @@ from services.sentry import monitor_config
 class Job(HourlyJob):
     help = "Dump the database to storage for copying to local dev environments"  # noqa: A003
 
-    @monitor(monitor_slug="dump_db", monitor_config=monitor_config("hourly"))
+    @monitor(monitor_slug="dump_db", monitor_config=monitor_config("0 * * * *"))
     def execute(self):
         db = settings.DATABASES["default"]
         output = pathlib.Path("/storage/jobserver.dump")

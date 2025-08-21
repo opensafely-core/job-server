@@ -19,7 +19,7 @@ class Job(DailyJob):
 
     @monitor(
         monitor_slug="update_repo_has_github_outputs",
-        monitor_config=monitor_config("daily"),
+        monitor_config=monitor_config("0 0 * * *"),
     )
     def execute(self):
         query = """

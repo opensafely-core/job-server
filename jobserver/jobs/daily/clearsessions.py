@@ -8,6 +8,6 @@ from services.sentry import monitor_config
 class Job(DailyJob):
     help = "Run the clearsessions management command"  # noqa: A003
 
-    @monitor(monitor_slug="clearsessions", monitor_config=monitor_config("daily"))
+    @monitor(monitor_slug="clearsessions", monitor_config=monitor_config("0 0 * * *"))
     def execute(self):
         call_command("clearsessions")
