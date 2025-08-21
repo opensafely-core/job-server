@@ -9,7 +9,7 @@ class Job(MinutelyJob):
     help = "Run the check_rap_api_status management command"  # noqa: A003
 
     @monitor(
-        monitor_slug="check_rap_api_status", monitor_config=monitor_config("minutely")
+        monitor_slug="check_rap_api_status", monitor_config=monitor_config("* * * * *")
     )
     def execute(self):
         call_command("check_rap_api_status")

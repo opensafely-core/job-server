@@ -41,8 +41,14 @@ def monitor_config(
     failure_issue_threshold=2,
     recovery_threshold=1,
 ):
+    # Note: provide schedule in standard crontab syntax. To replicate the @ shorthand, use:
+    # @hourly:  "0 * * * *"
+    # @daily:   "0 0 * * *"
+    # @weekly:  "0 0 * * 0"
+    # @monthly: "0 0 1 * *"
+    # @yearly:  "0 0 1 1 *"
     return {
-        "schedule": {"type": "crontab", "value": f"@{schedule}"},
+        "schedule": {"type": "crontab", "value": schedule},
         "timezone": "Etc/UTC",
         # If an expected check-in doesn't come in `checkin_margin`
         # minutes, it'll be considered missed

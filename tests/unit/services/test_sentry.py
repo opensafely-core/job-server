@@ -17,9 +17,9 @@ def event():
 
 
 def test_monitor_config():
-    schedule = "daily"
+    schedule = "0 0 * * *"
     config = monitor_config(schedule)
-    assert config["schedule"]["value"] == f"@{schedule}"
+    assert config["schedule"]["value"] == schedule
 
 
 def test_parse_with_envvar(monkeypatch, event):
