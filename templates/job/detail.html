@@ -22,6 +22,12 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
+{% block above_content %}
+  {% if job.status != "succeeded" %}
+    {% db_maintenance_banner %}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   {% var backendName=job.job_request.backend|stringformat:"s"|upper %}
 
