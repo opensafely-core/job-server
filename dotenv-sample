@@ -18,7 +18,7 @@ SOCIAL_AUTH_GITHUB_SECRET=dummy
 ASSETS_DEV_MODE=False
 
 # URL for rap api
-RAP_API_BASE_URL=http://localhost:3000/
+RAP_API_BASE_URL=http://localhost:3000/controller/v1/
 RAP_API_TOKEN=rap_token
 
 # PRODUCTION ONLY
