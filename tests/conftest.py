@@ -423,8 +423,6 @@ def site_alert():
     return SiteAlertFactory(level=SiteAlert.Level.WARNING)
 
 
-RAP_API_BASE_URL = "http://example.com/rap/"
-
 # These fixtures are autouse so that no test this conftest applies to can
 # accidentally use the real API URL/token from an environment variable via
 # normal settings.py. Individual tests can use the settings fixture to change
@@ -442,5 +440,6 @@ def rap_api_token(settings):
 @pytest.fixture(autouse=True)
 def rap_api_base_url(settings):
     """Django settting for the base URL for communicating with the RAP API."""
-    settings.RAP_API_BASE_URL = RAP_API_BASE_URL
-    return RAP_API_BASE_URL
+    rap_api_base_url = "http://example.com/rap/"
+    settings.RAP_API_BASE_URL = rap_api_base_url
+    return rap_api_base_url
