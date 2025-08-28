@@ -50,6 +50,9 @@ class TestApiCall:
     def test_request_exception(self):
         """Test that a requests module RequestException is transformed and re-raised."""
 
+        # Using a fake method here helps avoid conflating issues about how we invoke
+        # the actual requests methods with issues in the _api_call code.
+        # Note that this magic method name is specifically allowed in api_call.
         def fake_request_method(*args, **kwargs):
             raise requests.exceptions.RequestException("boom")
 
@@ -63,6 +66,7 @@ class TestApiCall:
 
         # Using a fake method here helps avoid conflating issues about how we invoke
         # the actual requests methods with issues in the _api_call code.
+        # Note that this magic method name is specifically allowed in api_call.
         def fake_request_method(url, **kwargs):
             return (url, kwargs)
 
@@ -79,6 +83,7 @@ class TestApiCall:
 
         # Using a fake method here helps avoid conflating issues about how we invoke
         # the actual requests methods with issues in the _api_call code.
+        # Note that this magic method name is specifically allowed in api_call.
         def fake_request_method(url, **kwargs):
             return (url, kwargs)
 
@@ -87,6 +92,12 @@ class TestApiCall:
         assert response[0] == f"{rap_api_base_url}{path}"
         assert response[1]["json"] is None
         assert response[1]["headers"] == {"Authorization": rap_api_token}
+
+    def test_disallowed_method(self):
+        """Test that a disallowed request_method raises right Exception."""
+        path = "some/path/"
+        with pytest.raises(ValueError, match="request_method not allowed"):
+            _api_call(requests.put, path)
 
     def test_requests_get(self, rap_api_base_url, rap_api_token):
         """Test that the actual requests.get method handles headers correctly."""

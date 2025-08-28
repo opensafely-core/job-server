@@ -58,6 +58,18 @@ def _api_call(request_method, endpoint_path, json=None):
             "A required environment variable RAP_API_BASE_URL and/or RAP_API_TOKEN is not set"
         )
 
+    # Check the method is one covered in the tests of this module.
+    allowed_methods = {
+        requests.get,
+        requests.post,
+    }
+    if (
+        request_method not in allowed_methods
+        # Special method name allowed for tests that aren't about a specific requests method.
+        and request_method.__name__ != "fake_request_method"
+    ):
+        raise ValueError(f"request_method not allowed: {request_method.__qualname__}")
+
     # Do the request-response cycle.
     try:
         response = request_method(
@@ -105,7 +117,7 @@ def cancel(job_request_id, actions):
         RapAPIResponseError
     """
     request_body = {"rap_id": job_request_id, "actions": actions}
-    response = _api_call(requests.post, "rap/cancel/", request_body)
+    response = _api_call(requests.put, "rap/cancel/", request_body)
 
     if response.status_code != 200:
         raise RapAPIResponseError(
