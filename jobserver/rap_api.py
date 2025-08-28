@@ -36,8 +36,12 @@ class RapAPICommunicationError(RapAPIError):
 class RapAPIResponseError(RapAPIError):
     """A response to a RAP API request indicated an error."""
 
+    def __init__(self, message, body=None):
+        super().__init__(message)
+        self.body = body
 
-def _api_call(request_method, endpoint_path):
+
+def _api_call(request_method, endpoint_path, json=None):
     """Communicate with a remote RAP API endpoint and return the response.
 
     Args:
@@ -59,6 +63,7 @@ def _api_call(request_method, endpoint_path):
         response = request_method(
             urljoin(settings.RAP_API_BASE_URL, endpoint_path),
             headers={"Authorization": settings.RAP_API_TOKEN},
+            json=json,
         )
     except requests.exceptions.RequestException as exc:
         raise RapAPICommunicationError(f"RAP API endpoint not available: {exc}")
@@ -82,6 +87,30 @@ def backend_status():
     if response.status_code != 200:
         raise RapAPIResponseError(
             f"RAP API endpoint returned an error {response.status_code}"
+        )
+
+    return response.json()
+
+
+def cancel(job_request_id, actions):
+    """
+    Trigger RAP API to request cancellation of specific Jobs within a Job
+    Request, by action name.
+
+    Refer to the specification (see module docstring) for how to interpret the result.
+
+    Raises:
+        RapAPISettingsError
+        RapAPICommunicationError
+        RapAPIResponseError
+    """
+    request_body = {"rap_id": job_request_id, "actions": actions}
+    response = _api_call(requests.post, "rap/cancel/", request_body)
+
+    if response.status_code != 200:
+        raise RapAPIResponseError(
+            f"RAP API endpoint returned an error {response.status_code}",
+            body=response.json(),
         )
 
     return response.json()

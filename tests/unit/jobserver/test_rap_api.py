@@ -19,6 +19,7 @@ from jobserver.rap_api import (
     RapAPISettingsError,
     _api_call,
     backend_status,
+    cancel,
 )
 
 
@@ -58,6 +59,23 @@ class TestApiCall:
     def test_success_fake_request_method(self, rap_api_base_url, rap_api_token):
         """Test that a fake request_method is called as expected."""
         path = "some/path/"
+        json = {"foo": "bar"}
+
+        # Using a fake method here helps avoid conflating issues about how we invoke
+        # the actual requests methods with issues in the _api_call code.
+        def fake_request_method(url, **kwargs):
+            return (url, kwargs)
+
+        response = _api_call(fake_request_method, "some/path/", json=json)
+
+        assert response[0] == f"{rap_api_base_url}{path}"
+        assert response[1]["json"] == json
+        assert response[1]["headers"] == {"Authorization": rap_api_token}
+
+    def test_success_fake_request_method_no_json(self, rap_api_base_url, rap_api_token):
+        """Test that a fake request_method is called as expected with no json
+        parameter."""
+        path = "some/path/"
 
         # Using a fake method here helps avoid conflating issues about how we invoke
         # the actual requests methods with issues in the _api_call code.
@@ -67,9 +85,10 @@ class TestApiCall:
         response = _api_call(fake_request_method, "some/path/")
 
         assert response[0] == f"{rap_api_base_url}{path}"
+        assert response[1]["json"] is None
         assert response[1]["headers"] == {"Authorization": rap_api_token}
 
-    def test_headers_requests_get(self, rap_api_base_url, rap_api_token):
+    def test_requests_get(self, rap_api_base_url, rap_api_token):
         """Test that the actual requests.get method handles headers correctly."""
         path = "some/path/"
         response_body = {"foo": 123}
@@ -85,6 +104,29 @@ class TestApiCall:
                 ],
             )
             response = _api_call(requests.get, path)
+
+        assert response.status_code == 200
+        assert response.json() == response_body
+
+    def test_headers_requests_post(self, rap_api_base_url, rap_api_token):
+        """Test that the actual requests.post method handles headers and body correctly."""
+        path = "some/path/"
+        request_body = {"hello": "world"}
+        response_body = {"foo": 123}
+
+        with responses.RequestsMock() as rsps:
+            rsps.add(
+                responses.POST,
+                f"{rap_api_base_url}{path}",
+                json=response_body,
+                status=200,
+                match=[
+                    responses.matchers.header_matcher({"Authorization": rap_api_token}),
+                    responses.matchers.json_params_matcher(request_body),
+                ],
+            )
+            response = _api_call(requests.post, path, json=request_body)
+
         assert response.status_code == 200
         assert response.json() == response_body
 
@@ -140,3 +182,28 @@ class TestBackendStatus:
 
         with pytest.raises(RapAPIResponseError):
             backend_status()
+
+
+class TestCancel:
+    """Tests of cancel.
+
+    This just returns the response and doesn't distinguish between non-200
+    error codes, so these are pretty simple."""
+
+    _fake_args = ("abcde1234", ["action1", "action2"])
+
+    def test_success(self, patch_api_call):
+        """Test content from api_call returned."""
+        fake_json = {"some": "content"}
+        patch_api_call(fake_json)
+
+        assert cancel(*self._fake_args) == fake_json
+
+    def test_bad_status_code(self, patch_api_call):
+        """Test a non-200 status raises right Exception including the response body."""
+        fake_json = {"err": "some problem detected"}
+        patch_api_call(fake_json, status_code=400)
+
+        with pytest.raises(RapAPIResponseError) as exc:
+            cancel(*self._fake_args)
+        assert exc.value.body == fake_json
