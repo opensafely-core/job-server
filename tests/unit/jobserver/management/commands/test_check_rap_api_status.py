@@ -9,7 +9,7 @@ from jobserver.management.commands.check_rap_api_status import Command as cd
 TEST_BASE_URL = "http://example.com/rap/"
 TEST_STATUS_URL = f"{TEST_BASE_URL}backend/status/"
 TEST_API_TOKEN = "token"
-TEST_RESPONSE_BODY = b'{"flags":{"test":{"paused":{"v":null,"ts":"2025-05-09T15:05:09.010195Z"},"last-seen-at":{"v":"2025-07-18T09:29:20.504634+00:00","ts":"2025-07-18T09:29:20.504842Z"}}}}'
+TEST_RESPONSE_BODY = b'{"backends":[{"name":"test","last_seen":{"since":"2025-08-12T06:57:43.039078Z"},"paused":{"status":"off","since":"2025-08-12T14:33:57.413881Z"},"db_maintenance":{"status":"off","since":null,"type":null}}]}'
 
 
 def test_check_rap_api_status(settings):
