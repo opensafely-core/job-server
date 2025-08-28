@@ -1,0 +1,37 @@
+"""Management command to cancel Jobs via the RAP API."""
+
+import structlog
+from django.core.management.base import BaseCommand
+
+from jobserver import rap_api
+
+
+class Command(BaseCommand):
+    """Management command to cancel Jobs via the RAP API."""
+
+    help = "Cancel RAP jobs via the RAP API."
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "job_request_id",
+            type=str,
+            help="ID of the JobRequest to cancel.",
+        )
+        parser.add_argument(
+            "actions",
+            nargs="+",
+            type=str,
+            help="List of actions to cancel for the given JobRequest.",
+        )
+
+    def handle(self, *args, **options):
+        logger = structlog.get_logger(__name__)
+        try:
+            logger.info(
+                rap_api.cancel(
+                    options["job_request_id"],
+                    options["actions"],
+                )
+            )
+        except Exception as exc:
+            logger.error(exc)
