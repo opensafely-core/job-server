@@ -3,6 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from jobserver.views.index import Index
 
 from ....factories import (
+    BackendFactory,
     JobRequestFactory,
     ProjectFactory,
     UserFactory,
@@ -61,6 +62,26 @@ def test_index_authenticated(
         assert counts["job_requests"] == 2
         assert counts["projects"] == 12
         assert counts["workspaces"] == 12
+
+
+def test_index_authenticated_display_active_backend_job_requests(
+    rf, django_assert_num_queries
+):
+    user = UserFactory()
+
+    inactive_backend = BackendFactory(slug="Test", name="Test", is_active=False)
+    active_backend = BackendFactory(slug="TPP", name="TPP", is_active=True)
+    JobRequestFactory(created_by=user, backend=inactive_backend)
+    JobRequestFactory(created_by=user, backend=active_backend)
+
+    request = rf.get("/")
+    request.user = user
+
+    with django_assert_num_queries(9):
+        response = Index.as_view()(request)
+
+        assert len(response.context_data["all_job_requests"]) == 1
+        assert response.context_data["all_job_requests"][0].backend == active_backend
 
 
 def test_index_authenticated_client(client, django_assert_num_queries):
