@@ -71,6 +71,12 @@ def _api_call(request_method, endpoint_path, json=None):
     ):
         raise ValueError(f"request_method not allowed: {request_method.__qualname__}")
 
+    if request_method == requests.get and json is not None:
+        # A payload within a GET request message has no defined semantics.
+        raise ValueError(
+            "request_method requests.get and json parameter not allowed together"
+        )
+
     # Do the request-response cycle.
     try:
         response = request_method(

@@ -119,7 +119,16 @@ class TestApiCall:
         assert response.status_code == 200
         assert response.json() == response_body
 
-    def test_headers_requests_post(self, rap_api_base_url, rap_api_token):
+    def test_request_get_and_json(self):
+        """Test that request_method requests.get disallowed with JSON parameter.
+
+        A payload within a GET request message has no defined semantics.
+        """
+        path = "some/path/"
+        with pytest.raises(ValueError, match="requests.get and json parameter"):
+            _api_call(requests.get, path, json={})
+
+    def test_requests_post(self, rap_api_base_url, rap_api_token):
         """Test that the actual requests.post method handles headers and body correctly."""
         path = "some/path/"
         request_body = {"hello": "world"}
