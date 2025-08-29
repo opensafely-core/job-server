@@ -13,15 +13,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "job_request_id",
+            "rap_id",
             type=str,
-            help="ID of the JobRequest to cancel.",
+            help="ID of the RAP to cancel. Equivalent to JobRequest.identifier.",
         )
         parser.add_argument(
             "actions",
             nargs="+",
             type=str,
-            help="List of actions to cancel for the given JobRequest.",
+            help="List of actions to cancel for the given RAP.",
         )
 
     def handle(self, *args, **options):
@@ -29,7 +29,7 @@ class Command(BaseCommand):
         try:
             logger.info(
                 rap_api.cancel(
-                    options["job_request_id"],
+                    options["rap_id"],
                     options["actions"],
                 )
             )

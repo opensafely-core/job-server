@@ -9,7 +9,7 @@ def test_command(monkeypatch, log_output):
 
     monkeypatch.setattr(
         "jobserver.rap_api.cancel",
-        lambda job_request_id, actions: test_response_body,
+        lambda rap_id, actions: test_response_body,
     )
 
     call_command("cancel_jobs", *_FAKE_ARGS)
@@ -21,7 +21,7 @@ def test_command(monkeypatch, log_output):
 
 
 def test_command_error(monkeypatch, log_output):
-    def fake_cancel(job_request_id, actions):
+    def fake_cancel(rap_id, actions):
         raise Exception("something went wrong")
 
     monkeypatch.setattr("jobserver.rap_api.cancel", fake_cancel)
