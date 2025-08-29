@@ -1,5 +1,7 @@
 from django.urls import reverse
 
+from jobserver.models import Backend
+
 from ....factories import BackendFactory
 
 
@@ -39,3 +41,50 @@ def test_backend_str():
     backend = BackendFactory(slug="test-backend")
 
     assert str(backend) == "test-backend"
+
+
+class TestBackendManager:
+    """Tests of the BackendManager()."""
+
+    def test_only_gets_maintenance_mode_status_for_allowed_backend_slugs(self):
+        """Test that we only retrieve the db maintenance status for backends contained within the allowed_slugs list"""
+        tpp = BackendFactory(
+            slug="tpp", jobrunner_state={"mode": {"v": "db-maintenance"}}
+        )
+        emis = BackendFactory(slug="emis", jobrunner_state={"paused": {"v": ""}})
+        BackendFactory(slug="other", jobrunner_state={"mode": {"v": ""}})
+
+        data = Backend.objects.get_db_maintenance_mode_statuses()
+        assert set(data.keys()) == {tpp.slug, emis.slug}
+
+    def test_db_maintenance_mode_values(self):
+        """Test that the correct values are retireved for backend db maintenance mode status"""
+        tpp = BackendFactory(
+            slug="tpp", jobrunner_state={"mode": {"v": "db-maintenance"}}
+        )
+        emis = BackendFactory(slug="emis", jobrunner_state={"paused": {"v": ""}})
+
+        data = Backend.objects.get_db_maintenance_mode_statuses()
+        assert data[tpp.slug] is True
+        assert data[emis.slug] is False
+
+    def test_uses_cached_db_maintenance_statuses(self):
+        """Test that cached values are used and repeated queries are avoided"""
+        tpp = BackendFactory(
+            slug="tpp", jobrunner_state={"mode": {"v": "db-maintenance"}}
+        )
+        emis = BackendFactory(slug="emis", jobrunner_state={"paused": {"v": ""}})
+
+        # First call to populate the cache
+        first_call = Backend.objects.get_db_maintenance_mode_statuses()
+        assert first_call[tpp.slug] is True
+        assert first_call[emis.slug] is False
+
+        # Simulate update to backend.jobrunner_state
+        tpp.jobrunner_state = {"mode": {"v": ""}}
+        tpp.save()
+
+        # Second call to check we return the cached value, not the modified one (as the cache has a duration of 60 seconds)
+        second_call = Backend.objects.get_db_maintenance_mode_statuses()
+        assert second_call[tpp.slug] is True
+        assert second_call[emis.slug] is False
