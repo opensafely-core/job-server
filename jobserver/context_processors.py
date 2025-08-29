@@ -6,7 +6,7 @@ from django.urls import reverse
 from furl import furl
 
 from .authorization import StaffAreaAdministrator, has_role
-from .models import SiteAlert
+from .models import Backend, SiteAlert
 from .nav import NavItem, iter_nav
 
 
@@ -70,3 +70,30 @@ def login_url(request):
     f.args.update({"next": request.path})
 
     return {"login_url": f.url}
+
+
+def db_maintenance_mode(request):
+    """Determine whether a database maintenance banner should be displayed on specific views by checking if our only (currently) database is in either scheduled or manual maintenance mode, and if the current view matches one of the predefined URL names."""
+    try:
+        backend = Backend.objects.get(slug="tpp")
+    except Backend.DoesNotExist:
+        return {"display_maintenance_banner": False}
+
+    scheduled_maintenance_on = (
+        backend.jobrunner_state.get("mode", {}).get("v") == "db-maintenance"
+    )
+    manual_maintenance_on = (
+        backend.jobrunner_state.get("manual-db-maintenance", {}).get("v") == "on"
+    )
+
+    db_flag = scheduled_maintenance_on or manual_maintenance_on
+    banner_display_urls = [
+        "workspace-logs",
+        "job-request-detail",
+        "job-request-create",
+        "job-detail",
+    ]
+
+    should_display = db_flag and request.resolver_match.url_name in banner_display_urls
+
+    return {"display_maintenance_banner": should_display}
