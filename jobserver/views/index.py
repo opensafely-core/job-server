@@ -14,6 +14,7 @@ class Index(View):
                 "workspace__project",
             )
             .prefetch_related("workspace__project__orgs")
+            .filter(backend__is_active=True)
             .order_by("-pk")
         )
 
