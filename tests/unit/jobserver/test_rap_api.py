@@ -70,7 +70,7 @@ class TestApiCall:
         def fake_request_method(url, **kwargs):
             return (url, kwargs)
 
-        response = _api_call(fake_request_method, "some/path/", json=json)
+        response = _api_call(fake_request_method, path, json=json)
 
         assert response[0] == f"{rap_api_base_url}{path}"
         assert response[1]["json"] == json
@@ -87,7 +87,7 @@ class TestApiCall:
         def fake_request_method(url, **kwargs):
             return (url, kwargs)
 
-        response = _api_call(fake_request_method, "some/path/")
+        response = _api_call(fake_request_method, path)
 
         assert response[0] == f"{rap_api_base_url}{path}"
         assert response[1]["json"] is None
