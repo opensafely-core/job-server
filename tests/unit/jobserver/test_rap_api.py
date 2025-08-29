@@ -14,7 +14,7 @@ import responses
 import responses.matchers
 
 from jobserver.rap_api import (
-    RapAPICommunicationError,
+    RapAPIRequestError,
     RapAPIResponseError,
     RapAPISettingsError,
     _api_call,
@@ -56,7 +56,7 @@ class TestApiCall:
         def fake_request_method(*args, **kwargs):
             raise requests.exceptions.RequestException("boom")
 
-        with pytest.raises(RapAPICommunicationError):
+        with pytest.raises(RapAPIRequestError):
             _api_call(fake_request_method, "some/path/")
 
     def test_success_fake_request_method(self, rap_api_base_url, rap_api_token):

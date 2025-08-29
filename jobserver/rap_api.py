@@ -29,12 +29,13 @@ class RapAPISettingsError(RapAPIError):
     """There was a problem with the relevant Django settings."""
 
 
-class RapAPICommunicationError(RapAPIError):
-    """A request to the RAP API failed to return a response."""
+class RapAPIRequestError(RapAPIError):
+    """A request to the RAP API failed. Could be due to a problem communicating the
+    request or receiving no response."""
 
 
 class RapAPIResponseError(RapAPIError):
-    """A response to a RAP API request indicated an error."""
+    """A response to a RAP API request was received but indicated an error."""
 
     def __init__(self, message, body=None):
         super().__init__(message)
@@ -50,7 +51,7 @@ def _api_call(request_method, endpoint_path, json=None):
 
     Raises:
         RapAPISettingsError
-        RapAPICommunicationError
+        RapAPIRequestError
     """
     # Check the required settings early.
     if not (settings.RAP_API_BASE_URL and settings.RAP_API_TOKEN):
@@ -78,7 +79,7 @@ def _api_call(request_method, endpoint_path, json=None):
             json=json,
         )
     except requests.exceptions.RequestException as exc:
-        raise RapAPICommunicationError(f"RAP API endpoint not available: {exc}")
+        raise RapAPIRequestError(f"RAP API endpoint not available: {exc}")
 
     return response
 
@@ -91,7 +92,7 @@ def backend_status():
 
     Raises:
         RapAPISettingsError
-        RapAPICommunicationError
+        RapAPIRequestError
         RapAPIResponseError
     """
     response = _api_call(requests.get, "backend/status/")
@@ -113,7 +114,7 @@ def cancel(job_request_id, actions):
 
     Raises:
         RapAPISettingsError
-        RapAPICommunicationError
+        RapAPIRequestError
         RapAPIResponseError
     """
     request_body = {"rap_id": job_request_id, "actions": actions}
