@@ -241,6 +241,22 @@ def test_jobrequest_request_cancellation_all():
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
 
 
+def test_jobrequest_request_cancellation_nothing_to_do():
+    """Test request_cancellation with no parameters when there are no active
+    jobs."""
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, action="job1", status="succeeded")
+    JobFactory(job_request=job_request, action="job2", status="succeeded")
+    JobFactory(job_request=job_request, action="job3", status="failed")
+    JobFactory(job_request=job_request, action="job4", status="succeeded")
+
+    with pytest.raises(JobRequest.NoActionsToCancel):
+        job_request.request_cancellation()
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == set()
+
+
 def test_jobrequest_request_cancellation_specify_action():
     """Test request_cancellation with parameters cancels only those active jobs
     passed in."""
@@ -257,6 +273,23 @@ def test_jobrequest_request_cancellation_specify_action():
     # job4 was already finished so should not be changed
     # job7 didn't exist so should be ignored
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
+
+
+def test_jobrequest_request_cancellation_nothing_to_do_specific_action():
+    """Test request_cancellation with parameters when there are active
+    jobs but only inactive jobs are specified."""
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, action="job1", status="pending")
+    JobFactory(job_request=job_request, action="job2", status="running")
+    JobFactory(job_request=job_request, action="job3", status="failed")
+    JobFactory(job_request=job_request, action="job4", status="succeeded")
+
+    # 1 and 2 weren't passed in, 3 and 4 already finished so can't be cancelled
+    with pytest.raises(JobRequest.NoActionsToCancel):
+        job_request.request_cancellation(actions_to_cancel=["job3,job4"])
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == set()
 
 
 def test_jobrequest_has_cancellable_actions():

@@ -243,6 +243,9 @@ class JobRequest(models.Model):
         # been requested for cancellation (i.e. are not already in self.cancelled_actions
         return self.get_active_actions() - set(self.cancelled_actions)
 
+    class NoActionsToCancel(Exception):
+        pass
+
     def request_cancellation(self, actions_to_cancel=None):
         active_actions = self.get_active_actions()
         if actions_to_cancel is None:
@@ -251,6 +254,9 @@ class JobRequest(models.Model):
             actions_to_cancel = list(
                 set(actions_to_cancel).intersection(active_actions)
             )
+
+        if not actions_to_cancel:
+            raise self.NoActionsToCancel
 
         self.cancelled_actions.extend(actions_to_cancel)
         self.save(update_fields=["cancelled_actions"])
