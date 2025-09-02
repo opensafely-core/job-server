@@ -243,9 +243,16 @@ class JobRequest(models.Model):
         # been requested for cancellation (i.e. are not already in self.cancelled_actions
         return self.get_active_actions() - set(self.cancelled_actions)
 
-    def request_cancellation(self):
-        # Exclude succeeded jobs (failed or succeeded status, consistent with Job.is_completed method)
-        self.cancelled_actions = list(self.get_active_actions())
+    def request_cancellation(self, actions_to_cancel=None):
+        active_actions = self.get_active_actions()
+        if actions_to_cancel is None:
+            actions_to_cancel = list(active_actions)
+        else:
+            actions_to_cancel = list(
+                set(actions_to_cancel).intersection(active_actions)
+            )
+
+        self.cancelled_actions.extend(actions_to_cancel)
         self.save(update_fields=["cancelled_actions"])
 
     @property

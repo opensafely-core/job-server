@@ -226,7 +226,9 @@ def test_jobrequest_previous_url():
     assert comp_url.endswith("def5678..abc1234")
 
 
-def test_jobrequest_request_cancellation():
+def test_jobrequest_request_cancellation_all():
+    """Test request_cancellation with no parameters cancels all and only active
+    jobs."""
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="job1", status="pending")
     JobFactory(job_request=job_request, action="job2", status="running")
@@ -236,6 +238,24 @@ def test_jobrequest_request_cancellation():
     job_request.request_cancellation()
 
     job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == {"job1", "job2"}
+
+
+def test_jobrequest_request_cancellation_specify_action():
+    """Test request_cancellation with parameters cancels only those active jobs
+    passed in."""
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, action="job1", status="pending")
+    JobFactory(job_request=job_request, action="job2", status="running")
+    JobFactory(job_request=job_request, action="job3", status="running")
+    JobFactory(job_request=job_request, action="job4", status="succeeded")
+
+    job_request.request_cancellation(actions_to_cancel=["job1", "job2", "job4", "job7"])
+
+    job_request.refresh_from_db()
+    # job3 was running but not specified for cancellation, so not cancelled
+    # job4 was already finished so should not be changed
+    # job7 didn't exist so should be ignored
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
 
 
