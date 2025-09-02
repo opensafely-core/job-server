@@ -124,7 +124,7 @@ def cancel(job_request_id, actions):
         RapAPIResponseError
     """
     request_body = {"rap_id": job_request_id, "actions": actions}
-    response = _api_call(requests.put, "rap/cancel/", request_body)
+    response = _api_call(requests.post, "rap/cancel/", request_body)
 
     if response.status_code != 200:
         raise RapAPIResponseError(

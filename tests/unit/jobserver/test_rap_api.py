@@ -171,14 +171,23 @@ def patch_api_call(monkeypatch):
 
     Usage:
         patch_api_call(fake_json, status_code=200)
+
+    Returns:
+        called: dict with params the tested function called api_call with
     """
 
     def _do_patch(fake_json=None, status_code=200):
         fake_response = FakeResponse(fake_json, status_code=status_code)
-        monkeypatch.setattr(
-            "jobserver.rap_api._api_call", lambda *args, **kwargs: fake_response
-        )
-        return fake_response
+        called = {}
+
+        def fake_api_call(request_method, endpoint_path, json=None):
+            called["request_method"] = request_method
+            called["endpoint_path"] = endpoint_path
+            called["json"] = json
+            return fake_response
+
+        monkeypatch.setattr("jobserver.rap_api._api_call", fake_api_call)
+        return called
 
     return _do_patch
 
@@ -190,11 +199,17 @@ class TestBackendStatus:
     error codes, so these are pretty simple."""
 
     def test_success(self, patch_api_call):
-        """Test content from api_call returned."""
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
         fake_json = {"some": "content"}
-        patch_api_call(fake_json)
+        called = patch_api_call(fake_json)
 
-        assert backend_status() == fake_json
+        result = backend_status()
+
+        assert result == fake_json
+        assert called["request_method"] == requests.get
+        assert called["endpoint_path"] == "backend/status/"
+        assert called["json"] is None
 
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception."""
@@ -213,11 +228,20 @@ class TestCancel:
     _fake_args = ("abcde1234", ["action1", "action2"])
 
     def test_success(self, patch_api_call):
-        """Test content from api_call returned."""
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
         fake_json = {"some": "content"}
-        patch_api_call(fake_json)
+        called = patch_api_call(fake_json)
 
-        assert cancel(*self._fake_args) == fake_json
+        result = cancel(*self._fake_args)
+
+        assert result == fake_json
+        assert called["request_method"] == requests.post
+        assert called["endpoint_path"] == "rap/cancel/"
+        assert called["json"] == {
+            "rap_id": self._fake_args[0],
+            "actions": self._fake_args[1],
+        }
 
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception including the response body."""
