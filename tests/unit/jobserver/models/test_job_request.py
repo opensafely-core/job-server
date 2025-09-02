@@ -239,19 +239,6 @@ def test_jobrequest_request_cancellation():
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
 
 
-def test_jobrequest_request_cancellation_with_existing_cancelled_jobs():
-    job_request = JobRequestFactory(cancelled_actions=[])
-    JobFactory(job_request=job_request, action="job1", status="pending")
-    JobFactory(job_request=job_request, action="job2", status="running")
-    JobFactory(job_request=job_request, action="job3", status="failed")
-    JobFactory(job_request=job_request, action="job4", status="succeeded")
-
-    job_request.request_cancellation()
-
-    job_request.refresh_from_db()
-    assert set(job_request.cancelled_actions) == {"job1", "job2"}
-
-
 def test_jobrequest_has_cancellable_actions():
     # An action is cancellable if it is pending or running and has not
     # already been cancelled
