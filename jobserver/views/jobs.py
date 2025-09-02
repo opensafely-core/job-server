@@ -30,8 +30,7 @@ class JobCancel(View):
         if job.is_completed or job.action in job.job_request.cancelled_actions:
             return redirect(job)
 
-        job.job_request.cancelled_actions.append(job.action)
-        job.job_request.save()
+        job.job_request.request_cancellation([job.action])
 
         messages.success(
             request, f'Your request to cancel "{job.action}" was successful'
