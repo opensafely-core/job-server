@@ -36,26 +36,46 @@ from ..pipeline_config import (
 
 
 class JobRequestCancel(View):
+    def __init__(self, *args, **kwargs):
+        self.job_request = None
+        super().__init__(*args, **kwargs)
+
     def post(self, request, *args, **kwargs):
-        try:
-            job_request = JobRequest.objects.get(pk=self.kwargs["pk"])
-        except JobRequest.DoesNotExist:
+        job_request = self.get_objects()
+
+        if not self.user_has_permission_to_cancel(request):
             raise Http404
 
-        can_cancel_jobs = job_request.created_by == request.user or has_permission(
-            request.user, permissions.job_cancel, project=job_request.workspace.project
+        if self.is_completed():
+            return self.redirect()
+
+        job_request.request_cancellation(actions_to_cancel=self.actions_to_cancel())
+        messages.success(request, self.success_message())
+
+        return self.redirect()
+
+    def get_objects(self):
+        self.job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+        return self.job_request
+
+    def user_has_permission_to_cancel(self, request):
+        return self.job_request.created_by == request.user or has_permission(
+            request.user,
+            permissions.job_cancel,
+            project=self.job_request.workspace.project,
         )
-        if not can_cancel_jobs:
-            raise Http404
 
-        if job_request.is_completed:
-            return redirect(job_request)
+    def is_completed(self):
+        return self.job_request.is_completed
 
-        job_request.request_cancellation()
+    def actions_to_cancel(self):
+        return None  # Indicates 'all active'.
 
-        messages.success(request, "The requested actions have been cancelled")
+    def success_message(self):
+        return "The requested actions have been cancelled"
 
-        return redirect(job_request)
+    def redirect(self):
+        return redirect(self.job_request)
 
 
 class JobRequestCreate(CreateView):
