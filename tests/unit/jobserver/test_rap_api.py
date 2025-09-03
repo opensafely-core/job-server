@@ -22,6 +22,7 @@ from jobserver.rap_api import (
     _api_call,
     backend_status,
     cancel,
+    status,
 )
 
 
@@ -246,4 +247,38 @@ class TestCancel:
 
         with pytest.raises(RapAPIResponseError, match="gory") as exc:
             cancel(*self._fake_args)
+        assert exc.value.body == fake_json
+
+
+class TestStatus:
+    """Tests of status.
+
+    This just returns the response and doesn't distinguish between non-200
+    error codes, so these are pretty simple."""
+
+    _fake_args = ["abcdefgh12345678"]
+
+    def test_success(self, patch_api_call):
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
+        fake_json = {"jobs": [{"identifier": "abcdefgh12345678"}]}
+        mock_api_call = patch_api_call(fake_json)
+        result = status(self._fake_args)
+
+        assert result == fake_json
+        mock_api_call.assert_called_once_with(
+            requests.post,
+            "rap/status/",
+            {
+                "rap_ids": self._fake_args,
+            },
+        )
+
+    def test_bad_status_code(self, patch_api_call):
+        """Test a non-200 status raises right Exception including the response body."""
+        fake_json = {"err": "some problem detected"}
+        patch_api_call(fake_json, status_code=400)
+
+        with pytest.raises(RapAPIResponseError) as exc:
+            status(*self._fake_args)
         assert exc.value.body == fake_json
