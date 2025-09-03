@@ -34,6 +34,7 @@ omit = [
   "jobserver/management/commands/list_missing_repos.py",
   "jobserver/management/commands/publish_files.py",
   "jobserver/management/commands/release.py",
+  "jobserver/management/commands/unpublish_snapshot.py",
   "jobserver/settings.py",
   "jobserver/wsgi.py",
 ]
