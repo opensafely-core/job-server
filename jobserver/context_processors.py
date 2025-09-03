@@ -12,6 +12,13 @@ from .nav import NavItem, iter_nav
 
 logger = structlog.get_logger(__name__)
 
+BANNER_DISPLAY_URL_NAMES = {
+    "workspace-logs",
+    "job-request-detail",
+    "job-request-create",
+    "job-detail",
+}
+
 
 def in_production(request):
     """Is the site operating in production mode?
@@ -73,27 +80,16 @@ def login_url(request):
 
 
 def db_maintenance_mode(request):
-    """Determine whether a database maintenance banner should be displayed on specific views by checking if our only (currently) database is in either scheduled or manual maintenance mode, and if the current view matches one of the predefined URL names."""
-    try:
-        backend = Backend.objects.get(slug="tpp")
-    except Backend.DoesNotExist:
-        return {"display_maintenance_banner": False}
+    """Add database maintenance banner flags to context for specific
+    views."""
 
-    scheduled_maintenance_on = (
-        backend.jobrunner_state.get("mode", {}).get("v") == "db-maintenance"
-    )
-    manual_maintenance_on = (
-        backend.jobrunner_state.get("manual-db-maintenance", {}).get("v") == "on"
-    )
-
-    db_flag = scheduled_maintenance_on or manual_maintenance_on
-    banner_display_urls = [
-        "workspace-logs",
-        "job-request-detail",
-        "job-request-create",
-        "job-detail",
-    ]
-
-    should_display = db_flag and request.resolver_match.url_name in banner_display_urls
-
-    return {"display_maintenance_banner": should_display}
+    if (
+        request.resolver_match
+        and request.resolver_match.url_name in BANNER_DISPLAY_URL_NAMES
+    ):
+        maintenance_statuses = Backend.objects.get_db_maintenance_mode_statuses()
+        return {
+            f"{backend}_maintenance_banner": status
+            for backend, status in maintenance_statuses.items()
+        }
+    return {}
