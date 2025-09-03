@@ -241,9 +241,9 @@ class TestCancel:
 
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception including the response body."""
-        fake_json = {"err": "some problem detected"}
+        fake_json = {"err": "some problem detected", "details": "gory"}
         patch_api_call(fake_json, status_code=400)
 
-        with pytest.raises(RapAPIResponseError) as exc:
+        with pytest.raises(RapAPIResponseError, match="gory") as exc:
             cancel(*self._fake_args)
         assert exc.value.body == fake_json
