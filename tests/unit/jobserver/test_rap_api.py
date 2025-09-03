@@ -8,6 +8,8 @@ objects or exceptions. They should not be patching the requests module.
 When adding an endpoint make sure that the request method you use has tests for
 it in TestAPICall."""
 
+from unittest.mock import Mock
+
 import pytest
 import requests
 import responses
@@ -171,14 +173,19 @@ def patch_api_call(monkeypatch):
 
     Usage:
         patch_api_call(fake_json, status_code=200)
+
+    Returns:
+        called: dict with params the tested function called api_call with
     """
 
     def _do_patch(fake_json=None, status_code=200):
         fake_response = FakeResponse(fake_json, status_code=status_code)
-        monkeypatch.setattr(
-            "jobserver.rap_api._api_call", lambda *args, **kwargs: fake_response
+        mock_api_call = Mock(
+            return_value=fake_response,
+            spec=["__call__", "assert_called_once_with"],
         )
-        return fake_response
+        monkeypatch.setattr("jobserver.rap_api._api_call", mock_api_call)
+        return mock_api_call
 
     return _do_patch
 
@@ -190,11 +197,14 @@ class TestBackendStatus:
     error codes, so these are pretty simple."""
 
     def test_success(self, patch_api_call):
-        """Test content from api_call returned."""
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
         fake_json = {"some": "content"}
-        patch_api_call(fake_json)
+        mock_api_call = patch_api_call(fake_json)
+        result = backend_status()
 
-        assert backend_status() == fake_json
+        assert result == fake_json
+        mock_api_call.assert_called_once_with(requests.get, "backend/status/")
 
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception."""
@@ -213,11 +223,21 @@ class TestCancel:
     _fake_args = ("abcde1234", ["action1", "action2"])
 
     def test_success(self, patch_api_call):
-        """Test content from api_call returned."""
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
         fake_json = {"some": "content"}
-        patch_api_call(fake_json)
+        mock_api_call = patch_api_call(fake_json)
+        result = cancel(*self._fake_args)
 
-        assert cancel(*self._fake_args) == fake_json
+        assert result == fake_json
+        mock_api_call.assert_called_once_with(
+            requests.post,
+            "rap/cancel/",
+            {
+                "rap_id": self._fake_args[0],
+                "actions": self._fake_args[1],
+            },
+        )
 
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception including the response body."""
