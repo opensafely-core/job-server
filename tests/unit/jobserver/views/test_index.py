@@ -67,7 +67,7 @@ def test_index_authenticated_client(client, django_assert_num_queries):
     user = UserFactory()
     JobRequestFactory.create_batch(10)
 
-    with django_assert_num_queries(44):
+    with django_assert_num_queries(42):
         client.force_login(user)
         response = client.get("/")
         assert response.status_code == 200
@@ -88,7 +88,7 @@ def test_index_unauthenticated(rf, django_assert_num_queries):
 def test_index_unauthenticated_client(client, django_assert_num_queries):
     JobRequestFactory.create_batch(10)
 
-    with django_assert_num_queries(16):
+    with django_assert_num_queries(14):
         response = client.get("/")
         assert response.status_code == 200
         assert "OpenSAFELY Jobs" in response.rendered_content

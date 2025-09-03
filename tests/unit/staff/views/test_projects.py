@@ -170,7 +170,7 @@ def test_projectauditlog_num_queries(
         response = ProjectAuditLog.as_view()(request, slug=project.slug)
         assert response.status_code == 200
 
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(2):
         response.render()
 
 
