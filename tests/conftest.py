@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.handlers.wsgi import WSGIRequest
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
 from django.utils import timezone
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
@@ -421,3 +421,39 @@ def role_factory():
 def site_alert():
     """A fixture providing a SiteAlert with a fixed level."""
     return SiteAlertFactory(level=SiteAlert.Level.WARNING)
+
+
+@pytest.fixture(autouse=True)
+def disable_db_maintenance_mode_context_processor():
+    """Disable the maintenance context processor for all tests
+    by default.
+
+    This prevents unnecessary cache queries, or db queries,
+    in tests that don't need this data.
+    """
+    templates_without_ctx_processor = [
+        {
+            "BACKEND": "django.template.backends.django.DjangoTemplates",
+            "DIRS": ["templates"],
+            "APP_DIRS": True,
+            "OPTIONS": {
+                "context_processors": [
+                    "django.template.context_processors.debug",
+                    "django.template.context_processors.request",
+                    "django.contrib.auth.context_processors.auth",
+                    "django.contrib.messages.context_processors.messages",
+                    "django.template.context_processors.media",
+                    "jobserver.context_processors.in_production",
+                    "jobserver.context_processors.can_view_staff_area",
+                    "jobserver.context_processors.nav",
+                    "jobserver.context_processors.site_alerts",
+                    "jobserver.context_processors.disable_creating_jobs",
+                    "jobserver.context_processors.login_url",
+                ],
+                "builtins": ["slippers.templatetags.slippers"],
+            },
+        },
+    ]
+
+    with override_settings(TEMPLATES=templates_without_ctx_processor):
+        yield
