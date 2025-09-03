@@ -134,3 +134,27 @@ def cancel(job_request_id, actions):
         )
 
     return body
+
+
+def status(job_request_ids):
+    """
+    Trigger RAP API to request the status of all Jobs within a Job
+    Request/RAP, given a list of job_request_ids/rap_ids.
+
+    Refer to the specification (see module docstring) for how to interpret the result.
+
+    Raises:
+        RapAPISettingsError
+        RapAPIRequestError
+        RapAPIResponseError
+    """
+    request_body = {"rap_ids": job_request_ids}
+    response = _api_call(requests.post, "rap/status/", request_body)
+
+    if response.status_code != 200:
+        raise RapAPIResponseError(
+            f"RAP API endpoint returned an error {response.status_code}",
+            body=response.json(),
+        )
+
+    return response.json()
