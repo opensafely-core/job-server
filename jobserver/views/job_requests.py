@@ -13,6 +13,8 @@ from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from pipeline import load_pipeline
 
+from jobserver.rap_api import RapAPIError
+
 from .. import honeycomb
 from ..authorization import (
     StaffAreaAdministrator,
@@ -36,26 +38,75 @@ from ..pipeline_config import (
 
 
 class JobRequestCancel(View):
+    """View for requesting JobRequest cancellation via the RAP API.
+
+    This is written as an extensible view so it can be reused in a couple of
+    other places in the UI we allow users to cancel all or part of
+    JobRequest."""
+
+    def __init__(self, *args, **kwargs):
+        self.job_request = None
+        super().__init__(*args, **kwargs)
+
     def post(self, request, *args, **kwargs):
-        try:
-            job_request = JobRequest.objects.get(pk=self.kwargs["pk"])
-        except JobRequest.DoesNotExist:
+        job_request = self.get_objects()
+
+        if not self.user_has_permission_to_cancel(request):
             raise Http404
 
-        can_cancel_jobs = job_request.created_by == request.user or has_permission(
-            request.user, permissions.job_cancel, project=job_request.workspace.project
+        if self.is_completed():
+            return self.redirect()
+
+        error_msg = (
+            "An unexpected error caused the cancellation to fail. If this "
+            "persists, please contact technical support"
         )
-        if not can_cancel_jobs:
-            raise Http404
+        try:
+            job_request.request_cancellation(actions_to_cancel=self.actions_to_cancel())
+            messages.success(request, self.success_message())
+        except RapAPIError:
+            # This is probably rare and not much the user can do except retry.
+            # TODO: logging and emit sentry event
+            messages.error(request, error_msg)
+        except JobRequest.NoActionsToCancel:
+            # This indicates a bug in the view or possibly a very rare race
+            # condition. Not much the user can do except retry.
+            # TODO: logging and emit sentry event
+            messages.error(request, error_msg)
+        except JobRequest.NotStartedYet:
+            messages.error(
+                request,
+                "Could not cancel as job information not available. "
+                "If this is a recent Job Request, please wait a minute and retry",
+            )
 
-        if job_request.is_completed:
-            return redirect(job_request)
+        return self.redirect()
 
-        job_request.request_cancellation()
+    # These functions can be overriden by derived classes to tweak how the view behaves.
+    # Effectively private functions but no leading _ for readability.
 
-        messages.success(request, "The requested actions have been cancelled")
+    def get_objects(self):
+        self.job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+        return self.job_request
 
-        return redirect(job_request)
+    def user_has_permission_to_cancel(self, request):
+        return self.job_request.created_by == request.user or has_permission(
+            request.user,
+            permissions.job_cancel,
+            project=self.job_request.workspace.project,
+        )
+
+    def is_completed(self):
+        return self.job_request.is_completed
+
+    def actions_to_cancel(self):
+        return None  # Indicates 'all active'.
+
+    def success_message(self):
+        return "The requested actions have been cancelled"
+
+    def redirect(self):
+        return redirect(self.job_request)
 
 
 class JobRequestCreate(CreateView):
