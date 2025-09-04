@@ -1,7 +1,7 @@
 from django.core.management import call_command
 
 
-TEST_RESPONSE_BODY = b'{"backends":[{"name":"test","last_seen":{"since":"2025-08-12T06:57:43.039078Z"},"paused":{"status":"off","since":"2025-08-12T14:33:57.413881Z"},"db_maintenance":{"status":"off","since":null,"type":null}}]}'
+TEST_RESPONSE_BODY = b'{"backends":[{"name":"test","last_seen":"2025-08-12T06:57:43.039078Z","paused":{"status":"off","since":"2025-08-12T14:33:57.413881Z"},"db_maintenance":{"status":"off","since":null,"type":null}}]}'
 
 
 def test_command(monkeypatch, log_output):
