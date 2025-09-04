@@ -20,8 +20,6 @@ from urllib.parse import urljoin
 import requests
 from django.conf import settings
 
-from jobserver.models import JobRequest
-
 
 class RapAPIError(Exception):
     """Base exception for this module. A problem contacting or using the RAP
@@ -169,7 +167,7 @@ def status(job_request_ids):
     return response.json()
 
 
-def create(job_request: JobRequest):
+def create(job_request):
     """
     Trigger RAP API to request creation of Jobs for a Job Request's requested actions.
 
