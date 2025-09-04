@@ -1,33 +1,24 @@
-from django.contrib import messages
 from django.db.models.functions import Lower
-from django.http import Http404
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView, View
+from django.views.generic import DetailView, ListView
 
 from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
+from jobserver.authorization.utils import has_role
 from jobserver.models import Backend, JobRequest, Org, Project, User, Workspace
+from jobserver.views.job_requests import JobRequestCancel as BaseJobRequestCancel
 
 from .qwargs_tools import qwargs
 
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
-class JobRequestCancel(View):
-    def post(self, request, *args, **kwargs):
-        try:
-            job_request = JobRequest.objects.get(pk=self.kwargs["pk"])
-        except JobRequest.DoesNotExist:
-            raise Http404
+class JobRequestCancel(BaseJobRequestCancel):
+    def user_has_permission_to_cancel(self, request):
+        return has_role(request.user, StaffAreaAdministrator)
 
-        if job_request.is_completed:
-            return redirect(job_request.get_staff_url())
-
-        job_request.request_cancellation()
-
-        messages.success(request, "The requested actions have been cancelled")
-
-        return redirect(job_request.get_staff_url())
+    def redirect(self):
+        return redirect(self.job_request.get_staff_url())
 
 
 @method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
