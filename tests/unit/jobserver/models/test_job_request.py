@@ -276,6 +276,32 @@ def test_jobrequest_request_cancellation_specify_action():
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
 
 
+def test_jobrequest_request_cancellation_not_started_yet():
+    """Test request_cancellation when there are no associated job objects. We
+    expect a `NotStartedYet` error as the status is unknown."""
+    job_request = JobRequestFactory(cancelled_actions=[])
+    # No associated `Job` objects
+
+    with pytest.raises(JobRequest.NotStartedYet):
+        job_request.request_cancellation()
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == set()
+
+
+def test_jobrequest_request_cancellation_not_started_yet_specific_action():
+    """Test request_cancellation with parameters when there are no associated
+    job objects. We expect a `NotStartedYet` error as the status is unknown."""
+    job_request = JobRequestFactory(cancelled_actions=[])
+    # No associated `Job` objects
+
+    with pytest.raises(JobRequest.NotStartedYet):
+        job_request.request_cancellation(actions_to_cancel=["job1"])
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == set()
+
+
 def test_jobrequest_request_cancellation_nothing_to_do_specific_action():
     """Test request_cancellation with parameters when there are active
     jobs but only inactive jobs are specified."""
