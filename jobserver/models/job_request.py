@@ -248,6 +248,9 @@ class JobRequest(models.Model):
     class NoActionsToCancel(Exception):
         pass
 
+    class NotStartedYet(Exception):
+        pass
+
     def request_cancellation(self, actions_to_cancel=None):
         active_actions = self.get_active_actions()
         if actions_to_cancel is None:
@@ -258,6 +261,10 @@ class JobRequest(models.Model):
             )
 
         if not actions_to_cancel:
+            if self.jobs_status == JobRequestStatus.UNKNOWN:
+                # Probably this was called before we got any `Job` information
+                # from the RAP side. Let's distinguish that from other cases.
+                raise self.NotStartedYet
             raise self.NoActionsToCancel
 
         if self.backend.name == "Test":

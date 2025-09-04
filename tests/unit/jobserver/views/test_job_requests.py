@@ -251,6 +251,37 @@ def test_jobrequestcancel_noactionstocancel(rf, mocker):
     assert "An unexpected error" in str(messages[0])
 
 
+def test_jobrequestcancel_notstartedyet(rf, mocker):
+    """Test that when a JobRequest.NotStartedYet error is raised by
+    JobRequest.request_cancellation, we get a suitable error message and
+    redirect."""
+    user = UserFactory()
+    job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
+
+    request = rf.post("/")
+    request.user = user
+
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    fake_cancel = mocker.patch(
+        "jobserver.views.job_requests.JobRequest.request_cancellation",
+        side_effect=JobRequest.NotStartedYet,
+    )
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_absolute_url()
+
+    fake_cancel.assert_called_once_with(actions_to_cancel=None)
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert "job information not available" in str(messages[0])
+
+
 @pytest.mark.parametrize("ref", [None, "abc"])
 def test_jobrequestcreate_get_success(
     ref, rf, mocker, user, mock_codelists_ok, project_membership, role_factory
