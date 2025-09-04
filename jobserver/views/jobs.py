@@ -1,9 +1,10 @@
-from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
+
+from jobserver.views.job_requests import JobRequestCancel
 
 from .. import honeycomb
 from ..authorization import (
@@ -15,28 +16,26 @@ from ..authorization import (
 from ..models import Job, JobRequest
 
 
-class JobCancel(View):
-    def post(self, request, *args, **kwargs):
-        job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
+class JobCancel(JobRequestCancel):
+    def get_objects(self):
+        self.job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
+        self.job_request = self.job.job_request
+        return self.job_request
 
-        can_cancel_job = job.job_request.created_by == request.user or has_permission(
-            request.user,
-            permissions.job_cancel,
-            project=job.job_request.workspace.project,
-        )
-        if not can_cancel_job:
-            raise Http404
-
-        if job.is_completed or job.action in job.job_request.cancelled_actions:
-            return redirect(job)
-
-        job.job_request.request_cancellation([job.action])
-
-        messages.success(
-            request, f'Your request to cancel "{job.action}" was successful'
+    def is_completed(self):
+        return (
+            self.job.is_completed
+            or self.job.action in self.job.job_request.cancelled_actions
         )
 
-        return redirect(job)
+    def actions_to_cancel(self):
+        return [self.job.action]
+
+    def success_message(self):
+        return f'Your request to cancel "{self.job.action}" was successful'
+
+    def redirect(self):
+        return redirect(self.job)
 
 
 class JobDetail(View):
