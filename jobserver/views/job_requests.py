@@ -67,6 +67,12 @@ class JobRequestCancel(View):
             # condition. Not much the user can do except retry.
             # TODO: logging and emit sentry event
             messages.error(request, error_msg)
+        except JobRequest.NotStartedYet:
+            messages.error(
+                request,
+                "Could not cancel as job information not available. "
+                "If this is a recent Job Request, please wait a minute and retry",
+            )
 
         return self.redirect()
 
