@@ -8,6 +8,7 @@ from django.utils import timezone
 from jobserver import honeycomb
 from jobserver.authorization import StaffAreaAdministrator, permissions
 from jobserver.models import JobRequest
+from jobserver.rap_api import RapAPIError
 from jobserver.utils import set_from_qs
 from jobserver.views.job_requests import (
     JobRequestCancel,
@@ -184,6 +185,70 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
     with pytest.raises(Http404):
         JobRequestCancel.as_view()(request, pk=0)
+
+
+def test_jobrequestcancel_rapapierror(rf, mocker):
+    """Test that when a RapAPIError is raised by
+    JobRequest.request_cancellation, we get a suitable error message and
+    redirect."""
+    user = UserFactory()
+    job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
+    JobFactory(job_request=job_request, action="test1")
+
+    request = rf.post("/")
+    request.user = user
+
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    fake_cancel = mocker.patch(
+        "jobserver.views.job_requests.JobRequest.request_cancellation",
+        side_effect=RapAPIError,
+    )
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_absolute_url()
+
+    fake_cancel.assert_called_once_with(actions_to_cancel=None)
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert "An unexpected error" in str(messages[0])
+
+
+def test_jobrequestcancel_noactionstocancel(rf, mocker):
+    """Test that when a JobRequest.NoActionsToCancel error is raised by
+    JobRequest.request_cancellation, we get a suitable error message and
+    redirect."""
+    user = UserFactory()
+    job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
+    JobFactory(job_request=job_request, action="test1")
+
+    request = rf.post("/")
+    request.user = user
+
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    fake_cancel = mocker.patch(
+        "jobserver.views.job_requests.JobRequest.request_cancellation",
+        side_effect=JobRequest.NoActionsToCancel,
+    )
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_absolute_url()
+
+    fake_cancel.assert_called_once_with(actions_to_cancel=None)
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert "An unexpected error" in str(messages[0])
 
 
 @pytest.mark.parametrize("ref", [None, "abc"])
