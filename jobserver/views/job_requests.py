@@ -38,6 +38,12 @@ from ..pipeline_config import (
 
 
 class JobRequestCancel(View):
+    """View for requesting JobRequest cancellation via the RAP API.
+
+    This is written as an extensible view so it can be reused in a couple of
+    other places in the UI we allow users to cancel all or part of
+    JobRequest."""
+
     def __init__(self, *args, **kwargs):
         self.job_request = None
         super().__init__(*args, **kwargs)
@@ -75,6 +81,9 @@ class JobRequestCancel(View):
             )
 
         return self.redirect()
+
+    # These functions can be overriden by derived classes to tweak how the view behaves.
+    # Effectively private functions but no leading _ for readability.
 
     def get_objects(self):
         self.job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])

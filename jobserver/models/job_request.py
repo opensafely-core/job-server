@@ -246,12 +246,27 @@ class JobRequest(models.Model):
         return self.get_active_actions() - set(self.cancelled_actions)
 
     class NoActionsToCancel(Exception):
-        pass
+        """request_cancellation was called but could not find any work to do."""
+
+        # We should design views to avoid this being triggered.
 
     class NotStartedYet(Exception):
-        pass
+        """request_cancellation was called before we had any Job information."""
 
     def request_cancellation(self, actions_to_cancel=None):
+        """Request that the RAP API cancel jobs.
+
+        If we get a success response, we update cancelled_actions. That
+        triggers things being disabled in the UI so the user doesn't try to
+        "re-cancel". Although that probably isn't harmful, it might be
+        confusing.
+
+        Raises:
+          NoActionsToCancel
+          NotStartedYet
+          RapAPIError
+        """
+        # Decide what to cancel
         active_actions = self.get_active_actions()
         if actions_to_cancel is None:
             actions_to_cancel = list(active_actions)
@@ -267,9 +282,13 @@ class JobRequest(models.Model):
                 raise self.NotStartedYet
             raise self.NoActionsToCancel
 
+        # Special case for the RAP API v2 initiative. We intend to remove the
+        # conditionality if this works well in production.
         if self.backend.name == "Test":
+            # Invoke the API. This might raise a RapAPIError.
             rap_api.cancel(self.identifier, actions_to_cancel)
 
+        # Track that we cancelled the actions.
         self.cancelled_actions.extend(actions_to_cancel)
         self.save(update_fields=["cancelled_actions"])
 
