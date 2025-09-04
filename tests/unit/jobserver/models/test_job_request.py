@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import JobRequest
+from jobserver.rap_api import RapAPIError
 
 from ....factories import (
     BackendFactory,
@@ -290,6 +291,57 @@ def test_jobrequest_request_cancellation_nothing_to_do_specific_action():
 
     job_request.refresh_from_db()
     assert set(job_request.cancelled_actions) == set()
+
+
+# Note that the other tests don't use our temporary special-case backend so
+# don't trigger the api at all -- or the socket blocker would cause them to
+# fail. If this were a permanent situation it would be better to test for that
+# explicitly here, but we expect to roll this out to all backends too, which
+# will touch most of these tests again.
+def test_jobrequest_request_cancellation_test_backend(mocker):
+    """Test request_cancellation with no parameters and backend as 'Test'
+    causes API call and affects cancelled_actions."""
+    fake_cancel = mocker.patch("jobserver.rap_api.cancel", return_value={"ok": True})
+
+    job_request = JobRequestFactory(cancelled_actions=[], backend__name="Test")
+
+    JobFactory(job_request=job_request, action="job1", status="pending")
+    JobFactory(job_request=job_request, action="job2", status="running")
+    JobFactory(job_request=job_request, action="job3", status="failed")
+    JobFactory(job_request=job_request, action="job4", status="succeeded")
+
+    job_request.request_cancellation()
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == {"job1", "job2"}
+
+    fake_cancel.assert_called_once()  # Need to allow for order varying
+    args, _ = fake_cancel.call_args
+    assert args[0] == job_request.identifier
+    assert set(args[1]) == {"job1", "job2"}  # Order invariant
+
+
+def test_jobrequest_request_cancellation_test_backend_api_error(mocker):
+    """Test request_cancellation with no parameters and backend as 'Test'
+    with failing API call does not affect cancelled_actions."""
+    fake_cancel = mocker.patch("jobserver.rap_api.cancel", side_effect=RapAPIError)
+
+    job_request = JobRequestFactory(cancelled_actions=[], backend__name="Test")
+
+    JobFactory(job_request=job_request, action="job1", status="pending")
+    JobFactory(job_request=job_request, action="job2", status="running")
+    JobFactory(job_request=job_request, action="job3", status="failed")
+    JobFactory(job_request=job_request, action="job4", status="succeeded")
+    with pytest.raises(RapAPIError):
+        job_request.request_cancellation()
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == set()  # Unchanged
+
+    fake_cancel.assert_called_once()  # Need to allow for order varying
+    args, _ = fake_cancel.call_args
+    assert args[0] == job_request.identifier
+    assert set(args[1]) == {"job1", "job2"}  # Order invariant
 
 
 def test_jobrequest_has_cancellable_actions():

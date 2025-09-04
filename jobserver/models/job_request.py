@@ -10,6 +10,8 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from furl import furl
 
+from jobserver import rap_api
+
 from ..permissions.t1oo import project_is_permitted_to_use_t1oo_data
 from ..runtime import Runtime
 
@@ -257,6 +259,9 @@ class JobRequest(models.Model):
 
         if not actions_to_cancel:
             raise self.NoActionsToCancel
+
+        if self.backend.name == "Test":
+            rap_api.cancel(self.identifier, actions_to_cancel)
 
         self.cancelled_actions.extend(actions_to_cancel)
         self.save(update_fields=["cancelled_actions"])

@@ -13,6 +13,8 @@ from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from pipeline import load_pipeline
 
+from jobserver.rap_api import RapAPIError
+
 from .. import honeycomb
 from ..authorization import (
     StaffAreaAdministrator,
@@ -49,8 +51,22 @@ class JobRequestCancel(View):
         if self.is_completed():
             return self.redirect()
 
-        job_request.request_cancellation(actions_to_cancel=self.actions_to_cancel())
-        messages.success(request, self.success_message())
+        error_msg = (
+            "An unexpected error caused the cancellation to fail. If this "
+            "persists, please contact technical support"
+        )
+        try:
+            job_request.request_cancellation(actions_to_cancel=self.actions_to_cancel())
+            messages.success(request, self.success_message())
+        except RapAPIError:
+            # This is probably rare and not much the user can do except retry.
+            # TODO: logging and emit sentry event
+            messages.error(request, error_msg)
+        except JobRequest.NoActionsToCancel:
+            # This indicates a bug in the view or possibly a very rare race
+            # condition. Not much the user can do except retry.
+            # TODO: logging and emit sentry event
+            messages.error(request, error_msg)
 
         return self.redirect()
 
