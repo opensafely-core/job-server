@@ -5,17 +5,17 @@ _FAKE_ARGS = ("abcde1234", "action1", "action2")
 
 
 def test_command(monkeypatch, log_output):
-    test_response_body = b'{"foo": "bar"}'
+    test_response_json = {"foo": "bar"}
 
     monkeypatch.setattr(
         "jobserver.rap_api.cancel",
-        lambda rap_id, actions: test_response_body,
+        lambda rap_id, actions: test_response_json,
     )
 
     call_command("cancel_jobs", *_FAKE_ARGS)
 
     assert log_output.entries[0] == {
-        "event": test_response_body,
+        "event": test_response_json,
         "log_level": "info",
     }
 
