@@ -6,6 +6,9 @@ from django.core.management.base import BaseCommand
 from jobserver import rap_api
 
 
+logger = structlog.get_logger(__name__)
+
+
 class Command(BaseCommand):
     """Management command to update the status of a RAP's Jobs via the RAP API."""
 
@@ -20,7 +23,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        logger = structlog.get_logger(__name__)
         try:
             json_response = rap_api.status(
                 options["rap_ids"],

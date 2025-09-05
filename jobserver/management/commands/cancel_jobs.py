@@ -6,6 +6,9 @@ from django.core.management.base import BaseCommand
 from jobserver import rap_api
 
 
+logger = structlog.get_logger(__name__)
+
+
 class Command(BaseCommand):
     """Management command to cancel Jobs via the RAP API."""
 
@@ -25,7 +28,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        logger = structlog.get_logger(__name__)
         try:
             logger.info(
                 rap_api.cancel(
