@@ -8,6 +8,7 @@ objects or exceptions. They should not be patching the requests module.
 When adding an endpoint make sure that the request method you use has tests for
 it in TestAPICall."""
 
+import json
 from unittest.mock import Mock
 
 import pytest
@@ -157,12 +158,19 @@ class TestApiCall:
 class FakeResponse:
     """Lightweight fake response similar enough to requests.Response for these tests."""
 
-    def __init__(self, json_data, status_code=200):
-        self._json_data = json_data
+    def __init__(self, content=None, json_data=None, status_code=200):
+        if content and json_data:
+            raise ValueError("Tests should only specify content *or* json_data")
+
+        # Nb. in the real Response .content is a byte array, not a string
+        if content:
+            self.content = content
+        else:
+            self.content = json.dumps(json_data)
         self.status_code = status_code
 
     def json(self):
-        return self._json_data
+        return json.loads(self.content)
 
 
 @pytest.fixture
@@ -173,14 +181,19 @@ def patch_api_call(monkeypatch):
     the requests methods are applied as expected.
 
     Usage:
-        patch_api_call(fake_json, status_code=200)
+        patch_api_call(fake_json=fake_json, status_code=200)
+        patch_api_call(fake_body=fake_body, status_code=500)
 
     Returns:
         called: dict with params the tested function called api_call with
     """
 
-    def _do_patch(fake_json=None, status_code=200):
-        fake_response = FakeResponse(fake_json, status_code=status_code)
+    def _do_patch(fake_body=None, fake_json=None, status_code=200):
+        if fake_json:
+            fake_response = FakeResponse(json_data=fake_json, status_code=status_code)
+        else:
+            fake_response = FakeResponse(content=fake_body, status_code=status_code)
+
         mock_api_call = Mock(
             return_value=fake_response,
             spec=["__call__", "assert_called_once_with"],
@@ -201,7 +214,7 @@ class TestBackendStatus:
         """Test api_call is called with expected parameters and its body
         returned when it returns a 200."""
         fake_json = {"some": "content"}
-        mock_api_call = patch_api_call(fake_json)
+        mock_api_call = patch_api_call(fake_json=fake_json)
         result = backend_status()
 
         assert result == fake_json
@@ -209,7 +222,8 @@ class TestBackendStatus:
 
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception."""
-        patch_api_call(status_code=500)
+        fake_body = "<html>Gateway Error 500</html>"
+        patch_api_call(fake_body=fake_body, status_code=500)
 
         with pytest.raises(RapAPIResponseError):
             backend_status()
@@ -227,7 +241,7 @@ class TestCancel:
         """Test api_call is called with expected parameters and its body
         returned when it returns a 200."""
         fake_json = {"some": "content"}
-        mock_api_call = patch_api_call(fake_json)
+        mock_api_call = patch_api_call(fake_json=fake_json)
         result = cancel(*self._fake_args)
 
         assert result == fake_json
@@ -243,11 +257,20 @@ class TestCancel:
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception including the response body."""
         fake_json = {"err": "some problem detected", "details": "gory"}
-        patch_api_call(fake_json, status_code=400)
+        patch_api_call(fake_json=fake_json, status_code=400)
 
         with pytest.raises(RapAPIResponseError, match="gory") as exc:
             cancel(*self._fake_args)
         assert exc.value.body == fake_json
+
+    def test_bad_status_code_500(self, patch_api_call):
+        """Test a non-200 status raises right Exception including the response body."""
+        fake_body = "<html>Gateway error 500</html>"
+        patch_api_call(fake_body=fake_body, status_code=500)
+
+        with pytest.raises(RapAPIResponseError) as exc:
+            cancel(*self._fake_args)
+        assert exc.value.body == fake_body
 
 
 class TestStatus:
@@ -262,7 +285,7 @@ class TestStatus:
         """Test api_call is called with expected parameters and its body
         returned when it returns a 200."""
         fake_json = {"jobs": [{"identifier": "abcdefgh12345678"}]}
-        mock_api_call = patch_api_call(fake_json)
+        mock_api_call = patch_api_call(fake_json=fake_json)
         result = status(self._fake_args)
 
         assert result == fake_json
@@ -277,8 +300,17 @@ class TestStatus:
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception including the response body."""
         fake_json = {"err": "some problem detected"}
-        patch_api_call(fake_json, status_code=400)
+        patch_api_call(fake_json=fake_json, status_code=400)
 
         with pytest.raises(RapAPIResponseError) as exc:
             status(*self._fake_args)
-        assert exc.value.body == fake_json
+        assert json.loads(exc.value.body) == fake_json
+
+    def test_bad_status_code_500(self, patch_api_call):
+        """Test a non-200 status raises right Exception including the response body."""
+        fake_body = "<html>Gateway error 500</html>"
+        patch_api_call(fake_body=fake_body, status_code=500)
+
+        with pytest.raises(RapAPIResponseError) as exc:
+            status(*self._fake_args)
+        assert exc.value.body == fake_body
