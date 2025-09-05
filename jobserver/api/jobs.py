@@ -126,7 +126,6 @@ class JobAPIUpdate(APIView):
 
             # bind the job request ID to further logs so looking them up in the UI is easier
             structlog.contextvars.bind_contextvars(job_request=job_request.id)
-            logger.info("XXX Handling job request")
 
             database_jobs = job_request.jobs.all()
 
@@ -151,17 +150,12 @@ class JobAPIUpdate(APIView):
                     defaults={**job_data},
                 )
 
-                logger.info("XXX Handling job", job=job.id)
-                logger.info(f"XXX job status: {job.status}", job=job.id)
-
                 if created:
-                    logger.info("XXX created", job=job.id)
                     created_job_ids.append(str(job.id))
                     # For newly created jobs we can't tell if they've just transitioned
                     # to completed so we assume they have to avoid missing notifications
                     newly_completed = job_data["status"] in COMPLETED_STATES
                 else:
-                    logger.info("XXX not created", job=job.id)
                     updated_job_ids.append(str(job.id))
                     # check to see if the Job is about to transition to completed
                     # (failed or succeeded) so we can notify after the update
@@ -178,7 +172,6 @@ class JobAPIUpdate(APIView):
 
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:
-                    logger.info("XXX newly_completed", job=job.id)
                     # round trip the Job to the db so all fields are converted to their
                     # python representations as expected by the notification code
                     job.refresh_from_db()
@@ -204,7 +197,6 @@ def handle_job_notifications(job_request, job):
         logger.info(
             "Notified requesting user of completed job",
             user_id=job_request.created_by_id,
-            job=job.id,
         )
 
 
