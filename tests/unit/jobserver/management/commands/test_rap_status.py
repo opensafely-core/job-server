@@ -2,12 +2,21 @@ from django.core.management import call_command
 
 
 def test_command(monkeypatch, log_output):
-    test_response_body = b'{"jobs": [{"identifier": "abc123", "rap_id": "abcdefgi12345678", "status": "succeeded"}], "unrecognised_rap_ids": []}'
+    test_response_json = {
+        "jobs": [
+            {
+                "identifier": "abc123",
+                "rap_id": "abcdefgi12345678",
+                "status": "succeeded",
+            }
+        ],
+        "unrecognised_rap_ids": [],
+    }
     test_log_output = "RAP: abcdefgi12345678 Job: abc123 Status: succeeded"
 
     monkeypatch.setattr(
         "jobserver.rap_api.status",
-        lambda rap_ids: test_response_body,
+        lambda rap_ids: test_response_json,
     )
 
     call_command("rap_status", "abcdefgi12345678")
@@ -19,12 +28,12 @@ def test_command(monkeypatch, log_output):
 
 
 def test_command_unrecognised(monkeypatch, log_output):
-    test_response_body = b'{"jobs": [], "unrecognised_rap_ids": ["87654321ihgfedcba"]}'
+    test_response_json = {"jobs": [], "unrecognised_rap_ids": ["87654321ihgfedcba"]}
     test_log_output = "Unrecognised RAP id: 87654321ihgfedcba"
 
     monkeypatch.setattr(
         "jobserver.rap_api.status",
-        lambda rap_ids: test_response_body,
+        lambda rap_ids: test_response_json,
     )
 
     call_command("rap_status", "87654321ihgfedcba")
