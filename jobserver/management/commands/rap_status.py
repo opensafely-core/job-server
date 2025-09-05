@@ -1,7 +1,5 @@
 """Management command to update the status of a RAP's Jobs via the RAP API."""
 
-import json
-
 import structlog
 from django.core.management.base import BaseCommand
 
@@ -24,10 +22,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logger = structlog.get_logger(__name__)
         try:
-            json_response = json.loads(
-                rap_api.status(
-                    options["rap_ids"],
-                )
+            json_response = rap_api.status(
+                options["rap_ids"],
             )
 
             for job in json_response["jobs"]:
