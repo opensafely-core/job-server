@@ -158,19 +158,26 @@ class TestApiCall:
 class FakeResponse:
     """Lightweight fake response similar enough to requests.Response for these tests."""
 
+    # Nb. content should be bytes as per
+    # https://docs.python-requests.org/en/latest/api/#requests.Response.content
     def __init__(self, content=None, json_data=None, status_code=200):
         if content and json_data:
             raise ValueError("Tests should only specify content *or* json_data")
 
-        # Nb. in the real Response .content is a byte array, not a string
         if content:
             self.content = content
         else:
-            self.content = json.dumps(json_data)
+            self.content = json.dumps(json_data).encode("utf-8")
         self.status_code = status_code
 
     def json(self):
-        return json.loads(self.content)
+        return json.loads(self.content.decode("utf-8"))
+
+
+class TestFakeResponse:
+    def test_not_both_content_and_json_data(self):
+        with pytest.raises(ValueError):
+            FakeResponse(content="bad", json_data={"bad": "yes"})
 
 
 @pytest.fixture
@@ -222,7 +229,7 @@ class TestBackendStatus:
 
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200 status raises right Exception."""
-        fake_body = "<html>Gateway Error 500</html>"
+        fake_body = b"<html>Gateway Error 500</html>"
         patch_api_call(fake_body=fake_body, status_code=500)
 
         with pytest.raises(RapAPIResponseError):
@@ -265,7 +272,7 @@ class TestCancel:
 
     def test_bad_status_code_500(self, patch_api_call):
         """Test a non-200 status raises right Exception including the response body."""
-        fake_body = "<html>Gateway error 500</html>"
+        fake_body = b"<html>Gateway Error 500</html>"
         patch_api_call(fake_body=fake_body, status_code=500)
 
         with pytest.raises(RapAPIResponseError) as exc:
@@ -308,7 +315,7 @@ class TestStatus:
 
     def test_bad_status_code_500(self, patch_api_call):
         """Test a non-200 status raises right Exception including the response body."""
-        fake_body = "<html>Gateway error 500</html>"
+        fake_body = b"<html>Gateway Error 500</html>"
         patch_api_call(fake_body=fake_body, status_code=500)
 
         with pytest.raises(RapAPIResponseError) as exc:
