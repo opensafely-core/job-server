@@ -14,6 +14,7 @@ errors, for example. They should probably not need to transform the response
 body defined in the spec. Clients of this module will interpret those further.
 """
 
+from json.decoder import JSONDecodeError
 from urllib.parse import urljoin
 
 import requests
@@ -126,14 +127,20 @@ def cancel(job_request_id, actions):
     request_body = {"rap_id": job_request_id, "actions": actions}
     response = _api_call(requests.post, "rap/cancel/", request_body)
 
-    body = response.json()
     if response.status_code != 200:
-        raise RapAPIResponseError(
-            f"RAP API endpoint returned an error {response.status_code} - {body['details']}",
-            body=body,
-        )
+        try:
+            body = response.json()
+            raise RapAPIResponseError(
+                f"RAP API endpoint returned an error {response.status_code} - {body['details']}",
+                body=body,
+            )
+        except JSONDecodeError:
+            raise RapAPIResponseError(
+                f"RAP API endpoint returned an error {response.status_code}",
+                body=response.content,
+            )
 
-    return body
+    return response.json()
 
 
 def status(job_request_ids):
@@ -154,7 +161,7 @@ def status(job_request_ids):
     if response.status_code != 200:
         raise RapAPIResponseError(
             f"RAP API endpoint returned an error {response.status_code}",
-            body=response.json(),
+            body=response.content,
         )
 
     return response.json()
