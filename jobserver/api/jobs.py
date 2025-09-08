@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
+from jobserver.management.commands.check_rap_api_status import Command as cd
 from jobserver.models import Job, JobRequest, Stats, User, Workspace
 
 
@@ -185,6 +186,9 @@ class JobAPIUpdate(APIView):
 
         update_backend_state(self.backend, request)
 
+        # rap_api parallel backend db update
+        cd.update_backend_state(self.backend, request)
+
         return Response({"status": "success"}, status=200)
 
 
@@ -261,6 +265,9 @@ class JobRequestAPIList(ListAPIView):
         # only update state when authenticated and response is 2xx
         if self.backend and response.status_code >= 200 and response.status_code < 300:
             update_backend_state(self.backend, request)
+
+            # rap_api parallel backend db update
+            cd.update_backend_state(self.backend, request)
 
         return response
 
