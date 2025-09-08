@@ -20,6 +20,8 @@ from urllib.parse import urljoin
 import requests
 from django.conf import settings
 
+from jobserver.models import JobRequest
+
 
 class RapAPIError(Exception):
     """Base exception for this module. A problem contacting or using the RAP
@@ -163,5 +165,51 @@ def status(job_request_ids):
             f"RAP API endpoint returned an error {response.status_code}",
             body=response.content,
         )
+
+    return response.json()
+
+
+def create(job_request: JobRequest):
+    """
+    Trigger RAP API to request creation of Jobs for selected action in a Job
+    Request.
+
+    Refer to the specification (see module docstring) for how to interpret the result.
+
+    Raises:
+        RapAPISettingsError
+        RapAPIRequestError
+        RapAPIResponseError
+    """
+    request_body = {
+        "rap_id": job_request.identifier,
+        "backend": job_request.backend.slug,
+        "workspace": job_request.workspace.name,
+        "repo_url": job_request.workspace.repo.url,
+        "branch": job_request.workspace.branch,
+        "commit": job_request.sha,
+        "database_name": job_request.database_name,
+        "requested_actions": job_request.requested_actions,
+        "codelists_ok": job_request.codelists_ok,
+        "force_run_dependencies": job_request.force_run_dependencies,
+        "created_by": job_request.created_by.username,
+        "project": job_request.workspace.project.slug,
+        "orgs": list(job_request.workspace.project.orgs.values_list("slug", flat=True)),
+    }
+
+    response = _api_call(requests.post, "rap/create/", request_body)
+
+    if response.status_code not in [200, 201]:
+        try:
+            body = response.json()
+            raise RapAPIResponseError(
+                f"RAP API endpoint returned an error {response.status_code} - {body['details']}",
+                body=body,
+            )
+        except JSONDecodeError:
+            raise RapAPIResponseError(
+                f"RAP API endpoint returned an error {response.status_code}",
+                body=response.content,
+            )
 
     return response.json()
