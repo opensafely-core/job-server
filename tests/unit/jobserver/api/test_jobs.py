@@ -115,7 +115,63 @@ def test_update_backend_state_new_url(api_rf):
     assert backend.stats.last().url == "/new-url"
 
 
-def test_jobapiupdate_all_existing(api_rf, freezer):
+@pytest.fixture(autouse=True)
+def patch_backend_status_api_call(monkeypatch):
+    """
+    Fixture to patch rap_api.backend_status with a fake response. Use this to test that the
+    database is updated with the backend status.
+
+    """
+
+    def _do_backend_status_patch(backend_name, last_seen=None):
+        # Mock a backend status response. If last_seen is not passed, use the default timestamp
+        if not last_seen:
+            TEST_RESPONSE_BODY = {
+                "backends": [
+                    {
+                        "name": f"{backend_name}",
+                        "last_seen": "2025-08-12T06:57:43.039078Z",
+                        "paused": {
+                            "status": "off",
+                            "since": "2025-08-12T14:33:57.413881Z",
+                        },
+                        "db_maintenance": {
+                            "status": "off",
+                            "since": "null",
+                            "type": "null",
+                        },
+                    }
+                ]
+            }
+        else:
+            TEST_RESPONSE_BODY = {
+                "backends": [
+                    {
+                        "name": f"{backend_name}",
+                        "last_seen": f"{last_seen}",
+                        "paused": {
+                            "status": "off",
+                            "since": "2025-08-12T14:33:57.413881Z",
+                        },
+                        "db_maintenance": {
+                            "status": "off",
+                            "since": "null",
+                            "type": "null",
+                        },
+                    }
+                ]
+            }
+
+        mock_backend_status_api = monkeypatch.setattr(
+            "jobserver.rap_api.backend_status",
+            lambda: TEST_RESPONSE_BODY,
+        )
+        return mock_backend_status_api
+
+    return _do_backend_status_patch
+
+
+def test_jobapiupdate_all_existing(api_rf, freezer, patch_backend_status_api_call):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
@@ -186,6 +242,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
+    patch_backend_status_api_call(backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -217,7 +274,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     assert job3.completed_at is None
 
 
-def test_jobapiupdate_all_new(api_rf):
+def test_jobapiupdate_all_new(api_rf, patch_backend_status_api_call):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
@@ -270,13 +327,14 @@ def test_jobapiupdate_all_new(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
+    patch_backend_status_api_call(backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
     assert Job.objects.count() == 3
 
 
-def test_jobapiupdate_two_jobrequests(api_rf):
+def test_jobapiupdate_two_jobrequests(api_rf, patch_backend_status_api_call):
     """Test that posting a Jobs update with three new jobs from two distinct
     Job Requests, interleaved, results in all three Job objects being updated
     and associated with the correct Job Request."""
@@ -332,6 +390,7 @@ def test_jobapiupdate_two_jobrequests(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
+    patch_backend_status_api_call(backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -377,7 +436,7 @@ def test_jobapiupdate_is_behind_auth(api_rf):
     assert response.status_code == 403, response.data
 
 
-def test_jobapiupdate_mixture(api_rf, freezer):
+def test_jobapiupdate_mixture(api_rf, freezer, patch_backend_status_api_call):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
@@ -435,6 +494,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
+    patch_backend_status_api_call(backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -463,7 +523,9 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     assert job3.completed_at is None
 
 
-def test_jobapiupdate_notifications_on_with_move_to_succeeded(api_rf, mocker):
+def test_jobapiupdate_notifications_on_with_move_to_succeeded(
+    api_rf, mocker, patch_backend_status_api_call
+):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="running")
@@ -495,14 +557,16 @@ def test_jobapiupdate_notifications_on_with_move_to_succeeded(api_rf, mocker):
         data=data,
         format="json",
     )
-
+    patch_backend_status_api_call(job_request.backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_called_once()
     assert response.status_code == 200
 
 
-def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker):
+def test_jobapiupdate_notifications_on_without_move_to_completed(
+    api_rf, mocker, patch_backend_status_api_call
+):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="succeeded")
@@ -534,14 +598,14 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
         data=data,
         format="json",
     )
-
+    patch_backend_status_api_call(job_request.backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send_finished.assert_not_called()
     assert response.status_code == 200
 
 
-def test_jobapiupdate_post_job_request_error(api_rf):
+def test_jobapiupdate_post_job_request_error(api_rf, patch_backend_status_api_call):
     backend = BackendFactory()
     job_request = JobRequestFactory(will_notify=True)
 
@@ -568,6 +632,7 @@ def test_jobapiupdate_post_job_request_error(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
+    patch_backend_status_api_call(backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -602,7 +667,9 @@ def test_jobapiupdate_post_only(api_rf):
         "Ran out of memory (limit for this job was 6GB)",
     ],
 )
-def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
+def test_jobapiupdate_post_with_errors(
+    api_rf, mocker, error_message, patch_backend_status_api_call
+):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
@@ -626,6 +693,7 @@ def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     request_1 = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
+    patch_backend_status_api_call(backend.name)
     JobAPIUpdate.as_view()(request_1)
 
     data[0]["status"] = "failed"
@@ -638,7 +706,7 @@ def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     assert response.status_code == 200, response.data
 
 
-def test_jobapiupdate_post_with_flags(api_rf):
+def test_jobapiupdate_post_with_flags(api_rf, patch_backend_status_api_call):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
@@ -678,6 +746,8 @@ def test_jobapiupdate_post_with_flags(api_rf):
             "flags": flags,
         },
     )
+
+    patch_backend_status_api_call(backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -685,9 +755,10 @@ def test_jobapiupdate_post_with_flags(api_rf):
 
     backend.refresh_from_db()
     assert backend.jobrunner_state["mode"]["v"] == "test"
+    assert backend.jobrunner_rap_api_state["db_maintenance"]["type"] == "null"
 
 
-def test_jobapiupdate_unknown_job_request(api_rf):
+def test_jobapiupdate_unknown_job_request(api_rf, patch_backend_status_api_call):
     backend = BackendFactory()
     JobRequestFactory()
 
@@ -712,6 +783,7 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     request = api_rf.post(
         "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
+    patch_backend_status_api_call(backend.name)
     response = JobAPIUpdate.as_view()(request)
 
     # Jobs associated with unknown requests should be ignored
@@ -719,12 +791,13 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     assert not Job.objects.exists()
 
 
-def test_jobrequestapilist_filter_by_backend(api_rf):
+def test_jobrequestapilist_filter_by_backend(api_rf, patch_backend_status_api_call):
     backend = BackendFactory()
     JobRequestFactory(backend=backend)
     JobRequestFactory()
 
     request = api_rf.get("/", headers={"authorization": backend.auth_token})
+    patch_backend_status_api_call(backend.name)
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -738,7 +811,9 @@ def test_jobrequestapilist_get_only(api_rf):
     assert response.status_code == 405
 
 
-def test_jobrequestapilist_produce_stats_when_authed(api_rf):
+def test_jobrequestapilist_produce_stats_when_authed(
+    api_rf, patch_backend_status_api_call
+):
     backend = BackendFactory()
 
     assert Stats.objects.filter(backend=backend).count() == 0
@@ -750,6 +825,9 @@ def test_jobrequestapilist_produce_stats_when_authed(api_rf):
             "Flags": '{"last-seen-at": {"v": "2025-06-05T07:55:37.1+00:00"}}',
         },
     )
+    # mock rap_api backend status endpoint with custom last seen
+    first_timestamp = "2025-06-05T07:55:37.1+00:00"
+    patch_backend_status_api_call(backend.name, first_timestamp)
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200
@@ -767,6 +845,10 @@ def test_jobrequestapilist_produce_stats_when_authed(api_rf):
             "Flags": '{"last-seen-at": {"v": "2025-06-05T08:30:00.0+00:00"}}',
         },
     )
+
+    # mock the second time the rap_api backend status endpoint is called it returns a different timestamp
+    second_timestamp = "2025-06-05T08:30:00.0+00:00"
+    patch_backend_status_api_call(backend.name, second_timestamp)
     response = JobRequestAPIList.as_view()(request)
     stat = Stats.objects.filter(backend=backend).first()
     assert stat.api_last_seen == datetime.datetime(
@@ -922,7 +1004,7 @@ def test_jobrequestapilist_success(api_rf):
     ]
 
 
-def test_jobrequestapilist_with_flags(api_rf):
+def test_jobrequestapilist_with_flags(api_rf, patch_backend_status_api_call):
     backend = BackendFactory()
     flags = json.dumps({"mode": {"v": "test"}})
 
@@ -934,12 +1016,15 @@ def test_jobrequestapilist_with_flags(api_rf):
             "flags": flags,
         },
     )
+
+    patch_backend_status_api_call(backend.name)
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200, response.data
 
     backend.refresh_from_db()
     assert backend.jobrunner_state["mode"]["v"] == "test"
+    assert backend.jobrunner_rap_api_state["db_maintenance"]["type"] == "null"
 
 
 def test_userapidetail_success(api_rf, project_membership):
