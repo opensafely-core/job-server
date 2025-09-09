@@ -19,14 +19,14 @@ class DBAvailability(View):
                 f"DB maintenance mode not implemented in {backend.name}"
             )
 
-        mode = backend.jobrunner_state.get("mode", {})
+        mode = backend.jobrunner_rap_api_state.get("db_maintenance", {})
 
-        # conver the timestamp into
+        # convert the timestamp into string
         suffix = ""
-        if timestamp := mode.get("ts", ""):
+        if timestamp := mode.get("since", ""):
             suffix = f" (since {timestamp}) "
 
-        if mode.get("v", "") == "db-maintenance":
+        if mode.get("status", "") == "on":
             return HttpResponse(f"DB maintenance mode on{suffix}", status=503)
 
         return HttpResponse(f"DB maintenance mode off{suffix}")
