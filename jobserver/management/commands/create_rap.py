@@ -86,6 +86,17 @@ class Command(BaseCommand):
         )
 
         try:
-            logger.info(rap_api.create(job_request))
+            json_response = rap_api.create(job_request)
+            logger.info(json_response)
+
+            if json_response["count"] > 0:
+                # New jobs have been created, status is Pending
+                ...
+            else:
+                # Nothing to do,  status is Completed, record response details as status message
+                ...
+
         except Exception as exc:
             logger.error(exc)
+            # Failed in creation, status is Failed, record exc body as status message
+            ...
