@@ -443,3 +443,59 @@ def rap_api_base_url(settings):
     rap_api_base_url = "http://example.com/rap/"
     settings.RAP_API_BASE_URL = rap_api_base_url
     return rap_api_base_url
+
+
+@pytest.fixture(autouse=True)
+def patch_backend_status_api_call(monkeypatch):
+    """
+    Fixture to patch rap_api.backend_status with a fake response. Use this to test that the
+    database is updated with the backend status.
+
+    """
+
+    def _do_backend_status_patch(backend_name, last_seen=None):
+        # Mock a backend status response. If last_seen is not passed, use the default timestamp
+        if not last_seen:
+            TEST_RESPONSE_BODY = {
+                "backends": [
+                    {
+                        "name": f"{backend_name}",
+                        "last_seen": "2025-08-12T06:57:43.039078Z",
+                        "paused": {
+                            "status": "off",
+                            "since": "2025-08-12T14:33:57.413881Z",
+                        },
+                        "db_maintenance": {
+                            "status": "off",
+                            "since": None,
+                            "type": None,
+                        },
+                    }
+                ]
+            }
+        else:
+            TEST_RESPONSE_BODY = {
+                "backends": [
+                    {
+                        "name": f"{backend_name}",
+                        "last_seen": f"{last_seen}",
+                        "paused": {
+                            "status": "off",
+                            "since": "2025-08-12T14:33:57.413881Z",
+                        },
+                        "db_maintenance": {
+                            "status": "off",
+                            "since": None,
+                            "type": None,
+                        },
+                    }
+                ]
+            }
+
+        mock_backend_status_api = monkeypatch.setattr(
+            "jobserver.rap_api.backend_status",
+            lambda: TEST_RESPONSE_BODY,
+        )
+        return mock_backend_status_api
+
+    return _do_backend_status_patch
