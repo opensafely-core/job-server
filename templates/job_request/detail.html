@@ -254,17 +254,17 @@
               <span
                 class="
                        inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 font-semibold
-                       {% if job_request.status == "pending" %}
+                       {% if job_request.jobs_status == "pending" %}
                          bg-bn-flamenco-200 text-bn-flamenco-900
-                       {% elif job_request.status == "running" %}
+                       {% elif job_request.jobs_status == "running" %}
                          bg-blue-200 text-blue-900
-                       {% elif job_request.status == "failed" %}
+                       {% elif job_request.jobs_status == "failed" %}
                          bg-red-200 text-red-900
-                       {% elif job_request.status == "succeeded" %}
+                       {% elif job_request.jobs_status == "succeeded" %}
                          bg-green-200 text-green-900
                        {% endif %}
                       ">
-                {{ job_request.status|capfirst }}
+                {{ job_request.jobs_status|capfirst }}
               </span>
               {% if is_invalid %}
                 <pre class="break-words whitespace-pre-wrap">{{ job_request.jobs.first.status_message }}</pre>

@@ -93,17 +93,17 @@
           {% #table_body %}
             {% for group in page_obj %}
               {% #table_row class="even:bg-slate-50 align-top" %}
-                {% #table_cell class="py-2 pl-4 pr-3" title=group.status|title nowrap=True %}
-                  {% if group.status == "succeeded" %}
+                {% #table_cell class="py-2 pl-4 pr-3" title=group.jobs_status|title nowrap=True %}
+                  {% if group.jobs_status == "succeeded" %}
                     {% icon_check_circle_solid class="h-5 w-5 text-green-700" %}
-                  {% elif group.status == "pending" %}
+                  {% elif group.jobs_status == "pending" %}
                     {% icon_clock_outline class="h-5 w-5 text-slate-500 stroke-2" %}
-                  {% elif group.status == "running" %}
+                  {% elif group.jobs_status == "running" %}
                     {% icon_custom_spinner class="h-5 w-5 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
-                  {% elif group.status == "failed" %}
+                  {% elif group.jobs_status == "failed" %}
                     {% icon_x_circle_solid class="h-5 w-5 text-bn-ribbon-700" %}
                   {% endif %}
-                  <span class="sr-only">{{ group.status|title }}</span>
+                  <span class="sr-only">{{ group.jobs_status|title }}</span>
                 {% /table_cell %}
                 {% #table_cell class="font-mono" %}
                   {% link href=group.get_absolute_url text=group.id|upper class="font-mono" %}
