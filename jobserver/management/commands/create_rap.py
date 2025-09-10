@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from jobserver import rap_api
 from jobserver.github import _get_github_api
-from jobserver.models import Backend, User, Workspace
+from jobserver.models import Backend, JobRequestStatus, User, Workspace
 from jobserver.pipeline_config import get_codelists_status, get_project
 
 
@@ -91,12 +91,25 @@ class Command(BaseCommand):
 
             if json_response["count"] > 0:
                 # New jobs have been created, status is Pending
-                ...
+                job_request.update_status(JobRequestStatus.PENDING)
             else:
-                # Nothing to do,  status is Completed, record response details as status message
-                ...
+                # Nothing to do, update status and record response details as status message
+                job_request.update_status(
+                    JobRequestStatus.NOTHING_TO_DO, json_response["details"]
+                )
 
         except Exception as exc:
             logger.error(exc)
-            # Failed in creation, status is Failed, record exc body as status message
-            ...
+            # Failed in creating jobs. Set status to Failed, record exc body as status message
+            exc_body = getattr(exc, "body", "unknown error")
+            if isinstance(exc_body, dict):
+                message = exc.body["details"]
+            else:
+                message = str(exc_body)
+            job_request.update_status(JobRequestStatus.FAILED, message)
+
+        logger.info(
+            "Job request created",
+            rap_id=job_request.identifier,
+            status=job_request.status,
+        )

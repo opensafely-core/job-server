@@ -3,7 +3,8 @@ from unittest.mock import patch
 import pytest
 from django.core.management import call_command
 
-from jobserver.models import JobRequest
+from jobserver.models import JobRequest, JobRequestStatus
+from jobserver.rap_api import RapAPIResponseError
 from tests.factories import (
     BackendFactory,
     ProjectFactory,
@@ -73,8 +74,10 @@ def test_create_command(mock_rap_api_create, log_output, setup):
     }
 
     assert JobRequest.objects.count() == 1
-    assert JobRequest.objects.first().requested_actions == ["action1", "action2"]
-    assert JobRequest.objects.first().sha == "abc123"  # as returned by FakeGitHubApi
+    job_request = JobRequest.objects.first()
+    assert job_request.requested_actions == ["action1", "action2"]
+    assert job_request.sha == "abc123"  # as returned by FakeGitHubApi
+    assert JobRequestStatus(job_request.status) == JobRequestStatus.PENDING
 
 
 @patch("jobserver.rap_api.create")
@@ -94,7 +97,50 @@ def test_create_command_with_commit(mock_rap_api_create, log_output, setup):
     }
 
     assert JobRequest.objects.count() == 1
-    assert JobRequest.objects.first().sha == "123456"
+    job_request = JobRequest.objects.first()
+    assert job_request.sha == "123456"
+    assert JobRequestStatus(job_request.status) == JobRequestStatus.PENDING
+
+
+@patch("jobserver.rap_api.create")
+def test_create_command_nothing_to_do(mock_rap_api_create, log_output, setup):
+    assert JobRequest.objects.count() == 0
+    test_response_json = {
+        "result": "Nothing to do",
+        "details": "Already done",
+        "count": 0,
+    }
+    mock_rap_api_create.return_value = test_response_json
+
+    call_command("create_rap", *_FAKE_ARGS)
+
+    assert log_output.entries[0] == {
+        "event": test_response_json,
+        "log_level": "info",
+    }
+
+    assert JobRequest.objects.count() == 1
+    job_request = JobRequest.objects.first()
+    assert JobRequestStatus(job_request.status) == JobRequestStatus.NOTHING_TO_DO
+    assert job_request.status_message == "Already done"
+
+
+@patch("jobserver.rap_api.create")
+def test_create_command_failed(mock_rap_api_create, log_output, setup):
+    mock_rap_api_create.side_effect = RapAPIResponseError(
+        "something went wrong", body={"error": "error", "details": "err"}
+    )
+
+    call_command("create_rap", *_FAKE_ARGS)
+
+    assert "error" == log_output.entries[0]["log_level"]
+    assert "something went wrong" in str(log_output.entries[0]["event"])
+
+    # A JobRequest is still created, but immediately marked failed
+    assert JobRequest.objects.count() == 1
+    job_request = JobRequest.objects.first()
+    assert JobRequestStatus(job_request.status) == JobRequestStatus.FAILED
+    assert job_request.status_message == "err"
 
 
 @patch("jobserver.rap_api.create")
@@ -105,3 +151,9 @@ def test_command_error(mock_rap_api_create, log_output, setup):
 
     assert "error" == log_output.entries[0]["log_level"]
     assert "something went wrong" in str(log_output.entries[0]["event"])
+
+    # A JobRequest is still created, but immediately marked failed
+    assert JobRequest.objects.count() == 1
+    job_request = JobRequest.objects.first()
+    assert JobRequestStatus(job_request.status) == JobRequestStatus.FAILED
+    assert job_request.status_message == "unknown error"
