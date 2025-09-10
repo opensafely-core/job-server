@@ -76,7 +76,7 @@ class TestUpdateBackendState:
             ),
         )
         backend.refresh_from_db()
-        assert backend.jobrunner_rap_api_state == {
+        assert backend.rap_api_state == {
             "name": "test",
             "last_seen": None,
             "paused": {"status": "off", "since": "2025-08-12T14:33:57.413881Z"},
@@ -97,7 +97,7 @@ class TestUpdateBackendState:
             ),
         )
         backend.refresh_from_db()
-        assert backend.jobrunner_rap_api_state == {
+        assert backend.rap_api_state == {
             "name": backend.name,
             "last_seen": "2025-08-12T06:57:43.039078Z",
             "paused": {"status": "off", "since": "2025-08-12T14:33:57.413881Z"},

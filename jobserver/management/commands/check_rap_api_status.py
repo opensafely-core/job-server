@@ -35,5 +35,5 @@ class Command(BaseCommand):
                 defaults={"api_last_seen": last_seen_at_dt},
             )
 
-        backend.jobrunner_rap_api_state = jobrunner_state
-        backend.save(update_fields=["jobrunner_rap_api_state"])
+        backend.rap_api_state = jobrunner_state
+        backend.save(update_fields=["rap_api_state"])
