@@ -74,7 +74,11 @@ def format_honeycomb_timestamps(job_like):
 
     end_time = timezone.now()
 
-    if job_like.status not in ["failed", "succeeded"]:
+    status = (
+        job_like.jobs_status if hasattr(job_like, "jobs_status") else job_like.status
+    )
+
+    if status not in ["failed", "succeeded"]:
         end_time = timezone.now() + timedelta(hours=1)
 
     if job_like.completed_at is not None:
