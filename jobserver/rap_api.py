@@ -207,9 +207,8 @@ def create(job_request: JobRequest):
                 body=body,
             )
         except JSONDecodeError:
-            raise RapAPIResponseError(
-                f"RAP API endpoint returned an error {response.status_code}",
-                body=response.content,
+            raise RapAPIRequestError(
+                f"RAP API endpoint returned an error {response.status_code}: {response.content}",
             )
 
     return response.json()

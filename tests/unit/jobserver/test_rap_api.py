@@ -404,6 +404,5 @@ class TestCreate:
 
         job_request = JobRequestFactory()
 
-        with pytest.raises(RapAPIResponseError) as exc:
+        with pytest.raises(RapAPIRequestError):
             create(job_request)
-        assert exc.value.body == fake_body

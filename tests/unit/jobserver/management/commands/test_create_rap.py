@@ -4,7 +4,7 @@ import pytest
 from django.core.management import call_command
 
 from jobserver.models import JobRequest, JobRequestStatus
-from jobserver.rap_api import RapAPIResponseError
+from jobserver.rap_api import RapAPIRequestError, RapAPIResponseError
 from tests.factories import (
     BackendFactory,
     ProjectFactory,
@@ -126,7 +126,8 @@ def test_create_command_nothing_to_do(mock_rap_api_create, log_output, setup):
 
 
 @patch("jobserver.rap_api.create")
-def test_create_command_failed(mock_rap_api_create, log_output, setup):
+def test_create_command_failed_with_response(mock_rap_api_create, log_output, setup):
+    """Test that an error response from the RAP API is marked as failed"""
     mock_rap_api_create.side_effect = RapAPIResponseError(
         "something went wrong", body={"error": "error", "details": "err"}
     )
@@ -144,8 +145,9 @@ def test_create_command_failed(mock_rap_api_create, log_output, setup):
 
 
 @patch("jobserver.rap_api.create")
-def test_command_error(mock_rap_api_create, log_output, setup):
-    mock_rap_api_create.side_effect = Exception("something went wrong")
+def test_create_command_failed_to_request(mock_rap_api_create, log_output, setup):
+    """Test that a failure to get a response from the RAP API is marked as unknown"""
+    mock_rap_api_create.side_effect = RapAPIRequestError("something went wrong")
 
     call_command("create_rap", *_FAKE_ARGS)
 
@@ -155,5 +157,22 @@ def test_command_error(mock_rap_api_create, log_output, setup):
     # A JobRequest is still created, but immediately marked failed
     assert JobRequest.objects.count() == 1
     job_request = JobRequest.objects.first()
+    assert JobRequestStatus(job_request.status) == JobRequestStatus.UNKNOWN
+    assert job_request.status_message is None
+
+
+@patch("jobserver.rap_api.create")
+def test_command_error(mock_rap_api_create, log_output, setup):
+    """Test that an unhandled error is marked as failed"""
+    mock_rap_api_create.side_effect = Exception("something went wrong")
+
+    call_command("create_rap", *_FAKE_ARGS)
+
+    assert "error" == log_output.entries[0]["log_level"]
+    assert "something went wrong" in str(log_output.entries[0]["event"])
+
+    # A JobRequest is still created, and marked as failed
+    assert JobRequest.objects.count() == 1
+    job_request = JobRequest.objects.first()
     assert JobRequestStatus(job_request.status) == JobRequestStatus.FAILED
-    assert job_request.status_message == "unknown error"
+    assert job_request.status_message == "Unknown error creating jobs"

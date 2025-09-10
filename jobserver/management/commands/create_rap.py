@@ -97,16 +97,24 @@ class Command(BaseCommand):
                 job_request.update_status(
                     JobRequestStatus.NOTHING_TO_DO, json_response["details"]
                 )
-
-        except Exception as exc:
+        except rap_api.RapAPIResponseError as exc:
             logger.error(exc)
             # Failed in creating jobs. Set status to Failed, record exc body as status message
-            exc_body = getattr(exc, "body", "unknown error")
-            if isinstance(exc_body, dict):
-                message = exc.body["details"]
-            else:
-                message = str(exc_body)
-            job_request.update_status(JobRequestStatus.FAILED, message)
+            job_request.update_status(JobRequestStatus.FAILED, exc.body["details"])
+        except rap_api.RapAPIRequestError as exc:
+            # Encountered some unhandled error whilst contacting the RAP API to creating jobs.
+            # This is most likely due to some disconnect between job-server and controller, and jobs
+            # could have been created on the controller. We mark job requests status as unknown, and
+            # allow the code that polls the controller for job status to request updates for it again.
+            logger.error(exc)
+            job_request.update_status(JobRequestStatus.UNKNOWN)
+        except Exception as exc:
+            # Any other exception just fails the whole job request. We show an unknown error to avoid
+            # leaking the content of the exception to the user.
+            logger.error(exc)
+            job_request.update_status(
+                JobRequestStatus.FAILED, "Unknown error creating jobs"
+            )
 
         logger.info(
             "Job request created",
