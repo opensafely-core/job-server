@@ -60,6 +60,15 @@ class JobRequestManager(models.Manager.from_queryset(JobRequestQuerySet)):
         return workspace_backend_job_requests.order_by("created_at").last()
 
 
+class JobRequestStatus(models.TextChoices):
+    PENDING = "pending"
+    RUNNING = "running"
+    FAILED = "failed"
+    SUCCEEDED = "succeeded"
+    NOTHING_TO_DO = "nothing_to_do"
+    UNKNOWN = "unknown"
+
+
 class JobRequest(models.Model):
     """
     A request to run a Job
@@ -91,6 +100,13 @@ class JobRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="job_requests",
     )
+
+    # overall status of JobRequest. If the RAP API did not
+    # create any jobs (or failed), this may be populated immediately
+    status = models.TextField(
+        default=JobRequestStatus.UNKNOWN, choices=JobRequestStatus
+    )
+    status_message = models.TextField(null=True, blank=True)
 
     objects = JobRequestManager()
 
