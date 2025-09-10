@@ -416,16 +416,16 @@ def test_jobrequest_runtime_success():
         (["succeeded", "succeeded", "succeeded", "succeeded"], "succeeded"),
     ],
 )
-def test_jobrequest_status_all_jobs_the_same(statuses, expected):
+def test_jobrequest_jobs_status_all_jobs_the_same(statuses, expected):
     job_request = JobRequestFactory()
     for status in statuses:
         JobFactory(job_request=job_request, status=status)
 
     jr = JobRequest.objects.get(pk=job_request.pk)
-    assert jr.status == expected
+    assert jr.jobs_status == expected
 
 
-def test_jobrequest_status_running_in_job_statuses():
+def test_jobrequest_jobs_status_running_in_job_statuses():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="pending")
     JobFactory(job_request=job_request, status="running")
@@ -433,10 +433,10 @@ def test_jobrequest_status_running_in_job_statuses():
     JobFactory(job_request=job_request, status="succeeded")
 
     jr = JobRequest.objects.get(pk=job_request.pk)
-    assert jr.status == "running"
+    assert jr.jobs_status == "running"
 
 
-def test_jobrequest_status_running_not_in_job_statues():
+def test_jobrequest_jobs_status_running_not_in_job_statues():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="pending")
     JobFactory(job_request=job_request, status="pending")
@@ -444,10 +444,10 @@ def test_jobrequest_status_running_not_in_job_statues():
     JobFactory(job_request=job_request, status="succeeded")
 
     jr = JobRequest.objects.get(pk=job_request.pk)
-    assert jr.status == "running"
+    assert jr.jobs_status == "running"
 
 
-def test_jobrequest_status_failed():
+def test_jobrequest_jobs_status_failed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
     JobFactory(job_request=job_request, status="succeeded")
@@ -455,19 +455,19 @@ def test_jobrequest_status_failed():
     JobFactory(job_request=job_request, status="succeeded")
 
     jr = JobRequest.objects.get(pk=job_request.pk)
-    assert jr.status == "failed"
+    assert jr.jobs_status == "failed"
 
 
-def test_jobrequest_status_unknown():
+def test_jobrequest_jobs_status_unknown():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="foo")
     JobFactory(job_request=job_request, status="bar")
 
     jr = JobRequest.objects.get(pk=job_request.pk)
-    assert jr.status == "unknown"
+    assert jr.jobs_status == "unknown"
 
 
-def test_jobrequest_status_uses_prefetch_cache(django_assert_num_queries):
+def test_jobrequest_jobs_status_uses_prefetch_cache(django_assert_num_queries):
     for i in range(5):
         jr = JobRequestFactory()
         JobFactory.create_batch(5, job_request=jr)
@@ -475,16 +475,16 @@ def test_jobrequest_status_uses_prefetch_cache(django_assert_num_queries):
     with django_assert_num_queries(2):
         # 1. select JobRequests
         # 2. select Jobs for those JobRequests
-        [jr.status for jr in JobRequest.objects.with_started_at().all()]
+        [jr.jobs_status for jr in JobRequest.objects.with_started_at().all()]
 
 
-def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
+def test_jobrequest_jobs_status_without_prefetching_jobs(django_assert_num_queries):
     job_request = JobRequestFactory()
     JobFactory.create_batch(5, job_request=job_request)
 
     assert not hasattr(job_request, "_prefetched_objects_cache")
 
-    job_request.status
+    job_request.jobs_status
 
     assert "jobs" in job_request._prefetched_objects_cache
 

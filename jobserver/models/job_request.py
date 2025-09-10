@@ -123,7 +123,7 @@ class JobRequest(models.Model):
         if not last_job:
             return
 
-        if self.status not in ["failed", "succeeded"]:
+        if self.jobs_status not in ["failed", "succeeded"]:
             return
 
         return last_job.completed_at
@@ -187,7 +187,7 @@ class JobRequest(models.Model):
 
     @property
     def is_completed(self):
-        return self.status in ["failed", "succeeded"]
+        return self.jobs_status in ["failed", "succeeded"]
 
     @property
     def num_completed(self):
@@ -239,7 +239,7 @@ class JobRequest(models.Model):
         return Runtime(int(hours), int(minutes), int(seconds))
 
     @property
-    def status(self):
+    def jobs_status(self):
         prefetched_jobs = (
             hasattr(self, "_prefetched_objects_cache")
             and "jobs" in self._prefetched_objects_cache
