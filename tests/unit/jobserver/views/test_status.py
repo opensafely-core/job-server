@@ -16,9 +16,15 @@ dt = functools.partial(datetime, tzinfo=UTC)
 
 
 def test_dbavailability_in_db_maintenance(rf):
+    test_backend_status = {
+        "name": "tpp",
+        "last_seen": time.time(),
+        "paused": {"status": "off", "since": time.time()},
+        "db_maintenance": {"status": "on", "since": time.time(), "type": "scheduled"},
+    }
     backend = BackendFactory(
         slug="tpp",
-        jobrunner_state={"mode": {"v": "db-maintenance", "ts": time.time()}},
+        jobrunner_rap_api_state=test_backend_status,
     )
 
     request = rf.get("/")

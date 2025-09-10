@@ -12,3 +12,4 @@ class BackendFactory(factory.django.DjangoModelFactory):
     is_active = True
     level_4_url = factory.Sequence(lambda n: f"http://example.com/{n}")
     jobrunner_state = {}
+    jobrunner_rap_api_state = {}
