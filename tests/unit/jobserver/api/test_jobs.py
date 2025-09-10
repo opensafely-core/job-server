@@ -699,7 +699,7 @@ def test_jobapiupdate_post_with_flags(api_rf, patch_backend_status_api_call):
 
     backend.refresh_from_db()
     assert backend.jobrunner_state["mode"]["v"] == "test"
-    assert backend.jobrunner_rap_api_state["db_maintenance"]["type"] is None
+    assert backend.rap_api_state["db_maintenance"]["type"] is None
 
 
 def test_jobapiupdate_unknown_job_request(api_rf, patch_backend_status_api_call):
@@ -968,7 +968,7 @@ def test_jobrequestapilist_with_flags(api_rf, patch_backend_status_api_call):
 
     backend.refresh_from_db()
     assert backend.jobrunner_state["mode"]["v"] == "test"
-    assert backend.jobrunner_rap_api_state["db_maintenance"]["type"] is None
+    assert backend.rap_api_state["db_maintenance"]["type"] is None
 
 
 def test_userapidetail_success(api_rf, project_membership):
