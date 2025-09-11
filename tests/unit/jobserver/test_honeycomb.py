@@ -48,7 +48,7 @@ def test_honeycomb_timestamps_jobrequest_unfinished(freezer):
     freezer.move_to("2022-06-15 13:00")
 
     job_request = JobRequestFactory()
-    job = JobFactory(job_request=job_request, status="executing")  # noqa: F841
+    job = JobFactory(job_request=job_request, status="running")  # noqa: F841
     prefetched_job_request = JobRequest.objects.filter(
         identifier=job_request.identifier
     ).first()
@@ -197,7 +197,7 @@ def test_jobrequest_concurrency_link_unfinished(freezer):
     freezer.move_to("2022-10-12 17:00")
 
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
-    job = JobFactory(job_request=job_request, status="executing")  # noqa: F841
+    job = JobFactory(job_request=job_request, status="running")  # noqa: F841
     prefetched_job_request = JobRequest.objects.filter(
         identifier=job_request.identifier
     ).first()

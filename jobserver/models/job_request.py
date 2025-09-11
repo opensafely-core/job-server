@@ -60,6 +60,30 @@ class JobRequestManager(models.Manager.from_queryset(JobRequestQuerySet)):
         return workspace_backend_job_requests.order_by("created_at").last()
 
 
+class JobRequestStatus(models.TextChoices):
+    """
+    Overall status of a JobRequest, used to populate JobRequest.status
+
+    This is a deliberate superset of Job.status, which corresponds to the coarse job State in the
+    RAP controller. When setting overall job request status from the status of in-progress/completed jobs,
+    it's useful to be able to use the aggregated jobs' status to identify the appropriate JobRequestStatus
+    to assign.
+    https://github.com/opensafely-core/job-runner/blob/97be1b84e4cd44551965af3d9929b52f88099ff2/controller/models.py#L27
+    """
+
+    PENDING = "pending"
+    RUNNING = "running"
+    FAILED = "failed"
+    SUCCEEDED = "succeeded"
+    NOTHING_TO_DO = "nothing_to_do"
+    UNKNOWN = "unknown"
+
+    @classmethod
+    def is_completed(cls, value):
+        completed_states = [cls.FAILED, cls.SUCCEEDED, cls.NOTHING_TO_DO]
+        return value and cls(value) in completed_states
+
+
 class JobRequest(models.Model):
     """
     A request to run a Job
@@ -92,6 +116,14 @@ class JobRequest(models.Model):
         related_name="job_requests",
     )
 
+    # overall status of the JobRequest. If the RAP API did not create any jobs (or failed),
+    # this may be populated immediately. Otherwise, it is updated based on the progess and
+    # completion of associated jobs.
+    status = models.TextField(
+        default=JobRequestStatus.UNKNOWN, choices=JobRequestStatus
+    )
+    status_message = models.TextField(null=True, blank=True)
+
     objects = JobRequestManager()
 
     class Meta:
@@ -123,7 +155,7 @@ class JobRequest(models.Model):
         if not last_job:
             return
 
-        if self.jobs_status not in ["failed", "succeeded"]:
+        if not self.is_completed:
             return
 
         return last_job.completed_at
@@ -187,7 +219,10 @@ class JobRequest(models.Model):
 
     @property
     def is_completed(self):
-        return self.jobs_status in ["failed", "succeeded"]
+        # Is this job request in a completed status? We use the self.jobs_status
+        # property here, which will first check the overall jobs_status, and
+        # if necessary, calculate status from pending/running jobs
+        return JobRequestStatus.is_completed(self.jobs_status)
 
     @property
     def num_completed(self):
@@ -239,7 +274,12 @@ class JobRequest(models.Model):
         return Runtime(int(hours), int(minutes), int(seconds))
 
     @property
-    def jobs_status(self):
+    def jobs_status(self) -> str:
+        # status has already been set to a completed status, we can just
+        # return it
+        if JobRequestStatus.is_completed(self.status):
+            return self.status
+
         prefetched_jobs = (
             hasattr(self, "_prefetched_objects_cache")
             and "jobs" in self._prefetched_objects_cache
@@ -255,25 +295,49 @@ class JobRequest(models.Model):
 
         # when they're all the same, just use that
         if len(set(statuses)) == 1:
-            return statuses[0]
+            if not statuses[0]:
+                # If jobs have been created but have no status set, assume they're pending
+                status = JobRequestStatus.PENDING
+            else:
+                status = JobRequestStatus(statuses[0])
+            message = (
+                "Failed due to job failure"
+                if status == JobRequestStatus.FAILED
+                else None
+            )
+            job_request_status = self.update_status(status, message)
 
         # if any status is running then the JobRequest is running
-        if "running" in statuses:
-            return "running"
+        elif "running" in statuses:
+            job_request_status = self.update_status(JobRequestStatus.RUNNING)
 
         # we've eliminated all statuses being the same so any pending statuses
         # at this point mean there are other Jobs which are
         # running/failed/succeeded so the request is still running
-        if "pending" in statuses:
-            return "running"
+        elif "pending" in statuses:
+            job_request_status = self.update_status(JobRequestStatus.RUNNING)
 
         # now we know we have no pending or running Jobs left, that leaves us
         # with failed or succeeded and a JobRequest is failed if any of its
         # Jobs have failed.
-        if "failed" in statuses:
-            return "failed"
+        elif "failed" in statuses:
+            job_request_status = self.update_status(
+                JobRequestStatus.FAILED, "Failed due to job failure"
+            )
 
-        return "unknown"
+        else:
+            job_request_status = self.update_status(JobRequestStatus.UNKNOWN)
+
+        return job_request_status.value
+
+    def update_status(
+        self, new_status: JobRequestStatus, message=None
+    ) -> JobRequestStatus:
+        if self.status != new_status.value:
+            self.status = new_status
+            self.status_message = message
+            self.save()
+        return new_status
 
     @property
     def database_name(self):
