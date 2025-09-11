@@ -10,6 +10,8 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from furl import furl
 
+from jobserver import rap_api
+
 from ..permissions.t1oo import project_is_permitted_to_use_t1oo_data
 from ..runtime import Runtime
 
@@ -243,9 +245,51 @@ class JobRequest(models.Model):
         # been requested for cancellation (i.e. are not already in self.cancelled_actions
         return self.get_active_actions() - set(self.cancelled_actions)
 
-    def request_cancellation(self):
-        # Exclude succeeded jobs (failed or succeeded status, consistent with Job.is_completed method)
-        self.cancelled_actions = list(self.get_active_actions())
+    class NoActionsToCancel(Exception):
+        """request_cancellation was called but could not find any work to do."""
+
+        # We should design views to avoid this being triggered.
+
+    class NotStartedYet(Exception):
+        """request_cancellation was called before we had any Job information."""
+
+    def request_cancellation(self, actions_to_cancel=None):
+        """Request that the RAP API cancel jobs.
+
+        If we get a success response, we update cancelled_actions. That
+        triggers things being disabled in the UI so the user doesn't try to
+        "re-cancel". Although that probably isn't harmful, it might be
+        confusing.
+
+        Raises:
+          NoActionsToCancel
+          NotStartedYet
+          RapAPIError
+        """
+        # Decide what to cancel
+        active_actions = self.get_active_actions()
+        if actions_to_cancel is None:
+            actions_to_cancel = list(active_actions)
+        else:
+            actions_to_cancel = list(
+                set(actions_to_cancel).intersection(active_actions)
+            )
+
+        if not actions_to_cancel:
+            if self.status == "unknown":
+                # Probably this was called before we got any `Job` information
+                # from the RAP side. Let's distinguish that from other cases.
+                raise self.NotStartedYet
+            raise self.NoActionsToCancel
+
+        # Special case for the RAP API v2 initiative. We intend to remove the
+        # conditionality if this works well in production.
+        if self.backend.name == "Test":
+            # Invoke the API. This might raise a RapAPIError.
+            rap_api.cancel(self.identifier, actions_to_cancel)
+
+        # Track that we cancelled the actions.
+        self.cancelled_actions.extend(actions_to_cancel)
         self.save(update_fields=["cancelled_actions"])
 
     @property
