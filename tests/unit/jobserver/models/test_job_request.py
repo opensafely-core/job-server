@@ -157,10 +157,18 @@ def test_jobrequest_get_staff_cancel_url():
 def test_jobrequest_is_completed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
-    JobFactory(job_request=job_request, status="succeeded")
+    JobFactory(job_request=job_request, status="Succeeded")
 
     jr = JobRequest.objects.get(pk=job_request.pk)
     assert jr.is_completed
+
+
+def test_jobrequest_is_completed_unknown_status():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="0")
+
+    jr = JobRequest.objects.get(pk=job_request.pk)
+    assert not jr.is_completed
 
 
 def test_jobrequest_num_completed_no_jobs():
@@ -465,6 +473,25 @@ def test_jobrequest_jobs_status_unknown():
 
     jr = JobRequest.objects.get(pk=job_request.pk)
     assert jr.jobs_status == "unknown"
+
+
+def test_jobrequest_jobs_status_unknown_unique_status():
+    # multiple jobs with the same status follow a different code path
+    # to the test above
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="foo")
+    JobFactory(job_request=job_request, status="foo")
+
+    jr = JobRequest.objects.get(pk=job_request.pk)
+    assert jr.jobs_status == "unknown"
+
+
+def test_jobrequest_jobs_status_case_insensitive():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="Failed")
+
+    jr = JobRequest.objects.get(pk=job_request.pk)
+    assert jr.jobs_status == "failed"
 
 
 def test_jobrequest_jobs_status_uses_prefetch_cache(django_assert_num_queries):

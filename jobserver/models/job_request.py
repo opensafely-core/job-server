@@ -80,8 +80,9 @@ class JobRequestStatus(models.TextChoices):
 
     @classmethod
     def is_completed(cls, value):
+        value = value.lower()
         completed_states = [cls.FAILED, cls.SUCCEEDED, cls.NOTHING_TO_DO]
-        return value and cls(value) in completed_states
+        return value in cls.values and cls(value) in completed_states
 
 
 class JobRequest(models.Model):
@@ -226,14 +227,14 @@ class JobRequest(models.Model):
 
     @property
     def num_completed(self):
-        return len([j for j in self.jobs.all() if j.status == "succeeded"])
+        return len([j for j in self.jobs.all() if j.status.lower() == "succeeded"])
 
     def get_active_actions(self):
         # Active actions are pending or running
         return set(
-            self.jobs.exclude(status__in=["failed", "succeeded"]).values_list(
-                "action", flat=True
-            )
+            self.jobs.exclude(
+                Q(status__iexact="failed") | Q(status__iexact="succeeded")
+            ).values_list("action", flat=True)
         )
 
     @property
@@ -265,7 +266,9 @@ class JobRequest(models.Model):
             return (job.completed_at - job.started_at).total_seconds()
 
         # Only look at jobs which have completed
-        jobs = self.jobs.filter(Q(status="failed") | Q(status="succeeded"))
+        jobs = self.jobs.filter(
+            Q(status__iexact="failed") | Q(status__iexact="succeeded")
+        )
         total_runtime = sum(runtime_in_seconds(j) for j in jobs)
 
         hours, remainder = divmod(total_runtime, 3600)
@@ -291,7 +294,7 @@ class JobRequest(models.Model):
 
         # always make use of prefetched Jobs, so we don't execute O(N) queries
         # each time.
-        statuses = [j.status for j in self.jobs.all()]
+        statuses = [j.status.lower() for j in self.jobs.all()]
 
         # when they're all the same, just use that
         if len(set(statuses)) == 1:
@@ -299,7 +302,10 @@ class JobRequest(models.Model):
                 # If jobs have been created but have no status set, assume they're pending
                 status = JobRequestStatus.PENDING
             else:
-                status = JobRequestStatus(statuses[0])
+                if statuses[0] in JobRequestStatus.values:
+                    status = JobRequestStatus(statuses[0])
+                else:
+                    status = JobRequestStatus.UNKNOWN
             message = (
                 "Failed due to job failure"
                 if status == JobRequestStatus.FAILED
