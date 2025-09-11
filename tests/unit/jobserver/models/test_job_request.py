@@ -472,9 +472,10 @@ def test_jobrequest_jobs_status_uses_prefetch_cache(django_assert_num_queries):
         jr = JobRequestFactory()
         JobFactory.create_batch(5, job_request=jr)
 
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(7):
         # 1. select JobRequests
         # 2. select Jobs for those JobRequests
+        # 3 - 7: Update status of each JobRequest from UNKNOWN to PENDING (on first job only)
         [jr.jobs_status for jr in JobRequest.objects.with_started_at().all()]
 
 
