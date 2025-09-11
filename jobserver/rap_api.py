@@ -171,8 +171,7 @@ def status(job_request_ids):
 
 def create(job_request: JobRequest):
     """
-    Trigger RAP API to request creation of Jobs for selected action in a Job
-    Request.
+    Trigger RAP API to request creation of Jobs for a Job Request's requested actions.
 
     Refer to the specification (see module docstring) for how to interpret the result.
 

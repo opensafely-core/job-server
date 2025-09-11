@@ -65,7 +65,7 @@ class JobRequestStatus(models.TextChoices):
     Overall status of a JobRequest, used to populate JobRequest.status
 
     This is a deliberate superset of Job.status, which corresponds to the coarse job State in the
-    RAP controller. When setting overall job status from the status of in-progress/completed jobs, we
+    RAP controller. When setting overall job request status from the status of in-progress/completed jobs,
     it's useful to be able to use the aggregated jobs' status to identify the appropriate JobRequestStatus
     to assign.
     https://github.com/opensafely-core/job-runner/blob/97be1b84e4cd44551965af3d9929b52f88099ff2/controller/models.py#L27
