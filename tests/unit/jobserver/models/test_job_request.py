@@ -157,10 +157,18 @@ def test_jobrequest_get_staff_cancel_url():
 def test_jobrequest_is_completed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
-    JobFactory(job_request=job_request, status="succeeded")
+    JobFactory(job_request=job_request, status="Succeeded")
 
     jr = JobRequest.objects.get(pk=job_request.pk)
     assert jr.is_completed
+
+
+def test_jobrequest_is_completed_unknown_status():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="0")
+
+    jr = JobRequest.objects.get(pk=job_request.pk)
+    assert not jr.is_completed
 
 
 def test_jobrequest_num_completed_no_jobs():

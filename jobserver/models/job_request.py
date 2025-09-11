@@ -80,8 +80,9 @@ class JobRequestStatus(models.TextChoices):
 
     @classmethod
     def is_completed(cls, value):
+        value = value.lower()
         completed_states = [cls.FAILED, cls.SUCCEEDED, cls.NOTHING_TO_DO]
-        return value and cls(value) in completed_states
+        return value in cls.values and cls(value) in completed_states
 
 
 class JobRequest(models.Model):
