@@ -467,6 +467,25 @@ def test_jobrequest_jobs_status_unknown():
     assert jr.jobs_status == "unknown"
 
 
+def test_jobrequest_jobs_status_unknown_unique_status():
+    # multiple jobs with the same status follow a different code path
+    # to the test above
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="foo")
+    JobFactory(job_request=job_request, status="foo")
+
+    jr = JobRequest.objects.get(pk=job_request.pk)
+    assert jr.jobs_status == "unknown"
+
+
+def test_jobrequest_jobs_status_case_insensitive():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="Failed")
+
+    jr = JobRequest.objects.get(pk=job_request.pk)
+    assert jr.jobs_status == "failed"
+
+
 def test_jobrequest_jobs_status_uses_prefetch_cache(django_assert_num_queries):
     for i in range(5):
         jr = JobRequestFactory()
