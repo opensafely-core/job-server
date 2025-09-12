@@ -1,3 +1,4 @@
+from copy import deepcopy
 from unittest.mock import patch
 
 import pytest
@@ -477,6 +478,89 @@ def test_update_lots_of_jobs(mock_rap_api_status, log_output):
 
     assert log_output.entries[-1]["event"] == "Created, updated or deleted Jobs"
 
+    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
+
+
+@patch("jobserver.rap_api.status")
+def test_flip_flop_updates(mock_rap_api_status, log_output):
+    job_request = JobRequestFactory()
+
+    now = timezone.now()
+
+    job = JobFactory.create(
+        job_request=job_request,
+        started_at=None,
+        status="pending",
+        completed_at=None,
+    )
+    test_job_id = job.id
+
+    test_response_json_stale = {
+        "jobs": [
+            {
+                "identifier": job.identifier,
+                "rap_id": job_request.identifier,
+                "action": "test-action1",
+                "backend": "test",
+                "run_command": "do-research",
+                "status": "running",
+                "status_code": "",
+                "status_message": "",
+                "created_at": minutes_ago(now, 1),
+                "started_at": now,
+                "updated_at": now,
+                "completed_at": None,
+                "metrics": {"cpu_peak": 99},
+            }
+        ],
+        "unrecognised_rap_ids": [],
+    }
+    test_response_json_fresh = {
+        "jobs": [
+            {
+                "identifier": job.identifier,
+                "rap_id": job_request.identifier,
+                "action": "test-action1",
+                "backend": "test",
+                "run_command": "do-research",
+                "status": "succeeded",
+                "status_code": "",
+                "status_message": "",
+                "created_at": minutes_ago(now, 2),
+                "started_at": minutes_ago(now, 1),
+                "updated_at": now,
+                "completed_at": seconds_ago(now, 30),
+                "metrics": {"cpu_peak": 99},
+            }
+        ],
+        "unrecognised_rap_ids": [],
+    }
+
+    # The rap_status command will modify the returned dict in place,
+    # so use a deepcopy so that our test will work as expected!
+    mock_rap_api_status.return_value = deepcopy(test_response_json_stale)
+    call_command("rap_status", job_request.identifier)
+    job = Job.objects.get(id=test_job_id)
+    assert job.status == "running"
+    check_job_request_status(job_request.identifier, JobRequestStatus.RUNNING)
+
+    mock_rap_api_status.return_value = deepcopy(test_response_json_fresh)
+    call_command("rap_status", job_request.identifier)
+    job = Job.objects.get(id=test_job_id)
+    assert job.status == "succeeded"
+    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
+
+    mock_rap_api_status.return_value = deepcopy(test_response_json_stale)
+    call_command("rap_status", job_request.identifier)
+    job = Job.objects.get(id=test_job_id)
+    assert job.status == "running"
+    # Once a JobRequest hits a completed state, it stays there
+    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
+
+    mock_rap_api_status.return_value = deepcopy(test_response_json_fresh)
+    call_command("rap_status", job_request.identifier)
+    job = Job.objects.get(id=test_job_id)
+    assert job.status == "succeeded"
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
 
