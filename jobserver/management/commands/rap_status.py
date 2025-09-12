@@ -88,6 +88,12 @@ class Command(BaseCommand):
                     # Also remove some other values which we don't currently store in Job
                     superfluous_keys = ["rap_id", "backend", "requires_db"]
 
+                    # If the action is `run_all` then the command is meaningless,
+                    # but may be None & has a not-null db constraint, so let's just
+                    # sidestep that for now
+                    if job_from_api["action"] == "run_all":
+                        superfluous_keys.append("run_command")
+
                     for superfluous_key in superfluous_keys:
                         job_from_api.pop(superfluous_key, None)
 
