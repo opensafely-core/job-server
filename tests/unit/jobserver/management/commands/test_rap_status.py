@@ -4,12 +4,19 @@ import pytest
 from django.core.management import call_command
 from django.utils import timezone
 
-from jobserver.models import Job
+from jobserver.models import Job, JobRequest
+from jobserver.models.job_request import JobRequestStatus
 from tests.factories import (
     JobFactory,
     JobRequestFactory,
 )
 from tests.utils import minutes_ago, seconds_ago
+
+
+def check_job_request_status(rap_id, expected_status):
+    job_request: JobRequest = JobRequest.objects.get(identifier=rap_id)
+    assert JobRequestStatus(job_request.status) == expected_status
+    assert JobRequestStatus(job_request.jobs_status) == expected_status
 
 
 @patch("jobserver.rap_api.status")
@@ -73,6 +80,7 @@ def test_update_job_simple(mock_rap_api_status, log_output):
 
     assert log_output.entries[-1]["event"] == "Created, updated or deleted Jobs"
     assert log_output.entries[-1]["updated_job_ids"] == str(job1.id)
+    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
 
 @pytest.mark.parametrize("pre_existing", [True, False])
@@ -204,6 +212,8 @@ def test_update_job_multiple(mock_rap_api_status, log_output, pre_existing):
         assert (
             log_output.entries[4]["created_job_ids"] == f"{job1.id},{job2.id},{job3.id}"
         )
+
+    check_job_request_status(job_request.identifier, JobRequestStatus.RUNNING)
 
 
 @patch("jobserver.rap_api.status")
@@ -353,6 +363,9 @@ def test_update_jobs_multiple_job_requests(mock_rap_api_status, log_output):
         == f"RAP: {job_request2.identifier} Job: {job4.identifier} Status: pending"
     )
 
+    check_job_request_status(job_request1.identifier, JobRequestStatus.RUNNING)
+    check_job_request_status(job_request2.identifier, JobRequestStatus.RUNNING)
+
 
 @patch("jobserver.rap_api.status")
 def test_delete_jobs(mock_rap_api_status, log_output):
@@ -408,6 +421,8 @@ def test_delete_jobs(mock_rap_api_status, log_output):
     assert log_output.entries[-1]["updated_job_ids"] == str(jobs[0].id)
     assert log_output.entries[-1]["deleted_job_identifiers"] == identifier_to_delete
 
+    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
+
 
 @pytest.mark.slow_test
 @patch("jobserver.rap_api.status")
@@ -462,20 +477,27 @@ def test_update_lots_of_jobs(mock_rap_api_status, log_output):
 
     assert log_output.entries[-1]["event"] == "Created, updated or deleted Jobs"
 
+    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
+
 
 @patch("jobserver.rap_api.status")
 def test_command_unrecognised_controller(mock_rap_api_status, log_output):
-    test_response_json = {"jobs": [], "unrecognised_rap_ids": ["87654321ihgfedcba"]}
+    job_request = JobRequestFactory()
+
+    test_response_json = {"jobs": [], "unrecognised_rap_ids": [job_request.identifier]}
 
     mock_rap_api_status.return_value = test_response_json
 
-    call_command("rap_status", "87654321ihgfedcba")
+    call_command("rap_status", job_request.identifier)
 
     assert log_output.entries[0]["event"] == "Created, updated or deleted Jobs"
     assert log_output.entries[0]["updated_job_ids"] == ""
     assert log_output.entries[0]["created_job_ids"] == ""
     assert log_output.entries[0]["deleted_job_identifiers"] == ""
-    assert log_output.entries[1]["event"] == "Unrecognised RAP ids: 87654321ihgfedcba"
+    assert (
+        log_output.entries[1]["event"]
+        == f"Unrecognised RAP ids: {job_request.identifier}"
+    )
 
 
 @patch("jobserver.rap_api.status")

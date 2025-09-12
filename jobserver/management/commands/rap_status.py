@@ -124,6 +124,9 @@ class Command(BaseCommand):
                         # TODO: port this to here!
                         # handle_job_notifications(job_request, job_from_db)
 
+                # nb. this has the side-effect of updating job_request.status
+                job_request.jobs_status
+
             # TODO: should we log ids or identifiers here? ids are not so helpful
             logger.info(
                 "Created, updated or deleted Jobs",
