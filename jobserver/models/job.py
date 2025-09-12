@@ -12,6 +12,8 @@ from ..runtime import Runtime
 
 logger = structlog.get_logger(__name__)
 
+COMPLETED_STATES = ["failed", "succeeded"]
+
 
 class JobManager(models.Manager):
     use_in_migrations = True
@@ -100,7 +102,7 @@ class Job(models.Model):
 
     @property
     def is_completed(self):
-        return self.status in ["failed", "succeeded"]
+        return self.status in COMPLETED_STATES
 
     @property
     def is_missing_updates(self):
