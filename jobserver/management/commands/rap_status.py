@@ -5,11 +5,10 @@ from django.core.management.base import BaseCommand
 
 from jobserver import rap_api
 from jobserver.models import JobRequest
+from jobserver.models.job import COMPLETED_STATES
 
 
 logger = structlog.get_logger(__name__)
-
-COMPLETED_STATES = {"failed", "succeeded"}
 
 
 class Command(BaseCommand):
@@ -102,12 +101,12 @@ class Command(BaseCommand):
                         # For newly created jobs we can't tell if they've just
                         # transitioned to completed so we assume they have to avoid
                         # missing notifications
-                        newly_completed = job_from_db.status in COMPLETED_STATES
+                        newly_completed = job_from_db.is_completed
                     else:
                         updated_job_ids.append(str(job_from_db.id))
 
                         newly_completed = (
-                            job_from_db.status not in COMPLETED_STATES
+                            not job_from_db.is_completed
                             and job_from_api["status"] in COMPLETED_STATES
                         )
 
