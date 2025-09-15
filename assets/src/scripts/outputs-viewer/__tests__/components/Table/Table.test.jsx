@@ -5,9 +5,6 @@ import { csvExample, csvFile } from "../../helpers/files";
 import { render, screen } from "../../test-utils";
 
 describe("<Table />", () => {
-  const twoThousandRows = `${Array(2000).fill(`b
-  `)}`.trimEnd();
-
   it("displays the CSV mapped to a table", async () => {
     render(<Table data={csvExample} />, {}, { file: csvFile });
 
@@ -17,11 +14,16 @@ describe("<Table />", () => {
   });
 
   it("displays the first 1000 rows for CSVs with more than 1000 and fewer than 5000 rows", async () => {
-    render(<Table data={twoThousandRows} />, {}, { file: csvFile });
+    const simpleCSV = Array(1001).fill("a").join("\n");
+    const { container } = render(
+      <Table data={simpleCSV} />,
+      {},
+      { file: simpleCSV },
+    );
 
     expect(screen.getByRole("alert").textContent).toBe(
       "This is a preview of the first 1000 rows",
     );
-    expect(screen.getAllByRole("row").length).toBe(1000);
+    expect(container.querySelector("tbody").children.length).toBe(1000);
   });
 });
