@@ -19,6 +19,12 @@ def generate_token():
 class Backend(models.Model):
     """A job-runner instance"""
 
+    class Status(models.TextChoices):
+        """Choices for the flag status (db_status, human_readable)."""
+
+        ON = "on", "On"
+        OFF = "off", "Off"
+
     slug = models.SlugField(max_length=255, unique=True)
     name = models.TextField()
 
@@ -36,7 +42,19 @@ class Backend(models.Model):
     alert_timeout = models.DurationField(default=timedelta(minutes=5))
 
     jobrunner_state = models.JSONField(null=True)
+
     rap_api_state = models.JSONField(null=True)
+
+    last_seen_backend = models.DateTimeField(null=True)
+
+    last_seen_maintenance_mode = models.DateTimeField(null=True)
+
+    maintenance_mode_status = models.CharField(
+        max_length=3,
+        choices=Status.choices,
+        default=Status.ON,
+        help_text="Is this backend currently in database maintenance mode?",
+    )
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
