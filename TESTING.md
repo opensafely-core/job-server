@@ -131,6 +131,9 @@ Some useful `pytest` / `just test*` parameters:
 * `--collect-only`: Display the list of all discovered tests without running them. Useful for checking test discovery.
 * `--nomigrations`: Set up the test DB directly from models instead of by applying migrations. Runs somewhat faster. Useful if migrations/models are not relevant to your changes.
 * `--durations=<N>`: Show the slowest N tests and setup/teardown times. Useful when trying to speed up the test suite. Note that the initial DB setup is included against the first test run per-worker.
+* `-n`: from the `pytest-xdist` plugin. Tells `pytest` how many worker processes to
+  spawn. Use `-n 0` if you insert an explicit `breakpoint()` in your code, to
+  stop the plugin interfering.
 
 
 ## Testing Releases
