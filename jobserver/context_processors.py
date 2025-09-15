@@ -13,10 +13,11 @@ from .nav import NavItem, iter_nav
 logger = structlog.get_logger(__name__)
 
 BANNER_DISPLAY_URL_NAMES = {
-    "workspace-logs",
-    "job-request-detail",
-    "job-request-create",
     "job-detail",
+    "job-request-create",
+    "job-request-detail",
+    "status",
+    "workspace-logs",
 }
 
 
