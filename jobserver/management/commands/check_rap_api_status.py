@@ -1,10 +1,11 @@
 import datetime
 
 import structlog
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from jobserver import rap_api
-from jobserver.models import Stats
+from jobserver.models import Backend, Stats
 
 
 class Command(BaseCommand):
@@ -12,28 +13,50 @@ class Command(BaseCommand):
         logger = structlog.get_logger(__name__)
 
         try:
-            logger.info(rap_api.backend_status())
+            # Retrieve the response gotten from the rap_api endpoint
+            backend_status_response = rap_api.backend_status()
+            backends = backend_status_response["backends"]
+
+            for backend in backends:
+                backend_name = backend["name"]
+
+                backend_object = Backend.objects.get(name=backend_name)
+
+                # Record the time we're told this backend was last seen alive, for availability
+                # reporting purposes
+                if last_seen_at_flag := backend["last_seen"]:
+                    last_seen_at_dt = datetime.datetime.fromisoformat(last_seen_at_flag)
+                    Stats.objects.update_or_create(
+                        backend=backend_object,
+                        url=settings.RAP_API_BASE_URL,
+                        defaults={"api_last_seen": last_seen_at_dt},
+                    )
+                    backend_object.last_seen_backend = last_seen_at_dt
+
+                # Record the time this backend was last in maintenance mode
+                if last_seen_in_maintenance_mode := backend["db_maintenance"]["since"]:
+                    last_seen_dt_maintenance_mode = datetime.datetime.fromisoformat(
+                        last_seen_in_maintenance_mode
+                    )
+                    backend_object.last_seen_maintenance_mode = (
+                        last_seen_dt_maintenance_mode
+                    )
+
+                backend_object.rap_api_state = backend
+
+                backend_object.maintenance_mode_status = backend["db_maintenance"][
+                    "status"
+                ]
+
+                backend_object.save(
+                    update_fields=[
+                        "rap_api_state",
+                        "maintenance_mode_status",
+                        "last_seen_backend",
+                        "last_seen_maintenance_mode",
+                    ]
+                )
+            logger.info(backend_status_response)
+
         except Exception as exc:
             logger.error(exc)
-
-    def update_backend_state(backend, request):
-        # Retrieve the response gotten from the jobrunner endpoint
-        flags = rap_api.backend_status().get("backends", [])
-
-        if not flags:
-            return
-
-        jobrunner_state = flags[0]
-
-        # Record the time we're told this backend was last seen alive, for availability
-        # reporting purposes
-        if last_seen_at_flag := jobrunner_state.get("last_seen"):
-            last_seen_at_dt = datetime.datetime.fromisoformat(last_seen_at_flag)
-            Stats.objects.update_or_create(
-                backend=backend,
-                url=request.path,
-                defaults={"api_last_seen": last_seen_at_dt},
-            )
-
-        backend.rap_api_state = jobrunner_state
-        backend.save(update_fields=["rap_api_state"])
