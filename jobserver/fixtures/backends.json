@@ -5,7 +5,6 @@
     "fields": {
       "slug": "emis",
       "name": "EMIS",
-      "parent_directory": "",
       "is_active": true,
       "auth_token": "e5cd170790ab147c39b5a69d5980a8bbd982bcce",
       "level_4_url": "https://emis.backends.opensafely.org:8001",
@@ -19,7 +18,6 @@
     "fields": {
       "slug": "expectations",
       "name": "Expectations",
-      "parent_directory": "",
       "is_active": false,
       "auth_token": "a0d82071bddde9b86a66ab7bef2c065db736987f",
       "level_4_url": "",
@@ -33,7 +31,6 @@
     "fields": {
       "slug": "tpp",
       "name": "TPP",
-      "parent_directory": "",
       "is_active": true,
       "auth_token": "f0e17b6b37d427a2f7ba304d187e95548ea12c83",
       "level_4_url": "https://tpp.backends.opensafely.org",
@@ -47,7 +44,6 @@
     "fields": {
       "slug": "NHSD-REF",
       "name": "NHSD REF",
-      "parent_directory": "",
       "is_active": false,
       "auth_token": "ee7ff257d6efe63460ec1d1917897c78643c8558",
       "level_4_url": "",
@@ -61,7 +57,6 @@
     "fields": {
       "slug": "test",
       "name": "Test",
-      "parent_directory": "",
       "is_active": false,
       "auth_token": "51628dc9d2337a72587abde653792562a66386bb",
       "level_4_url": "https://test.opensafely.org",
@@ -75,7 +70,6 @@
     "fields": {
       "slug": "graphnet",
       "name": "Graphnet",
-      "parent_directory": "",
       "is_active": false,
       "auth_token": "bbdb1047bb0364b58255e3f1fce72ceae76eb9a4",
       "level_4_url": "",
@@ -89,7 +83,6 @@
     "fields": {
       "slug": "NHSD",
       "name": "NHSD",
-      "parent_directory": "",
       "is_active": false,
       "auth_token": "da2d46570dba4e0c7ea4934691b1cbfc6ad71b2a",
       "level_4_url": "",
@@ -103,7 +96,6 @@
     "fields": {
       "slug": "NHSD-DEV",
       "name": "NHSD DEV",
-      "parent_directory": "",
       "is_active": false,
       "auth_token": "2fab22b93e9aef5dd89a0acc0dcd512fe2a8a3b5",
       "level_4_url": "",
