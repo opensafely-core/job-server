@@ -22,7 +22,6 @@ class Backend(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     name = models.TextField()
 
-    parent_directory = models.TextField(default="", blank=True)
     is_active = models.BooleanField(
         default=False,
         help_text="Is this backend currently active on the platform?  Connectivity warnings are only shown for active backends.",
