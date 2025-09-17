@@ -276,20 +276,22 @@ def test_jobrequest_request_cancellation_nothing_to_do():
 
 def test_jobrequest_request_cancellation_specify_action():
     """Test request_cancellation with parameters cancels only those active jobs
-    passed in."""
-    job_request = JobRequestFactory(cancelled_actions=[])
+    passed in, and already cancelled jobs remain cancelled."""
+    job_request = JobRequestFactory(cancelled_actions=["job5"])
     JobFactory(job_request=job_request, action="job1", status="pending")
     JobFactory(job_request=job_request, action="job2", status="running")
     JobFactory(job_request=job_request, action="job3", status="running")
     JobFactory(job_request=job_request, action="job4", status="succeeded")
+    JobFactory(job_request=job_request, action="job5", status="running")
 
     job_request.request_cancellation(actions_to_cancel=["job1", "job2", "job4", "job7"])
 
     job_request.refresh_from_db()
     # job3 was running but not specified for cancellation, so not cancelled
     # job4 was already finished so should not be changed
+    # job5 pre-existing cancel request shouldn't be overwritten
     # job7 didn't exist so should be ignored
-    assert set(job_request.cancelled_actions) == {"job1", "job2"}
+    assert set(job_request.cancelled_actions) == {"job1", "job2", "job5"}
 
 
 def test_jobrequest_request_cancellation_not_started_yet():
