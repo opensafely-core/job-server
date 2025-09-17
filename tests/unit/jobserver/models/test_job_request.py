@@ -242,6 +242,19 @@ def test_jobrequest_request_cancellation_all():
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
 
 
+def test_jobrequest_request_cancellation_with_existing_cancelled_jobs():
+    """Test request_cancellation with a previously cancelled job and no
+    parameters leads to all jobs being cancelled."""
+    job_request = JobRequestFactory(cancelled_actions=["job1"])
+    JobFactory(job_request=job_request, action="job1", status="pending")
+    JobFactory(job_request=job_request, action="job2", status="running")
+
+    job_request.request_cancellation()
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == {"job1", "job2"}
+
+
 def test_jobrequest_request_cancellation_nothing_to_do():
     """Test request_cancellation with no parameters when there are no active
     jobs."""
