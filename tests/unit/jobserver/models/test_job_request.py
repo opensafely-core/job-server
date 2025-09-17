@@ -240,6 +240,9 @@ def test_jobrequest_request_cancellation_all():
 
     job_request.refresh_from_db()
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
+    # Note request_cancellation only affects cancelled_actions, not the
+    # Job.status -- that will get update later after an update from the RAP
+    # API.
 
 
 def test_jobrequest_request_cancellation_with_existing_cancelled_jobs():
