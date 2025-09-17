@@ -387,7 +387,7 @@ def test_jobrequest_has_cancellable_actions():
     # An action is cancellable if it is pending or running and has not
     # already been cancelled
     # This job has no cancelled actions
-    job_request = JobRequestFactory(cancelled_actions=["job1"])
+    job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="job1", status="pending")
     JobFactory(job_request=job_request, action="job2", status="running")
     JobFactory(job_request=job_request, action="job3", status="running")
