@@ -32,7 +32,6 @@
       <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
         {% form_input field=form.name label="Name" %}
         {% form_input field=form.slug label="Slug" %}
-        {% form_input field=form.parent_directory label="Parent Directory" %}
         {% form_input field=form.level_4_url label="Level 4 URL" %}
         {% form_checkbox field=form.is_active label="Is this backend active?" checked=form.is_active.value %}
       </div>

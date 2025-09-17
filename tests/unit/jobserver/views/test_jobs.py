@@ -282,7 +282,7 @@ def test_jobdetail_with_job_creator(rf):
 
 
 def test_jobdetail_with_nonzero_exit_code(rf):
-    backend = BackendFactory(slug="tpp", parent_directory="/var/test")
+    backend = BackendFactory(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
     job = JobFactory(
         job_request=job_request, action="my_action", status_code="nonzero_exit"

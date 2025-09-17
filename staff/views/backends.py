@@ -11,7 +11,6 @@ class BackendCreate(CreateView):
     fields = [
         "name",
         "slug",
-        "parent_directory",
         "level_4_url",
         "is_active",
     ]
