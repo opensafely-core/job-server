@@ -26,8 +26,6 @@
     <p>A 'backend' is a secure, live data environment, managed by a provider of electronic health records data.</p>
     <p>The status of each backend which can run jobs for OpenSAFELY researchers can be viewed below.</p>
 
-    <h3>TPP</h3>
-    {% db_maintenance_banner %}
 
     <div class="grid gap-8 mb-8">
       {% for backend in backends %}
@@ -37,8 +35,14 @@
               <h2 id="workspaces-title" class="text-xl font-semibold tracking-tight text-slate-900">
                 {{ backend.name }}
               </h2>
+
               {% if backend.show_warning %}
                 {% pill variant="warning" text="Missing" %}
+              {% endif %}
+            </div>
+            <div>
+              {% if tpp_maintenance_banner %}
+                {% db_maintenance_banner %}
               {% endif %}
             </div>
           </div>
@@ -81,13 +85,13 @@
 
 
     <h2 id="db-maintenance-mode">Database maintenance mode</h2>
-    <p>Backend databases undergo regular routine maintenance.
+    <p>Backend databases undergo regular routine maintenance.</p>
 
-      <h4>What this means for you</h4>
-      <ul>
-        <li>Database jobs will be paused during maintenance.</li>
-        <li>Any database jobs that were running will be stopped and queued to restart once maintenance mode is finished.</li>
-        <li>Non-database jobs will be unaffected, unless they are dependent on a database job that's been paused due to maintenance mode, in which case they may take longer than normal to run.</li>
-      </ul>
-    </div>
+    <h4>What this means for you</h4>
+    <ul>
+      <li>Database jobs will be paused during maintenance.</li>
+      <li>Any database jobs that were running will be stopped and queued to restart once maintenance mode is finished.</li>
+      <li>Non-database jobs will be unaffected, unless they are dependent on a database job that's been paused due to maintenance mode, in which case they may take longer than normal to run.</li>
+    </ul>
+  </div>
 {% endblock %}
