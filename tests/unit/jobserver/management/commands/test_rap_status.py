@@ -284,9 +284,17 @@ def test_update_job_multiple(
         assert (
             log_output.entries[4]["updated_job_ids"] == f"{job1.id},{job2.id},{job3.id}"
         )
+        assert (
+            log_output.entries[4]["updated_job_identifiers"]
+            == f"{job1.identifier},{job2.identifier},{job3.identifier}"
+        )
     else:
         assert (
             log_output.entries[4]["created_job_ids"] == f"{job1.id},{job2.id},{job3.id}"
+        )
+        assert (
+            log_output.entries[4]["created_job_identifiers"]
+            == f"{job1.identifier},{job2.identifier},{job3.identifier}"
         )
 
     check_job_request_status(job_request.identifier, JobRequestStatus.RUNNING)
