@@ -123,6 +123,7 @@ class Command(BaseCommand):
                         for key, value in job_from_api.items():
                             setattr(job_from_db, key, value)
 
+                    # TODO: use bulk_update instead
                     job_from_db.save()
 
                     if newly_completed:
