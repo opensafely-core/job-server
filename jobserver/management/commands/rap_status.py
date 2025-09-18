@@ -4,7 +4,7 @@ import structlog
 from django.core.management.base import BaseCommand
 
 from jobserver import rap_api
-from jobserver.models import JobRequest
+from jobserver.models import Job, JobRequest
 from jobserver.models.job import COMPLETED_STATES
 
 
@@ -102,6 +102,7 @@ class Command(BaseCommand):
                         identifier=job_from_api["identifier"],
                         defaults={**job_from_api},
                     )
+                    assert isinstance(job_from_db, Job)
 
                     if created:
                         created_job_ids.append(str(job_from_db.id))
