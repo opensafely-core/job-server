@@ -131,7 +131,6 @@ class Command(BaseCommand):
                         # TODO: port this to here!
                         # handle_job_notifications(job_request, job_from_db)
 
-            # TODO: should we log ids or identifiers here? ids are not so helpful
             logger.info(
                 "Created, updated or deleted Jobs",
                 created_job_ids=",".join(created_job_ids),
