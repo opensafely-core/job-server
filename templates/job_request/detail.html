@@ -4,10 +4,10 @@
 {% load static %}
 
 {% block extra_meta %}
-  <meta property="og:title" content="{{ job_request.requested_actions|length }} Action{{ job_request.requested_actions|pluralize }} Requested" />
+  <meta property="og:title" content="Job Request: {{ job_request.pk }} - {{ job_request.workspace.name }} | OpenSAFELY Jobs" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-  <meta property="og:description" content="Workspace: {{ job_request.workspace.name }}" />
+  <meta property="og:description" content="Job Request: {{ job_request.pk }} in workspace {{ job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
 {% block metatitle %}Job request: {{ job_request.pk }} - {{ job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
@@ -22,20 +22,20 @@
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb location="Project" title=job_request.workspace.project.name url=job_request.workspace.project.get_absolute_url %}
     {% breadcrumb location="Workspace" title=job_request.workspace.name url=job_request.workspace.get_absolute_url %}
-    {% breadcrumb location="Job request" title=job_request.id active=True %}
+    {% breadcrumb location="Job Request" title=job_request.id active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
   {% if is_missing_updates %}
     {% #alert variant="warning" title="Attention needed" class="mb-4" %}
-      Jobs in this request have not been updated for over 30 minutes, some of the data on this page could be stale.
+      Jobs in this Job Request have not been updated for over 30 minutes, some of the data on this page could be stale.
     {% /alert %}
   {% endif %}
 
   {% if job_request.cancelled_actions and not job_request.is_completed %}
-    {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
-      A User has requested that jobs in this request are cancelled.
+    {% #alert variant="info" title="Job Request cancellation" class="mb-4" %}
+      A user has requested that jobs in this Job Request are cancelled
     {% /alert %}
   {% endif %}
 
@@ -44,7 +44,7 @@
       <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
         <div class="order-2 w-full lg:mr-auto lg:order-1">
           <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl leading-snug!">
-            Job request: {{ job_request.pk }}
+            Job Request: {{ job_request.pk }}
           </h1>
           <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start mt-1">
             <dt class="sr-only">Organisation:</dt>
@@ -89,11 +89,11 @@
             {% csrf_token %}
             {% if job_request.is_completed or not job_request.has_cancellable_actions %}
               {% #button type="submit" disabled=True tooltip="This job request can no longer be cancelled" %}
-                Cancel this job request
+                Cancel job request
               {% /button %}
             {% else %}
               {% #button type="submit" variant="danger" %}
-                Cancel this job request
+                Cancel job request
               {% /button %}
             {% endif %}
           </form>
@@ -247,7 +247,7 @@
         {% /card_footer %}
       {% /card %}
 
-      {% #card title="Job information" %}
+      {% #card title="Job request" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
           {% #description_item title="Status" stacked=True %}
             <div class="flex flex-col gap-y-2">
