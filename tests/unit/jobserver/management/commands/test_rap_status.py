@@ -19,11 +19,43 @@ def check_job_request_status(rap_id, expected_status):
     assert JobRequestStatus(job_request.jobs_status) == expected_status
 
 
-@patch("jobserver.rap_api.status")
-def test_update_job_simple(mock_rap_api_status, log_output, django_assert_num_queries):
-    job_request = JobRequestFactory()
+@pytest.fixture
+def now():
+    yield timezone.now()
 
-    now = timezone.now()
+
+def rap_status_response_factory(jobs, unrecognised_rap_ids, now):
+    jobs_response = []
+    for job in jobs:
+        jobs_response.append(
+            {
+                "identifier": job.get("identifier", "identifier-0"),
+                "rap_id": job.get("rap_id", "rap-identifier-0"),
+                "action": job.get("action", "test-action1"),
+                "backend": job.get("backend", "test"),
+                "run_command": job.get("run_command", "do-research"),
+                "requires_db": job.get("requires_db", "false"),
+                "status": job.get("status", "succeeded"),
+                "status_code": "",
+                "status_message": "",
+                "created_at": job.get("created_at", minutes_ago(now, 2)),
+                "started_at": job.get("started_at", minutes_ago(now, 1)),
+                "updated_at": now,
+                "completed_at": job.get("completed_at", seconds_ago(now, 30)),
+                "metrics": {"cpu_peak": 99},
+            }
+        )
+    return {
+        "jobs": jobs_response,
+        "unrecognised_rap_ids": unrecognised_rap_ids,
+    }
+
+
+@patch("jobserver.rap_api.status")
+def test_update_job_simple(
+    mock_rap_api_status, log_output, django_assert_num_queries, now
+):
+    job_request = JobRequestFactory()
 
     assert Job.objects.count() == 0
 
@@ -35,27 +67,16 @@ def test_update_job_simple(mock_rap_api_status, log_output, django_assert_num_qu
     )
     assert Job.objects.count() == 1
 
-    test_response_json = {
-        "jobs": [
+    test_response_json = rap_status_response_factory(
+        [
             {
                 "identifier": job1.identifier,
                 "rap_id": job_request.identifier,
-                "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
-                "requires_db": "true",
-                "status": "succeeded",
-                "status_code": "",
-                "status_message": "",
-                "created_at": minutes_ago(now, 2),
-                "started_at": minutes_ago(now, 1),
-                "updated_at": now,
-                "completed_at": seconds_ago(now, 30),
-                "metrics": {"cpu_peak": 99},
-            },
+            }
         ],
-        "unrecognised_rap_ids": [],
-    }
+        [],
+        now,
+    )
     mock_rap_api_status.return_value = test_response_json
 
     with django_assert_num_queries(5):
@@ -92,10 +113,9 @@ def test_update_job_multiple(
     pre_existing,
     query_count,
     django_assert_num_queries,
+    now,
 ):
     job_request = JobRequestFactory()
-
-    now = timezone.now()
 
     assert Job.objects.count() == 0
 
@@ -119,54 +139,39 @@ def test_update_job_multiple(
 
         assert Job.objects.count() == 3
 
-    test_response_json = {
-        "jobs": [
+    test_response_json = rap_status_response_factory(
+        [
             {
                 "identifier": "job1",
                 "rap_id": job_request.identifier,
                 "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "succeeded",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": seconds_ago(now, 30),
-                "metrics": {"cpu_peak": 99},
             },
             {
                 "identifier": "job2",
                 "rap_id": job_request.identifier,
                 "action": "test-action2",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "running",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": None,
             },
             {
                 "identifier": "job3",
                 "rap_id": job_request.identifier,
                 "action": "test-action3",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "pending",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": None,
-                "updated_at": now,
                 "completed_at": None,
             },
         ],
-        "unrecognised_rap_ids": [],
-    }
+        [],
+        now,
+    )
     mock_rap_api_status.return_value = test_response_json
 
     with django_assert_num_queries(query_count):
@@ -234,12 +239,10 @@ def test_update_job_multiple(
 
 @patch("jobserver.rap_api.status")
 def test_update_jobs_multiple_job_requests(
-    mock_rap_api_status, log_output, django_assert_num_queries
+    mock_rap_api_status, log_output, django_assert_num_queries, now
 ):
     job_request1 = JobRequestFactory()
     job_request2 = JobRequestFactory()
-
-    now = timezone.now()
 
     assert Job.objects.count() == 0
 
@@ -259,68 +262,48 @@ def test_update_jobs_multiple_job_requests(
     )
     assert Job.objects.count() == 4
 
-    test_response_json = {
-        "jobs": [
+    test_response_json = rap_status_response_factory(
+        [
             {
                 "identifier": job1.identifier,
                 "rap_id": job_request1.identifier,
                 "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "succeeded",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": seconds_ago(now, 30),
-                "metrics": {"cpu_peak": 99},
             },
             {
                 "identifier": job2.identifier,
                 "rap_id": job_request1.identifier,
                 "action": "test-action2",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "running",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": None,
             },
             {
                 "identifier": job3.identifier,
                 "rap_id": job_request2.identifier,
                 "action": "test-action2",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "running",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": None,
             },
             {
                 "identifier": job4.identifier,
                 "rap_id": job_request2.identifier,
                 "action": "test-action3",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "pending",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": None,
-                "updated_at": now,
                 "completed_at": None,
             },
         ],
-        "unrecognised_rap_ids": [],
-    }
+        [],
+        now,
+    )
     mock_rap_api_status.return_value = test_response_json
 
     with django_assert_num_queries(11):
@@ -387,12 +370,8 @@ def test_update_jobs_multiple_job_requests(
 
 
 @patch("jobserver.rap_api.status")
-def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries):
+def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries, now):
     job_request = JobRequestFactory()
-
-    now = timezone.now()
-
-    assert Job.objects.count() == 0
 
     jobs = JobFactory.create_batch(
         2,
@@ -402,31 +381,25 @@ def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries)
         completed_at=None,
     )
 
+    assert Job.objects.count() == 2
+
     # rap/status only returns one job of the two created
-    test_response_json = {
-        "jobs": [
+    test_response_json = rap_status_response_factory(
+        [
             {
                 "identifier": jobs[0].identifier,
                 "rap_id": job_request.identifier,
-                "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "succeeded",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": seconds_ago(now, 30),
-                "metrics": {"cpu_peak": 99},
             }
         ],
-        "unrecognised_rap_ids": [],
-    }
+        [],
+        now,
+    )
 
     identifier_to_delete = jobs[1].identifier
-
-    assert Job.objects.count() == 2
 
     mock_rap_api_status.return_value = test_response_json
 
@@ -445,10 +418,8 @@ def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries)
 
 
 @patch("jobserver.rap_api.status")
-def test_flip_flop_updates(mock_rap_api_status, log_output):
+def test_flip_flop_updates(mock_rap_api_status, log_output, now):
     job_request = JobRequestFactory()
-
-    now = timezone.now()
 
     job = JobFactory.create(
         job_request=job_request,
@@ -458,46 +429,34 @@ def test_flip_flop_updates(mock_rap_api_status, log_output):
     )
     test_job_id = job.id
 
-    test_response_json_stale = {
-        "jobs": [
+    test_response_json_stale = rap_status_response_factory(
+        [
             {
                 "identifier": job.identifier,
                 "rap_id": job_request.identifier,
-                "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "running",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 1),
                 "started_at": now,
-                "updated_at": now,
                 "completed_at": None,
-                "metrics": {"cpu_peak": 99},
             }
         ],
-        "unrecognised_rap_ids": [],
-    }
-    test_response_json_fresh = {
-        "jobs": [
+        [],
+        now,
+    )
+    test_response_json_fresh = rap_status_response_factory(
+        [
             {
                 "identifier": job.identifier,
                 "rap_id": job_request.identifier,
-                "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "succeeded",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": seconds_ago(now, 30),
-                "metrics": {"cpu_peak": 99},
             }
         ],
-        "unrecognised_rap_ids": [],
-    }
+        [],
+        now,
+    )
 
     # The rap_status command will modify the returned dict in place,
     # so use a deepcopy so that our test will work as expected!
@@ -528,10 +487,10 @@ def test_flip_flop_updates(mock_rap_api_status, log_output):
 
 
 @patch("jobserver.rap_api.status")
-def test_command_unrecognised_controller(mock_rap_api_status, log_output):
+def test_command_unrecognised_controller(mock_rap_api_status, log_output, now):
     job_request = JobRequestFactory()
 
-    test_response_json = {"jobs": [], "unrecognised_rap_ids": [job_request.identifier]}
+    test_response_json = rap_status_response_factory([], [job_request.identifier], now)
 
     mock_rap_api_status.return_value = test_response_json
 
@@ -548,29 +507,21 @@ def test_command_unrecognised_controller(mock_rap_api_status, log_output):
 
 
 @patch("jobserver.rap_api.status")
-def test_command_unrecognised_jobserver(mock_rap_api_status, log_output):
-    now = timezone.now()
-
-    test_response_json = {
-        "jobs": [
+def test_command_unrecognised_jobserver(mock_rap_api_status, log_output, now):
+    test_response_json = rap_status_response_factory(
+        [
             {
                 "identifier": "job1",
                 "rap_id": "job_request1",
-                "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
                 "status": "succeeded",
-                "status_code": "",
-                "status_message": "",
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
-                "updated_at": now,
                 "completed_at": seconds_ago(now, 30),
-                "metrics": {"cpu_peak": 99},
             },
         ],
-        "unrecognised_rap_ids": [],
-    }
+        [],
+        now,
+    )
 
     mock_rap_api_status.return_value = test_response_json
 
