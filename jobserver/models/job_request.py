@@ -122,6 +122,8 @@ class JobRequest(models.Model):
     # overall status of the JobRequest. If the RAP API did not create any jobs (or failed),
     # this may be populated immediately. Otherwise, it is updated based on the progess and
     # completion of associated jobs.
+    # Nb. this value can be stale, `.jobs_status` updates & returns this value, and
+    # should therefore be used in preference to this where possible.
     status = models.TextField(
         default=JobRequestStatus.UNKNOWN, choices=JobRequestStatus
     )

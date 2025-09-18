@@ -16,7 +16,6 @@ from tests.utils import minutes_ago, seconds_ago
 
 def check_job_request_status(rap_id, expected_status):
     job_request: JobRequest = JobRequest.objects.get(identifier=rap_id)
-    assert JobRequestStatus(job_request.status) == expected_status
     assert JobRequestStatus(job_request.jobs_status) == expected_status
 
 
