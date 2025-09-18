@@ -32,7 +32,7 @@ class Command(BaseCommand):
             job_requests = JobRequest.objects.filter(
                 identifier__in=options["rap_ids"]
             ).prefetch_related("jobs")
-            job_request_lut = {jr.identifier: jr for jr in job_requests}
+            job_request_by_identifier = {jr.identifier: jr for jr in job_requests}
 
             created_job_ids = []
             updated_job_ids = []
@@ -44,8 +44,7 @@ class Command(BaseCommand):
                 if rap_id in json_response["unrecognised_rap_ids"]:
                     continue
 
-                # get the JobRequest for this identifier
-                job_request = job_request_lut.get(rap_id)
+                job_request = job_request_by_identifier.get(rap_id)
 
                 # This could happen if the management command is given a rap_id which
                 # does not exist on job-server but does exist on the controller.
