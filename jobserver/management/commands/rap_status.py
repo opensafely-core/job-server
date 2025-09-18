@@ -118,8 +118,9 @@ class Command(BaseCommand):
                             and job_from_api["status"] in COMPLETED_STATES
                         )
 
-                        # update Job "manually" so we can make the check above for
-                        # status transition
+                        # Update the Job here rather than using create_or_update above, as
+                        # we needed to check the pre-update status to identify newly
+                        # created jobs.
                         for key, value in job_from_api.items():
                             setattr(job_from_db, key, value)
 
