@@ -29,7 +29,9 @@ class Command(BaseCommand):
             json_response = rap_api.status(
                 options["rap_ids"],
             )
-            job_requests = JobRequest.objects.filter(identifier__in=options["rap_ids"])
+            job_requests = JobRequest.objects.filter(
+                identifier__in=options["rap_ids"]
+            ).prefetch_related("jobs")
             job_request_lut = {jr.identifier: jr for jr in job_requests}
 
             created_job_ids = []
