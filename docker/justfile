@@ -55,6 +55,14 @@ smoke-test host="http://localhost:8000": _dotenv
 db: build
     docker compose up -d db
 
+# if the database container exists and is running, stop it from running
+stop-db:
+    #!/bin/bash
+    set -eu
+    container_id=`docker ps -q --filter label=com.docker.compose.project=$COMPOSE_PROJECT_NAME --filter label=com.docker.compose.service=db --filter status=running`
+    if [ -n "$container_id" ]; then
+    	docker compose -p $COMPOSE_PROJECT_NAME stop db >/dev/null
+    fi
 
 # stop and remove all job-server containers
 clean:
