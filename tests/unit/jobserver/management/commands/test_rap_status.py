@@ -20,7 +20,7 @@ def check_job_request_status(rap_id, expected_status):
 
 
 @patch("jobserver.rap_api.status")
-def test_update_job_simple(mock_rap_api_status, log_output):
+def test_update_job_simple(mock_rap_api_status, log_output, django_assert_num_queries):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -58,7 +58,8 @@ def test_update_job_simple(mock_rap_api_status, log_output):
     }
     mock_rap_api_status.return_value = test_response_json
 
-    call_command("rap_status", job_request.identifier)
+    with django_assert_num_queries(5):
+        call_command("rap_status", job_request.identifier)
 
     # we shouldn't have a different number of jobs
     jobs = Job.objects.all()
@@ -85,7 +86,7 @@ def test_update_job_simple(mock_rap_api_status, log_output):
 
 
 @patch("jobserver.rap_api.status")
-def test_update_job_run_all(mock_rap_api_status, log_output):
+def test_update_job_run_all(mock_rap_api_status, log_output, django_assert_num_queries):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -124,7 +125,8 @@ def test_update_job_run_all(mock_rap_api_status, log_output):
     }
     mock_rap_api_status.return_value = test_response_json
 
-    call_command("rap_status", job_request.identifier)
+    with django_assert_num_queries(5):
+        call_command("rap_status", job_request.identifier)
 
     # we shouldn't have a different number of jobs
     jobs = Job.objects.all()
@@ -150,9 +152,15 @@ def test_update_job_run_all(mock_rap_api_status, log_output):
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
 
-@pytest.mark.parametrize("pre_existing", [True, False])
+@pytest.mark.parametrize("pre_existing, query_count", [(True, 9), (False, 18)])
 @patch("jobserver.rap_api.status")
-def test_update_job_multiple(mock_rap_api_status, log_output, pre_existing):
+def test_update_job_multiple(
+    mock_rap_api_status,
+    log_output,
+    pre_existing,
+    query_count,
+    django_assert_num_queries,
+):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -229,7 +237,8 @@ def test_update_job_multiple(mock_rap_api_status, log_output, pre_existing):
     }
     mock_rap_api_status.return_value = test_response_json
 
-    call_command("rap_status", job_request.identifier)
+    with django_assert_num_queries(query_count):
+        call_command("rap_status", job_request.identifier)
 
     # we shouldn't have a different number of jobs
     jobs = Job.objects.all()
@@ -284,7 +293,9 @@ def test_update_job_multiple(mock_rap_api_status, log_output, pre_existing):
 
 
 @patch("jobserver.rap_api.status")
-def test_update_jobs_multiple_job_requests(mock_rap_api_status, log_output):
+def test_update_jobs_multiple_job_requests(
+    mock_rap_api_status, log_output, django_assert_num_queries
+):
     job_request1 = JobRequestFactory()
     job_request2 = JobRequestFactory()
 
@@ -372,7 +383,8 @@ def test_update_jobs_multiple_job_requests(mock_rap_api_status, log_output):
     }
     mock_rap_api_status.return_value = test_response_json
 
-    call_command("rap_status", [job_request1.identifier, job_request2.identifier])
+    with django_assert_num_queries(11):
+        call_command("rap_status", [job_request1.identifier, job_request2.identifier])
 
     # Check the command worked overall
     assert log_output.entries[-1]["event"] == "Created, updated or deleted Jobs"
@@ -435,7 +447,7 @@ def test_update_jobs_multiple_job_requests(mock_rap_api_status, log_output):
 
 
 @patch("jobserver.rap_api.status")
-def test_delete_jobs(mock_rap_api_status, log_output):
+def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -478,7 +490,8 @@ def test_delete_jobs(mock_rap_api_status, log_output):
 
     mock_rap_api_status.return_value = test_response_json
 
-    call_command("rap_status", job_request.identifier)
+    with django_assert_num_queries(6):
+        call_command("rap_status", job_request.identifier)
 
     # The second job should have been deleted
     jobs = Job.objects.all()
