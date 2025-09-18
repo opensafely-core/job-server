@@ -68,7 +68,6 @@ def test_update_job_simple(mock_rap_api_status, log_output, django_assert_num_qu
     # check our jobs look as expected
     updated_job1 = jobs[0]
 
-    # succeeded
     assert updated_job1.identifier == job1.identifier
     assert updated_job1.started_at == minutes_ago(now, 1)
     assert updated_job1.updated_at == now
