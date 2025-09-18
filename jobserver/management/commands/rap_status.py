@@ -49,7 +49,7 @@ class Command(BaseCommand):
                 # This could happen if the management command is given a rap_id which
                 # does not exist on job-server but does exist on the controller.
                 if job_request is None:
-                    logger.info(f"Job-server does not recognise RAP id: {rap_id}")
+                    logger.warning(f"Job-server does not recognise RAP id: {rap_id}")
                     continue
 
                 # bind the job request ID to further logs so looking them up
@@ -139,7 +139,7 @@ class Command(BaseCommand):
                 deleted_job_identifiers=",".join(deleted_identifiers),
             )
             if json_response["unrecognised_rap_ids"]:
-                logger.info(
+                logger.warning(
                     f"Unrecognised RAP ids: {','.join(json_response['unrecognised_rap_ids'])}"
                 )
 
