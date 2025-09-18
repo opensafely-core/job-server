@@ -495,7 +495,6 @@ def test_jobapiupdate_notifications_on_with_move_to_succeeded(api_rf, mocker):
         data=data,
         format="json",
     )
-
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_called_once()
@@ -534,7 +533,6 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
         data=data,
         format="json",
     )
-
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send_finished.assert_not_called()
@@ -678,6 +676,7 @@ def test_jobapiupdate_post_with_flags(api_rf):
             "flags": flags,
         },
     )
+
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -767,6 +766,7 @@ def test_jobrequestapilist_produce_stats_when_authed(api_rf):
             "Flags": '{"last-seen-at": {"v": "2025-06-05T08:30:00.0+00:00"}}',
         },
     )
+
     response = JobRequestAPIList.as_view()(request)
     stat = Stats.objects.filter(backend=backend).first()
     assert stat.api_last_seen == datetime.datetime(
@@ -934,6 +934,7 @@ def test_jobrequestapilist_with_flags(api_rf):
             "flags": flags,
         },
     )
+
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200, response.data

@@ -431,7 +431,7 @@ def site_alert():
 
 @pytest.fixture(autouse=True)
 def rap_api_token(settings):
-    """Django settting for the token for communicating with the RAP API."""
+    """Django setting for the token for communicating with the RAP API."""
     token = "rap_token"
     settings.RAP_API_TOKEN = token
     return token
@@ -439,7 +439,7 @@ def rap_api_token(settings):
 
 @pytest.fixture(autouse=True)
 def rap_api_base_url(settings):
-    """Django settting for the base URL for communicating with the RAP API."""
+    """Django setting for the base URL for communicating with the RAP API."""
     rap_api_base_url = "http://example.com/rap/"
     settings.RAP_API_BASE_URL = rap_api_base_url
     return rap_api_base_url
