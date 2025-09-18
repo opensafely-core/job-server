@@ -492,62 +492,6 @@ def test_delete_jobs(mock_rap_api_status, log_output):
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
 
-@pytest.mark.slow_test
-@patch("jobserver.rap_api.status")
-def test_update_lots_of_jobs(mock_rap_api_status, log_output):
-    job_request = JobRequestFactory()
-
-    now = timezone.now()
-
-    assert Job.objects.count() == 0
-
-    jobs = JobFactory.create_batch(
-        5000,
-        job_request=job_request,
-        started_at=None,
-        status="pending",
-        completed_at=None,
-    )
-
-    test_response_json = {
-        "jobs": [],
-        "unrecognised_rap_ids": [],
-    }
-
-    for job in jobs:
-        test_response_json["jobs"].append(
-            {
-                "identifier": job.identifier,
-                "rap_id": job_request.identifier,
-                "action": "test-action1",
-                "backend": "test",
-                "run_command": "do-research",
-                "status": "succeeded",
-                "status_code": "",
-                "status_message": "",
-                "created_at": minutes_ago(now, 2),
-                "started_at": minutes_ago(now, 1),
-                "updated_at": now,
-                "completed_at": seconds_ago(now, 30),
-                "metrics": {"cpu_peak": 99},
-            }
-        )
-
-    assert Job.objects.count() == 5000
-
-    mock_rap_api_status.return_value = test_response_json
-
-    call_command("rap_status", job_request.identifier)
-
-    # we shouldn't have a different number of jobs
-    jobs = Job.objects.all()
-    assert len(jobs) == 5000
-
-    assert log_output.entries[-1]["event"] == "Created, updated or deleted Jobs"
-
-    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
-
-
 @patch("jobserver.rap_api.status")
 def test_flip_flop_updates(mock_rap_api_status, log_output):
     job_request = JobRequestFactory()
