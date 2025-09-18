@@ -40,6 +40,12 @@ class Command(BaseCommand):
             updated_job_identifiers = []
             deleted_identifiers = []
 
+            # Remove rap_id from the data, it's going to be set by
+            # creating/updating Job instances via the JobRequest instances
+            # related Jobs manager (ie job_request.jobs)
+            # Also remove some other values which we don't currently store in Job
+            superfluous_job_keys = ["rap_id", "backend", "requires_db"]
+
             for rap_id in options["rap_ids"]:
                 # TODO: move this out of the management command!!
 
@@ -85,13 +91,7 @@ class Command(BaseCommand):
                         f"RAP: {job_from_api['rap_id']} Job: {job_from_api['identifier']} Status: {job_from_api['status']}"
                     )
 
-                    # Remove rap_id from the data, it's going to be set by
-                    # creating/updating Job instances via the JobRequest instances
-                    # related Jobs manager (ie job_request.jobs)
-                    # Also remove some other values which we don't currently store in Job
-                    superfluous_keys = ["rap_id", "backend", "requires_db"]
-
-                    for superfluous_key in superfluous_keys:
+                    for superfluous_key in superfluous_job_keys:
                         job_from_api.pop(superfluous_key, None)
 
                     job_from_db, created = job_request.jobs.get_or_create(
