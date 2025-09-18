@@ -35,7 +35,9 @@ class Command(BaseCommand):
             job_request_by_identifier = {jr.identifier: jr for jr in job_requests}
 
             created_job_ids = []
+            created_job_identifiers = []
             updated_job_ids = []
+            updated_job_identifiers = []
             deleted_identifiers = []
 
             for rap_id in options["rap_ids"]:
@@ -106,12 +108,14 @@ class Command(BaseCommand):
 
                     if created:
                         created_job_ids.append(str(job_from_db.id))
+                        created_job_identifiers.append(str(job_from_db.identifier))
                         # For newly created jobs we can't tell if they've just
                         # transitioned to completed so we assume they have to avoid
                         # missing notifications
                         newly_completed = job_from_db.is_completed
                     else:
                         updated_job_ids.append(str(job_from_db.id))
+                        updated_job_identifiers.append(str(job_from_db.identifier))
 
                         newly_completed = (
                             not job_from_db.is_completed
@@ -137,7 +141,9 @@ class Command(BaseCommand):
             logger.info(
                 "Created, updated or deleted Jobs",
                 created_job_ids=",".join(created_job_ids),
+                created_job_identifiers=",".join(created_job_identifiers),
                 updated_job_ids=",".join(updated_job_ids),
+                updated_job_identifiers=",".join(updated_job_identifiers),
                 deleted_job_identifiers=",".join(deleted_identifiers),
             )
             if json_response["unrecognised_rap_ids"]:
