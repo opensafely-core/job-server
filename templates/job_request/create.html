@@ -2,6 +2,8 @@
 
 {% load django_vite %}
 
+{% block metatitle %}Run Jobs: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
 {% block extra_meta %}
   <meta name="apiUrl" content="{{ workspace.get_statuses_url }}">
 {% endblock extra_meta %}
