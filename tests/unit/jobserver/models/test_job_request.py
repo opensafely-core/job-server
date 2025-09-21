@@ -530,7 +530,6 @@ def test_jobrequest_runtime_not_started():
     assert not JobRequest.objects.with_started_at().first().runtime
 
 
-@pytest.mark.xfail(reason="Demonstrate bug in JobRequest.runtime", strict=True)
 def test_runtime_negative_duration():
     jr = JobRequestFactory()
     now = timezone.now()

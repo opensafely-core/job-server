@@ -306,7 +306,11 @@ class JobRequest(models.Model):
             return Runtime(0, 0, 0)
 
         def runtime_in_seconds(job):
-            if job.started_at is None or job.completed_at is None:
+            if (
+                job.started_at is None
+                or job.completed_at is None
+                or job.completed_at <= job.started_at
+            ):
                 return 0
 
             return (job.completed_at - job.started_at).total_seconds()
