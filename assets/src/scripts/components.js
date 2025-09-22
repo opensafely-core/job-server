@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const ul = document.getElementById("table-of-contents");
 
-  // biome-ignore lint/complexity/noForEach: update to biome v2
   anchors.forEach((heading) => {
     heading.id = `${slugify(heading.textContent, {
       lower: true,
