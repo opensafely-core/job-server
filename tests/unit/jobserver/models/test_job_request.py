@@ -530,6 +530,25 @@ def test_jobrequest_runtime_not_started():
     assert not JobRequest.objects.with_started_at().first().runtime
 
 
+def test_runtime_negative_duration():
+    jr = JobRequestFactory()
+    now = timezone.now()
+
+    JobFactory(
+        job_request=jr,
+        status="succeeded",
+        # completed_at is before started_at
+        started_at=minutes_ago(now, 1),
+        completed_at=minutes_ago(now, 2),
+    )
+
+    job_request = JobRequest.objects.with_started_at().first()
+
+    assert job_request.runtime.hours == 0
+    assert job_request.runtime.minutes == 0
+    assert job_request.runtime.seconds == 0
+
+
 def test_jobrequest_runtime_success():
     jr = JobRequestFactory()
 
@@ -549,6 +568,7 @@ def test_jobrequest_runtime_success():
     )
 
     job_request = JobRequest.objects.with_started_at().first()
+
     assert job_request.runtime
     assert job_request.runtime.hours == 0
     assert job_request.runtime.minutes == 2
