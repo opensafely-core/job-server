@@ -187,7 +187,7 @@ def test_update_backend_state_multiple_backends(monkeypatch):
     backend1.refresh_from_db()
 
     assert backend1.rap_api_state == test_response_body["backends"][0]
-    assert backend1.last_seen_backend == datetime.datetime.fromisoformat(
+    assert backend1.last_seen_at == datetime.datetime.fromisoformat(
         "2025-08-12T06:57:43.039078Z"
     )
     assert backend1.last_seen_maintenance_mode is None

@@ -24,17 +24,17 @@ class Command(BaseCommand):
 
                 # Record the time we're told this backend was last seen alive, for availability
                 # reporting purposes
-                last_seen_at_flag = backend_states["last_seen"]
-                if not last_seen_at_flag:
-                    backend_object.last_seen_backend = None
+                last_seen_at = backend_states["last_seen"]
+                if not last_seen_at:
+                    backend_object.last_seen_at = None
                 else:
-                    last_seen_at_dt = datetime.datetime.fromisoformat(last_seen_at_flag)
+                    last_seen_at_dt = datetime.datetime.fromisoformat(last_seen_at)
                     Stats.objects.update_or_create(
                         backend=backend_object,
                         url=settings.RAP_API_BASE_URL,
                         defaults={"api_last_seen": last_seen_at_dt},
                     )
-                    backend_object.last_seen_backend = last_seen_at_dt
+                    backend_object.last_seen_at = last_seen_at_dt
 
                 # Record the time this backend was last in maintenance mode
                 last_seen_in_maintenance_mode = backend_states["db_maintenance"][
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 backend_object.save(
                     update_fields=[
                         "rap_api_state",
-                        "last_seen_backend",
+                        "last_seen_at",
                         "last_seen_maintenance_mode",
                     ]
                 )
