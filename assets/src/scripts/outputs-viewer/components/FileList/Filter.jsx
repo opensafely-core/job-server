@@ -21,6 +21,7 @@ function Filter({ files, listRef, setFiles }) {
   }
 
   return (
+    // biome-ignore lint/correctness/useUniqueElementIds: custom ID for Django
     <FormInput
       autocapitalize="off"
       autocomplete="off"

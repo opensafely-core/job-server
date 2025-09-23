@@ -71,7 +71,7 @@ const initCustomTable = async (perPage) => {
 
   if (tableEl) {
     const { DataTable } = await import("simple-datatables");
-    // @ts-ignore
+    // @ts-expect-error
     await import("../styles/_datatable.css");
 
     const dataTable = new DataTable(tableEl, {
@@ -95,7 +95,7 @@ const initCustomTable = async (perPage) => {
                       attributes: {
                         class: "datatable-input",
                         "data-columns": `[${index}]`,
-                        // @ts-ignore
+                        // @ts-expect-error
                         placeholder: `Filter ${_data.headings[index].text
                           .trim()
                           .toLowerCase()}`,

@@ -67,6 +67,7 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
         >
           Sort files by
         </label>
+        {/* biome-ignore lint/correctness/useUniqueElementIds: custom ID for Django */}
         <select
           className="
             block w-full border-slate-300 text-slate-900 shadow-sm

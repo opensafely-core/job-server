@@ -13,7 +13,6 @@ if (links?.length) {
 // Find all character count instances
 const characterCounts = document?.querySelectorAll("[data-character-count]");
 
-// biome-ignore lint/complexity/noForEach: update to biome v2
 characterCounts?.forEach((formGroup) => {
   // Select the textarea element
   const textAreaElement = formGroup.parentElement.querySelector("textarea");
