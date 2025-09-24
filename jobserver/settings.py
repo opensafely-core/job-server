@@ -102,6 +102,9 @@ if DEBUG_TOOLBAR:
 
 ROOT_URLCONF = "jobserver.urls"
 
+# if adding to the list of context processors in TEMPLATES, update the
+# corresponding lists in the fixtures to disable and enable the
+# db_maintenance_mode() context processor in tests/conftest.py
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
