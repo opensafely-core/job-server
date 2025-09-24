@@ -306,7 +306,7 @@ UNPAIRED_FIELDS = [
         "reviewed_by",
         "updated_at",
     ),
-    ("jobserver.Backend", "created_at", "updated_at"),
+    ("jobserver.Backend", "created_at", "updated_at", "last_seen_at"),
     ("jobserver.Job", "completed_at", "created_at", "started_at", "updated_at"),
     ("jobserver.Project", "copilot_support_ends_at"),
     ("jobserver.ReleaseFile", "uploaded_at"),

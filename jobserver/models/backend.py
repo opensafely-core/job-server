@@ -37,6 +37,12 @@ class Backend(models.Model):
 
     jobrunner_state = models.JSONField(null=True)
 
+    rap_api_state = models.JSONField(null=True)
+
+    last_seen_at = models.DateTimeField(null=True)
+
+    last_seen_maintenance_mode = models.DateTimeField(null=True)
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
