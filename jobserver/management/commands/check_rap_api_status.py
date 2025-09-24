@@ -20,7 +20,7 @@ class Command(BaseCommand):
             for backend_states in backends:
                 backend_name = backend_states["name"]
 
-                backend_object = Backend.objects.get(name=backend_name)
+                backend_object = Backend.objects.get(name__iexact=backend_name)
 
                 # Record the time we're told this backend was last seen alive, for availability
                 # reporting purposes

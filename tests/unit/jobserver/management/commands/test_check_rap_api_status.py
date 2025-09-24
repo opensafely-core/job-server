@@ -61,6 +61,21 @@ def test_command(log_output, patch_backend_status_api_call):
     }
 
 
+def test_backend_name_case_insensitive(log_output, patch_backend_status_api_call):
+    backend = BackendFactory(name="TEST")
+
+    test_response_body = patch_backend_status_api_call("test")
+
+    call_command("check_rap_api_status")
+
+    backend.refresh_from_db()
+
+    assert log_output.entries[0] == {
+        "event": test_response_body,
+        "log_level": "info",
+    }
+
+
 def test_command_error(monkeypatch, log_output):
     def fake_backend_status():
         raise Exception("something went wrong")
