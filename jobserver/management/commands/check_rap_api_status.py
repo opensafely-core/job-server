@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 import structlog
 from django.conf import settings
@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 if not last_seen_at:
                     backend_object.last_seen_at = None
                 else:
-                    last_seen_at_dt = datetime.datetime.fromisoformat(last_seen_at)
+                    last_seen_at_dt = datetime.fromisoformat(last_seen_at)
                     Stats.objects.update_or_create(
                         backend=backend_object,
                         url=settings.RAP_API_BASE_URL,
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     backend_object.last_seen_maintenance_mode = None
 
                 else:
-                    last_seen_dt_maintenance_mode = datetime.datetime.fromisoformat(
+                    last_seen_dt_maintenance_mode = datetime.fromisoformat(
                         last_seen_in_maintenance_mode
                     )
                     backend_object.last_seen_maintenance_mode = (

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 import pytest
 from django.core.management import call_command
@@ -187,7 +187,7 @@ def test_update_backend_state_multiple_backends(monkeypatch):
     backend1.refresh_from_db()
 
     assert backend1.rap_api_state == test_response_body["backends"][0]
-    assert backend1.last_seen_at == datetime.datetime.fromisoformat(
+    assert backend1.last_seen_at == datetime.fromisoformat(
         "2025-08-12T06:57:43.039078Z"
     )
     assert backend1.last_seen_maintenance_mode is None
@@ -197,7 +197,7 @@ def test_update_backend_state_multiple_backends(monkeypatch):
     backend2.refresh_from_db()
 
     assert backend2.rap_api_state == test_response_body["backends"][1]
-    assert backend2.last_seen_maintenance_mode == datetime.datetime.fromisoformat(
+    assert backend2.last_seen_maintenance_mode == datetime.fromisoformat(
         "2025-08-12T14:33:57.413881Z"
     )
     assert backend2.stats.count() == 1
