@@ -17,14 +17,17 @@ class Command(BaseCommand):
             backend_status_response = rap_api.backend_status()
             backends = backend_status_response["backends"]
 
-            for backend in backends:
-                backend_name = backend["name"]
+            for backend_states in backends:
+                backend_name = backend_states["name"]
 
                 backend_object = Backend.objects.get(name=backend_name)
 
                 # Record the time we're told this backend was last seen alive, for availability
                 # reporting purposes
-                if last_seen_at_flag := backend["last_seen"]:
+                last_seen_at_flag = backend_states["last_seen"]
+                if not last_seen_at_flag:
+                    backend_object.last_seen_backend = None
+                else:
                     last_seen_at_dt = datetime.datetime.fromisoformat(last_seen_at_flag)
                     Stats.objects.update_or_create(
                         backend=backend_object,
@@ -34,7 +37,13 @@ class Command(BaseCommand):
                     backend_object.last_seen_backend = last_seen_at_dt
 
                 # Record the time this backend was last in maintenance mode
-                if last_seen_in_maintenance_mode := backend["db_maintenance"]["since"]:
+                last_seen_in_maintenance_mode = backend_states["db_maintenance"][
+                    "since"
+                ]
+                if not last_seen_in_maintenance_mode:
+                    backend_object.last_seen_maintenance_mode = None
+
+                else:
                     last_seen_dt_maintenance_mode = datetime.datetime.fromisoformat(
                         last_seen_in_maintenance_mode
                     )
@@ -42,16 +51,11 @@ class Command(BaseCommand):
                         last_seen_dt_maintenance_mode
                     )
 
-                backend_object.rap_api_state = backend
-
-                backend_object.maintenance_mode_status = backend["db_maintenance"][
-                    "status"
-                ]
+                backend_object.rap_api_state = backend_states
 
                 backend_object.save(
                     update_fields=[
                         "rap_api_state",
-                        "maintenance_mode_status",
                         "last_seen_backend",
                         "last_seen_maintenance_mode",
                     ]
