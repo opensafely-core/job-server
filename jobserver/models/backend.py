@@ -20,27 +20,35 @@ def generate_token():
 class BackendManager(models.Manager):
     def get_db_maintenance_mode_statuses(self, cache_duration=60):
         """
-        Return a dictionary mapping backend slugs to their database (db)maintenance mode status value (True/False). Values are cached to reduce the number of database queries. Querying is limited a list of allowed_backends which currently includes "tpp" and "emis".
+        Return a mapping of backend slugs to a boolean indicating
+        whether each is in database maintenance mode.
+
+        Only the "tpp" and "emis" backends are checked.
+
+        Results are cached (default 60s) to align with the RAP API cron
+        schedule defined in app.json, reducing database queries.
         """
-        cache_key = "backend_maintenance_statuses"
+
+        cache_key = f"{__name__}.backend_maintenance_statuses"
         statuses = cache.get(cache_key)
 
         if statuses is None:
             statuses = {}
             allowed_backends = ["tpp", "emis"]
 
-            backend_jr_state_values = (
+            backend_statuses = (
                 self.get_queryset()
                 .filter(slug__in=allowed_backends)
                 .values("slug", "jobrunner_state")
             )
 
-            for row in backend_jr_state_values:
-                jobrunner_state = row["jobrunner_state"] or {}
-                in_maintenance = (
-                    jobrunner_state.get("mode", {}).get("v") == "db-maintenance"
-                )
-                statuses[row["slug"]] = in_maintenance
+            statuses = {
+                backend["slug"]: (backend["jobrunner_state"] or {})
+                .get("mode", {})
+                .get("v")
+                == "db-maintenance"
+                for backend in backend_statuses
+            }
 
             cache.set(cache_key, statuses, cache_duration)
 
