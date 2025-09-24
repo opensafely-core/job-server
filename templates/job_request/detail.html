@@ -4,10 +4,10 @@
 {% load static %}
 
 {% block extra_meta %}
-  <meta property="og:title" content="{{ job_request.requested_actions|length }} Action{{ job_request.requested_actions|pluralize }} Requested" />
+  <meta property="og:title" content="Job request: {{ job_request.pk }} - {{ job_request.workspace.name }} | OpenSAFELY Jobs" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-  <meta property="og:description" content="Workspace: {{ job_request.workspace.name }}" />
+  <meta property="og:description" content="Job request: {{ job_request.pk }} in workspace {{ job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
 {% block metatitle %}Job request: {{ job_request.pk }} - {{ job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
@@ -29,13 +29,13 @@
 {% block content %}
   {% if is_missing_updates %}
     {% #alert variant="warning" title="Attention needed" class="mb-4" %}
-      Jobs in this request have not been updated for over 30 minutes, some of the data on this page could be stale.
+      Jobs in this job request have not been updated for over 30 minutes, some of the data on this page could be stale.
     {% /alert %}
   {% endif %}
 
   {% if job_request.cancelled_actions and not job_request.is_completed %}
-    {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
-      A User has requested that jobs in this request are cancelled.
+    {% #alert variant="info" title="Job request cancellation" class="mb-4" %}
+      A user has requested that jobs in this job request are cancelled
     {% /alert %}
   {% endif %}
 
@@ -89,11 +89,11 @@
             {% csrf_token %}
             {% if job_request.is_completed or not job_request.has_cancellable_actions %}
               {% #button type="submit" disabled=True tooltip="This job request can no longer be cancelled" %}
-                Cancel this job request
+                Cancel job request
               {% /button %}
             {% else %}
               {% #button type="submit" variant="danger" %}
-                Cancel this job request
+                Cancel job request
               {% /button %}
             {% endif %}
           </form>
@@ -247,7 +247,7 @@
         {% /card_footer %}
       {% /card %}
 
-      {% #card title="Job information" %}
+      {% #card title="Job request" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
           {% #description_item title="Status" stacked=True %}
             <div class="flex flex-col gap-y-2">
@@ -306,20 +306,20 @@
         </dl>
       {% /card %}
 
-      {% #card title="Code comparison" subtitle="Compare the code used in this Job Request" %}
+      {% #card title="Code comparison" subtitle="Compare the code used in this job request" %}
         {% #list_group small=True %}
           {% if code_compare_url %}
             {% #list_group_item href=code_compare_url class="plausible-event-name=Compare+Previous+JobRequest" %}
-              Compare to the previous Job Request
+              Compare to the previous job request
             {% /list_group_item %}
             {% if code_compare_succeeded_url %}
               {% #list_group_item href=code_compare_succeeded_url class="plausible-event-name=Compare+Previous+Successful+JobRequest" %}
-                Compare to the previous successful Job Request
+                Compare to the previous successful job request
               {% /list_group_item %}
             {% endif %}
           {% else %}
             {% #list_group_item disabled=True small=True %}
-              No previous Job Request available for comparison
+              No previous job request available for comparison
             {% /list_group_item %}
           {% endif %}
         {% /list_group %}

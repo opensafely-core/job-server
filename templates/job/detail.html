@@ -3,13 +3,13 @@
 {% load humanize %}
 
 {% block extra_meta %}
-  <meta property="og:title" content="Action: {{ job.action }}" />
+  <meta property="og:title" content="Job: {{ job.action }}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ request.build_absolute_uri }}" />
   <meta property="og:description" content="Workspace: {{ job.job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
-{% block metatitle %}Job request: {{ job.action }} - {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Job: {{ job.action }} - {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
@@ -18,7 +18,7 @@
     {% breadcrumb location="Project" title=job.job_request.workspace.project.name url=job.job_request.workspace.project.get_absolute_url %}
     {% breadcrumb location="Workspace" title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
     {% breadcrumb location="Job request" title=job.job_request.id url=job.job_request.get_absolute_url %}
-    {% breadcrumb location="Action" title=job.action active=True %}
+    {% breadcrumb location="Job" title=job.action active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
@@ -26,21 +26,21 @@
   {% var backendName=job.job_request.backend|stringformat:"s"|upper %}
 
   {% if job.is_missing_updates %}
-    {% #alert variant="warning" title="Attention needed" class="mb-4" %}
-      This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
+    {% #alert variant="warning" title="Job not up-to-date" class="mb-4" %}
+      Job has not received a status update for over 30 minutes, some data on this page could be stale
     {% /alert %}
   {% endif %}
 
   {% if cancellation_requested and not job.is_completed %}
     {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
-      A User has requested this job is cancelled.
+      A user has requested cancellation of this job
     {% /alert %}
   {% endif %}
 
   <div class="md:flex md:items-center md:justify-between md:space-x-5">
     <h1 class="min-w-0 text-3xl break-words md:text-4xl font-bold text-slate-900">
       {% if job.action == "__error__" %}
-        Error creating jobs
+        Error creating job
       {% else %}
         {{ job.action }}
       {% endif %}
@@ -50,12 +50,12 @@
         <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
           {% csrf_token %}
           {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
-            {% #button type="submit" disabled=True tooltip="This job can no longer be cancelled" %}
-              Cancel this job
+            {% #button type="submit" disabled=True tooltip="Job cannot be cancelled" %}
+              Cancel job
             {% /button %}
           {% else %}
             {% #button type="submit" variant="danger" %}
-              Cancel this job
+              Cancel job
             {% /button %}
           {% endif %}
         </form>
@@ -137,7 +137,7 @@
               {% endif %}
 
               {% if job.action in job.job_request.cancelled_actions %}
-                <p>A User has requested this Job is cancelled.</p>
+                <p>A user has requested cancellation of this job</p>
               {% endif %}
 
               {% if log_path %}
@@ -193,16 +193,16 @@
             {% if code_compare_url %}
               <ul class="list-disc ml-4 space-y-1">
                 <li>
-                  {% link href=code_compare_url text="Compare workspace code to this action's previous run on the "|add:backendName|add:" backend" class="plausible-event-name=Compare+Previous+Job" %}
+                  {% link href=code_compare_url text="Compare code to the previous run on the "|add:backendName|add:" backend" class="plausible-event-name=Compare+Previous+Job" %}
                 </li>
                 {% if code_compare_succeeded_url %}
                   <li>
-                    {% link href=code_compare_succeeded_url text="Compare workspace code to this action's previous successful run on the "|add:backendName|add:" backend" class="plausible-event-name=Compare+Previous+Successful+Job" %}
+                    {% link href=code_compare_succeeded_url text="Compare code to the previous successful run on the "|add:backendName|add:" backend" class="plausible-event-name=Compare+Previous+Successful+Job" %}
                   </li>
                 {% endif %}
               </ul>
             {% else %}
-              No previous action runs on this backend available for comparison
+              No previous job runs on this backend available for comparison
             {% endif %}
           {% /description_item %}
 
