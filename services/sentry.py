@@ -82,9 +82,7 @@ def parse(data):
 
     # tokens with values we want to strip
     tokens = [
-        "GITHUB_TOKEN",
         "GITHUB_TOKEN_TESTING",
-        "GITHUB_WRITEABLE_TOKEN",
         "JOBSERVER_GITHUB_TOKEN",
         "RAP_API_TOKEN",
         "SECRET_KEY",
