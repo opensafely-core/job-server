@@ -205,7 +205,7 @@ class JobRequestCreate(CreateView):
             )
 
         backend = Backend.objects.get(slug=form.cleaned_data.pop("backend"))
-        backend.job_requests.create(
+        job_request = backend.job_requests.create(
             workspace=self.workspace,
             created_by=self.request.user,
             sha=sha,
@@ -213,6 +213,30 @@ class JobRequestCreate(CreateView):
             codelists_ok=self.codelists_status == "ok",
             **form.cleaned_data,
         )
+
+        # Special case for the RAP API v2 initiative. We intend to remove the
+        # conditionality if this works well in production.
+        if backend.slug == "test":
+            # Invoke the RAP API and handle RapAPIErrors.
+            job_count = job_request.request_rap_creation()
+            if job_count is not None and job_count > 0:
+                # Report success. Note we don't display a count of jobs created, even though we have that
+                # from the RAP API response, because the jobs have not been created on job server yet, so
+                # won't be immediately displayed in the UI
+                messages.success(self.request, self.success_message())
+            else:
+                # No jobs were created by the RAP controller, either an error, or there was nothing to
+                # do; we just report the job request status, and status message (if there is one)
+                extra = (
+                    f" ({job_request.status_message})"
+                    if job_request.status_message
+                    else ""
+                )
+                messages.info(
+                    self.request,
+                    f"No actions scheduled: {job_request.human_readable_status}{extra}",
+                )
+
         return redirect(
             "workspace-logs",
             project_slug=self.workspace.project.slug,
@@ -245,6 +269,9 @@ class JobRequestCreate(CreateView):
             .order_by("-created_at")
             .first()
         )
+
+    def success_message(self):
+        return "Requested actions have been scheduled to run."
 
 
 class JobRequestDetail(View):
