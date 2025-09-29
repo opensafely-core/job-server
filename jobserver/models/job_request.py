@@ -235,10 +235,13 @@ class JobRequest(models.Model):
 
     def get_active_actions(self):
         # Active actions are pending or running
+        # Note: certain old statuses in the database may not match an exact (case sensitive) Job status (which is
+        # defined by job-runner). However, none of these are pending or running, and we can now be sure that all
+        # job statuses will be lower case, so there is no need for a case-insensitive filter here.
         return set(
-            self.jobs.exclude(
-                Q(status__iexact="failed") | Q(status__iexact="succeeded")
-            ).values_list("action", flat=True)
+            self.jobs.filter(status__in=["pending", "running"]).values_list(
+                "action", flat=True
+            )
         )
 
     @property
