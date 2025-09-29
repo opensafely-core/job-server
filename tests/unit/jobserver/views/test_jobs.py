@@ -19,7 +19,7 @@ from ....factories import (
 
 def test_jobcancel_already_cancelled(rf, user, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
-    job = JobFactory(job_request=job_request, action="test")
+    job = JobFactory(job_request=job_request, action="test", status="pending")
 
     project_membership(
         project=job_request.workspace.project,
@@ -63,7 +63,7 @@ def test_jobcancel_already_completed(rf, user, project_membership, role_factory)
 
 def test_jobcancel_success(rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
-    job = JobFactory(job_request=job_request, action="test")
+    job = JobFactory(job_request=job_request, action="test", status="pending")
     user = UserFactory()
 
     project_membership(
@@ -95,7 +95,7 @@ def test_jobcancel_success(rf, project_membership, role_factory):
 def test_jobcancel_with_job_creator(rf):
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
-    job = JobFactory(job_request=job_request, action="test")
+    job = JobFactory(job_request=job_request, action="test", status="pending")
 
     request = rf.post("/")
     request.user = user
@@ -118,7 +118,7 @@ def test_jobcancel_with_job_creator(rf):
 
 
 def test_jobcancel_without_permission(rf, user):
-    job = JobFactory(job_request=JobRequestFactory())
+    job = JobFactory(job_request=JobRequestFactory(), status="pending")
 
     request = rf.post("/")
     request.user = user
