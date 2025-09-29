@@ -448,3 +448,7 @@ class JobRequest(models.Model):
             return "include_t1oo"
         else:
             return "default"
+
+    @property
+    def human_readable_status(self):
+        return self.jobs_status.replace("_", " ").capitalize()
