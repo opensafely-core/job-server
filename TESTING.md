@@ -39,7 +39,7 @@ Test modules mirror their non-testing counterparts, so tests covering functions 
 
 Each function/class should have at least one test, ideally one for each exit condition.
 
-For views we use [`RequestFactory` instances](https://docs.djangoproject.com/en/3.2/topics/testing/advanced/#the-request-factory) as the default testing method, reserving Client instances for Integration tests (more below), testing the Python responses of views under test.
+For views we use [`RequestFactory` instances](https://docs.djangoproject.com/en/5.1/topics/testing/advanced/#the-request-factory) as the default testing method, reserving Client instances for Integration tests (more below), testing the Python responses of views under test.
 
 *Author's Note:* in an ideal world testing views would be bumped up to Integration tests since they typically test across at least one boundary, the database.
 However, since testing without the database in a Django codebase is not a trivial job we've decided to stick with the flow and treat them like unit tests.
@@ -51,7 +51,7 @@ However, since testing without the database in a Django codebase is not a trivia
 Integration tests live at a level above unit tests, testing the combination of various pieces.
 
 Each view should have at least one integration test for the happy path.
-These tests should use [`Client` instances](https://docs.djangoproject.com/en/3.2/topics/testing/tools/#the-test-client).
+These tests should use [`Client` instances](https://docs.djangoproject.com/en/5.1/topics/testing/tools/#the-test-client).
 Ideally these tests would avoid mocking.
 
 This lets us test views with all the surrounding parts turned on: URL routing, middleware, etc.
@@ -93,9 +93,9 @@ We use [coverage.py](https://coverage.readthedocs.io/) to check test coverage on
 
 [FactoryBoy](https://factoryboy.readthedocs.io/) provides our model factories for easy creation of model instances inside tests.
 
-[PyTest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html) provide useful helpers for the tests.
-They are also the ideal place to build up combinations of factorys, eg [the `user` fixture](https://github.com/opensafely-core/job-server/blob/62a376aa120542d246efd854bc1d4de1b70a60cf/tests/conftest.py#L63-L77) which provides a User with associated Org.
-We also provide DRF's testing tools as fixtures to mirror pytest-django.
+[PyTest fixtures](https://docs.pytest.org/en/latest/reference/fixtures.html) provide useful helpers for the tests.
+They are also the ideal place to build up combinations of factories, eg [the `user` fixture](https://github.com/opensafely-core/job-server/blob/62a376aa120542d246efd854bc1d4de1b70a60cf/tests/conftest.py#L63-L77) which provides a User with associated Org.
+We also provide Django RequestFactory's testing tools as fixtures to mirror pytest-django.
 
 [pytest-django](https://pytest-django.readthedocs.io/en/latest/) is the bridge between pytest and Django, exposing various Django testing tools (Client, RequestFactory, etc) as fixtures.
 
