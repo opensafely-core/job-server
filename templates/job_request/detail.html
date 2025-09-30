@@ -136,55 +136,86 @@
       {% if not is_invalid %}
         {% #card title="Jobs" %}
           <ul class="divide-y divide-slate-200 border-t border-t-slate-200">
-            {% for job in jobs %}
-              <li class="relative transition-colors hover:bg-oxford-50 group">
+            {% if jobs %}
+              {% for job in jobs %}
+                <li class="relative transition-colors hover:bg-oxford-50 group">
+                  <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+                    <div class="flex gap-x-2">
+                      <dt class="sr-only">Action:</dt>
+                      <dd class="
+                                 text-base font-semibold text-oxford-600 transition-colors truncate
+                                 group-hover:text-oxford-900
+                                 group-focus:text-oxford-900
+                                ">
+                        <a
+                          class="
+                                 focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset
+                                 before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+                          href="{{ job.get_absolute_url }}"
+                        >
+                          {{ job.action }}
+                        </a>
+                      </dd>
+                      <dt class="sr-only">Status:</dt>
+                      <dd class="ml-auto shrink-0">
+                        {% if job.status == "pending" %}
+                          {% pill sr_only="Status:" variant="warning" text=job.status|capfirst %}
+                        {% elif job.status == "running" %}
+                          {% pill sr_only="Status:" variant="primary" text=job.status|capfirst %}
+                        {% elif job.status == "failed" %}
+                          {% pill sr_only="Status:" variant="danger" text=job.status|capfirst %}
+                        {% elif job.status == "succeeded" %}
+                          {% pill sr_only="Status:" variant="success" text=job.status|capfirst %}
+                        {% endif %}
+                      </dd>
+                    </div>
+                    <dt class="sr-only">Job identifier:</dt>
+                    <dd class="inline-flex flex-row items-start mr-auto overflow-hidden max-w-full relative z-40">
+                      {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                      <code class="font-mono font-semibold text-sm text-slate-600 tracking-widest truncate">
+                        {{ job.identifier }}
+                      </code>
+                    </dd>
+                    {% if job.status == "failed" and job.status_message %}
+                      <dt class="sr-only">Error:</dt>
+                      <dd class="mt-1 bg-red-50 text-red-900 border-red-200 break-words font-mono text-sm pt-2 pb-1.5 px-3 rounded border">
+                        {% if job.status_code %}<strong>{{ job.status_code }}:</strong>{% endif %}
+                        <span>{{ job.status_message }}</span>
+                      </dd>
+                    {% endif %}
+                  </dl>
+                </li>
+              {% endfor %}
+            {% elif job_request.is_completed and not job_request.jobs.exists %}
+              <li class="relative transition-colors group">
                 <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
                   <div class="flex gap-x-2">
-                    <dt class="sr-only">Action:</dt>
+                    <dt class="sr-only">Job request status:</dt>
                     <dd class="
                                text-base font-semibold text-oxford-600 transition-colors truncate
-                               group-hover:text-oxford-900
-                               group-focus:text-oxford-900
                               ">
-                      <a
-                        class="
-                               focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset
-                               before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
-                        href="{{ job.get_absolute_url }}"
-                      >
-                        {{ job.action }}
-                      </a>
-                    </dd>
-                    <dt class="sr-only">Status:</dt>
-                    <dd class="ml-auto shrink-0">
-                      {% if job.status == "pending" %}
-                        {% pill sr_only="Status:" variant="warning" text=job.status|capfirst %}
-                      {% elif job.status == "running" %}
-                        {% pill sr_only="Status:" variant="primary" text=job.status|capfirst %}
-                      {% elif job.status == "failed" %}
-                        {% pill sr_only="Status:" variant="danger" text=job.status|capfirst %}
-                      {% elif job.status == "succeeded" %}
-                        {% pill sr_only="Status:" variant="success" text=job.status|capfirst %}
-                      {% endif %}
-                    </dd>
-                  </div>
-                  <dt class="sr-only">Job identifier:</dt>
-                  <dd class="inline-flex flex-row items-start mr-auto overflow-hidden max-w-full relative z-40">
-                    {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-                    <code class="font-mono font-semibold text-sm text-slate-600 tracking-widest truncate">
-                      {{ job.identifier }}
-                    </code>
+                      {{ job_request.human_readable_status }}
+                    </a>
                   </dd>
-                  {% if job.status == "failed" and job.status_message %}
-                    <dt class="sr-only">Error:</dt>
-                    <dd class="mt-1 bg-red-50 text-red-900 border-red-200 break-words font-mono text-sm pt-2 pb-1.5 px-3 rounded border">
-                      {% if job.status_code %}<strong>{{ job.status_code }}:</strong>{% endif %}
-                      <span>{{ job.status_message }}</span>
-                    </dd>
-                  {% endif %}
-                </dl>
+                  <dt class="sr-only">Status:</dt>
+                  <dd class="ml-auto shrink-0">
+                    {% if job_request.jobs_status == "failed" %}
+                      {% pill sr_only="Status:" variant="danger" text=job_request.human_readable_status %}
+                    {% elif job_request.jobs_status == "nothing_to_do" %}
+                      {% pill sr_only="Status:" variant="warning" text=job_request.human_readable_status %}
+                    {% endif %}
+                  </dd>
+                </div>
+                <dt class="sr-only">Job request status message:</dt>
+                <dd class="inline-flex flex-row items-start mr-auto overflow-hidden max-w-full relative z-40">
+                  {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                  <code class="font-mono font-semibold text-sm text-slate-600 tracking-widest truncate">
+                    {{ job_request.status_message }}
+                  </code>
+                </dd>
+              </dl>
               </li>
-            {% endfor %}
+            {% endif %}
           </ul>
         {% /card %}
       {% endif %}
@@ -266,7 +297,7 @@
                          bg-bn-flamenco-200 text-bn-flamenco-900
                        {% endif %}
                       ">
-                {{ job_request.jobs_status|capfirst }}
+                {{ job_request.human_readable_status }}
               </span>
               {% if is_invalid %}
                 <pre class="break-words whitespace-pre-wrap">{{ job_request.jobs.first.status_message }}</pre>
