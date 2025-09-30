@@ -15,7 +15,7 @@ from jobserver.api.jobs import (
     update_backend_state,
 )
 from jobserver.authorization import ProjectDeveloper, StaffAreaAdministrator
-from jobserver.models import Job, JobRequest, Stats
+from jobserver.models import Job, JobRequest, JobRequestStatus, Stats
 from tests.factories import (
     BackendFactory,
     JobFactory,
@@ -728,6 +728,35 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
 
     assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 1
+
+
+def test_jobrequestapilist_filter_by_test_backend(api_rf):
+    # Special case for the RAP API v2 initiative.
+    # The test backend does not consider jobs requests with no jobs to be active
+    backend = BackendFactory()
+    backend.slug = "test"
+    backend.save()
+
+    # job requests for this backend
+    # only pending, running and unknown are considered active
+    JobRequestFactory(backend=backend, _status=JobRequestStatus.PENDING)
+    JobRequestFactory(backend=backend, _status=JobRequestStatus.UNKNOWN)
+    JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
+    # these are not included
+    JobRequestFactory(backend=backend, _status=JobRequestStatus.FAILED)
+    JobRequestFactory(backend=backend, _status=JobRequestStatus.SUCCEEDED)
+    # a job request that isn't pending, running or unknown is also included if it has any pending or running job
+    failed_job_request_with_pending_job = JobRequestFactory(
+        backend=backend, _status=JobRequestStatus.FAILED
+    )
+    # job requests for different backend
+    JobFactory(job_request=failed_job_request_with_pending_job, status="pending")
+
+    request = api_rf.get("/", headers={"authorization": backend.auth_token})
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert len(response.data["results"]) == 4
 
 
 def test_jobrequestapilist_get_only(api_rf):

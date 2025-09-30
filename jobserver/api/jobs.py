@@ -270,29 +270,56 @@ class JobRequestAPIList(ListAPIView):
             .values_list("job_request_id")
             .distinct()
         )
-        # A job request is acknowledged by the RAP API when it has at least one
-        # job created for it
-        acknowledged_job_request_ids = (
-            Job.objects.all().values_list("job_request_id").distinct()
-        )
-        qs = (
-            JobRequest.objects.filter(
-                Q(id__in=active_job_request_ids)
-                | ~Q(id__in=acknowledged_job_request_ids),
-            )
-            .select_related(
-                "backend",
-                "created_by",
-                "workspace",
-                "workspace__created_by",
-                "workspace__project",
-                "workspace__repo",
-            )
-            .prefetch_related("workspace__project__orgs")
-            .order_by("-created_at")
-        )
 
         backend_slug = getattr(self.backend, "slug", None)
+        # Special case for the RAP API v2 initiative. We intend to remove the
+        # conditionality if this works well in production.
+        # Jobs using the test backend use the RAP API, and are acknowledged immediately
+        # (and may legitimately have 0 jobs). Filter based on the job_request's status and
+        # job status. Note that we use the "private" _status field here; this field can be stale
+        # as the jobs_status property updates it based on job status. However, if anything it
+        # should be over-inclusive and ensure that we retrieve status updates for any job requests
+        # that have been initially set to pending or unknown, but may not have jobs created yet.
+        if backend_slug == "test":
+            qs = (
+                JobRequest.objects.filter(
+                    Q(_status__in=["pending", "running", "unknown"])
+                    | Q(id__in=active_job_request_ids)
+                )
+                .select_related(
+                    "backend",
+                    "created_by",
+                    "workspace",
+                    "workspace__created_by",
+                    "workspace__project",
+                    "workspace__repo",
+                )
+                .prefetch_related("workspace__project__orgs")
+                .order_by("-created_at")
+            )
+        else:
+            # A job request is acknowledged by the RAP API when it has at least one
+            # job created for it
+            acknowledged_job_request_ids = (
+                Job.objects.all().values_list("job_request_id").distinct()
+            )
+            qs = (
+                JobRequest.objects.filter(
+                    Q(id__in=active_job_request_ids)
+                    | ~Q(id__in=acknowledged_job_request_ids),
+                )
+                .select_related(
+                    "backend",
+                    "created_by",
+                    "workspace",
+                    "workspace__created_by",
+                    "workspace__project",
+                    "workspace__repo",
+                )
+                .prefetch_related("workspace__project__orgs")
+                .order_by("-created_at")
+            )
+
         if backend_slug is not None:
             qs = qs.filter(backend__slug=backend_slug)
 
