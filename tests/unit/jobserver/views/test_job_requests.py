@@ -75,9 +75,9 @@ def test_jobrequestcancel_already_completed(rf, project_membership, role_factory
 
 def test_jobrequestcancel_success(rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
-    JobFactory(job_request=job_request, action="test1")
-    JobFactory(job_request=job_request, action="test2")
-    JobFactory(job_request=job_request, action="test3")
+    JobFactory(job_request=job_request, action="test1", status="pending")
+    JobFactory(job_request=job_request, action="test2", status="running")
+    JobFactory(job_request=job_request, action="test3", status="succeeded")
     user = UserFactory()
 
     project_membership(
@@ -99,9 +99,11 @@ def test_jobrequestcancel_success(rf, project_membership, role_factory):
     assert response.url == job_request.get_absolute_url()
 
     job_request.refresh_from_db()
+
+    # Only pending and running actions are cancelled
     assert "test1" in job_request.cancelled_actions
     assert "test2" in job_request.cancelled_actions
-    assert "test3" in job_request.cancelled_actions
+    assert "test3" not in job_request.cancelled_actions
 
     messages = list(messages)
     assert len(messages) == 1
@@ -146,7 +148,7 @@ def test_jobrequestcancel_partially_completed(rf, project_membership, role_facto
 def test_jobrequestcancel_with_job_request_creator(rf):
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
-    JobFactory(job_request=job_request, action="test1")
+    JobFactory(job_request=job_request, action="test1", status="pending")
 
     request = rf.post("/")
     request.user = user
@@ -193,7 +195,7 @@ def test_jobrequestcancel_rapapierror(rf, mocker):
     redirect."""
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
-    JobFactory(job_request=job_request, action="test1")
+    JobFactory(job_request=job_request, action="test1", status="pending")
 
     request = rf.post("/")
     request.user = user
@@ -225,7 +227,7 @@ def test_jobrequestcancel_noactionstocancel(rf, mocker):
     redirect."""
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
-    JobFactory(job_request=job_request, action="test1")
+    JobFactory(job_request=job_request, action="test1", status="pending")
 
     request = rf.post("/")
     request.user = user
