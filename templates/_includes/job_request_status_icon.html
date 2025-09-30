@@ -1,0 +1,14 @@
+{% if job_request.jobs_status == "succeeded" %}
+  {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+{% elif job_request.jobs_status == "pending" %}
+  {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+{% elif job_request.jobs_status == "running" %}
+  {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+{% elif job_request.jobs_status == "failed" %}
+  {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
+{% elif job_request.jobs_status == "nothing_to_do" %}
+  {% icon_check_circle_solid class="h-6 w-6 text-bn-flamenco-500" %}
+{% elif job_request.jobs_status == "unknown" %}
+  {% icon_exclamation_triangle_solid class="h-6 w-6 text-slate-500" %}
+{% endif %}
+<span class="sr-only">{{ job_request.human_readable_status }}</span>

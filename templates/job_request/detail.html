@@ -262,6 +262,8 @@
                          bg-red-200 text-red-900
                        {% elif job_request.jobs_status == "succeeded" %}
                          bg-green-200 text-green-900
+                       {% elif job_request.jobs_status == "nothing_to_do" %}
+                         bg-bn-flamenco-200 text-bn-flamenco-900
                        {% endif %}
                       ">
                 {{ job_request.jobs_status|capfirst }}
