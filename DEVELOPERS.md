@@ -35,7 +35,7 @@
 - [Interfaces](#interfaces)
   - [Job Runner interface](#job-runner-interface)
   - [Airlock interface](#airlock-interface)
-- [Migrations deployment strategy](#migrations-deployment-strategy)
+- [Risky migrations](#risky-migrations)
 
 ## Local development
 
@@ -564,32 +564,32 @@ issues. (Current as of 2024-09.)
 [airlock app]: airlock/
 
 
-## Migrations deployment strategy
+## Risky migrations
 
-When deploying PRs that include migrations, there's a brief period where the
-old container may execute against a database that has been migrated, before
-cutting over to the new container. Additionally, migrations may execute during
-a deployment that ultimately fails, leaving the old container running. Either
-scenario can result in unhandled exceptions if the old container is
-incompatible with the migrated database.
+Be cautious when making migrations where the old code is incompatible with the
+new database state. Unhandled exceptions can occur in some circustances under
+our deployment strategy:
 
-Django allows for model-database inconsistencies, raising database-layer errors
-only when actual issues arise. Certain changes, like adding a table or column,
-are generally safe because the old code won’t query the new fields. Similarly,
-making a field nullable is safe -- it won't cause database access failures and
-impacts application code only if non-null values are required.
+- When deploying PRs that include migrations, the old container may briefly run
+against a migrated database before the new container takes over.
+- If deployment fails after or while running migrations, the old container may remain active
+against the modified schema.
 
-Problems arise when a table or column is removed and old code tries to access
-it, or when a field is made non-nullable and old code attempts to insert null
-values. For these cases, a safer deployment strategy is to split changes into
-multiple PRs. First, deploy the application changes in one PR. Then, deploy the
-migration in a separate PR. This approach ensures that during the migration PR
-deployment, the old container is compatible with both the pre- and
-post-migration database states, mitigating risks if the deployment or migration
-fails.
+**Safe changes** include:
+- adding a model or field - the old code will not query the new fields;
+- making a field nullable.
 
-Renaming a table or column is more complex. A good approach is to use three
-PRs: first, a PR with models and migrations to create the new table or column
-and replicate existing data; then a PR updating the application code to use the
-new table/column; and finally, a PR to remove the old field or model and the
-corresponding migration.
+**For risky changes, split application changes from migrations into multiple PRs:**
+
+- **Removing a model or field**
+   - PR 1: remove all code references.
+   - PR 2: associated migration to drop it.
+
+- **Making a field non-nullable**
+   - PR 1: migration to populate any current null values and code updates to ensure the field is always set.
+   - PR 2: migration and code changes to update field defintion `null=false`.
+
+- **Renaming a model or field**
+   - PR 1: add the new model or field and replicate data.
+   - PR 2: update code to use the new version.
+   - PR 3: migration and code changes to remove the old model or field.
