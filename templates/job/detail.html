@@ -22,12 +22,6 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block above_content %}
-  {% if tpp_maintenance_banner is True %}
-    {% db_maintenance_banner %}
-  {% endif %}
-{% endblock %}
-
 {% block content %}
   {% var backendName=job.job_request.backend|stringformat:"s"|upper %}
 
