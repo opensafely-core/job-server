@@ -245,7 +245,7 @@
               {% for job in latest_job_request.jobs.all %}
                 <tr>
                   <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                    <span class="sr-only">{{ job_request.status|title }}</span>
+                    <span class="sr-only">{{ job_request.jobs_status|title }}</span>
                     {% if job.status == "succeeded" %}
                       {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
                     {% elif job.status == "pending" %}
