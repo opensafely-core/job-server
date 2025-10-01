@@ -7,8 +7,8 @@ from django.utils import timezone
 
 from jobserver import honeycomb
 from jobserver.authorization import StaffAreaAdministrator, permissions
-from jobserver.models import JobRequest
-from jobserver.rap_api import RapAPIError
+from jobserver.models import JobRequest, JobRequestStatus
+from jobserver.rap_api import RapAPIError, RapAPIResponseError
 from jobserver.utils import set_from_qs
 from jobserver.views.job_requests import (
     JobRequestCancel,
@@ -613,6 +613,254 @@ def test_jobrequestcreate_post_success(
     assert job_request.sha == ref or "abc123"
     assert job_request.codelists_ok
     assert not job_request.jobs.exists()
+
+
+def test_jobrequestcreate_post_success_test_backend(
+    rf,
+    mocker,
+    user,
+    mock_codelists_ok,
+    project_membership,
+    role_factory,
+):
+    # Special case for the RAP API v2 initiative. Currently the RAP API is only
+    # used for the test backend.
+    backend = BackendFactory()
+    backend.slug = "test"
+    backend.save()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permission=permissions.job_run)],
+    )
+
+    dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
+    actions:
+      twiddle:
+        run: test:latest
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output.csv
+    """
+
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+
+    mocker.patch(
+        "jobserver.models.job_request.rap_api.create",
+        autospec=True,
+        return_value={"count": 1, "details": "jobs created"},
+    )
+
+    data = {
+        "backend": backend.slug,
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+    request = rf.post("/", data)
+    request.user = user
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+        ref="abc123",
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_logs_url()
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.slug == backend.slug
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert job_request.codelists_ok
+    assert not job_request.jobs.exists()
+    assert job_request.jobs_status == JobRequestStatus.PENDING
+
+    messages = [message for message in get_messages(request)]
+    assert len(messages) == 1
+    assert messages[0].message == "Requested actions have been scheduled to run."
+
+
+def test_jobrequestcreate_post_success_nothing_to_do_test_backend(
+    rf,
+    mocker,
+    user,
+    mock_codelists_ok,
+    project_membership,
+    role_factory,
+):
+    # Special case for the RAP API v2 initiative. Currently the RAP API is only
+    # used for the test backend.
+    backend = BackendFactory()
+    backend.slug = "test"
+    backend.save()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permission=permissions.job_run)],
+    )
+
+    dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
+    actions:
+      twiddle:
+        run: test:latest
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output.csv
+    """
+
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+
+    mocker.patch(
+        "jobserver.models.job_request.rap_api.create",
+        autospec=True,
+        return_value={"count": 0, "details": "jobs already created"},
+    )
+
+    data = {
+        "backend": backend.slug,
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+    request = rf.post("/", data)
+    request.user = user
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+        ref="abc123",
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_logs_url()
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.slug == backend.slug
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert job_request.codelists_ok
+    assert job_request.jobs_status == JobRequestStatus.NOTHING_TO_DO
+    assert not job_request.jobs.exists()
+
+    messages = [message for message in get_messages(request)]
+    assert len(messages) == 1
+    assert (
+        messages[0].message
+        == "No actions scheduled: Nothing to do (jobs already created)"
+    )
+
+
+def test_jobrequestcreate_post_rapapierror_test_backend(
+    rf,
+    mocker,
+    user,
+    mock_codelists_ok,
+    project_membership,
+    role_factory,
+):
+    # Special case for the RAP API v2 initiative. Currently the RAP API is only
+    # used for the test backend.
+    backend = BackendFactory()
+    backend.slug = "test"
+    backend.save()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permission=permissions.job_run)],
+    )
+
+    dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
+    actions:
+      twiddle:
+        run: test:latest
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output.csv
+    """
+
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+
+    mocker.patch(
+        "jobserver.models.job_request.rap_api.create",
+        autospec=True,
+        side_effect=RapAPIResponseError(
+            "RAP API Error", body={"details": "Error creating jobs"}
+        ),
+    )
+
+    data = {
+        "backend": backend.slug,
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+    request = rf.post("/", data)
+    request.user = user
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+        ref="abc123",
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_logs_url()
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.slug == backend.slug
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert job_request.codelists_ok
+    assert job_request.jobs_status == JobRequestStatus.FAILED
+    assert not job_request.jobs.exists()
+
+    messages = [message for message in get_messages(request)]
+    assert len(messages) == 1
+    assert messages[0].message == "No actions scheduled: Failed (Error creating jobs)"
 
 
 def test_jobrequestcreate_post_with_invalid_backend(

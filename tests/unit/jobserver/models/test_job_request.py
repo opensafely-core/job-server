@@ -1,12 +1,13 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 import pytest
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import JobRequest
-from jobserver.rap_api import RapAPIError
+from jobserver.models import JobRequest, JobRequestStatus
+from jobserver.rap_api import RapAPIError, RapAPIRequestError, RapAPIResponseError
 
 from ....factories import (
     BackendFactory,
@@ -707,6 +708,111 @@ def test_jobrequest_database_name_with_t1oo_permission(build_job_request):
     # This is one of the project numbers hardcoded into `permissions/t1oo.py`
     job_request = build_job_request(project_number=2)
     assert job_request.database_name == "include_t1oo"
+
+
+@patch("jobserver.rap_api.create")
+def test_jobrequest_request_rap_creation(
+    mock_rap_api_create, build_job_request, log_output
+):
+    job_request = build_job_request(project_number=1)
+    test_response_json = {
+        "result": "Success",
+        "count": 1,
+    }
+    mock_rap_api_create.return_value = test_response_json
+
+    job_count = job_request.request_rap_creation()
+    assert job_count == 1
+
+    assert log_output.entries[0] == {
+        "event": test_response_json,
+        "log_level": "info",
+    }
+    job_request.refresh_from_db()
+    assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.PENDING
+
+
+@patch("jobserver.rap_api.create")
+def test_jobrequest_request_rap_creation_nothing_to_do(
+    mock_rap_api_create, build_job_request, log_output
+):
+    job_request = build_job_request(project_number=1)
+    test_response_json = {
+        "result": "Nothing to do",
+        "details": "Already done",
+        "count": 0,
+    }
+    mock_rap_api_create.return_value = test_response_json
+
+    job_request.request_rap_creation()
+
+    assert log_output.entries[0] == {
+        "event": test_response_json,
+        "log_level": "info",
+    }
+
+    job_request.refresh_from_db()
+    assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.NOTHING_TO_DO
+    assert job_request.status_message == "Already done"
+
+
+@patch("jobserver.rap_api.create")
+def test_jobrequest_request_rap_creation_failed_with_response(
+    mock_rap_api_create, build_job_request, log_output
+):
+    """Test that an error response from the RAP API is marked as failed"""
+    mock_rap_api_create.side_effect = RapAPIResponseError(
+        "something went wrong", body={"error": "error", "details": "err"}
+    )
+
+    job_request = build_job_request(project_number=1)
+
+    job_request.request_rap_creation()
+
+    assert "error" == log_output.entries[0]["log_level"]
+    assert "something went wrong" in str(log_output.entries[0]["event"])
+
+    job_request.refresh_from_db()
+    assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.FAILED
+    assert job_request.status_message == "err"
+
+
+@patch("jobserver.rap_api.create")
+def test_jobrequest_request_rap_creation_failed_to_request(
+    mock_rap_api_create, build_job_request, log_output
+):
+    """Test that a failure to get a response from the RAP API is marked as unknown"""
+    mock_rap_api_create.side_effect = RapAPIRequestError("something went wrong")
+
+    job_request = build_job_request(project_number=1)
+
+    job_request.request_rap_creation()
+
+    assert "error" == log_output.entries[0]["log_level"]
+    assert "something went wrong" in str(log_output.entries[0]["event"])
+
+    job_request.refresh_from_db()
+    assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.UNKNOWN
+    assert job_request.status_message is None
+
+
+@patch("jobserver.rap_api.create")
+def test_jobrequest_request_rap_creation_error(
+    mock_rap_api_create, build_job_request, log_output
+):
+    """Test that an unhandled error is marked as failed"""
+    mock_rap_api_create.side_effect = Exception("something went wrong")
+
+    job_request = build_job_request(project_number=1)
+
+    job_request.request_rap_creation()
+
+    assert "error" == log_output.entries[0]["log_level"]
+    assert "something went wrong" in str(log_output.entries[0]["event"])
+
+    job_request.refresh_from_db()
+    assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.FAILED
+    assert job_request.status_message == "Unknown error creating jobs"
 
 
 @pytest.fixture

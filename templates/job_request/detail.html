@@ -184,6 +184,37 @@
                   {% endif %}
                 </dl>
               </li>
+            {% empty %}
+              {% if job_request.is_completed and not job_request.jobs.exists %}
+                <li class="relative transition-colors group">
+                  <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+                    <div class="flex gap-x-2">
+                      <dt class="sr-only">Job request status:</dt>
+                      <dd class="
+                                 text-base font-semibold text-oxford-600 transition-colors truncate
+                                ">
+                        {{ job_request.human_readable_status }}
+                      </a>
+                    </dd>
+                    <dt class="sr-only">Status:</dt>
+                    <dd class="ml-auto shrink-0">
+                      {% if job_request.jobs_status == "failed" %}
+                        {% pill sr_only="Status:" variant="danger" text=job_request.human_readable_status %}
+                      {% elif job_request.jobs_status == "nothing_to_do" %}
+                        {% pill sr_only="Status:" variant="warning" text=job_request.human_readable_status %}
+                      {% endif %}
+                    </dd>
+                  </div>
+                  <dt class="sr-only">Job request status message:</dt>
+                  <dd class="inline-flex flex-row items-start mr-auto overflow-hidden max-w-full relative z-40">
+                    {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                    <code class="font-mono font-semibold text-sm text-slate-600 tracking-widest truncate">
+                      {{ job_request.status_message }}
+                    </code>
+                  </dd>
+                </dl>
+                </li>
+              {% endif %}
             {% endfor %}
           </ul>
         {% /card %}
@@ -262,9 +293,11 @@
                          bg-red-200 text-red-900
                        {% elif job_request.jobs_status == "succeeded" %}
                          bg-green-200 text-green-900
+                       {% elif job_request.jobs_status == "nothing_to_do" %}
+                         bg-bn-flamenco-200 text-bn-flamenco-900
                        {% endif %}
                       ">
-                {{ job_request.jobs_status|capfirst }}
+                {{ job_request.human_readable_status }}
               </span>
               {% if is_invalid %}
                 <pre class="break-words whitespace-pre-wrap">{{ job_request.jobs.first.status_message }}</pre>
