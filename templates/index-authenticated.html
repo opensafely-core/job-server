@@ -61,7 +61,7 @@
       {% #list_group %}
         {% for job_request in job_requests %}
           {% #list_group_item href=job_request.get_absolute_url %}
-            {{ job_request.workspace.name }} ({{ job_request.id }}): {{ job_request.status|title }}
+            {{ job_request.workspace.name }} ({{ job_request.id }}): {{ job_request.jobs_status|title }}
           {% /list_group_item %}
         {% empty %}
           {% list_group_empty icon=True title="No job requests" description="You have not created any jobs requests" %}
