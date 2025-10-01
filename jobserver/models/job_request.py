@@ -300,7 +300,7 @@ class JobRequest(models.Model):
     def request_rap_creation(self):
         """
         Request that the RAP API create jobs.
-        Update status appropariately depending on the response from the RAP API.
+        Update status appropriately depending on the response from the RAP API.
         """
         try:
             json_response = rap_api.create(self)

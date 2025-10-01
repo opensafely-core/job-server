@@ -711,7 +711,7 @@ def test_jobrequest_database_name_with_t1oo_permission(build_job_request):
 
 
 @patch("jobserver.rap_api.create")
-def test_jobrequeest_request_rap_creation(
+def test_jobrequest_request_rap_creation(
     mock_rap_api_create, build_job_request, log_output
 ):
     job_request = build_job_request(project_number=1)
@@ -733,7 +733,7 @@ def test_jobrequeest_request_rap_creation(
 
 
 @patch("jobserver.rap_api.create")
-def test_jobrequeest_request_rap_creation_nothing_to_do(
+def test_jobrequest_request_rap_creation_nothing_to_do(
     mock_rap_api_create, build_job_request, log_output
 ):
     job_request = build_job_request(project_number=1)
@@ -757,7 +757,7 @@ def test_jobrequeest_request_rap_creation_nothing_to_do(
 
 
 @patch("jobserver.rap_api.create")
-def test_jobrequeest_request_rap_creation_failed_with_response(
+def test_jobrequest_request_rap_creation_failed_with_response(
     mock_rap_api_create, build_job_request, log_output
 ):
     """Test that an error response from the RAP API is marked as failed"""
@@ -778,7 +778,7 @@ def test_jobrequeest_request_rap_creation_failed_with_response(
 
 
 @patch("jobserver.rap_api.create")
-def test_jobrequeest_request_rap_creation_failed_to_request(
+def test_jobrequest_request_rap_creation_failed_to_request(
     mock_rap_api_create, build_job_request, log_output
 ):
     """Test that a failure to get a response from the RAP API is marked as unknown"""
@@ -797,7 +797,7 @@ def test_jobrequeest_request_rap_creation_failed_to_request(
 
 
 @patch("jobserver.rap_api.create")
-def test_jobrequeest_request_rap_creation_error(
+def test_jobrequest_request_rap_creation_error(
     mock_rap_api_create, build_job_request, log_output
 ):
     """Test that an unhandled error is marked as failed"""
