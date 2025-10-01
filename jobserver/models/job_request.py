@@ -124,7 +124,7 @@ class JobRequest(models.Model):
     # completion of associated jobs.
     # Nb. this value can be stale, `.jobs_status` updates & returns this value, and
     # should therefore be used in preference to this where possible.
-    status = models.TextField(
+    _status = models.TextField(
         default=JobRequestStatus.UNKNOWN, choices=JobRequestStatus
     )
     status_message = models.TextField(null=True, blank=True)
@@ -333,8 +333,8 @@ class JobRequest(models.Model):
     def jobs_status(self) -> str:
         # status has already been set to a completed status, we can just
         # return it
-        if JobRequestStatus.is_completed(self.status):
-            return self.status
+        if JobRequestStatus.is_completed(self._status):
+            return self._status
 
         prefetched_jobs = (
             hasattr(self, "_prefetched_objects_cache")
@@ -349,8 +349,11 @@ class JobRequest(models.Model):
         # each time.
         statuses = [j.status.lower() for j in self.jobs.all()]
 
+        # no statuses == no jobs, so just return the initially set status
+        if not statuses:
+            job_request_status = JobRequestStatus(self._status)
         # when they're all the same, just use that
-        if len(set(statuses)) == 1:
+        elif len(set(statuses)) == 1:
             if not statuses[0]:
                 # If jobs have been created but have no status set, assume they're pending
                 status = JobRequestStatus.PENDING
@@ -392,8 +395,8 @@ class JobRequest(models.Model):
     def update_status(
         self, new_status: JobRequestStatus, message=None
     ) -> JobRequestStatus:
-        if self.status != new_status.value:
-            self.status = new_status
+        if self._status != new_status.value:
+            self._status = new_status
             self.status_message = message
             self.save()
         return new_status

@@ -119,5 +119,5 @@ class Command(BaseCommand):
         logger.info(
             "Job request created",
             rap_id=job_request.identifier,
-            status=job_request.status,
+            status=job_request.jobs_status,
         )
