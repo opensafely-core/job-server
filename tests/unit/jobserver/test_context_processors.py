@@ -137,6 +137,9 @@ class TestDbMaintenanceModeContextProcessor:
             },
         )
 
+        request = rf.get(request_url)
+        request.resolver_match = resolve(request.path_info)
+
         with (
             patch(
                 "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
@@ -146,8 +149,6 @@ class TestDbMaintenanceModeContextProcessor:
                 return_value={"tpp": True, "emis": False},
             ),
         ):
-            request = rf.get(request_url)
-            request.resolver_match = resolve(request.path_info)
             context = db_maintenance_mode(request)
 
         assert context["tpp_maintenance_banner"] is True
@@ -157,13 +158,14 @@ class TestDbMaintenanceModeContextProcessor:
     def test_attributes_not_added_for_non_banner_display_url(self, rf):
         """Returns empty dict for non-banner-display URLs."""
 
+        request = rf.get(reverse("job-list"))
+        request.resolver_match = resolve(request.path_info)
+
         with (
             patch(
                 "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
             ),
         ):
-            request = rf.get(reverse("job-list"))
-            request.resolver_match = resolve(request.path_info)
             context = db_maintenance_mode(request)
 
         assert context == {}
