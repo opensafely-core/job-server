@@ -15,9 +15,6 @@ class Command(BaseCommand):
         parser.add_argument("slug", default="local-dev", help="The id for backend")
         parser.add_argument("--name", default=None, help="The name will be set to this")
         parser.add_argument(
-            "--url", default=None, help="level_4_url will be set to this"
-        )
-        parser.add_argument(
             "--user", default=None, help="Username to add to the backend"
         )
         parser.add_argument(
@@ -30,10 +27,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         backend, created = Backend.objects.get_or_create(
             slug=options["slug"],
-            defaults={
-                "name": options["name"] or options["slug"],
-                "level_4_url": options["url"] or "",
-            },
+            defaults={"name": options["name"] or options["slug"]},
         )
         if created:
             if not options["quiet"]:  # pragma: nocover
@@ -41,8 +35,6 @@ class Command(BaseCommand):
         else:
             if options["name"]:
                 backend.name = options["name"]
-            if options["url"]:
-                backend.level_4_url = options["url"]
             backend.save()
             if not options["quiet"]:  # pragma: nocover
                 print(f"Updated backend {options['name']}")

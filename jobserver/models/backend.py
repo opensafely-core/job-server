@@ -65,9 +65,6 @@ class Backend(models.Model):
 
     auth_token = models.TextField(default=generate_token)
 
-    # track where release-hatch is serving files from
-    level_4_url = models.TextField(default="", blank=True, null=True)
-
     # how long until we consider a backend to be missing
     alert_timeout = models.DurationField(default=timedelta(minutes=5))
 
