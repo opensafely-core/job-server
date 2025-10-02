@@ -11,7 +11,6 @@ class BackendCreate(CreateView):
     fields = [
         "name",
         "slug",
-        "level_4_url",
         "is_active",
     ]
     model = Backend
@@ -30,7 +29,6 @@ class BackendDetail(DetailView):
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendEdit(UpdateView):
     fields = [
-        "level_4_url",
         "is_active",
     ]
     model = Backend

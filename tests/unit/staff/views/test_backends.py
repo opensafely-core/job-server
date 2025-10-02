@@ -46,7 +46,7 @@ def test_backendcreate_post_success(rf, staff_area_administrator):
 def test_backendedit_success(rf, staff_area_administrator):
     backend = BackendFactory()
 
-    request = rf.post("/", {"level_4_url": "http://testing"})
+    request = rf.post("/", {"is_active": "False"})
     request.user = staff_area_administrator
 
     response = BackendEdit.as_view()(request, pk=backend.pk)
@@ -55,7 +55,7 @@ def test_backendedit_success(rf, staff_area_administrator):
     assert response.url == backend.get_staff_url()
 
     backend.refresh_from_db()
-    assert backend.level_4_url == "http://testing"
+    assert backend.is_active is False
 
 
 def test_backenddetail_success(rf, staff_area_administrator):

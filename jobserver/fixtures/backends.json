@@ -7,7 +7,6 @@
       "name": "EMIS",
       "is_active": true,
       "auth_token": "e5cd170790ab147c39b5a69d5980a8bbd982bcce",
-      "level_4_url": "https://emis.backends.opensafely.org:8001",
       "created_at": "2022-03-02T15:58:24.281Z",
       "updated_at": "2022-03-02T15:58:24.281Z"
     }
@@ -20,7 +19,6 @@
       "name": "Expectations",
       "is_active": false,
       "auth_token": "a0d82071bddde9b86a66ab7bef2c065db736987f",
-      "level_4_url": "",
       "created_at": "2022-03-02T15:58:24.290Z",
       "updated_at": "2022-03-02T15:58:24.290Z"
     }
@@ -33,7 +31,6 @@
       "name": "TPP",
       "is_active": true,
       "auth_token": "f0e17b6b37d427a2f7ba304d187e95548ea12c83",
-      "level_4_url": "https://tpp.backends.opensafely.org",
       "created_at": "2022-03-02T15:58:24.292Z",
       "updated_at": "2022-03-02T15:58:24.292Z"
     }
@@ -46,7 +43,6 @@
       "name": "NHSD REF",
       "is_active": false,
       "auth_token": "ee7ff257d6efe63460ec1d1917897c78643c8558",
-      "level_4_url": "",
       "created_at": "2022-03-02T15:58:24.297Z",
       "updated_at": "2022-03-02T15:58:24.297Z"
     }
@@ -59,7 +55,6 @@
       "name": "Test",
       "is_active": false,
       "auth_token": "51628dc9d2337a72587abde653792562a66386bb",
-      "level_4_url": "https://test.opensafely.org",
       "created_at": "2022-03-02T15:58:24.296Z",
       "updated_at": "2022-03-02T15:58:24.296Z"
     }
@@ -72,7 +67,6 @@
       "name": "Graphnet",
       "is_active": false,
       "auth_token": "bbdb1047bb0364b58255e3f1fce72ceae76eb9a4",
-      "level_4_url": "",
       "created_at": "2022-03-02T15:58:24.294Z",
       "updated_at": "2022-03-02T15:58:24.294Z"
     }
@@ -85,7 +79,6 @@
       "name": "NHSD",
       "is_active": false,
       "auth_token": "da2d46570dba4e0c7ea4934691b1cbfc6ad71b2a",
-      "level_4_url": "",
       "created_at": "2022-03-02T15:58:24.299Z",
       "updated_at": "2022-03-02T15:58:24.299Z"
     }
@@ -98,7 +91,6 @@
       "name": "NHSD DEV",
       "is_active": false,
       "auth_token": "2fab22b93e9aef5dd89a0acc0dcd512fe2a8a3b5",
-      "level_4_url": "",
       "created_at": "2022-03-02T15:58:24.301Z",
       "updated_at": "2022-03-02T15:58:24.301Z"
     }

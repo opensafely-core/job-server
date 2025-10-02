@@ -203,7 +203,8 @@ class WorkspaceDetail(View):
 
         honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)
 
-        outputs = self.get_output_permissions(request.user, workspace)
+        # outputs = self.get_output_permissions(request.user, workspace)
+        outputs = self.get_output_permissions(workspace)
 
         context = {
             "first_job": first_job,
@@ -226,24 +227,25 @@ class WorkspaceDetail(View):
             context=context,
         )
 
-    def get_output_permissions(self, user, workspace):
+    # def get_output_permissions(self, user, workspace):
+    def get_output_permissions(self, workspace):
         # a user can see backend files if they have access to at least one
         # backend and the permissions required to see outputs
-        is_privileged_user = has_permission(
-            user, permissions.release_file_view, project=workspace.project
-        )
-        has_backends = (
-            user.is_authenticated and user.backends.exclude(level_4_url="").exists()
-        )
-        can_view_files = is_privileged_user and has_backends
+        # is_privileged_user = has_permission(
+        #    user, permissions.release_file_view, project=workspace.project
+        # )
+        # has_backends = (
+        #    user.is_authenticated and user.backends.exclude(level_4_url="").exists()
+        # )
+        # can_view_files = is_privileged_user and has_backends
 
         # are there any releases to show for the workspace?
         can_view_releases = workspace.releases.exists()
 
         return {
-            "level_4": {
-                "disabled": not can_view_files,
-            },
+            # "level_4": {
+            #    "disabled": not can_view_files,
+            # },
             "released": {
                 "disabled": not can_view_releases,
             },

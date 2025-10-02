@@ -379,7 +379,7 @@ def test_workspacedetail_authorized_toggle_notifications(rf, role_factory):
 
 
 def test_workspacedetail_authorized_view_outputs(rf, role_factory):
-    backend = BackendFactory(level_4_url="http://test/")
+    backend = BackendFactory()
     user = UserFactory(roles=[role_factory(permission=permissions.release_file_view)])
     workspace = WorkspaceFactory()
     ReleaseFactory(workspace=workspace)
@@ -404,7 +404,7 @@ def test_workspacedetail_authorized_view_outputs(rf, role_factory):
 
     assert response.status_code == 200
 
-    assert not response.context_data["outputs"]["level_4"]["disabled"]
+    # assert not response.context_data["outputs"]["level_4"]["disabled"]
     assert not response.context_data["outputs"]["released"]["disabled"]
 
 
@@ -503,7 +503,7 @@ def test_workspacedetail_logged_out(rf):
 
     # this is false because while the user can view outputs, but they have no
     # Backends with a level 4 URL set up.
-    assert response.context_data["outputs"]["level_4"]["disabled"]
+    # assert response.context_data["outputs"]["level_4"]["disabled"]
 
     assert not response.context_data["user_can_run_jobs"]
     assert response.context_data["outputs"]["released"]["disabled"]
@@ -525,7 +525,7 @@ def test_workspacedetail_unauthorized(rf):
 
     # this is false because while the user can view outputs, but they have no
     # Backends with a level 4 URL set up.
-    assert response.context_data["outputs"]["level_4"]["disabled"]
+    # assert response.context_data["outputs"]["level_4"]["disabled"]
 
     assert not response.context_data["user_can_run_jobs"]
     assert response.context_data["outputs"]["released"]["disabled"]
