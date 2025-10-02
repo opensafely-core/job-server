@@ -3,6 +3,7 @@ import os
 from datetime import timedelta
 
 import structlog
+from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -14,6 +15,44 @@ logger = structlog.get_logger(__name__)
 def generate_token():
     """Generate a random token string."""
     return binascii.hexlify(os.urandom(20)).decode()
+
+
+class BackendManager(models.Manager):
+    def get_db_maintenance_mode_statuses(self, cache_duration=60):
+        """
+        Return a mapping of backend slugs to a boolean indicating
+        whether each is in database maintenance mode.
+
+        Only the "tpp" and "emis" backends are checked.
+
+        Results are cached (default 60s) to align with the RAP API cron
+        schedule defined in app.json, reducing database queries.
+        """
+
+        cache_key = f"{__name__}.backend_maintenance_statuses"
+        statuses = cache.get(cache_key)
+
+        if statuses is None:
+            statuses = {}
+            allowed_backends = ["tpp", "emis"]
+
+            backend_statuses = (
+                self.get_queryset()
+                .filter(slug__in=allowed_backends)
+                .values("slug", "jobrunner_state")
+            )
+
+            statuses = {
+                backend["slug"]: (backend["jobrunner_state"] or {})
+                .get("mode", {})
+                .get("v")
+                == "db-maintenance"
+                for backend in backend_statuses
+            }
+
+            cache.set(cache_key, statuses, cache_duration)
+
+        return statuses
 
 
 class Backend(models.Model):
@@ -45,6 +84,8 @@ class Backend(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = BackendManager()
 
     def __str__(self):
         return self.slug

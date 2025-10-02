@@ -6,11 +6,19 @@ from django.urls import reverse
 from furl import furl
 
 from .authorization import StaffAreaAdministrator, has_role
-from .models import SiteAlert
+from .models import Backend, SiteAlert
 from .nav import NavItem, iter_nav
 
 
 logger = structlog.get_logger(__name__)
+
+BANNER_DISPLAY_URL_NAMES = {
+    "job-detail",
+    "job-request-create",
+    "job-request-detail",
+    "status",
+    "workspace-logs",
+}
 
 
 def in_production(request):
@@ -70,3 +78,19 @@ def login_url(request):
     f.args.update({"next": request.path})
 
     return {"login_url": f.url}
+
+
+def db_maintenance_mode(request):
+    """Add database maintenance banner flags to context for specific
+    views."""
+
+    if (
+        request.resolver_match
+        and request.resolver_match.url_name in BANNER_DISPLAY_URL_NAMES
+    ):
+        maintenance_statuses = Backend.objects.get_db_maintenance_mode_statuses()
+        return {
+            f"{backend}_maintenance_banner": status
+            for backend, status in maintenance_statuses.items()
+        }
+    return {}
