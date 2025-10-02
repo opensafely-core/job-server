@@ -58,7 +58,7 @@ _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/articl
 - **Pip**
 - **Node.js v20.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
-- **Postgres**
+- **Postgres 16**
 
 #### `just` commands
 
