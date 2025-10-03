@@ -302,41 +302,48 @@ class JobRequest(models.Model):
         Request that the RAP API create jobs.
         Update status appropriately depending on the response from the RAP API.
         """
-        try:
-            json_response = rap_api.create(self)
-            logger.info(json_response)
-
-            if json_response["count"] > 0:
-                # New jobs have been created, status is Pending
-                self.update_status(JobRequestStatus.PENDING)
-            else:
-                # Nothing to do, update status and record response details as status message
-                self.update_status(
-                    JobRequestStatus.NOTHING_TO_DO, json_response["details"]
-                )
-            return json_response["count"]
-        except rap_api.RapAPIResponseError as exc:
-            logger.error(exc)
-            # Failed in creating jobs. Set status to Failed, record exc body as status message
-            self.update_status(JobRequestStatus.FAILED, exc.body["details"])
-        except rap_api.RapAPIRequestError as exc:
-            # Encountered some unhandled error whilst contacting the RAP API to creating jobs.
-            # This is most likely due to some disconnect between job-server and controller, and jobs
-            # could have been created on the controller. We mark job requests status as unknown, and
-            # allow the code that polls the controller for job status to request updates for it again.
-            logger.error(exc)
-            self.update_status(JobRequestStatus.UNKNOWN)
-        except Exception as exc:
-            # Any other exception just fails the whole job request. We show an unknown error to avoid
-            # leaking the content of the exception to the user.
-            logger.error(exc)
-            self.update_status(JobRequestStatus.FAILED, "Unknown error creating jobs")
-
-        logger.info(
-            "Job request created",
+        with structlog.contextvars.bound_contextvars(
+            function=self.request_rap_creation.__name__,
             rap_id=self.identifier,
-            status=self.jobs_status,
-        )
+        ):
+            logger.info("Calling RAP API to create RAP")
+
+            try:
+                json_response = rap_api.create(self)
+                logger.info("Response from RAP API", response=json_response)
+
+                if json_response["count"] > 0:
+                    # New jobs have been created, status is Pending
+                    self.update_status(JobRequestStatus.PENDING)
+                else:
+                    # Nothing to do, update status and record response details as status message
+                    self.update_status(
+                        JobRequestStatus.NOTHING_TO_DO, json_response["details"]
+                    )
+                return json_response["count"]
+            except rap_api.RapAPIResponseError as exc:
+                logger.error(exc)
+                # Failed in creating jobs. Set status to Failed, record exc body as status message
+                self.update_status(JobRequestStatus.FAILED, exc.body["details"])
+            except rap_api.RapAPIRequestError as exc:
+                # Encountered some unhandled error whilst contacting the RAP API to creating jobs.
+                # This is most likely due to some disconnect between job-server and controller, and jobs
+                # could have been created on the controller. We mark job requests status as unknown, and
+                # allow the code that polls the controller for job status to request updates for it again.
+                logger.error(exc)
+                self.update_status(JobRequestStatus.UNKNOWN)
+            except Exception as exc:
+                # Any other exception just fails the whole job request. We show an unknown error to avoid
+                # leaking the content of the exception to the user.
+                logger.error(exc)
+                self.update_status(
+                    JobRequestStatus.FAILED, "Unknown error creating jobs"
+                )
+
+            logger.info(
+                "Job request created",
+                status=self.jobs_status,
+            )
 
     @property
     def runtime(self):
