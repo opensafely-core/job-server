@@ -53,11 +53,16 @@ class Command(BaseCommand):
 
                 backend_object.rap_api_state = backend_states
 
+                backend_maintenance_mode = backend_states["db_maintenance"]["status"]
+
+                backend_object.is_in_maintenance_mode = backend_maintenance_mode == "on"
+
                 backend_object.save(
                     update_fields=[
                         "rap_api_state",
                         "last_seen_at",
                         "last_seen_maintenance_mode",
+                        "is_in_maintenance_mode",
                     ]
                 )
             logger.info(backend_status_response)

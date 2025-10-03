@@ -80,7 +80,13 @@ class Backend(models.Model):
 
     last_seen_at = models.DateTimeField(null=True)
 
+    # date and time maintenance mode was last updated (i.e. when it was last turned on or off)
     last_seen_maintenance_mode = models.DateTimeField(null=True)
+
+    is_in_maintenance_mode = models.BooleanField(
+        default=False,
+        help_text="Is this backend currently in database maintenance mode?",
+    )
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

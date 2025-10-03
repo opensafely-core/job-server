@@ -215,5 +215,6 @@ def test_update_backend_state_multiple_backends(monkeypatch):
     assert backend2.last_seen_maintenance_mode == datetime.fromisoformat(
         "2025-08-12T14:33:57.413881Z"
     )
+    assert backend2.is_in_maintenance_mode
     assert backend2.stats.count() == 1
     assert backend2.stats.first().url == "http://example.com/rap/"
