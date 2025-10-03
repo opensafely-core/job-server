@@ -39,14 +39,11 @@ class BackendManager(models.Manager):
             backend_statuses = (
                 self.get_queryset()
                 .filter(slug__in=allowed_backends)
-                .values("slug", "jobrunner_state")
+                .values("slug", "is_in_maintenance_mode")
             )
 
             statuses = {
-                backend["slug"]: (backend["jobrunner_state"] or {})
-                .get("mode", {})
-                .get("v")
-                == "db-maintenance"
+                backend["slug"]: backend["is_in_maintenance_mode"]
                 for backend in backend_statuses
             }
 

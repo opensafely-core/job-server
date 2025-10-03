@@ -14,8 +14,8 @@ class TestDbMaintenanceModeContextProcessor:
 
     @pytest.mark.usefixtures("clear_cache", "enable_db_maintenance_context_processor")
     def test_banner_in_rendered_template_for_db_in_maintenance(self, client):
-        BackendFactory(slug="tpp", jobrunner_state={"mode": {"v": "db-maintenance"}})
-        BackendFactory(slug="emis", jobrunner_state={"paused": {"v": ""}})
+        BackendFactory(slug="tpp", is_in_maintenance_mode=True)
+        BackendFactory(slug="emis", is_in_maintenance_mode=False)
 
         request_url = reverse(
             "job-detail",
@@ -34,8 +34,8 @@ class TestDbMaintenanceModeContextProcessor:
 
     @pytest.mark.usefixtures("clear_cache", "enable_db_maintenance_context_processor")
     def test_banner_not_in_rendered_template_for_db_not_in_maintenance(self, client):
-        BackendFactory(slug="tpp", jobrunner_state={"mode": {"v": ""}})
-        BackendFactory(slug="emis", jobrunner_state={"paused": {"v": ""}})
+        BackendFactory(slug="tpp", is_in_maintenance_mode=False)
+        BackendFactory(slug="emis", is_in_maintenance_mode=False)
 
         request_url = reverse(
             "job-detail",
