@@ -73,12 +73,16 @@ def staff_area_administrator():
 
 @pytest.fixture(name="log_output")
 def fixture_log_output():
-    return LogCapture()
+    yield LogCapture()
+    # Clear any local context so tests don't pollute each other
+    structlog.contextvars.clear_contextvars()
 
 
 @pytest.fixture(autouse=True)
 def fixture_configure_structlog(log_output):
-    structlog.configure(processors=[log_output])
+    structlog.configure(
+        processors=[structlog.contextvars.merge_contextvars, log_output]
+    )
 
 
 @pytest.fixture(autouse=True)
