@@ -6,6 +6,13 @@ import sys
 
 
 def main():
+    # Disable Sentry when running the shell. This is mainly used by devs to
+    # interrogate the database and typing code manually is error-prone.
+    # Unhandled exceptions caused by this activity are unlikely to be
+    # interesting, so let us not raise Sentry issues in this case.
+    if len(sys.argv) > 1 and sys.argv[1] == "shell":
+        os.environ.pop("SENTRY_DSN", None)
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jobserver.settings")
     try:
         from django.core.management import execute_from_command_line
