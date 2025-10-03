@@ -1,5 +1,4 @@
 import functools
-import time
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -18,9 +17,9 @@ dt = functools.partial(datetime, tzinfo=UTC)
 def test_dbavailability_in_db_maintenance(rf):
     backend = BackendFactory(
         slug="tpp",
-        jobrunner_state={"mode": {"v": "db-maintenance", "ts": time.time()}},
+        last_seen_maintenance_mode=timezone.now(),
+        is_in_maintenance_mode=True,
     )
-
     request = rf.get("/")
 
     response = DBAvailability.as_view()(request, backend=backend.slug)
