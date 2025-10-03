@@ -549,73 +549,7 @@ def test_jobrequestcreate_get_with_out_of_date_codelist(
     assert messages[0].tags == "codelist_out_of_date"
 
 
-@pytest.mark.parametrize("ref", [None, "abc"])
 def test_jobrequestcreate_post_success(
-    ref,
-    rf,
-    mocker,
-    monkeypatch,
-    user,
-    mock_codelists_ok,
-    project_membership,
-    role_factory,
-):
-    backend = BackendFactory()
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(backend=backend, user=user)
-    project_membership(
-        project=workspace.project,
-        user=user,
-        roles=[role_factory(permission=permissions.job_run)],
-    )
-
-    dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
-    actions:
-      twiddle:
-        run: test:latest
-        outputs:
-          moderately_sensitive:
-            cohort: path/to/output.csv
-    """
-    mocker.patch(
-        "jobserver.views.job_requests.get_project",
-        autospec=True,
-        return_value=dummy_yaml,
-    )
-
-    data = {
-        "backend": backend.slug,
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-    }
-    request = rf.post("/", data)
-    request.user = user
-
-    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-        ref=ref,
-    )
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == workspace.get_logs_url()
-
-    job_request = JobRequest.objects.first()
-    assert job_request.created_by == user
-    assert job_request.workspace == workspace
-    assert job_request.backend.slug == backend.slug
-    assert job_request.requested_actions == ["twiddle"]
-    assert job_request.sha == ref or "abc123"
-    assert job_request.codelists_ok
-    assert not job_request.jobs.exists()
-
-
-def test_jobrequestcreate_post_success_test_backend(
     rf,
     mocker,
     user,
@@ -623,11 +557,7 @@ def test_jobrequestcreate_post_success_test_backend(
     project_membership,
     role_factory,
 ):
-    # Special case for the RAP API v2 initiative. Currently the RAP API is only
-    # used for the test backend.
     backend = BackendFactory()
-    backend.slug = "test"
-    backend.save()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
@@ -696,7 +626,7 @@ def test_jobrequestcreate_post_success_test_backend(
     assert messages[0].message == "Requested actions have been scheduled to run."
 
 
-def test_jobrequestcreate_post_success_nothing_to_do_test_backend(
+def test_jobrequestcreate_post_success_nothing_to_do(
     rf,
     mocker,
     user,
@@ -704,11 +634,7 @@ def test_jobrequestcreate_post_success_nothing_to_do_test_backend(
     project_membership,
     role_factory,
 ):
-    # Special case for the RAP API v2 initiative. Currently the RAP API is only
-    # used for the test backend.
     backend = BackendFactory()
-    backend.slug = "test"
-    backend.save()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
@@ -780,7 +706,7 @@ def test_jobrequestcreate_post_success_nothing_to_do_test_backend(
     )
 
 
-def test_jobrequestcreate_post_rapapierror_test_backend(
+def test_jobrequestcreate_post_rapapierror(
     rf,
     mocker,
     user,
@@ -788,11 +714,7 @@ def test_jobrequestcreate_post_rapapierror_test_backend(
     project_membership,
     role_factory,
 ):
-    # Special case for the RAP API v2 initiative. Currently the RAP API is only
-    # used for the test backend.
     backend = BackendFactory()
-    backend.slug = "test"
-    backend.save()
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
@@ -945,6 +867,8 @@ def test_jobrequestcreate_post_with_notifications_default(
     }
     request = rf.post("/", data)
     request.user = user
+    request.session = "session"
+    request._messages = FallbackStorage(request)
 
     response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
@@ -1002,6 +926,8 @@ def test_jobrequestcreate_post_with_notifications_override(
     }
     request = rf.post("/", data)
     request.user = user
+    request.session = "session"
+    request._messages = FallbackStorage(request)
 
     response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
