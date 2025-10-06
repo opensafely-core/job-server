@@ -111,13 +111,9 @@ class TestDbMaintenanceModeContextProcessor:
     """Tests of the db_maintenance_mode context processor."""
 
     def setup_method(self):
-        self.tpp = BackendFactory(
-            slug="tpp", jobrunner_state={"mode": {"v": "db-maintenance"}}
-        )
-        self.emis = BackendFactory(slug="emis", jobrunner_state={"paused": {"v": ""}})
-        self.other = BackendFactory(
-            slug="other", jobrunner_state={"mode": {"v": "db-maintenance"}}
-        )
+        self.tpp = BackendFactory(slug="tpp", is_in_maintenance_mode=True)
+        self.emis = BackendFactory(slug="emis", is_in_maintenance_mode=False)
+        self.other = BackendFactory(slug="other", is_in_maintenance_mode=True)
 
     @pytest.mark.usefixtures("clear_cache", "enable_db_maintenance_context_processor")
     def test_expected_attribute_values_for_banner_display_url(self, rf):
