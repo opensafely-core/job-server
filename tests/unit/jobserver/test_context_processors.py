@@ -47,7 +47,6 @@ def test_can_view_staff_area_without_staff_area_administrator(rf):
     assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
 
-@pytest.mark.xfail(strict=True, reason="pending fix")
 def test_can_view_staff_area_with_no_user(rf):
     """Test that requests without users don't have access."""
     request = rf.get("/")
@@ -114,7 +113,6 @@ class TestSiteAlertContextProcessor:
         assert "site_alerts" in context
         assert context["site_alerts"] is None
 
-    @pytest.mark.xfail(strict=True, reason="pending fix")
     def test_no_user(self, rf, site_alert):
         """Test that requests without users don't get site_alerts in the context."""
         request = rf.get("/")
