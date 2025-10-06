@@ -37,12 +37,14 @@ class TestCanViewStaffArea:
     def test_can_view_staff_area_with_staff_area_administrator(
         self, rf, staff_area_administrator
     ):
+        """Test that Staff Area Admins get access."""
         request = rf.get("/")
         request.user = staff_area_administrator
 
         assert can_view_staff_area(request)["user_can_view_staff_area"]
 
     def test_can_view_staff_area_without_staff_area_administrator(self, rf):
+        """Test that non-Staff Area Admins do not get access."""
         request = rf.get("/")
         request.user = UserFactory()
 
@@ -57,6 +59,7 @@ class TestCanViewStaffArea:
     def test_can_view_staff_area_makes_no_db_queries(
         self, rf, staff_area_administrator, django_assert_num_queries
     ):
+        """Test that the function does not hit the database."""
         request = rf.get("/")
         request.user = staff_area_administrator
 
