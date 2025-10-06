@@ -29,10 +29,6 @@ def in_production(request):
     return {"in_production": not settings.DEBUG}
 
 
-def _is_active(request, prefix):
-    return request.path.startswith(prefix)
-
-
 def can_view_staff_area(request):
     user = getattr(request, "user", None) or AnonymousUser()
     return {"user_can_view_staff_area": has_role(user, StaffAreaAdministrator)}
@@ -53,6 +49,10 @@ def site_alerts(request):
     return {
         "site_alerts": SiteAlert.objects.all() if user.is_authenticated else None,
     }
+
+
+def _is_active(request, prefix):
+    return request.path.startswith(prefix)
 
 
 def nav(request):
