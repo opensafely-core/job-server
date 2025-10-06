@@ -724,9 +724,12 @@ def test_jobrequest_request_rap_creation(
     job_count = job_request.request_rap_creation()
     assert job_count == 1
 
+    log_output.entries[0].pop("timestamp")
     assert log_output.entries[0] == {
         "event": test_response_json,
         "log_level": "info",
+        "level": "info",
+        "logger": "jobserver.models.job_request",
     }
     job_request.refresh_from_db()
     assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.PENDING
@@ -746,10 +749,8 @@ def test_jobrequest_request_rap_creation_nothing_to_do(
 
     job_request.request_rap_creation()
 
-    assert log_output.entries[0] == {
-        "event": test_response_json,
-        "log_level": "info",
-    }
+    assert log_output.entries[0]["event"] == test_response_json
+    assert log_output.entries[0]["log_level"] == "info"
 
     job_request.refresh_from_db()
     assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.NOTHING_TO_DO

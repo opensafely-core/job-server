@@ -14,9 +14,12 @@ def test_command(monkeypatch, log_output):
 
     call_command("cancel_jobs", *_FAKE_ARGS)
 
+    log_output.entries[0].pop("timestamp")
     assert log_output.entries[0] == {
         "event": test_response_json,
         "log_level": "info",
+        "level": "info",
+        "logger": "jobserver.management.commands.cancel_jobs",
     }
 
 

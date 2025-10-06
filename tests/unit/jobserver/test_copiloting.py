@@ -45,10 +45,13 @@ def test_notify_impending_copilot_windows_closing_no_projects(
 
     # check we logged the lack of projects
     assert len(log_output.entries) == 1, log_output.entries
+    log_output.entries[0].pop("timestamp")
     assert log_output.entries[0] == {
         "event": "No projects with copilot support windows closing within 5 days",
+        "level": "info",
         "log_level": "info",
-    }
+        "logger": "jobserver.copiloting",
+    }, log_output.entries[0]
 
 
 def test_notify_impending_copilot_windows_closing_one_project(slack_messages):
