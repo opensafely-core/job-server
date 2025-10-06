@@ -31,65 +31,66 @@ class TestInProduction:
         assert in_production(request)["in_production"] is False
 
 
-def test_can_view_staff_area_with_staff_area_administrator(
-    rf, staff_area_administrator
-):
-    request = rf.get("/")
-    request.user = staff_area_administrator
+class TestCanViewStaffArea:
+    """Tests of the can_view_staff_area context processor."""
 
-    assert can_view_staff_area(request)["user_can_view_staff_area"]
+    def test_can_view_staff_area_with_staff_area_administrator(
+        self, rf, staff_area_administrator
+    ):
+        request = rf.get("/")
+        request.user = staff_area_administrator
 
-
-def test_can_view_staff_area_without_staff_area_administrator(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    assert not can_view_staff_area(request)["user_can_view_staff_area"]
-
-
-def test_can_view_staff_area_with_no_user(rf):
-    """Test that requests without users don't have access."""
-    request = rf.get("/")
-
-    assert not can_view_staff_area(request)["user_can_view_staff_area"]
-
-
-def test_can_view_staff_area_makes_no_db_queries(
-    rf, staff_area_administrator, django_assert_num_queries
-):
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    with django_assert_num_queries(0):
         assert can_view_staff_area(request)["user_can_view_staff_area"]
 
+    def test_can_view_staff_area_without_staff_area_administrator(self, rf):
+        request = rf.get("/")
+        request.user = UserFactory()
 
-def test_nav_jobs(rf):
-    request = rf.get(reverse("job-list"))
-    request.user = UserFactory()
+        assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
-    jobs, status = nav(request)["nav"]
+    def test_can_view_staff_area_with_no_user(self, rf):
+        """Test that requests without users don't have access."""
+        request = rf.get("/")
 
-    assert jobs["is_active"] is True
-    assert status["is_active"] is False
+        assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
+    def test_can_view_staff_area_makes_no_db_queries(
+        self, rf, staff_area_administrator, django_assert_num_queries
+    ):
+        request = rf.get("/")
+        request.user = staff_area_administrator
 
-def test_nav_status(rf):
-    request = rf.get(reverse("status"))
-    request.user = UserFactory()
-
-    jobs, status = nav(request)["nav"]
-
-    assert jobs["is_active"] is False
-    assert status["is_active"] is True
+        with django_assert_num_queries(0):
+            assert can_view_staff_area(request)["user_can_view_staff_area"]
 
 
-def test_nav_makes_no_db_queries(rf, django_assert_num_queries):
-    request = rf.get(reverse("status"))
-    request.user = UserFactory()
+class TestNav:
+    """Tests of the nav context processor."""
 
-    with django_assert_num_queries(0):
-        assert nav(request)
+    def test_nav_jobs(self, rf):
+        request = rf.get(reverse("job-list"))
+        request.user = UserFactory()
+
+        jobs, status = nav(request)["nav"]
+
+        assert jobs["is_active"] is True
+        assert status["is_active"] is False
+
+    def test_nav_status(self, rf):
+        request = rf.get(reverse("status"))
+        request.user = UserFactory()
+
+        jobs, status = nav(request)["nav"]
+
+        assert jobs["is_active"] is False
+        assert status["is_active"] is True
+
+    def test_nav_makes_no_db_queries(self, rf, django_assert_num_queries):
+        request = rf.get(reverse("status"))
+        request.user = UserFactory()
+
+        with django_assert_num_queries(0):
+            assert nav(request)
 
 
 class TestSiteAlertContextProcessor:
