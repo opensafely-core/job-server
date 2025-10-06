@@ -34,29 +34,27 @@ class TestInProduction:
 class TestCanViewStaffArea:
     """Tests of the can_view_staff_area context processor."""
 
-    def test_can_view_staff_area_with_staff_area_administrator(
-        self, rf, staff_area_administrator
-    ):
+    def test_with_staff_area_administrator(self, rf, staff_area_administrator):
         """Test that Staff Area Admins get access."""
         request = rf.get("/")
         request.user = staff_area_administrator
 
         assert can_view_staff_area(request)["user_can_view_staff_area"]
 
-    def test_can_view_staff_area_without_staff_area_administrator(self, rf):
+    def test_without_staff_area_administrator(self, rf):
         """Test that non-Staff Area Admins do not get access."""
         request = rf.get("/")
         request.user = UserFactory()
 
         assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
-    def test_can_view_staff_area_with_no_user(self, rf):
+    def test_with_no_user(self, rf):
         """Test that requests without users don't have access."""
         request = rf.get("/")
 
         assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
-    def test_can_view_staff_area_makes_no_db_queries(
+    def test_makes_no_db_queries(
         self, rf, staff_area_administrator, django_assert_num_queries
     ):
         """Test that the function does not hit the database."""
@@ -70,7 +68,7 @@ class TestCanViewStaffArea:
 class TestNav:
     """Tests of the nav context processor."""
 
-    def test_nav_jobs(self, rf):
+    def test_jobs(self, rf):
         request = rf.get(reverse("job-list"))
         request.user = UserFactory()
 
@@ -79,7 +77,7 @@ class TestNav:
         assert jobs["is_active"] is True
         assert status["is_active"] is False
 
-    def test_nav_status(self, rf):
+    def test_status(self, rf):
         request = rf.get(reverse("status"))
         request.user = UserFactory()
 
@@ -88,7 +86,7 @@ class TestNav:
         assert jobs["is_active"] is False
         assert status["is_active"] is True
 
-    def test_nav_makes_no_db_queries(self, rf, django_assert_num_queries):
+    def test_makes_no_db_queries(self, rf, django_assert_num_queries):
         request = rf.get(reverse("status"))
         request.user = UserFactory()
 
