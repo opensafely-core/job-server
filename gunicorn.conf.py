@@ -1,12 +1,7 @@
 import os
 
-from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-
 from services.logging import logging_config_dict
+from services.tracing import setup_default_tracing
 
 
 # Where to log to (stdout and stderr)
@@ -31,18 +26,5 @@ timeout = 40
 def post_fork(server, worker):
     # opentelemetry initialisation needs these env vars to be set, so ensure they are
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jobserver.settings")
-    os.environ.setdefault("PYTHONPATH", "")
-
     server.log.info("Worker spawned (pid: %s)", worker.pid)
-
-    resource = Resource.create(attributes={"service.name": "job-server"})
-
-    trace.set_tracer_provider(TracerProvider(resource=resource))
-
-    if "OTEL_EXPORTER_OTLP_ENDPOINT" in os.environ:
-        span_processor = BatchSpanProcessor(OTLPSpanExporter())
-        trace.get_tracer_provider().add_span_processor(span_processor)
-
-    from opentelemetry.instrumentation.auto_instrumentation import (  # noqa: F401
-        sitecustomize,
-    )
+    setup_default_tracing()
