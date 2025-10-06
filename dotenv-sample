@@ -27,6 +27,11 @@ RAP_API_TOKEN=rap_token
 # Token for frontend Sentry error tracking DSN
 VITE_SENTRY_DSN=
 
+# Opentelemetry
+# Set to True to log opentelemetry traces to the console in local env
+# Warning can be verbose:
+OTEL_EXPORTER_CONSOLE=False
+
 # To send to honecomb in dev, create a token for the development and set it here.
 # OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=TOKEN34"
 
