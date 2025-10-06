@@ -26,6 +26,7 @@ from applications.form_specs import form_specs
 from jobserver.authorization.roles import StaffAreaAdministrator
 from jobserver.commands import project_members
 from jobserver.models import SiteAlert
+from services.logging import base_processors
 
 from .factories import (
     BackendFactory,
@@ -80,9 +81,7 @@ def fixture_log_output():
 
 @pytest.fixture(autouse=True)
 def fixture_configure_structlog(log_output):
-    structlog.configure(
-        processors=[structlog.contextvars.merge_contextvars, log_output]
-    )
+    structlog.configure(processors=[*base_processors, log_output])
 
 
 @pytest.fixture(autouse=True)

@@ -24,12 +24,14 @@ def test_post_error(mocker, log_output):
 
     # check we logged the slack failure
     assert len(log_output.entries) == 1, log_output.entries
+    log_output.entries[0].pop("timestamp")
     assert log_output.entries[0] == {
         "channel": "channel",
-        "exc_info": True,
         "event": "Failed to notify slack in channel: channel",
         "log_level": "error",
-    }
+        "level": "error",
+        "logger": "services.slack",
+    }, log_output.entries[0]
 
 
 def test_link():

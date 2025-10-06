@@ -55,9 +55,12 @@ def test_command(log_output, patch_backend_status_api_call):
 
     backend.refresh_from_db()
 
+    log_output.entries[0].pop("timestamp")
     assert log_output.entries[0] == {
         "event": test_response_body,
         "log_level": "info",
+        "level": "info",
+        "logger": "jobserver.management.commands.check_rap_api_status",
     }
 
 
@@ -70,10 +73,8 @@ def test_backend_name_case_insensitive(log_output, patch_backend_status_api_call
 
     backend.refresh_from_db()
 
-    assert log_output.entries[0] == {
-        "event": test_response_body,
-        "log_level": "info",
-    }
+    assert log_output.entries[0]["event"] == test_response_body
+    assert log_output.entries[0]["log_level"] == "info"
 
 
 def test_command_error(monkeypatch, log_output):
