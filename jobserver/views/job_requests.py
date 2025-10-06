@@ -11,6 +11,7 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
+from opentelemetry import trace
 from pipeline import load_pipeline
 
 from jobserver.rap_api import RapAPIError
@@ -35,6 +36,9 @@ from ..pipeline_config import (
     get_project,
     render_definition,
 )
+
+
+tracer = trace.get_tracer_provider().get_tracer("job_requests")
 
 
 class JobRequestCancel(View):
@@ -214,23 +218,39 @@ class JobRequestCreate(CreateView):
             **form.cleaned_data,
         )
 
-        # Invoke the RAP API and handle RapAPIErrors.
-        job_count = job_request.request_rap_creation()
-        if job_count is not None and job_count > 0:
-            # Report success. Note we don't display a count of jobs created, even though we have that
-            # from the RAP API response, because the jobs have not been created on job server yet, so
-            # won't be immediately displayed in the UI
-            messages.success(self.request, self.success_message())
-        else:
-            # No jobs were created by the RAP controller, either an error, or there was nothing to
-            # do; we just report the job request status, and status message (if there is one)
-            extra = (
-                f" ({job_request.status_message})" if job_request.status_message else ""
-            )
-            messages.info(
-                self.request,
-                f"No actions scheduled: {job_request.human_readable_status}{extra}",
-            )
+        # Add tracing attributes to the parent span
+        tracing_attributes = dict(
+            rap_id=job_request.identifier,
+            requested_actions=job_request.requested_actions,
+        )
+        trace.get_current_span().set_attributes(tracing_attributes)
+        # Trace the RAP API call
+        with tracer.start_as_current_span(
+            "create_rap",
+            attributes=dict(
+                rap_id=job_request.identifier,
+                requested_actions=job_request.requested_actions,
+            ),
+        ):
+            # Invoke the RAP API and handle RapAPIErrors.
+            job_count = job_request.request_rap_creation()
+            if job_count is not None and job_count > 0:
+                # Report success. Note we don't display a count of jobs created, even though we have that
+                # from the RAP API response, because the jobs have not been created on job server yet, so
+                # won't be immediately displayed in the UI
+                messages.success(self.request, self.success_message())
+            else:
+                # No jobs were created by the RAP controller, either an error, or there was nothing to
+                # do; we just report the job request status, and status message (if there is one)
+                extra = (
+                    f" ({job_request.status_message})"
+                    if job_request.status_message
+                    else ""
+                )
+                messages.info(
+                    self.request,
+                    f"No actions scheduled: {job_request.human_readable_status}{extra}",
+                )
 
         return redirect(
             "workspace-logs",
