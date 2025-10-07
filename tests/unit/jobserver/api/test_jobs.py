@@ -720,25 +720,10 @@ def test_jobapiupdate_unknown_job_request(api_rf):
 
 def test_jobrequestapilist_filter_by_backend(api_rf):
     backend = BackendFactory()
-    JobRequestFactory(backend=backend)
-    JobRequestFactory()
-
-    request = api_rf.get("/", headers={"authorization": backend.auth_token})
-    response = JobRequestAPIList.as_view()(request)
-
-    assert response.status_code == 200, response.data
-    assert len(response.data["results"]) == 1
-
-
-def test_jobrequestapilist_filter_by_test_backend(api_rf):
-    # Special case for the RAP API v2 initiative.
-    # The test backend does not consider jobs requests with no jobs to be active
-    backend = BackendFactory()
-    backend.slug = "test"
-    backend.save()
 
     # job requests for this backend
     # only pending, running and unknown are considered active
+    # jobs requests with no jobs are not automatically considered to be active
     JobRequestFactory(backend=backend, _status=JobRequestStatus.PENDING)
     JobRequestFactory(backend=backend, _status=JobRequestStatus.UNKNOWN)
     JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
@@ -871,6 +856,21 @@ def test_jobrequestapilist_success(api_rf):
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200
+
+    # All job requests have a default _status unknown, which is updated in the usual
+    # UI flow in the job request creation view. As we're not going through that process,
+    # all job requests have "unknown" status. This over-includes them in the filter for
+    # "active" job requests, by design.
+    assert set(JobRequest.objects.values_list("_status", flat=True)) == {"unknown"}
+    assert len(response.data["results"]) == 5
+
+    # Call jobs_status on each job request to ensure that its private _status field isn't stale
+    for job_request in JobRequest.objects.all():
+        job_request.jobs_status
+
+    # Now we retrive the expected 3 actually active job requests
+    response = JobRequestAPIList.as_view()(request)
+    assert len(response.data["results"]) == 3
 
     def dictify(od):
         """Recursively convert OrderedDicts to dicts"""
