@@ -726,11 +726,24 @@ def test_jobrequest_request_rap_creation(
 
     log_output.entries[0].pop("timestamp")
     assert log_output.entries[0] == {
-        "event": test_response_json,
+        "event": "Calling RAP API to create RAP",
         "log_level": "info",
+        "rap_id": job_request.identifier,
+        "function": "request_rap_creation",
         "level": "info",
         "logger": "jobserver.models.job_request",
     }
+
+    log_output.entries[1].pop("timestamp")
+    assert log_output.entries[1] == {
+        "event": "Response from RAP API",
+        "response": test_response_json,
+        "log_level": "info",
+        "rap_id": job_request.identifier,
+        "function": "request_rap_creation",
+        "level": "info",
+        "logger": "jobserver.models.job_request",
+    }, log_output.entries[1]
     job_request.refresh_from_db()
     assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.PENDING
 
@@ -749,8 +762,12 @@ def test_jobrequest_request_rap_creation_nothing_to_do(
 
     job_request.request_rap_creation()
 
-    assert log_output.entries[0]["event"] == test_response_json
-    assert log_output.entries[0]["log_level"] == "info"
+    assert log_output.entries[0]["event"] == "Calling RAP API to create RAP"
+    assert log_output.entries[0]["rap_id"] == job_request.identifier
+    assert log_output.entries[1]["event"] == "Response from RAP API"
+    assert log_output.entries[1]["response"] == test_response_json
+    assert log_output.entries[1]["rap_id"] == job_request.identifier
+    assert log_output.entries[1]["function"] == "request_rap_creation"
 
     job_request.refresh_from_db()
     assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.NOTHING_TO_DO
@@ -770,8 +787,10 @@ def test_jobrequest_request_rap_creation_failed_with_response(
 
     job_request.request_rap_creation()
 
-    assert "error" == log_output.entries[0]["log_level"]
-    assert "something went wrong" in str(log_output.entries[0]["event"])
+    assert log_output.entries[0]["event"] == "Calling RAP API to create RAP"
+    assert log_output.entries[0]["rap_id"] == job_request.identifier
+    assert "error" == log_output.entries[1]["log_level"]
+    assert "something went wrong" in str(log_output.entries[1]["event"])
 
     job_request.refresh_from_db()
     assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.FAILED
@@ -789,8 +808,10 @@ def test_jobrequest_request_rap_creation_failed_to_request(
 
     job_request.request_rap_creation()
 
-    assert "error" == log_output.entries[0]["log_level"]
-    assert "something went wrong" in str(log_output.entries[0]["event"])
+    assert log_output.entries[0]["event"] == "Calling RAP API to create RAP"
+    assert log_output.entries[0]["rap_id"] == job_request.identifier
+    assert "error" == log_output.entries[1]["log_level"]
+    assert "something went wrong" in str(log_output.entries[1]["event"])
 
     job_request.refresh_from_db()
     assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.UNKNOWN
@@ -808,8 +829,10 @@ def test_jobrequest_request_rap_creation_error(
 
     job_request.request_rap_creation()
 
-    assert "error" == log_output.entries[0]["log_level"]
-    assert "something went wrong" in str(log_output.entries[0]["event"])
+    assert log_output.entries[0]["event"] == "Calling RAP API to create RAP"
+    assert log_output.entries[0]["rap_id"] == job_request.identifier
+    assert "error" == log_output.entries[1]["log_level"]
+    assert "something went wrong" in str(log_output.entries[1]["event"])
 
     job_request.refresh_from_db()
     assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.FAILED

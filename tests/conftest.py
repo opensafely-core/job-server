@@ -15,7 +15,6 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.test import RequestFactory, override_settings
 from django.utils import timezone
 from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from structlog.testing import LogCapture
@@ -27,6 +26,7 @@ from jobserver.authorization.roles import StaffAreaAdministrator
 from jobserver.commands import project_members
 from jobserver.models import SiteAlert
 from services.logging import base_processors
+from services.tracing import add_exporter, get_provider
 
 from .factories import (
     BackendFactory,
@@ -44,10 +44,10 @@ from .factories import application as application_factories
 
 
 # set up tracing for tests
-provider = TracerProvider()
+provider = get_provider()
 trace.set_tracer_provider(provider)
 test_exporter = InMemorySpanExporter()
-provider.add_span_processor(SimpleSpanProcessor(test_exporter))
+add_exporter(provider, test_exporter, processor=SimpleSpanProcessor)
 
 
 def get_trace():
