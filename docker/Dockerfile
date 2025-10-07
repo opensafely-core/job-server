@@ -22,6 +22,11 @@ RUN --mount=type=cache,target=/var/cache/apt \
     echo "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" > /etc/apt/sources.list.d/deadsnakes-ppa.list &&\
     /usr/lib/apt/apt-helper download-file 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' /etc/apt/trusted.gpg.d/deadsnakes.asc
 
+# configure PostgreSQL apt repository for appropriate client
+RUN --mount=type=cache,target=/var/cache/apt \
+    echo "deb https://apt.postgresql.org/pub/repos/apt noble-pgdg main" > /etc/apt/sources.list.d/postgresql-ppa.list &&\
+    /usr/lib/apt/apt-helper download-file 'https://www.postgresql.org/media/keys/ACCC4CF8.asc' /etc/apt/trusted.gpg.d/postgresql.asc
+
 # install any additional system dependencies
 COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
