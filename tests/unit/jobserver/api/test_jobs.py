@@ -730,11 +730,12 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
     # these are not included
     JobRequestFactory(backend=backend, _status=JobRequestStatus.FAILED)
     JobRequestFactory(backend=backend, _status=JobRequestStatus.SUCCEEDED)
+    # job request for different backend
+    JobRequestFactory(backend=BackendFactory(), _status=JobRequestStatus.RUNNING)
     # a job request that isn't pending, running or unknown is also included if it has any pending or running job
     failed_job_request_with_pending_job = JobRequestFactory(
         backend=backend, _status=JobRequestStatus.FAILED
     )
-    # job requests for different backend
     JobFactory(job_request=failed_job_request_with_pending_job, status="pending")
 
     request = api_rf.get("/", headers={"authorization": backend.auth_token})
@@ -742,6 +743,40 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
 
     assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 4
+
+
+def test_jobrequestapilist_filter_by_created_at_date(api_rf):
+    backend = BackendFactory()
+
+    # job requests for this backend
+    # pending, running and unknown are considered active if they were created < 365 days ago
+    # jobs requests with no jobs are not automatically considered to be active
+    included_job_request = JobRequestFactory(
+        backend=backend, _status=JobRequestStatus.UNKNOWN
+    )
+    # excluded - too old
+    JobRequestFactory(
+        backend=backend,
+        _status=JobRequestStatus.UNKNOWN,
+        created_at=datetime.datetime(2023, 12, 1, tzinfo=datetime.UTC),
+    )
+    # old, but with a pending job
+    old_job_request = JobRequestFactory(
+        backend=backend,
+        _status=JobRequestStatus.UNKNOWN,
+        created_at=datetime.datetime(2023, 12, 1, tzinfo=datetime.UTC),
+    )
+    JobFactory(job_request=old_job_request, status="pending")
+
+    request = api_rf.get("/", headers={"authorization": backend.auth_token})
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert len(response.data["results"]) == 2
+    assert set([jr["identifier"] for jr in response.data["results"]]) == {
+        included_job_request.identifier,
+        old_job_request.identifier,
+    }
 
 
 def test_jobrequestapilist_get_only(api_rf):

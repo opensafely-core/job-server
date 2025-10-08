@@ -5,6 +5,7 @@ from collections import defaultdict
 import structlog
 from django.db.models import Q
 from django.http import Http404
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.generics import ListAPIView
@@ -279,9 +280,15 @@ class JobRequestAPIList(ListAPIView):
         # as the jobs_status property updates it based on job status. However, if anything it
         # should be over-inclusive and ensure that we retrieve status updates for any job requests
         # that have been initially set to pending or unknown, but may not have jobs created yet.
+        # We also filter JobRequests that we identify by their _status field to only those created within the
+        # past 365 days, to avoid returning any very old job requests that may have unknown status due to
+        # historical differences in the way the job status field was set.
         qs = (
             JobRequest.objects.filter(
-                Q(_status__in=["pending", "running", "unknown"])
+                Q(
+                    _status__in=["pending", "running", "unknown"],
+                    created_at__gte=timezone.now() - datetime.timedelta(365),
+                )
                 | Q(id__in=active_job_request_ids)
             )
             .select_related(
