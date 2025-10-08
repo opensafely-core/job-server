@@ -305,7 +305,7 @@
             </div>
           {% /description_item %}
           {% #description_item title="Backend" stacked=True %}
-            {{ job_request.backend|upper }}
+            {{ job_request.backend.name }}
           {% /description_item %}
           {% #description_item title="Workspace" stacked=True %}
             {% link href=job_request.workspace.get_absolute_url text=job_request.workspace.name %}
