@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+import sentry_sdk
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
@@ -39,6 +41,7 @@ from ..pipeline_config import (
 
 
 tracer = trace.get_tracer_provider().get_tracer("job_requests")
+logger = structlog.get_logger(__name__)
 
 
 class JobRequestCancel(View):
@@ -60,22 +63,24 @@ class JobRequestCancel(View):
 
         if self.is_completed():
             return self.redirect()
-
+        actions_to_cancel = self.actions_to_cancel()
         error_msg = (
             "An unexpected error caused the cancellation to fail. If this "
             "persists, please contact technical support"
         )
         try:
-            job_request.request_cancellation(actions_to_cancel=self.actions_to_cancel())
+            job_request.request_cancellation(actions_to_cancel=actions_to_cancel)
             messages.success(request, self.success_message())
-        except RapAPIError:
+        except RapAPIError as exc:
             # This is probably rare and not much the user can do except retry.
-            # TODO: logging and emit sentry event
+            logger.error(exc, actions_to_cancel=actions_to_cancel)
+            sentry_sdk.capture_exception(exc)
             messages.error(request, error_msg)
-        except JobRequest.NoActionsToCancel:
+        except JobRequest.NoActionsToCancel as exc:
             # This indicates a bug in the view or possibly a very rare race
             # condition. Not much the user can do except retry.
-            # TODO: logging and emit sentry event
+            logger.error(exc, actions_to_cancel=actions_to_cancel)
+            sentry_sdk.capture_exception(exc)
             messages.error(request, error_msg)
         except JobRequest.NotStartedYet:
             messages.error(
