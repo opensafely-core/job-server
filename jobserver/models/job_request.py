@@ -1,6 +1,7 @@
 import base64
 import secrets
 
+import sentry_sdk
 import structlog
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -323,6 +324,7 @@ class JobRequest(models.Model):
                 return json_response["count"]
             except rap_api.RapAPIResponseError as exc:
                 logger.error(exc)
+                sentry_sdk.capture_exception(exc)
                 # Failed in creating jobs. Set status to Failed, record exc body as status message
                 self.update_status(JobRequestStatus.FAILED, exc.body["details"])
             except rap_api.RapAPIRequestError as exc:
@@ -331,11 +333,13 @@ class JobRequest(models.Model):
                 # could have been created on the controller. We mark job requests status as unknown, and
                 # allow the code that polls the controller for job status to request updates for it again.
                 logger.error(exc)
+                sentry_sdk.capture_exception(exc)
                 self.update_status(JobRequestStatus.UNKNOWN)
             except Exception as exc:
                 # Any other exception just fails the whole job request. We show an unknown error to avoid
                 # leaking the content of the exception to the user.
                 logger.error(exc)
+                sentry_sdk.capture_exception(exc)
                 self.update_status(
                     JobRequestStatus.FAILED, "Unknown error creating jobs"
                 )
