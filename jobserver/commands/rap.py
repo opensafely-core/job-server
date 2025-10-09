@@ -52,8 +52,6 @@ def rap_status_update(rap_ids):
     superfluous_job_keys = ["rap_id", "backend", "requires_db"]
 
     for rap_id in rap_ids:
-        # TODO: move this out of the management command!!
-
         if rap_id in json_response["unrecognised_rap_ids"]:
             continue
 
