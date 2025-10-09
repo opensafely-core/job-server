@@ -102,7 +102,6 @@ def rap_status_update(rap_ids):
                     identifier=job_from_api["identifier"],
                     defaults={**job_from_api},
                 )
-                assert isinstance(job_from_db, Job)
 
                 if created:
                     created_job_ids.append(str(job_from_db.id))
