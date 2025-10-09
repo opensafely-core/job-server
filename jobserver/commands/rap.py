@@ -136,13 +136,13 @@ def rap_status_update(rap_ids):
 
     logger.info(
         "Created, updated or deleted Jobs",
-        created_job_ids=",".join(created_job_ids),
-        created_job_identifiers=",".join(created_job_identifiers),
-        updated_job_ids=",".join(updated_job_ids),
-        updated_job_identifiers=",".join(updated_job_identifiers),
-        deleted_job_identifiers=",".join(deleted_identifiers),
+        created_job_ids=created_job_ids,
+        created_job_identifiers=created_job_identifiers,
+        updated_job_ids=updated_job_ids,
+        updated_job_identifiers=updated_job_identifiers,
+        deleted_job_identifiers=deleted_identifiers,
     )
     if json_response["unrecognised_rap_ids"]:
         logger.warning(
-            f"Unrecognised RAP ids: {','.join(json_response['unrecognised_rap_ids'])}"
+            "Unrecognised RAP ids", rap_ids=json_response["unrecognised_rap_ids"]
         )
