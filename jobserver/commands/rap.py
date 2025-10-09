@@ -55,8 +55,10 @@ def rap_status_update(rap_ids):
     # Also remove some other values which we don't currently store in Job
     superfluous_job_keys = ["rap_id", "backend", "requires_db"]
 
+    unrecognised_rap_ids = set(json_response.get("unrecognised_rap_ids", []))
+
     for rap_id in rap_ids:
-        if rap_id in json_response["unrecognised_rap_ids"]:
+        if rap_id in unrecognised_rap_ids:
             continue
 
         job_request = job_request_by_identifier.get(rap_id)
