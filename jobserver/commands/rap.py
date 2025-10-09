@@ -77,12 +77,12 @@ def rap_status_update(rap_ids):
             ]
 
             # get the current Jobs for the JobRequest, keyed on their identifier
-            jobs_by_identifier = {j.identifier: j for j in job_request.jobs.all()}
+            database_identifiers = {j.identifier for j in job_request.jobs.all()}
 
             payload_identifiers = {j["identifier"] for j in jobs_from_api}
 
             # delete local jobs not in the payload
-            identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
+            identifiers_to_delete = set(database_identifiers) - payload_identifiers
             if identifiers_to_delete:
                 job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
                 deleted_identifiers.extend(identifiers_to_delete)
