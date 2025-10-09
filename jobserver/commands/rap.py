@@ -65,76 +65,74 @@ def rap_status_update(rap_ids):
 
         # bind the job request ID to further logs so looking them up
         # in the UI is easier
-        structlog.contextvars.bind_contextvars(job_request=job_request.id)
+        with structlog.contextvars.bound_contextvars(job_request=job_request.id):
+            jobs_from_api = [
+                j for j in json_response["jobs"] if j.get("rap_id") == rap_id
+            ]
 
-        jobs_from_api = [j for j in json_response["jobs"] if j.get("rap_id") == rap_id]
+            database_jobs = job_request.jobs.all()
 
-        database_jobs = job_request.jobs.all()
+            # get the current Jobs for the JobRequest, keyed on their identifier
+            jobs_by_identifier = {j.identifier: j for j in database_jobs}
 
-        # get the current Jobs for the JobRequest, keyed on their identifier
-        jobs_by_identifier = {j.identifier: j for j in database_jobs}
+            payload_identifiers = {j["identifier"] for j in jobs_from_api}
 
-        payload_identifiers = {j["identifier"] for j in jobs_from_api}
+            # delete local jobs not in the payload
+            identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
+            if identifiers_to_delete:
+                job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
+                for identifier in identifiers_to_delete:
+                    deleted_identifiers.append(str(identifier))
 
-        # delete local jobs not in the payload
-        identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
-        if identifiers_to_delete:
-            job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
-            for identifier in identifiers_to_delete:
-                deleted_identifiers.append(str(identifier))
-
-        for job_from_api in jobs_from_api:
-            logger.info(
-                f"RAP: {job_from_api['rap_id']} Job: {job_from_api['identifier']} Status: {job_from_api['status']}"
-            )
-
-            for superfluous_key in superfluous_job_keys:
-                job_from_api.pop(superfluous_key, None)
-
-            job_from_db, created = job_request.jobs.get_or_create(
-                identifier=job_from_api["identifier"],
-                defaults={**job_from_api},
-            )
-            assert isinstance(job_from_db, Job)
-
-            if created:
-                created_job_ids.append(str(job_from_db.id))
-                created_job_identifiers.append(str(job_from_db.identifier))
-                # For newly created jobs we can't tell if they've just
-                # transitioned to completed so we assume they have to avoid
-                # missing notifications
-                newly_completed = job_from_db.is_completed
-            else:
-                updated_job_ids.append(str(job_from_db.id))
-                updated_job_identifiers.append(str(job_from_db.identifier))
-
-                newly_completed = (
-                    not job_from_db.is_completed
-                    and job_from_api["status"] in COMPLETED_STATES
+            for job_from_api in jobs_from_api:
+                logger.info(
+                    f"RAP: {job_from_api['rap_id']} Job: {job_from_api['identifier']} Status: {job_from_api['status']}"
                 )
 
-                # Update the Job here rather than using create_or_update above, as
-                # we needed to check the pre-update status to identify newly
-                # created jobs.
-                for key, value in job_from_api.items():
-                    setattr(job_from_db, key, value)
+                for superfluous_key in superfluous_job_keys:
+                    job_from_api.pop(superfluous_key, None)
 
-            # TODO: use bulk_update instead
-            job_from_db.save()
+                job_from_db, created = job_request.jobs.get_or_create(
+                    identifier=job_from_api["identifier"],
+                    defaults={**job_from_api},
+                )
+                assert isinstance(job_from_db, Job)
 
-            if newly_completed:
-                job_from_db.refresh_from_db()
-                logger.info(f"{job_from_db.identifier} newly completed")
-                # TODO: port this to here!
-                # handle_job_notifications(job_request, job_from_db)
+                if created:
+                    created_job_ids.append(str(job_from_db.id))
+                    created_job_identifiers.append(str(job_from_db.identifier))
+                    # For newly created jobs we can't tell if they've just
+                    # transitioned to completed so we assume they have to avoid
+                    # missing notifications
+                    newly_completed = job_from_db.is_completed
+                else:
+                    updated_job_ids.append(str(job_from_db.id))
+                    updated_job_identifiers.append(str(job_from_db.identifier))
 
-        # Refresh value of job_request._status so that if we repeatedly call this
-        # in a long-running service, we can reliably get a correct list of active
-        # job requests.
-        job_request.jobs_status
+                    newly_completed = (
+                        not job_from_db.is_completed
+                        and job_from_api["status"] in COMPLETED_STATES
+                    )
 
-        # Unbind as we're finished with this job_request now
-        structlog.contextvars.unbind_contextvars("job_request")
+                    # Update the Job here rather than using create_or_update above, as
+                    # we needed to check the pre-update status to identify newly
+                    # created jobs.
+                    for key, value in job_from_api.items():
+                        setattr(job_from_db, key, value)
+
+                # TODO: use bulk_update instead
+                job_from_db.save()
+
+                if newly_completed:
+                    job_from_db.refresh_from_db()
+                    logger.info(f"{job_from_db.identifier} newly completed")
+                    # TODO: port this to here!
+                    # handle_job_notifications(job_request, job_from_db)
+
+            # Refresh value of job_request._status so that if we repeatedly call this
+            # in a long-running service, we can reliably get a correct list of active
+            # job requests.
+            # job_request.jobs_status
 
     logger.info(
         "Created, updated or deleted Jobs",
