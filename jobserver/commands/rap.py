@@ -85,12 +85,14 @@ def rap_status_update(rap_ids):
             identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
             if identifiers_to_delete:
                 job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
-                for identifier in identifiers_to_delete:
-                    deleted_identifiers.append(str(identifier))
+                deleted_identifiers.extend(identifiers_to_delete)
 
             for job_from_api in jobs_from_api:
-                logger.info(
-                    f"RAP: {job_from_api['rap_id']} Job: {job_from_api['identifier']} Status: {job_from_api['status']}"
+                logger.debug(
+                    "RAP Job Status",
+                    rap_id=job_from_api["rap_id"],
+                    job_identifier=job_from_api["identifier"],
+                    status=job_from_api["status"],
                 )
 
                 for superfluous_key in superfluous_job_keys:
