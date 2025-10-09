@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from jobserver import rap_api
-from jobserver.models import Backend, Job, JobRequest
+from jobserver.models import Job, JobRequest
 from jobserver.models.job import COMPLETED_STATES
 
 
@@ -19,14 +19,18 @@ def get_active_job_request_ids():
         .distinct()
     )
     # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
-    test_backend = Backend.objects.filter(slug="test")
-    # Some very early job requests may have inconsistent data, so
-    # ignore old job requests
+    # We also filter JobRequests that we identify by their _status field to only those created within the
+    # past 365 days, to avoid returning any very old job requests that may have unknown status due to
+    # historical differences in the way the job status field was set.
     one_year_ago = timezone.now() - datetime.timedelta(weeks=52)
     active_job_requests = JobRequest.objects.filter(
-        Q(_status__in=["pending", "running", "unknown"], backend__in=test_backend)
+        Q(
+            _status__in=["pending", "running", "unknown"],
+            created_at__gte=one_year_ago,
+            backend__slug="test",
+        )
         | Q(id__in=active_job_jobrequest_ids)
-    ).filter(created_at__gte=one_year_ago)
+    )
     return [jr.identifier for jr in active_job_requests]
 
 
