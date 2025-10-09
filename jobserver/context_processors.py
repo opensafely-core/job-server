@@ -2,6 +2,7 @@ import functools
 
 import structlog
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from furl import furl
 
@@ -28,14 +29,9 @@ def in_production(request):
     return {"in_production": not settings.DEBUG}
 
 
-def _is_active(request, prefix):
-    return request.path.startswith(prefix)
-
-
 def can_view_staff_area(request):
-    can_view_staff_area = has_role(request.user, StaffAreaAdministrator)
-
-    return {"user_can_view_staff_area": can_view_staff_area}
+    user = getattr(request, "user", None) or AnonymousUser()
+    return {"user_can_view_staff_area": has_role(user, StaffAreaAdministrator)}
 
 
 def disable_creating_jobs(request):
@@ -49,11 +45,14 @@ def site_alerts(request):
 
     Unauthenticated users probably don't need details of alerts that affect
     users of the site."""
+    user = getattr(request, "user", None) or AnonymousUser()
     return {
-        "site_alerts": SiteAlert.objects.all()
-        if request.user.is_authenticated
-        else None,
+        "site_alerts": SiteAlert.objects.all() if user.is_authenticated else None,
     }
+
+
+def _is_active(request, prefix):
+    return request.path.startswith(prefix)
 
 
 def nav(request):

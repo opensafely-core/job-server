@@ -31,58 +31,67 @@ class TestInProduction:
         assert in_production(request)["in_production"] is False
 
 
-def test_can_view_staff_area_with_staff_area_administrator(
-    rf, staff_area_administrator
-):
-    request = rf.get("/")
-    request.user = staff_area_administrator
+class TestCanViewStaffArea:
+    """Tests of the can_view_staff_area context processor."""
 
-    assert can_view_staff_area(request)["user_can_view_staff_area"]
+    def test_with_staff_area_administrator(self, rf, staff_area_administrator):
+        """Test that Staff Area Admins get access."""
+        request = rf.get("/")
+        request.user = staff_area_administrator
 
-
-def test_can_view_staff_area_without_staff_area_administrator(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    assert not can_view_staff_area(request)["user_can_view_staff_area"]
-
-
-def test_can_view_staff_area_makes_no_db_queries(
-    rf, staff_area_administrator, django_assert_num_queries
-):
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    with django_assert_num_queries(0):
         assert can_view_staff_area(request)["user_can_view_staff_area"]
 
+    def test_without_staff_area_administrator(self, rf):
+        """Test that non-Staff Area Admins do not get access."""
+        request = rf.get("/")
+        request.user = UserFactory()
 
-def test_nav_jobs(rf):
-    request = rf.get(reverse("job-list"))
-    request.user = UserFactory()
+        assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
-    jobs, status = nav(request)["nav"]
+    def test_with_no_user(self, rf):
+        """Test that requests without users don't have access."""
+        request = rf.get("/")
 
-    assert jobs["is_active"] is True
-    assert status["is_active"] is False
+        assert not can_view_staff_area(request)["user_can_view_staff_area"]
+
+    def test_makes_no_db_queries(
+        self, rf, staff_area_administrator, django_assert_num_queries
+    ):
+        """Test that the function does not hit the database."""
+        request = rf.get("/")
+        request.user = staff_area_administrator
+
+        with django_assert_num_queries(0):
+            assert can_view_staff_area(request)["user_can_view_staff_area"]
 
 
-def test_nav_status(rf):
-    request = rf.get(reverse("status"))
-    request.user = UserFactory()
+class TestNav:
+    """Tests of the nav context processor."""
 
-    jobs, status = nav(request)["nav"]
+    def test_jobs(self, rf):
+        request = rf.get(reverse("job-list"))
+        request.user = UserFactory()
 
-    assert jobs["is_active"] is False
-    assert status["is_active"] is True
+        jobs, status = nav(request)["nav"]
 
+        assert jobs["is_active"] is True
+        assert status["is_active"] is False
 
-def test_nav_makes_no_db_queries(rf, django_assert_num_queries):
-    request = rf.get(reverse("status"))
-    request.user = UserFactory()
+    def test_status(self, rf):
+        request = rf.get(reverse("status"))
+        request.user = UserFactory()
 
-    with django_assert_num_queries(0):
-        assert nav(request)
+        jobs, status = nav(request)["nav"]
+
+        assert jobs["is_active"] is False
+        assert status["is_active"] is True
+
+    def test_makes_no_db_queries(self, rf, django_assert_num_queries):
+        request = rf.get(reverse("status"))
+        request.user = UserFactory()
+
+        with django_assert_num_queries(0):
+            assert nav(request)
 
 
 class TestSiteAlertContextProcessor:
@@ -101,6 +110,14 @@ class TestSiteAlertContextProcessor:
         """Test that unauthenticated users don't get site_alerts in the context."""
         request = rf.get("/")
         request.user = AnonymousUser()
+
+        context = site_alerts(request)
+        assert "site_alerts" in context
+        assert context["site_alerts"] is None
+
+    def test_no_user(self, rf, site_alert):
+        """Test that requests without users don't get site_alerts in the context."""
+        request = rf.get("/")
 
         context = site_alerts(request)
         assert "site_alerts" in context
