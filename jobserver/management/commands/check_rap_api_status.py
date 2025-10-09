@@ -18,9 +18,9 @@ class Command(BaseCommand):
             backends = backend_status_response["backends"]
 
             for backend_states in backends:
-                backend_name = backend_states["name"]
+                backend_slug = backend_states.get("slug") or backend_states.get("name")
 
-                backend_object = Backend.objects.get(name__iexact=backend_name)
+                backend_object = Backend.objects.get(slug=backend_slug)
 
                 # Record the time we're told this backend was last seen alive, for availability
                 # reporting purposes
