@@ -31,7 +31,12 @@ def get_active_job_request_ids():
         )
         | Q(id__in=active_job_jobrequest_ids)
     )
-    return [jr.identifier for jr in active_job_requests]
+    # recheck .jobs_status as ._status from the database can be stale
+    return [
+        jr.identifier
+        for jr in active_job_requests
+        if jr.jobs_status in ["pending", "running", "unknown"]
+    ]
 
 
 def rap_status_update(rap_ids):
