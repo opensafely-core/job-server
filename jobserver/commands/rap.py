@@ -110,15 +110,15 @@ def rap_status_update(rap_ids):
                 )
 
                 if created:
-                    created_job_ids.append(str(job_from_db.id))
-                    created_job_identifiers.append(str(job_from_db.identifier))
+                    created_job_ids.append(job_from_db.id)
+                    created_job_identifiers.append(job_from_db.identifier)
                     # For newly created jobs we can't tell if they've just
                     # transitioned to completed so we assume they have to avoid
                     # missing notifications
                     newly_completed = job_from_db.is_completed
                 else:
-                    updated_job_ids.append(str(job_from_db.id))
-                    updated_job_identifiers.append(str(job_from_db.identifier))
+                    updated_job_ids.append(job_from_db.id)
+                    updated_job_identifiers.append(job_from_db.identifier)
 
                     newly_completed = (
                         not job_from_db.is_completed
@@ -136,7 +136,9 @@ def rap_status_update(rap_ids):
 
                 if newly_completed:
                     job_from_db.refresh_from_db()
-                    logger.info(f"{job_from_db.identifier} newly completed")
+                    logger.debug(
+                        "Newly completed job", job_identifier=job_from_db.identifier
+                    )
                     # TODO: port this to here!
                     # handle_job_notifications(job_request, job_from_db)
 
