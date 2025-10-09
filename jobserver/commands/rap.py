@@ -96,6 +96,7 @@ def rap_status_update(rap_ids):
                 for superfluous_key in superfluous_job_keys:
                     job_from_api.pop(superfluous_key, None)
 
+                job_from_db: Job
                 job_from_db, created = job_request.jobs.get_or_create(
                     identifier=job_from_api["identifier"],
                     defaults={**job_from_api},
