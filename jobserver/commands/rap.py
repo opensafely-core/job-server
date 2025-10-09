@@ -76,10 +76,8 @@ def rap_status_update(rap_ids):
                 j for j in json_response["jobs"] if j.get("rap_id") == rap_id
             ]
 
-            database_jobs = job_request.jobs.all()
-
             # get the current Jobs for the JobRequest, keyed on their identifier
-            jobs_by_identifier = {j.identifier: j for j in database_jobs}
+            jobs_by_identifier = {j.identifier: j for j in job_request.jobs.all()}
 
             payload_identifiers = {j["identifier"] for j in jobs_from_api}
 
