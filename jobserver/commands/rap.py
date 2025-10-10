@@ -13,12 +13,14 @@ logger = structlog.get_logger(__name__)
 
 
 def get_active_job_request_ids():
+    # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
     active_job_jobrequest_ids = (
-        Job.objects.filter(status__in=["pending", "running"])
+        Job.objects.filter(
+            status__in=["pending", "running"], job_request__backend__slug="test"
+        )
         .values_list("job_request_id")
         .distinct()
     )
-    # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
     # We also filter JobRequests that we identify by their _status field to only those created within the
     # past year, to avoid returning any very old job requests that may have unknown status due to
     # historical differences in the way the job status field was set.
