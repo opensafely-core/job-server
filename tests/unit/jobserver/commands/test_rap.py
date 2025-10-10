@@ -567,7 +567,9 @@ def test_update_jobs_multiple_job_requests(
 
 
 @patch("jobserver.rap_api.status")
-def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries, now):
+def test_unexpected_local_jobs(
+    mock_rap_api_status, log_output, django_assert_num_queries, now
+):
     job_request = JobRequestFactory()
 
     jobs = JobFactory.create_batch(
@@ -596,8 +598,6 @@ def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries,
         now,
     )
 
-    identifier_to_delete = jobs[1].identifier
-
     mock_rap_api_status.return_value = test_response_json
 
     # Queries:
@@ -607,15 +607,23 @@ def test_delete_jobs(mock_rap_api_status, log_output, django_assert_num_queries,
     with django_assert_num_queries(7):
         rap.rap_status_update([job_request.identifier])
 
-    # The second job should have been deleted
+    # Unexpected lobs are not deleted
     jobs = Job.objects.all()
-    assert len(jobs) == 1
+    assert jobs.count() == 2
 
-    assert log_output.entries[-1]["event"] == "Created, updated or deleted Jobs"
-    assert log_output.entries[-1]["updated_job_ids"] == str(jobs[0].id)
-    assert log_output.entries[-1]["deleted_job_identifiers"] == identifier_to_delete
+    assert log_output.entries[-2]["event"] == "Created or updated Jobs"
+    assert log_output.entries[-2]["updated_job_ids"] == [jobs[0].id]
 
-    check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
+    assert log_output.entries[-1]["level"] == "error"
+    assert (
+        log_output.entries[-1]["event"]
+        == "Locally existing jobs missing from RAP API response"
+    )
+    assert log_output.entries[-1]["unrecognised_job_identifiers"] == [
+        jobs[1].identifier
+    ]
+
+    check_job_request_status(job_request.identifier, JobRequestStatus.RUNNING)
 
 
 @patch("jobserver.rap_api.status")
