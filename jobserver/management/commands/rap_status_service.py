@@ -3,6 +3,7 @@
 import time
 
 import structlog
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from jobserver.commands.rap import get_active_job_request_ids, rap_status_update
@@ -21,6 +22,6 @@ class Command(BaseCommand):
             while True:
                 active_job_requests_ids = get_active_job_request_ids()
                 rap_status_update(active_job_requests_ids)
-                time.sleep(60)
+                time.sleep(settings.RAP_API_POLL_INTERVAL)
         except Exception as exc:
             logger.error(exc)
