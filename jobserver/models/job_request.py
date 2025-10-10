@@ -80,6 +80,17 @@ class JobRequestStatus(models.TextChoices):
     SUCCEEDED = "succeeded"
     NOTHING_TO_DO = "nothing_to_do"
     UNKNOWN = "unknown"
+    UNKNOWN_ERROR_CREATING_JOBS = "unknown_error_creating_jobs"
+
+    @classmethod
+    def active_statuses(cls):
+        active_statuses = [
+            cls.PENDING,
+            cls.RUNNING,
+            cls.UNKNOWN,
+            cls.UNKNOWN_ERROR_CREATING_JOBS,
+        ]
+        return [status.value for status in active_statuses]
 
     @classmethod
     def is_completed(cls, value):
@@ -330,11 +341,13 @@ class JobRequest(models.Model):
             except rap_api.RapAPIRequestError as exc:
                 # Encountered some unhandled error whilst contacting the RAP API to creating jobs.
                 # This is most likely due to some disconnect between job-server and controller, and jobs
-                # could have been created on the controller. We mark job requests status as unknown, and
-                # allow the code that polls the controller for job status to request updates for it again.
+                # could have been created on the controller, but we don't know that yet.
+                # We mark job requests status as UNKNOWN_ERROR_CREATING_JOBS. The code that polls the controller
+                # for job status to request updates will update appropriately if jobs  on the controller, and
+                # will fail this job if they were not created.
                 logger.error(exc)
                 sentry_sdk.capture_exception(exc)
-                self.update_status(JobRequestStatus.UNKNOWN)
+                self.update_status(JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS)
             except Exception as exc:
                 # Any other exception just fails the whole job request. We show an unknown error to avoid
                 # leaking the content of the exception to the user.
