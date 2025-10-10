@@ -15,8 +15,20 @@ def now():
     yield timezone.now()
 
 
-def test_get_active_job_request_ids():
+def backend_test_factory():
+    # Temporary workaround for RAP API V2
+    # The code being tested in this module is currently limited to the test backend,
+    # so set the expected slug
+    # When code is extended to all backend, we can replace use of this function with
+    # just BackendFactory()
     backend = BackendFactory()
+    backend.slug = "test"
+    backend.save()
+    return backend
+
+
+def test_get_active_job_request_ids():
+    backend = backend_test_factory()
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
     JobFactory(job_request=job_request, status="running")
     active_job_request_ids = rap.get_active_job_request_ids()
@@ -24,33 +36,55 @@ def test_get_active_job_request_ids():
 
 
 def test_get_active_job_request_ids_stale_status():
-    backend = BackendFactory()
+    backend = backend_test_factory()
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
-    JobFactory(job_request=job_request, status="completed")
+    JobFactory(job_request=job_request, status="succeeded")
     active_job_request_ids = rap.get_active_job_request_ids()
     assert active_job_request_ids == []
 
 
 def test_get_active_job_request_ids_no_jobs():
-    backend = BackendFactory()
-    # none of these are considered active by the current code
-    JobRequestFactory(backend=backend, _status=JobRequestStatus.PENDING)
-    JobRequestFactory(backend=backend, _status=JobRequestStatus.UNKNOWN)
-    JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
+    backend = backend_test_factory()
+    # Job requests with active _status are still considered active even if they have no jobs
+    jr1 = JobRequestFactory(backend=backend, _status=JobRequestStatus.PENDING)
+    jr2 = JobRequestFactory(backend=backend, _status=JobRequestStatus.UNKNOWN)
+    jr3 = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
     JobRequestFactory(backend=backend, _status=JobRequestStatus.FAILED)
     JobRequestFactory(backend=backend, _status=JobRequestStatus.SUCCEEDED)
+    # job-request for non-test backend
     JobRequestFactory(backend=BackendFactory(), _status=JobRequestStatus.RUNNING)
     active_job_request_ids = rap.get_active_job_request_ids()
-    assert active_job_request_ids == []
+    assert active_job_request_ids == [jr1.identifier, jr2.identifier, jr3.identifier]
 
 
 def test_get_active_job_request_ids_historical():
-    backend = BackendFactory()
+    backend = backend_test_factory()
+    # active job request (no jobs)
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
+
+    # old job request (no jobs)
     two_years_ago = timezone.now() - timedelta(weeks=104)
-    JobFactory(job_request=job_request, status="unknown", created_at=two_years_ago)
+    JobRequestFactory(
+        backend=backend, _status=JobRequestStatus.UNKNOWN, created_at=two_years_ago
+    )
+
+    # old job request (unknown status jobs)
+    old_job_request = JobRequestFactory(
+        backend=backend, _status=JobRequestStatus.UNKNOWN, created_at=two_years_ago
+    )
+    JobFactory(job_request=old_job_request, status="unknown")
+
+    # old job request (active jobs)
+    old_job_request_with_active_jobs = JobRequestFactory(
+        backend=backend, _status=JobRequestStatus.UNKNOWN, created_at=two_years_ago
+    )
+    JobFactory(job_request=old_job_request_with_active_jobs, status="pending")
+
     active_job_request_ids = rap.get_active_job_request_ids()
-    assert active_job_request_ids == []
+    assert active_job_request_ids == [
+        job_request.identifier,
+        old_job_request_with_active_jobs.identifier,
+    ]
 
 
 def check_job_request_status(rap_id, expected_status):
