@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from jobserver import rap_api
-from jobserver.models import Job, JobRequest
+from jobserver.models import Job, JobRequest, JobRequestStatus
 from jobserver.models.job import COMPLETED_STATES
 
 
@@ -24,8 +24,9 @@ def get_active_job_request_ids():
     # We also filter JobRequests that we identify by their _status field to only those created within the
     # past year, to avoid returning any very old job requests that may have unknown status due to
     # historical differences in the way the job status field was set.
+    # Potentially active statuses are pending, running, unknown_error_creating_jobs and unknown
+    active_job_request_statuses = JobRequestStatus.active_statuses()
     one_year_ago = timezone.now() - datetime.timedelta(weeks=52)
-    active_job_request_statuses = ["pending", "running", "unknown"]
     active_job_requests = JobRequest.objects.filter(
         Q(
             _status__in=active_job_request_statuses,
@@ -56,6 +57,7 @@ def rap_status_update(rap_ids):
     updated_job_ids = []
     updated_job_identifiers = []
     unrecognised_job_identifiers = []
+    failed_job_request_identifiers = []
 
     # Turn job response data into a dict of jobs by rap_id
     # Also remove rap_id from the job data - it's going to be set by
@@ -78,10 +80,23 @@ def rap_status_update(rap_ids):
     )
 
     for rap_id in rap_ids:
-        if rap_id in unrecognised_rap_ids:
-            continue
-
         job_request = job_request_by_identifier.get(rap_id)
+
+        if rap_id in unrecognised_rap_ids:
+            # If this job request got an unknown error when initially creating jobs, it means that the RAP
+            # API was called, but we couldn't tell whether jobs were created on the controller or not.
+            # We now know that they were not successfully created, so we can mark the job request as failed
+            # We don't do anything with job requests that have any other status, because we can't be sure of
+            # why there are no jobs on the controller, so we just log those as errors later.
+            if (
+                JobRequestStatus(job_request.jobs_status)
+                == JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
+            ):
+                job_request.update_status(
+                    JobRequestStatus.FAILED, "Unknown error creating jobs"
+                )
+                failed_job_request_identifiers.append(rap_id)
+            continue
 
         # This could happen if the management command is given a rap_id which
         # does not exist on job-server but does exist on the controller.
@@ -166,4 +181,9 @@ def rap_status_update(rap_ids):
     if json_response["unrecognised_rap_ids"]:
         logger.warning(
             "Unrecognised RAP ids", rap_ids=json_response["unrecognised_rap_ids"]
+        )
+    if failed_job_request_identifiers:
+        logger.info(
+            "Job requests with no RAP jobs updated to failed",
+            rap_ids=failed_job_request_identifiers,
         )
