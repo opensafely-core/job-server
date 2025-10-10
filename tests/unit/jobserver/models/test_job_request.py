@@ -814,7 +814,10 @@ def test_jobrequest_request_rap_creation_failed_to_request(
     assert "something went wrong" in str(log_output.entries[1]["event"])
 
     job_request.refresh_from_db()
-    assert JobRequestStatus(job_request.jobs_status) == JobRequestStatus.UNKNOWN
+    assert (
+        JobRequestStatus(job_request.jobs_status)
+        == JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
+    )
     assert job_request.status_message is None
 
 

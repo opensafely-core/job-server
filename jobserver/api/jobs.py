@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
-from jobserver.models import Job, JobRequest, User, Workspace
+from jobserver.models import Job, JobRequest, JobRequestStatus, User, Workspace
 
 
 COMPLETED_STATES = {"failed", "succeeded"}
@@ -256,7 +256,7 @@ class JobRequestAPIList(ListAPIView):
         qs = (
             JobRequest.objects.filter(
                 Q(
-                    _status__in=["pending", "running", "unknown"],
+                    _status__in=JobRequestStatus.active_statuses(),
                     created_at__gte=timezone.now() - datetime.timedelta(365),
                 )
                 | Q(id__in=active_job_request_ids)
