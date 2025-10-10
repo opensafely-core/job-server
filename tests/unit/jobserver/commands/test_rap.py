@@ -102,6 +102,8 @@ def test_get_active_job_request_ids_historical():
 def check_job_request_status(rap_id, expected_status):
     job_request: JobRequest = JobRequest.objects.get(identifier=rap_id)
     assert JobRequestStatus(job_request.jobs_status) == expected_status
+    # return the refreshed job request for tests that need to use it
+    return job_request
 
 
 def rap_status_response_factory(jobs, unrecognised_rap_ids, now):
@@ -722,6 +724,53 @@ def test_rap_status_update_unrecognised_rap_ids(
 
     assert log_output.entries[-1]["event"] == "Unrecognised RAP ids"
     assert log_output.entries[-1]["level"] == "warning"
+    assert log_output.entries[-1]["rap_ids"] == [job_request.identifier]
+
+
+@patch("jobserver.rap_api.status")
+def test_rap_status_update_unrecognised_rap_ids_job_request_with_unknown_created_error(
+    mock_rap_api_status, log_output, django_assert_num_queries, now
+):
+    # Create a job request that encountered a RapAPIRequestError while trying to
+    # create jobs on the controller. For a job request with this status, we don't know
+    # yet if jobs were created on the controller or not
+    job_request = JobRequestFactory(
+        _status=JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
+    )
+
+    # RAP controller returns no jobs and unrecognised rap id
+    test_response_json = rap_status_response_factory(
+        [],
+        [job_request.identifier],
+        now,
+    )
+    mock_rap_api_status.return_value = test_response_json
+
+    # Queries:
+    # 1 & 2) Get all matching job requests, prefetching jobs
+    # 3) Retrieve statuses for existing jobs
+    # 4) Update the failed job request status
+    with django_assert_num_queries(4):
+        rap.rap_status_update([job_request.identifier])
+
+    # no new jobs
+    assert not Job.objects.exists()
+    # The job request has been marked as failed
+    job_request = check_job_request_status(
+        job_request.identifier, JobRequestStatus.FAILED
+    )
+    assert job_request.status_message == "Unknown error creating jobs"
+
+    # We still log the unrecognised rap ids
+    assert log_output.entries[-2]["event"] == "Unrecognised RAP ids"
+    assert log_output.entries[-2]["level"] == "warning"
+    assert log_output.entries[-2]["rap_ids"] == [job_request.identifier]
+
+    assert (
+        log_output.entries[-1]["event"]
+        == "Job requests with no RAP jobs updated to failed"
+    )
+    assert log_output.entries[-1]["level"] == "info"
     assert log_output.entries[-1]["rap_ids"] == [job_request.identifier]
 
 
