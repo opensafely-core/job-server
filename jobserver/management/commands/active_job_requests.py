@@ -14,6 +14,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            logger.info(get_active_job_request_ids())
+            logger.info("Active job requests", rap_ids=get_active_job_request_ids())
         except Exception as exc:
             logger.error(exc)
