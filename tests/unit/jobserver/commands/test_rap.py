@@ -43,7 +43,7 @@ def test_get_active_job_request_ids():
     backend = backend_test_factory()
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
     JobFactory(job_request=job_request, status="running")
-    active_job_request_ids = rap.get_active_job_request_ids()
+    active_job_request_ids = rap.get_active_job_request_identifiers()
     assert active_job_request_ids == [job_request.identifier]
 
 
@@ -51,7 +51,7 @@ def test_get_active_job_request_ids_stale_status():
     backend = backend_test_factory()
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
     JobFactory(job_request=job_request, status="succeeded")
-    active_job_request_ids = rap.get_active_job_request_ids()
+    active_job_request_ids = rap.get_active_job_request_identifiers()
     assert active_job_request_ids == []
 
 
@@ -65,7 +65,7 @@ def test_get_active_job_request_ids_no_jobs():
     JobRequestFactory(backend=backend, _status=JobRequestStatus.SUCCEEDED)
     # job-request for non-test backend
     JobRequestFactory(backend=BackendFactory(), _status=JobRequestStatus.RUNNING)
-    active_job_request_ids = rap.get_active_job_request_ids()
+    active_job_request_ids = rap.get_active_job_request_identifiers()
     assert active_job_request_ids == [jr1.identifier, jr2.identifier, jr3.identifier]
 
 
@@ -92,7 +92,7 @@ def test_get_active_job_request_ids_historical():
     )
     JobFactory(job_request=old_job_request_with_active_jobs, status="pending")
 
-    active_job_request_ids = rap.get_active_job_request_ids()
+    active_job_request_ids = rap.get_active_job_request_identifiers()
     assert active_job_request_ids == [
         job_request.identifier,
         old_job_request_with_active_jobs.identifier,

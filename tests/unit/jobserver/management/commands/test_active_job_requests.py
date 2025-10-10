@@ -41,7 +41,7 @@ def test_call_rap_status_command_with_job_requests(log_output):
 
 
 @patch(
-    "jobserver.management.commands.active_job_requests.get_active_job_request_ids",
+    "jobserver.management.commands.active_job_requests.get_active_job_request_identifiers",
     autospec=True,
 )
 def test_command_error(mock_get_active_job_requests, log_output):

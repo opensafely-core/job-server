@@ -7,7 +7,7 @@ from django.core.management import call_command
     "jobserver.management.commands.rap_status_service.rap_status_update", autospec=True
 )
 @patch(
-    "jobserver.management.commands.rap_status_service.get_active_job_request_ids",
+    "jobserver.management.commands.rap_status_service.get_active_job_request_identifiers",
     autospec=True,
 )
 def test_call_rap_status_service_command(
@@ -27,7 +27,7 @@ def test_call_rap_status_service_command(
     "jobserver.management.commands.rap_status_service.rap_status_update", autospec=True
 )
 @patch(
-    "jobserver.management.commands.rap_status_service.get_active_job_request_ids",
+    "jobserver.management.commands.rap_status_service.get_active_job_request_identifiers",
     autospec=True,
 )
 def test_call_rap_status_service_command_error(
@@ -35,14 +35,14 @@ def test_call_rap_status_service_command_error(
 ):
     settings.RAP_API_POLL_INTERVAL = 0
 
-    # Mock an unhandled exception the first time get_active_job_request_ids is called
+    # Mock an unhandled exception the first time get_active_job_request_identifiers is called
     mock_get_active_job_request_ids.side_effect = [Exception("bad ids"), ["identifier"]]
 
     # Mock run_fn so we loop twice then stop
     run_fn = Mock(side_effect=[True, True, False])
 
     call_command("rap_status_service", run_fn=run_fn)
-    # rap_status_update is only called once, on the second loop when get_active_job_request_ids succeeded
+    # rap_status_update is only called once, on the second loop when get_active_job_request_identifiers succeeded
     assert mock_rap_status_update.call_count == 1
     mock_rap_status_update.assert_called_with(["identifier"])
 

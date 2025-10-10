@@ -12,7 +12,7 @@ from jobserver.models.job import COMPLETED_STATES
 logger = structlog.get_logger(__name__)
 
 
-def get_active_job_request_ids():
+def get_active_job_request_identifiers():
     # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
     active_job_jobrequest_ids = (
         Job.objects.filter(
