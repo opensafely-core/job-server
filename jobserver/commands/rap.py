@@ -53,7 +53,7 @@ def rap_status_update(rap_ids):
     created_job_identifiers = []
     updated_job_ids = []
     updated_job_identifiers = []
-    deleted_identifiers = []
+    unrecognised_job_identifiers = []
 
     # Remove rap_id from the data, it's going to be set by
     # creating/updating Job instances via the JobRequest instances
@@ -77,6 +77,7 @@ def rap_status_update(rap_ids):
 
         # bind the job request ID to further logs so looking them up
         # in the UI is easier
+
         with structlog.contextvars.bound_contextvars(job_request=job_request.id):
             jobs_from_api = [
                 j for j in json_response["jobs"] if j.get("rap_id") == rap_id
@@ -87,11 +88,12 @@ def rap_status_update(rap_ids):
 
             payload_identifiers = {j["identifier"] for j in jobs_from_api}
 
-            # delete local jobs not in the payload
-            identifiers_to_delete = set(database_identifiers) - payload_identifiers
-            if identifiers_to_delete:
-                job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
-                deleted_identifiers.extend(identifiers_to_delete)
+            # check for local jobs not in the payload. This should never happen - jobs
+            # are only created via an update from the RAP controller. Collect thse so we
+            # can log and emit a sentry event.
+            unrecognised_identifiers = set(database_identifiers) - payload_identifiers
+            if unrecognised_identifiers:
+                unrecognised_job_identifiers.extend(unrecognised_identifiers)
 
             for job_from_api in jobs_from_api:
                 logger.debug(
@@ -149,13 +151,18 @@ def rap_status_update(rap_ids):
             # job_request.jobs_status
 
     logger.info(
-        "Created, updated or deleted Jobs",
+        "Created or updated Jobs",
         created_job_ids=created_job_ids,
         created_job_identifiers=created_job_identifiers,
         updated_job_ids=updated_job_ids,
         updated_job_identifiers=updated_job_identifiers,
-        deleted_job_identifiers=deleted_identifiers,
     )
+    if unrecognised_job_identifiers:
+        # TODO: Emit sentry event
+        logger.error(
+            "Locally existing jobs missing from RAP API response",
+            unrecognised_job_identifiers=unrecognised_job_identifiers,
+        )
     if json_response["unrecognised_rap_ids"]:
         logger.warning(
             "Unrecognised RAP ids", rap_ids=json_response["unrecognised_rap_ids"]
