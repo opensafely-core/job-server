@@ -445,3 +445,7 @@ BENNETT_ORG_PK = 3
 GRAPHNET_ORG_PK = 12
 LSHTM_ORG_PK = 4
 UNIVERSITY_OF_BRISTOL_ORG_PK = 9
+
+# How long in seconds to wait between calls to the RAP API status endpoint to
+# fetch job updates
+RAP_API_POLL_INTERVAL = env.int("RAP_API_POLL_INTERVAL", 60)
