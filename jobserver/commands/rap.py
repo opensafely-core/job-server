@@ -20,7 +20,7 @@ def get_active_job_request_ids():
     )
     # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
     # We also filter JobRequests that we identify by their _status field to only those created within the
-    # past 365 days, to avoid returning any very old job requests that may have unknown status due to
+    # past year, to avoid returning any very old job requests that may have unknown status due to
     # historical differences in the way the job status field was set.
     one_year_ago = timezone.now() - datetime.timedelta(weeks=52)
     active_job_requests = JobRequest.objects.filter(
