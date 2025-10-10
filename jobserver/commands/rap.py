@@ -147,11 +147,6 @@ def rap_status_update(rap_ids):
 
             # TODO: Use bulk_create with update_conflicts=True to bulk create or update
 
-            # Refresh value of job_request._status so that if we repeatedly call this
-            # in a long-running service, we can reliably get a correct list of active
-            # job requests.
-            # job_request.jobs_status
-
     logger.info(
         "Created or updated Jobs",
         created_job_ids=created_job_ids,
