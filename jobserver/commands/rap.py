@@ -23,9 +23,10 @@ def get_active_job_request_ids():
     # past year, to avoid returning any very old job requests that may have unknown status due to
     # historical differences in the way the job status field was set.
     one_year_ago = timezone.now() - datetime.timedelta(weeks=52)
+    active_job_request_statuses = ["pending", "running", "unknown"]
     active_job_requests = JobRequest.objects.filter(
         Q(
-            _status__in=["pending", "running", "unknown"],
+            _status__in=active_job_request_statuses,
             created_at__gte=one_year_ago,
             backend__slug="test",
         )
@@ -35,7 +36,7 @@ def get_active_job_request_ids():
     return [
         jr.identifier
         for jr in active_job_requests
-        if jr.jobs_status in ["pending", "running", "unknown"]
+        if jr.jobs_status in active_job_request_statuses
     ]
 
 
