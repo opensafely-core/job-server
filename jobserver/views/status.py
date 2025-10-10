@@ -24,9 +24,7 @@ class DBAvailability(View):
             suffix = f" (since {time_since_maintenance_mode}) "
 
         if backend.is_in_maintenance_mode:
-            return HttpResponse(
-                f"DB maintenance mode on {time_since_maintenance_mode}", status=503
-            )
+            return HttpResponse(f"DB maintenance mode on{suffix}", status=503)
         return HttpResponse(f"DB maintenance mode off{suffix}")
 
 
