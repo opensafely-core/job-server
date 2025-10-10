@@ -7,7 +7,7 @@ import structlog
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from jobserver.commands.rap import get_active_job_request_ids, rap_status_update
+from jobserver.commands.rap import get_active_job_request_identifiers, rap_status_update
 
 
 logger = structlog.get_logger(__name__)
@@ -27,7 +27,7 @@ class Command(BaseCommand):
         run_fn = options["run_fn"]
         while run_fn():
             try:
-                active_job_requests_ids = get_active_job_request_ids()
+                active_job_requests_ids = get_active_job_request_identifiers()
                 rap_status_update(active_job_requests_ids)
                 time.sleep(settings.RAP_API_POLL_INTERVAL)
             except Exception as exc:
