@@ -16,13 +16,13 @@ def patch_backend_status_api_call(monkeypatch):
 
     """
 
-    def _do_backend_status_patch(backend_name, last_seen="2025-08-12T06:57:43.039078Z"):
+    def _do_backend_status_patch(backend_slug, last_seen="2025-08-12T06:57:43.039078Z"):
         # Mock a backend status response. If last_seen is not passed, use the default timestamp
 
         TEST_RESPONSE_BODY = {
             "backends": [
                 {
-                    "name": f"{backend_name}",
+                    "slug": f"{backend_slug}",
                     "last_seen": last_seen,
                     "paused": {
                         "status": "off",
@@ -47,9 +47,9 @@ def patch_backend_status_api_call(monkeypatch):
 
 
 def test_command(log_output, patch_backend_status_api_call):
-    backend = BackendFactory(name="test")
+    backend = BackendFactory()
 
-    test_response_body = patch_backend_status_api_call("test")
+    test_response_body = patch_backend_status_api_call(backend.slug)
 
     call_command("check_rap_api_status")
 
@@ -62,19 +62,6 @@ def test_command(log_output, patch_backend_status_api_call):
         "level": "info",
         "logger": "jobserver.management.commands.check_rap_api_status",
     }
-
-
-def test_backend_name_case_insensitive(log_output, patch_backend_status_api_call):
-    backend = BackendFactory(name="TEST")
-
-    test_response_body = patch_backend_status_api_call("test")
-
-    call_command("check_rap_api_status")
-
-    backend.refresh_from_db()
-
-    assert log_output.entries[0]["event"] == test_response_body
-    assert log_output.entries[0]["log_level"] == "info"
 
 
 def test_command_error(monkeypatch, log_output):
@@ -101,14 +88,14 @@ def test_update_nonexistent_backend(patch_backend_status_api_call, log_output):
 def test_update_backend_state_no_timestamp(patch_backend_status_api_call):
     backend = BackendFactory()
 
-    patch_backend_status_api_call(backend.name, None)
+    patch_backend_status_api_call(backend.slug, None)
 
     call_command("check_rap_api_status")
 
     backend.refresh_from_db()
 
     assert backend.rap_api_state == {
-        "name": backend.name,
+        "slug": backend.slug,
         "last_seen": None,
         "paused": {"status": "off", "since": "2025-08-12T14:33:57.413881Z"},
         "db_maintenance": {"status": "off", "since": None, "type": None},
@@ -118,14 +105,14 @@ def test_update_backend_state_no_timestamp(patch_backend_status_api_call):
 
 
 def test_update_backend_state_existing_url(patch_backend_status_api_call):
-    backend = BackendFactory(name="test")
-    patch_backend_status_api_call(backend.name)
+    backend = BackendFactory()
+    patch_backend_status_api_call(backend.slug)
 
     call_command("check_rap_api_status")
     backend.refresh_from_db()
 
     assert backend.rap_api_state == {
-        "name": backend.name,
+        "slug": backend.slug,
         "last_seen": "2025-08-12T06:57:43.039078Z",
         "paused": {"status": "off", "since": "2025-08-12T14:33:57.413881Z"},
         "db_maintenance": {"status": "off", "since": None, "type": None},
@@ -136,9 +123,9 @@ def test_update_backend_state_existing_url(patch_backend_status_api_call):
 
 
 def test_update_backend_state_new_url(patch_backend_status_api_call, settings):
-    backend = BackendFactory(name="test")
+    backend = BackendFactory()
 
-    patch_backend_status_api_call(backend.name)
+    patch_backend_status_api_call(backend.slug)
     call_command("check_rap_api_status")
 
     backend.refresh_from_db()
@@ -148,7 +135,7 @@ def test_update_backend_state_new_url(patch_backend_status_api_call, settings):
     # patch a new url path using the settings fixture
     settings.RAP_API_BASE_URL = "http://example.com/rap/new"
 
-    patch_backend_status_api_call(backend.name)
+    patch_backend_status_api_call(backend.slug)
     call_command("check_rap_api_status")
 
     backend.refresh_from_db()
@@ -159,13 +146,13 @@ def test_update_backend_state_new_url(patch_backend_status_api_call, settings):
 
 
 def test_update_backend_state_multiple_backends(monkeypatch):
-    backend1 = BackendFactory(name="test1")
-    backend2 = BackendFactory(name="test2")
+    backend1 = BackendFactory()
+    backend2 = BackendFactory()
 
     test_response_body = {
         "backends": [
             {
-                "name": f"{backend1.name}",
+                "slug": f"{backend1.slug}",
                 "last_seen": "2025-08-12T06:57:43.039078Z",
                 "paused": {
                     "status": "off",
@@ -178,7 +165,7 @@ def test_update_backend_state_multiple_backends(monkeypatch):
                 },
             },
             {
-                "name": f"{backend2.name}",
+                "slug": f"{backend2.slug}",
                 "last_seen": "2025-08-12T06:57:43.039078Z",
                 "paused": {
                     "status": "off",
