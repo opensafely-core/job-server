@@ -86,7 +86,7 @@ def rap_status_update(rap_ids):
         # This could happen if the management command is given a rap_id which
         # does not exist on job-server but does exist on the controller.
         if job_request is None:
-            logger.warning(f"Job-server does not recognise RAP id: {rap_id}")
+            logger.warning("Job-server does not recognise RAP id", rap_id=rap_id)
             continue
 
         # bind the job request ID to further logs so looking them up
@@ -149,13 +149,14 @@ def rap_status_update(rap_ids):
 
             # TODO: Use bulk_create with update_conflicts=True to bulk create or update
 
-    logger.info(
-        "Created or updated Jobs",
-        created_job_ids=created_job_ids,
-        created_job_identifiers=created_job_identifiers,
-        updated_job_ids=updated_job_ids,
-        updated_job_identifiers=updated_job_identifiers,
-    )
+    if created_job_ids or updated_job_ids:
+        logger.info(
+            "Created or updated Jobs",
+            created_job_ids=created_job_ids,
+            created_job_identifiers=created_job_identifiers,
+            updated_job_ids=updated_job_ids,
+            updated_job_identifiers=updated_job_identifiers,
+        )
     if unrecognised_job_identifiers:
         # TODO: Emit sentry event
         logger.error(
