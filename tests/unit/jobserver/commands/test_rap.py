@@ -129,6 +129,6 @@ def test_rap_status_update_simple(
     assert updated_job1.updated_at == now
     assert updated_job1.completed_at == seconds_ago(now, 30)
     assert updated_job1.metrics == {"cpu_peak": 99}
-    assert log_output.entries[-1]["event"] == "Created, updated or deleted Jobs"
+    assert log_output.entries[-1]["event"] == "Created or updated Jobs"
     assert log_output.entries[-1]["updated_job_ids"] == [job1.id]
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
