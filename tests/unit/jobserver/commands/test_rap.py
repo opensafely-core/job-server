@@ -114,7 +114,11 @@ def test_rap_status_update_simple(
     )
     mock_rap_api_status.return_value = test_response_json
 
-    with django_assert_num_queries(5):
+    # Queries:
+    # 1 & 2) Get all matching job requests, prefetching jobs
+    # 3) Retrieve statuses for existing jobs
+    # 4-7) update_or_create on the job returned in the response
+    with django_assert_num_queries(7):
         rap.rap_status_update([job_request.identifier])
 
     # we shouldn't have a different number of jobs
@@ -132,3 +136,93 @@ def test_rap_status_update_simple(
     assert log_output.entries[-1]["event"] == "Created or updated Jobs"
     assert log_output.entries[-1]["updated_job_ids"] == [job1.id]
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
+
+
+@patch("jobserver.rap_api.status")
+def test_rap_status_update_create_job(
+    mock_rap_api_status, django_assert_num_queries, now
+):
+    job_request = JobRequestFactory()
+
+    assert Job.objects.count() == 0
+
+    test_response_json = rap_status_response_factory(
+        [
+            {"rap_id": job_request.identifier, "identifier": "new-job-identifier"},
+        ],
+        [],
+        now,
+    )
+    mock_rap_api_status.return_value = test_response_json
+
+    # Queries:
+    # 1 & 2) Get all matching job requests, prefetching jobs
+    # 3) Retrieve statuses for existing jobs
+    # 4-9) update_or_create on the job returned in the response (create requires 2 additional queries to update)
+    with django_assert_num_queries(9):
+        rap.rap_status_update([job_request.identifier])
+
+    # we shouldn't have a different number of jobs
+    jobs = Job.objects.all()
+    assert len(jobs) == 1
+
+    # check our jobs look as expected
+    updated_job = jobs[0]
+    assert updated_job.identifier == "new-job-identifier"
+
+
+@patch("jobserver.rap_api.status")
+def test_rap_status_update_multiple_raps(
+    mock_rap_api_status, django_assert_num_queries, now
+):
+    job_request1 = JobRequestFactory()
+    job_request2 = JobRequestFactory()
+
+    assert Job.objects.count() == 0
+
+    job1 = JobFactory.create(
+        job_request=job_request1,
+        started_at=None,
+        status="pending",
+        completed_at=None,
+    )
+    job2 = JobFactory.create(
+        job_request=job_request2,
+        started_at=None,
+        status="pending",
+        completed_at=None,
+    )
+    assert Job.objects.count() == 2
+
+    test_response_json = rap_status_response_factory(
+        [
+            {
+                "identifier": job1.identifier,
+                "rap_id": job_request1.identifier,
+            },
+            {
+                "identifier": job2.identifier,
+                "rap_id": job_request2.identifier,
+            },
+        ],
+        [],
+        now,
+    )
+    mock_rap_api_status.return_value = test_response_json
+
+    # Queries:
+    # 1 & 2) Get all matching job requests, prefetching jobs
+    # 3) Retrieve statuses for existing jobs
+    # 4-7, 8-11) update_or_create on each job returned in the response
+    with django_assert_num_queries(11):
+        rap.rap_status_update([job_request1.identifier, job_request2.identifier])
+
+    # we shouldn't have a different number of jobs
+    jobs = Job.objects.all()
+    assert len(jobs) == 2
+
+    # check our jobs look as expected
+    updated_job1 = jobs[0]
+    updated_job2 = jobs[1]
+    assert updated_job1.identifier == job1.identifier
+    assert updated_job2.identifier == job2.identifier

@@ -69,6 +69,12 @@ def rap_status_update(rap_ids):
 
     unrecognised_rap_ids = set(json_response.get("unrecognised_rap_ids", []))
 
+    # Retrieve all pre-update job statuses for existing jobs before updates so
+    # we can idenitfy those that have newly completed
+    preupdate_job_statuses = dict(
+        job_requests.values_list("jobs__identifier", "jobs__status")
+    )
+
     for rap_id in rap_ids:
         if rap_id in unrecognised_rap_ids:
             continue
@@ -83,7 +89,6 @@ def rap_status_update(rap_ids):
 
         # bind the job request ID to further logs so looking them up
         # in the UI is easier
-
         with structlog.contextvars.bound_contextvars(job_request=job_request.id):
             jobs_from_api = jobs_from_api_by_rap_id.get(rap_id, [])
             # get the current Jobs for the JobRequest, keyed on their identifier
@@ -107,7 +112,11 @@ def rap_status_update(rap_ids):
                 )
 
                 job_from_db: Job
-                job_from_db, created = job_request.jobs.get_or_create(
+                # Note: we use update_or_create here as it uses select_for_update behind the
+                # scenes and locks the row until it's done. We may be able to remove this once
+                # the RAP API V2 work is complete and the controller no longer also calls
+                # the API jobs endpoint to update.
+                job_from_db, created = job_request.jobs.update_or_create(
                     identifier=job_from_api["identifier"],
                     defaults={**job_from_api},
                 )
@@ -124,26 +133,19 @@ def rap_status_update(rap_ids):
                     updated_job_identifiers.append(job_from_db.identifier)
 
                     newly_completed = (
-                        not job_from_db.is_completed
+                        preupdate_job_statuses.get(job_from_db.identifier)
+                        not in COMPLETED_STATES
                         and job_from_api["status"] in COMPLETED_STATES
                     )
 
-                    # Update the Job here rather than using create_or_update above, as
-                    # we needed to check the pre-update status to identify newly
-                    # created jobs.
-                    for key, value in job_from_api.items():
-                        setattr(job_from_db, key, value)
-
-                # TODO: use bulk_update instead
-                job_from_db.save()
-
                 if newly_completed:
-                    job_from_db.refresh_from_db()
                     logger.debug(
                         "Newly completed job", job_identifier=job_from_db.identifier
                     )
                     # TODO: port this to here!
                     # handle_job_notifications(job_request, job_from_db)
+
+            # TODO: Use bulk_create with update_conflicts=True to bulk create or update
 
             # Refresh value of job_request._status so that if we repeatedly call this
             # in a long-running service, we can reliably get a correct list of active
