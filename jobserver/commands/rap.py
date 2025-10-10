@@ -55,11 +55,17 @@ def rap_status_update(rap_ids):
     updated_job_identifiers = []
     unrecognised_job_identifiers = []
 
-    # Remove rap_id from the data, it's going to be set by
+    # Turn job response data into a dict of jobs by rap_id
+    # Also remove rap_id from the job data - it's going to be set by
     # creating/updating Job instances via the JobRequest instances
     # related Jobs manager (ie job_request.jobs)
     # Also remove some other values which we don't currently store in Job
-    superfluous_job_keys = ["rap_id", "backend", "requires_db"]
+    jobs_from_api_by_rap_id = {}
+    for job in json_response["jobs"]:
+        job_rap_id = job.pop("rap_id")
+        for superfluous_job_key in ["backend", "requires_db"]:
+            job.pop(superfluous_job_key, None)
+        jobs_from_api_by_rap_id.setdefault(job_rap_id, []).append(job)
 
     unrecognised_rap_ids = set(json_response.get("unrecognised_rap_ids", []))
 
@@ -79,10 +85,7 @@ def rap_status_update(rap_ids):
         # in the UI is easier
 
         with structlog.contextvars.bound_contextvars(job_request=job_request.id):
-            jobs_from_api = [
-                j for j in json_response["jobs"] if j.get("rap_id") == rap_id
-            ]
-
+            jobs_from_api = jobs_from_api_by_rap_id.get(rap_id, [])
             # get the current Jobs for the JobRequest, keyed on their identifier
             database_identifiers = {j.identifier for j in job_request.jobs.all()}
 
@@ -98,13 +101,10 @@ def rap_status_update(rap_ids):
             for job_from_api in jobs_from_api:
                 logger.debug(
                     "RAP Job Status",
-                    rap_id=job_from_api["rap_id"],
+                    rap_id=rap_id,
                     job_identifier=job_from_api["identifier"],
                     status=job_from_api["status"],
                 )
-
-                for superfluous_key in superfluous_job_keys:
-                    job_from_api.pop(superfluous_key, None)
 
                 job_from_db: Job
                 job_from_db, created = job_request.jobs.get_or_create(
