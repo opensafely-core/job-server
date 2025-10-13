@@ -82,22 +82,6 @@ class JobRequestStatus(models.TextChoices):
     UNKNOWN = "unknown"
     UNKNOWN_ERROR_CREATING_JOBS = "unknown_error_creating_jobs"
 
-    @classmethod
-    def active_statuses(cls):
-        active_statuses = [
-            cls.PENDING,
-            cls.RUNNING,
-            cls.UNKNOWN,
-            cls.UNKNOWN_ERROR_CREATING_JOBS,
-        ]
-        return [status.value for status in active_statuses]
-
-    @classmethod
-    def is_completed(cls, value):
-        value = value.lower()
-        completed_states = [cls.FAILED, cls.SUCCEEDED, cls.NOTHING_TO_DO]
-        return value in cls.values and cls(value) in completed_states
-
 
 class JobRequest(models.Model):
     """
@@ -139,6 +123,13 @@ class JobRequest(models.Model):
     _status = models.TextField(
         default=JobRequestStatus.UNKNOWN, choices=JobRequestStatus
     )
+    active_statuses = [
+        JobRequestStatus.PENDING,
+        JobRequestStatus.RUNNING,
+        JobRequestStatus.UNKNOWN,
+        JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS,
+    ]
+
     status_message = models.TextField(null=True, blank=True)
 
     objects = JobRequestManager()
@@ -239,7 +230,7 @@ class JobRequest(models.Model):
         # Is this job request in a completed status? We use the self.jobs_status
         # property here, which will first check the overall jobs_status, and
         # if necessary, calculate status from pending/running jobs
-        return JobRequestStatus.is_completed(self.jobs_status)
+        return self.jobs_status not in self.active_statuses
 
     @property
     def num_completed(self):
@@ -398,7 +389,7 @@ class JobRequest(models.Model):
     def jobs_status(self) -> str:
         # status has already been set to a completed status, we can just
         # return it
-        if JobRequestStatus.is_completed(self._status):
+        if self._status not in self.active_statuses:
             return self._status
 
         prefetched_jobs = (
@@ -460,7 +451,7 @@ class JobRequest(models.Model):
     def update_status(
         self, new_status: JobRequestStatus, message=None
     ) -> JobRequestStatus:
-        if self._status != new_status.value:
+        if self._status != new_status:
             self._status = new_status
             self.status_message = message
             self.save()

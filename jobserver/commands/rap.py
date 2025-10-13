@@ -24,12 +24,10 @@ def get_active_job_request_identifiers():
     # We also filter JobRequests that we identify by their _status field to only those created within the
     # past year, to avoid returning any very old job requests that may have unknown status due to
     # historical differences in the way the job status field was set.
-    # Potentially active statuses are pending, running, unknown_error_creating_jobs and unknown
-    active_job_request_statuses = JobRequestStatus.active_statuses()
     one_year_ago = timezone.now() - datetime.timedelta(weeks=52)
     active_job_requests = JobRequest.objects.filter(
         Q(
-            _status__in=active_job_request_statuses,
+            _status__in=JobRequest.active_statuses,
             created_at__gte=one_year_ago,
             backend__slug="test",
         )
@@ -39,7 +37,7 @@ def get_active_job_request_identifiers():
     return [
         jr.identifier
         for jr in active_job_requests
-        if jr.jobs_status in active_job_request_statuses
+        if jr.jobs_status in JobRequest.active_statuses
     ]
 
 
@@ -88,10 +86,7 @@ def rap_status_update(rap_ids):
             # We now know that they were not successfully created, so we can mark the job request as failed
             # We don't do anything with job requests that have any other status, because we can't be sure of
             # why there are no jobs on the controller, so we just log those as errors later.
-            if (
-                JobRequestStatus(job_request.jobs_status)
-                == JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
-            ):
+            if job_request.jobs_status == JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS:
                 job_request.update_status(
                     JobRequestStatus.FAILED, "Unknown error creating jobs"
                 )
