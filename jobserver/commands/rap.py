@@ -48,6 +48,14 @@ def rap_status_update(rap_ids):
     job_requests = JobRequest.objects.filter(identifier__in=rap_ids).prefetch_related(
         "jobs"
     )
+    # Retrieve all pre-update job statuses for existing jobs before updates so
+    # we can idenitfy those that have newly completed
+    preupdate_job_statuses = {
+        job.identifier: job.status
+        for jr in job_requests
+        for job in jr.jobs.all()
+    }
+
     job_request_by_identifier = {jr.identifier: jr for jr in job_requests}
 
     created_job_ids = []
@@ -70,12 +78,6 @@ def rap_status_update(rap_ids):
         jobs_from_api_by_rap_id.setdefault(job_rap_id, []).append(job)
 
     unrecognised_rap_ids = set(json_response.get("unrecognised_rap_ids", []))
-
-    # Retrieve all pre-update job statuses for existing jobs before updates so
-    # we can idenitfy those that have newly completed
-    preupdate_job_statuses = dict(
-        job_requests.values_list("jobs__identifier", "jobs__status")
-    )
 
     for rap_id in rap_ids:
         job_request = job_request_by_identifier.get(rap_id)

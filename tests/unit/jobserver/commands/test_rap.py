@@ -163,9 +163,8 @@ def test_rap_status_update_single_job_request(
 
     # Queries:
     # 1 & 2) Get all matching job requests, prefetching jobs
-    # 3) Retrieve statuses for existing jobs
-    # 4-7) update_or_create on the job returned in the response
-    with django_assert_num_queries(7):
+    # 3-6) update_or_create on the job returned in the response
+    with django_assert_num_queries(6):
         rap.rap_status_update([job_request.identifier])
 
     # we shouldn't have a different number of jobs
@@ -204,9 +203,8 @@ def test_rap_status_update_single_job_request_create_job(
 
     # Queries:
     # 1 & 2) Get all matching job requests, prefetching jobs
-    # 3) Retrieve statuses for existing jobs
-    # 4-9) update_or_create on the job returned in the response (create requires 2 additional queries to update)
-    with django_assert_num_queries(9):
+    # 3-8) update_or_create on the job returned in the response (create requires 2 additional queries to update)
+    with django_assert_num_queries(8):
         rap.rap_status_update([job_request.identifier])
 
     # we shouldn't have a different number of jobs
@@ -259,9 +257,8 @@ def test_rap_status_update_single_job_for_multiple_job_requests(
 
     # Queries:
     # 1 & 2) Get all matching job requests, prefetching jobs
-    # 3) Retrieve statuses for existing jobs
-    # 4-7, 8-11) update_or_create on each job returned in the response
-    with django_assert_num_queries(11):
+    # 3-6, 7-10) update_or_create on each job returned in the response
+    with django_assert_num_queries(10):
         rap.rap_status_update([job_request1.identifier, job_request2.identifier])
 
     # we shouldn't have a different number of jobs
@@ -276,11 +273,10 @@ def test_rap_status_update_single_job_for_multiple_job_requests(
 
 
 @pytest.mark.parametrize(
-    # Query counts: 3 initial queries to get all matching job requests, prefetching jobs,
-    # and to rettrieve statuses for existing jobs
+    # Query counts: 2 initial queries to get all matching job requests, prefetching jobs
     # Then 4 queries per job (3 jobs in test) to update or 6 queries per job to create
     "pre_existing, query_count",
-    [(True, 3 + 3 * 4), (False, 3 + 3 * 6)],
+    [(True, 2 + 3 * 4), (False, 2 + 3 * 6)],
 )
 @patch("jobserver.rap_api.status")
 def test_update_job_multiple(
@@ -518,9 +514,8 @@ def test_update_jobs_multiple_job_requests(
 
     # Queries:
     # 1 & 2) Get all matching job requests, prefetching jobs
-    # 3) Retrieve statuses for existing jobs
     # 4 queries per job to update
-    with django_assert_num_queries(19):
+    with django_assert_num_queries(18):
         rap.rap_status_update([job_request1.identifier, job_request2.identifier])
 
     # Check the command worked overall
@@ -604,9 +599,8 @@ def test_unexpected_local_jobs(
 
     # Queries:
     # 1 & 2) Get all matching job requests, prefetching jobs
-    # 3) Retrieve statuses for existing jobs
     # 4 queries per job to update
-    with django_assert_num_queries(7):
+    with django_assert_num_queries(6):
         rap.rap_status_update([job_request.identifier])
 
     # Unexpected lobs are not deleted
@@ -714,8 +708,7 @@ def test_rap_status_update_unrecognised_rap_ids(
 
     # Queries:
     # 1 & 2) Get all matching job requests, prefetching jobs
-    # 3) Retrieve statuses for existing jobs
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(2):
         rap.rap_status_update([job_request.identifier])
 
     # no change to jobs
@@ -748,9 +741,8 @@ def test_rap_status_update_unrecognised_rap_ids_job_request_with_unknown_created
 
     # Queries:
     # 1 & 2) Get all matching job requests, prefetching jobs
-    # 3) Retrieve statuses for existing jobs
-    # 4) Update the failed job request status
-    with django_assert_num_queries(4):
+    # 3) Update the failed job request status
+    with django_assert_num_queries(3):
         rap.rap_status_update([job_request.identifier])
 
     # no new jobs
@@ -787,8 +779,8 @@ def test_rap_status_update_unknown_job_request(
     mock_rap_api_status.return_value = test_response_json
 
     # Queries:
-    # 1 & 2) Get all matching job requests, prefetching jobs
-    with django_assert_num_queries(2):
+    # 1) Get all matching job requests, no jobs to prefetching
+    with django_assert_num_queries(1):
         rap.rap_status_update(["unknown-rap-id"])
 
     # no change to jobs
