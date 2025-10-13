@@ -18,7 +18,7 @@ class Command(BaseCommand):
             backends = backend_status_response["backends"]
 
             for backend_states in backends:
-                backend_slug = backend_states.get("slug") or backend_states.get("name")
+                backend_slug = backend_states["slug"]
 
                 backend_object = Backend.objects.get(slug=backend_slug)
 
