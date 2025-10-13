@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from jobserver import rap_api
+from jobserver.api.jobs import handle_job_notifications
 from jobserver.models import Job, JobRequest, JobRequestStatus
 from jobserver.models.job import COMPLETED_STATES
 
@@ -154,8 +155,7 @@ def rap_status_update(rap_ids):
                     logger.debug(
                         "Newly completed job", job_identifier=job_from_db.identifier
                     )
-                    # TODO: port this to here!
-                    # handle_job_notifications(job_request, job_from_db)
+                    handle_job_notifications(job_request, job_from_db)
 
             # TODO: Use bulk_create with update_conflicts=True to bulk create or update
 
