@@ -45,18 +45,18 @@ def rap_status_update(rap_ids):
     json_response = rap_api.status(
         rap_ids,
     )
-    job_requests = JobRequest.objects.filter(identifier__in=rap_ids).prefetch_related(
-        "jobs"
+    job_request_by_identifier = (
+        JobRequest.objects.filter(identifier__in=rap_ids)
+        .prefetch_related("jobs")
+        .in_bulk(field_name="identifier")
     )
     # Retrieve all pre-update job statuses for existing jobs before updates so
     # we can idenitfy those that have newly completed
     preupdate_job_statuses = {
         job.identifier: job.status
-        for jr in job_requests
+        for jr in job_request_by_identifier.values()
         for job in jr.jobs.all()
     }
-
-    job_request_by_identifier = {jr.identifier: jr for jr in job_requests}
 
     created_job_ids = []
     created_job_identifiers = []
