@@ -1,4 +1,5 @@
 import datetime
+from collections import defaultdict
 
 import structlog
 from django.db.models import Q
@@ -70,12 +71,13 @@ def rap_status_update(rap_ids):
     # creating/updating Job instances via the JobRequest instances
     # related Jobs manager (ie job_request.jobs)
     # Also remove some other values which we don't currently store in Job
-    jobs_from_api_by_rap_id = {}
+    SUPERFLUOUS_KEYS = ["rap_id", "backend", "requires_db"]
+    jobs_from_api_by_rap_id = defaultdict(list)
     for job in json_response["jobs"]:
-        job_rap_id = job.pop("rap_id")
-        for superfluous_job_key in ["backend", "requires_db"]:
-            job.pop(superfluous_job_key, None)
-        jobs_from_api_by_rap_id.setdefault(job_rap_id, []).append(job)
+        cleaned_job_dict = {
+            key: value for key, value in job.items() if key not in SUPERFLUOUS_KEYS
+        }
+        jobs_from_api_by_rap_id[job["rap_id"]].append(cleaned_job_dict)
 
     unrecognised_rap_ids = set(json_response.get("unrecognised_rap_ids", []))
 
