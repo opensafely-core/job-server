@@ -103,13 +103,9 @@ def rap_status_update(rap_ids):
             logger.warning("Job-server does not recognise RAP id", rap_id=rap_id)
             continue
 
-        # bind the job request ID to further logs so looking them up
-        # in the UI is easier
         with structlog.contextvars.bound_contextvars(job_request=job_request.id):
             jobs_from_api = jobs_from_api_by_rap_id.get(rap_id, [])
-            # get the current Jobs for the JobRequest, keyed on their identifier
             database_identifiers = {j.identifier for j in job_request.jobs.all()}
-
             payload_identifiers = {j["identifier"] for j in jobs_from_api}
 
             # check for local jobs not in the payload. This should never happen - jobs
