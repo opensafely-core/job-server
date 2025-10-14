@@ -583,6 +583,10 @@ against the modified schema.
 
 - **Removing a model or field**
    - PR 1: remove all code references.
+       - If the field is not nullable, make it nullable in a commit before the
+         commit that removes the field.  Include the corresponding migration.
+         Else, the tests may fail as the objects created by the test framework may
+         not be valid according to the database schema from the migrations.
    - PR 2: associated migration to drop it.
 
 - **Making a field non-nullable**
