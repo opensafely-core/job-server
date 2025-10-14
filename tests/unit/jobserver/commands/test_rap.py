@@ -8,7 +8,12 @@ from django.utils import timezone
 
 from jobserver.commands import rap
 from jobserver.models import Job, JobRequest, JobRequestStatus
-from tests.factories import BackendFactory, JobFactory, JobRequestFactory
+from tests.factories import (
+    BackendFactory,
+    JobFactory,
+    JobRequestFactory,
+    WorkspaceFactory,
+)
 from tests.utils import minutes_ago, seconds_ago
 
 
@@ -789,3 +794,66 @@ def test_rap_status_update_unknown_job_request(
     assert log_output.entries[-1]["event"] == "Job-server does not recognise RAP id"
     assert log_output.entries[-1]["level"] == "warning"
     assert log_output.entries[-1]["rap_id"] == "unknown-rap-id"
+
+
+@patch("jobserver.rap_api.status")
+def test_rap_status_update_notifications_on_with_move_to_succeeded(
+    mock_rap_api_status, now, mocker
+):
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace, will_notify=True)
+    job = JobFactory(job_request=job_request, status="running")
+
+    test_response_json = rap_status_response_factory(
+        [
+            {
+                "identifier": job.identifier,
+                "rap_id": job_request.identifier,
+                "status": "succeeded",
+                "created_at": minutes_ago(now, 2),
+                "started_at": minutes_ago(now, 1),
+                "completed_at": seconds_ago(now, 30),
+            }
+        ],
+        [],
+        now,
+    )
+    mock_rap_api_status.return_value = test_response_json
+
+    mocked_send = mocker.patch(
+        "jobserver.api.jobs.send_finished_notification", autospec=True
+    )
+
+    rap.rap_status_update([job_request.identifier])
+    mocked_send.assert_called_once()
+
+
+@patch("jobserver.rap_api.status")
+def test_jrap_status_update_notifications_on_without_move_to_completed(
+    mock_rap_api_status, now, mocker
+):
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace, will_notify=True)
+    job = JobFactory(job_request=job_request, status="running")
+
+    test_response_json = rap_status_response_factory(
+        [
+            {
+                "identifier": job.identifier,
+                "rap_id": job_request.identifier,
+                "status": "running",
+                "created_at": minutes_ago(now, 2),
+                "started_at": minutes_ago(now, 1),
+            }
+        ],
+        [],
+        now,
+    )
+    mock_rap_api_status.return_value = test_response_json
+
+    mocked_send = mocker.patch(
+        "jobserver.api.jobs.send_finished_notification", autospec=True
+    )
+
+    rap.rap_status_update([job_request.identifier])
+    mocked_send.assert_not_called()
