@@ -155,6 +155,7 @@ def rap_status_update(rap_ids):
                     logger.debug(
                         "Newly completed job", job_identifier=job_from_db.identifier
                     )
+                    convert_runtime_fields(job_from_db)
                     handle_job_notifications(job_request, job_from_db)
 
             # TODO: Use bulk_create with update_conflicts=True to bulk create or update
@@ -182,3 +183,17 @@ def rap_status_update(rap_ids):
             "Job requests with no RAP jobs updated to failed",
             rap_ids=failed_job_request_identifiers,
         )
+
+
+def convert_runtime_fields(job_from_db):
+    # Ensure datetimes used to calculate runtime in notifications are python
+    # datetimes as expected by the notification code
+    # Datetimes returned in the RAP API response are isoformatted datetime strings
+    # When they are used as defaults in the update_or_create call, the returned
+    # job_from_db object does not yet have the python representations of those strings.
+    # (We could obtain them by calling job_from_db.refresh_from_db(), but this saves an
+    # additional db query)
+    for field in "started_at", "completed_at":
+        value = getattr(job_from_db, field)
+        if isinstance(value, str):  # pragma: no branch
+            setattr(job_from_db, field, datetime.datetime.fromisoformat(value))

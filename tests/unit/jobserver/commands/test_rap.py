@@ -4,6 +4,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
+from django.core import mail
 from django.utils import timezone
 
 from jobserver.commands import rap
@@ -111,6 +112,12 @@ def check_job_request_status(rap_id, expected_status):
     return job_request
 
 
+def isoformat_datetime(dt):
+    if dt is not None:
+        dt = dt.isoformat()
+    return dt
+
+
 def rap_status_response_factory(jobs, unrecognised_rap_ids, now):
     jobs_response = []
     for job in jobs:
@@ -125,10 +132,17 @@ def rap_status_response_factory(jobs, unrecognised_rap_ids, now):
                 "status": job.get("status", "succeeded"),
                 "status_code": "",
                 "status_message": "",
-                "created_at": job.get("created_at", minutes_ago(now, 2)),
-                "started_at": job.get("started_at", minutes_ago(now, 1)),
-                "updated_at": now,
-                "completed_at": job.get("completed_at", seconds_ago(now, 30)),
+                # datetimes in the json response from the RAP API are received as isoformat strings
+                "created_at": isoformat_datetime(
+                    job.get("created_at", minutes_ago(now, 2))
+                ),
+                "started_at": isoformat_datetime(
+                    job.get("started_at", minutes_ago(now, 1))
+                ),
+                "updated_at": now.isoformat(),
+                "completed_at": isoformat_datetime(
+                    job.get("completed_at", seconds_ago(now, 30))
+                ),
                 "metrics": {"cpu_peak": 99},
             }
         )
@@ -802,7 +816,7 @@ def test_rap_status_update_notifications_on_with_move_to_succeeded(
 ):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
-    job = JobFactory(job_request=job_request, status="running")
+    job = JobFactory(job_request=job_request, status="pending")
 
     test_response_json = rap_status_response_factory(
         [
@@ -810,26 +824,32 @@ def test_rap_status_update_notifications_on_with_move_to_succeeded(
                 "identifier": job.identifier,
                 "rap_id": job_request.identifier,
                 "status": "succeeded",
-                "created_at": minutes_ago(now, 2),
+                "created_at": minutes_ago(now, 3),
+                "started_at": minutes_ago(now, 2),
+                "completed_at": seconds_ago(now, 45),
+            },
+            {
+                "identifier": "new-job-identifier",
+                "rap_id": job_request.identifier,
+                "status": "succeeded",
+                "created_at": minutes_ago(now, 3),
                 "started_at": minutes_ago(now, 1),
                 "completed_at": seconds_ago(now, 30),
-            }
+            },
         ],
         [],
         now,
     )
     mock_rap_api_status.return_value = test_response_json
 
-    mocked_send = mocker.patch(
-        "jobserver.api.jobs.send_finished_notification", autospec=True
-    )
-
     rap.rap_status_update([job_request.identifier])
-    mocked_send.assert_called_once()
+
+    # One mail sent for each completed job
+    assert len(mail.outbox) == 2
 
 
 @patch("jobserver.rap_api.status")
-def test_jrap_status_update_notifications_on_without_move_to_completed(
+def test_rap_status_update_notifications_on_without_move_to_completed(
     mock_rap_api_status, now, mocker
 ):
     workspace = WorkspaceFactory()
