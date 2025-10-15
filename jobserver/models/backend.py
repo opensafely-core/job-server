@@ -71,8 +71,6 @@ class Backend(models.Model):
     # how long until we consider a backend to be missing
     alert_timeout = models.DurationField(default=timedelta(minutes=5))
 
-    jobrunner_state = models.JSONField(null=True)
-
     rap_api_state = models.JSONField(null=True)
 
     last_seen_at = models.DateTimeField(null=True)
