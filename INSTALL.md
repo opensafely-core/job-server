@@ -49,6 +49,15 @@ dokku plugin:install sentry-webhook
 dokku$ sudo mkdir -p /var/log/journal
 ```
 
+## View logs
+
+```bash
+# web container
+dokku logs job-server
+# rapstatus container
+dokku logs -p rapstatus job-server
+```
+
 ## Test Mailgun
 
 ```bash
