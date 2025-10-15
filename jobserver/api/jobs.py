@@ -256,7 +256,7 @@ class JobRequestAPIList(ListAPIView):
         qs = (
             JobRequest.objects.filter(
                 Q(
-                    _status__in=["pending", "running", "unknown"],
+                    _status__in=JobRequest.active_statuses,
                     created_at__gte=timezone.now() - datetime.timedelta(365),
                 )
                 | Q(id__in=active_job_request_ids)

@@ -3,9 +3,7 @@
 import structlog
 from django.core.management.base import BaseCommand
 
-from jobserver import rap_api
-from jobserver.models import Job, JobRequest
-from jobserver.models.job import COMPLETED_STATES
+from jobserver.commands.rap import rap_status_update
 
 
 logger = structlog.get_logger(__name__)
@@ -26,123 +24,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            json_response = rap_api.status(
-                options["rap_ids"],
-            )
-            job_requests = JobRequest.objects.filter(
-                identifier__in=options["rap_ids"]
-            ).prefetch_related("jobs")
-            job_request_by_identifier = {jr.identifier: jr for jr in job_requests}
-
-            created_job_ids = []
-            created_job_identifiers = []
-            updated_job_ids = []
-            updated_job_identifiers = []
-            deleted_identifiers = []
-
-            # Remove rap_id from the data, it's going to be set by
-            # creating/updating Job instances via the JobRequest instances
-            # related Jobs manager (ie job_request.jobs)
-            # Also remove some other values which we don't currently store in Job
-            superfluous_job_keys = ["rap_id", "backend", "requires_db"]
-
-            for rap_id in options["rap_ids"]:
-                # TODO: move this out of the management command!!
-
-                if rap_id in json_response["unrecognised_rap_ids"]:
-                    continue
-
-                job_request = job_request_by_identifier.get(rap_id)
-
-                # This could happen if the management command is given a rap_id which
-                # does not exist on job-server but does exist on the controller.
-                if job_request is None:
-                    logger.warning(f"Job-server does not recognise RAP id: {rap_id}")
-                    continue
-
-                # bind the job request ID to further logs so looking them up
-                # in the UI is easier
-                structlog.contextvars.bind_contextvars(job_request=job_request.id)
-
-                jobs_from_api = [
-                    j for j in json_response["jobs"] if j.get("rap_id") == rap_id
-                ]
-
-                database_jobs = job_request.jobs.all()
-
-                # get the current Jobs for the JobRequest, keyed on their identifier
-                jobs_by_identifier = {j.identifier: j for j in database_jobs}
-
-                payload_identifiers = {j["identifier"] for j in jobs_from_api}
-
-                # delete local jobs not in the payload
-                identifiers_to_delete = (
-                    set(jobs_by_identifier.keys()) - payload_identifiers
-                )
-                if identifiers_to_delete:
-                    job_request.jobs.filter(
-                        identifier__in=identifiers_to_delete
-                    ).delete()
-                    for identifier in identifiers_to_delete:
-                        deleted_identifiers.append(str(identifier))
-
-                for job_from_api in jobs_from_api:
-                    logger.info(
-                        f"RAP: {job_from_api['rap_id']} Job: {job_from_api['identifier']} Status: {job_from_api['status']}"
-                    )
-
-                    for superfluous_key in superfluous_job_keys:
-                        job_from_api.pop(superfluous_key, None)
-
-                    job_from_db, created = job_request.jobs.get_or_create(
-                        identifier=job_from_api["identifier"],
-                        defaults={**job_from_api},
-                    )
-                    assert isinstance(job_from_db, Job)
-
-                    if created:
-                        created_job_ids.append(str(job_from_db.id))
-                        created_job_identifiers.append(str(job_from_db.identifier))
-                        # For newly created jobs we can't tell if they've just
-                        # transitioned to completed so we assume they have to avoid
-                        # missing notifications
-                        newly_completed = job_from_db.is_completed
-                    else:
-                        updated_job_ids.append(str(job_from_db.id))
-                        updated_job_identifiers.append(str(job_from_db.identifier))
-
-                        newly_completed = (
-                            not job_from_db.is_completed
-                            and job_from_api["status"] in COMPLETED_STATES
-                        )
-
-                        # Update the Job here rather than using create_or_update above, as
-                        # we needed to check the pre-update status to identify newly
-                        # created jobs.
-                        for key, value in job_from_api.items():
-                            setattr(job_from_db, key, value)
-
-                    # TODO: use bulk_update instead
-                    job_from_db.save()
-
-                    if newly_completed:
-                        job_from_db.refresh_from_db()
-                        logger.info(f"{job_from_db.identifier} newly completed")
-                        # TODO: port this to here!
-                        # handle_job_notifications(job_request, job_from_db)
-
-            logger.info(
-                "Created, updated or deleted Jobs",
-                created_job_ids=",".join(created_job_ids),
-                created_job_identifiers=",".join(created_job_identifiers),
-                updated_job_ids=",".join(updated_job_ids),
-                updated_job_identifiers=",".join(updated_job_identifiers),
-                deleted_job_identifiers=",".join(deleted_identifiers),
-            )
-            if json_response["unrecognised_rap_ids"]:
-                logger.warning(
-                    f"Unrecognised RAP ids: {','.join(json_response['unrecognised_rap_ids'])}"
-                )
-
+            rap_status_update(options["rap_ids"])
         except Exception as exc:
             logger.error(exc)
