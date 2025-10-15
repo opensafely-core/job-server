@@ -848,12 +848,25 @@ def test_rap_status_update_notifications_on_with_move_to_succeeded(
     assert len(mail.outbox) == 2
 
 
+@pytest.mark.parametrize(
+    "notifcations_on,new_status,notify_expected",
+    [
+        (True, "running", False),
+        (True, "succeeded", True),
+        (False, "running", False),
+        (False, "succeeded", False),
+    ],
+)
 @patch("jobserver.rap_api.status")
-def test_rap_status_update_notifications_on_without_move_to_completed(
-    mock_rap_api_status, now, mocker
+def test_rap_status_update_notifications(
+    mock_rap_api_status, now, mocker, notifcations_on, new_status, notify_expected
 ):
+    """
+    Test that notifications are only sent for job requests with notifications
+    turned on, and only for job requests that have just completed
+    """
     workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace, will_notify=True)
+    job_request = JobRequestFactory(workspace=workspace, will_notify=notifcations_on)
     job = JobFactory(job_request=job_request, status="running")
 
     test_response_json = rap_status_response_factory(
@@ -861,9 +874,12 @@ def test_rap_status_update_notifications_on_without_move_to_completed(
             {
                 "identifier": job.identifier,
                 "rap_id": job_request.identifier,
-                "status": "running",
+                "status": new_status,
                 "created_at": minutes_ago(now, 2),
                 "started_at": minutes_ago(now, 1),
+                "completed_at": seconds_ago(now, 30)
+                if new_status == "succeeded"
+                else None,
             }
         ],
         [],
@@ -876,4 +892,8 @@ def test_rap_status_update_notifications_on_without_move_to_completed(
     )
 
     rap.rap_status_update([job_request.identifier])
-    mocked_send.assert_not_called()
+
+    if notify_expected:
+        mocked_send.assert_called_once()
+    else:
+        mocked_send.assert_not_called()
