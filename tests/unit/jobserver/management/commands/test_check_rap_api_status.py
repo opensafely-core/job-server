@@ -131,17 +131,24 @@ def test_update_backend_state_new_url(patch_backend_status_api_call, settings):
     backend.refresh_from_db()
 
     assert backend.stats.count() == 1
+    stat = backend.stats.first()
+    assert stat.api_last_seen == datetime.fromisoformat("2025-08-12T06:57:43.039078Z")
 
     # patch a new url path using the settings fixture
     settings.RAP_API_BASE_URL = "http://example.com/rap/new"
 
-    patch_backend_status_api_call(backend.slug)
+    patch_backend_status_api_call(backend.slug, "2025-08-12T14:33:57.413881Z")
     call_command("check_rap_api_status")
 
     backend.refresh_from_db()
 
     # check there are now two Stats for backend
     assert backend.stats.count() == 2
+
+    # Confirm stats timestamp is updated after second api call
+    stat = backend.stats.last()
+    assert stat.api_last_seen == datetime.fromisoformat("2025-08-12T14:33:57.413881Z")
+
     assert backend.stats.last().url == "http://example.com/rap/new"
 
 

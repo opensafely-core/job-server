@@ -1,5 +1,4 @@
 import datetime
-import json
 from collections import OrderedDict
 
 import pytest
@@ -12,10 +11,9 @@ from jobserver.api.jobs import (
     UserAPIDetail,
     WorkspaceStatusesAPI,
     get_backend_from_token,
-    update_backend_state,
 )
 from jobserver.authorization import ProjectDeveloper, StaffAreaAdministrator
-from jobserver.models import Job, JobRequest, JobRequestStatus, Stats
+from jobserver.models import Job, JobRequest, JobRequestStatus
 from tests.factories import (
     BackendFactory,
     JobFactory,
@@ -23,7 +21,6 @@ from tests.factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
-    StatsFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -49,70 +46,6 @@ def test_token_backend_success():
 def test_token_backend_unknown_backend():
     with pytest.raises(NotAuthenticated):
         get_backend_from_token("test")
-
-
-def test_update_backend_state_no_header(api_rf):
-    backend = BackendFactory()
-    # No "Flags" header on the request ...
-    update_backend_state(backend, api_rf.get("/test"))
-    # ... so no stats entry should be created
-    assert backend.stats.count() == 0
-
-
-def test_update_backend_state_no_timestamp(api_rf):
-    backend = BackendFactory()
-    update_backend_state(
-        backend,
-        api_rf.get(
-            "/test",
-            # In order to update backend state there needs to be an appropriate header
-            headers={"Flags": '{"some-flag": {"v": "some-value"}}'},
-        ),
-    )
-    backend.refresh_from_db()
-    assert backend.jobrunner_state == {"some-flag": {"v": "some-value"}}
-
-
-def test_update_backend_state_existing_url(api_rf):
-    backend = BackendFactory()
-    StatsFactory(backend=backend, url="/test")
-
-    update_backend_state(
-        backend,
-        api_rf.get(
-            "/test",
-            # In order to update stats there needs to be an appropriate header with a
-            # `last-seen-at` timestamp
-            headers={
-                "Flags": '{"last-seen-at": {"v": "2025-06-05T07:55:37.892772+00:00"}}'
-            },
-        ),
-    )
-
-    # check there's only one Stats for backend
-    assert backend.stats.count() == 1
-    assert backend.stats.first().url == "/test"
-
-
-def test_update_backend_state_new_url(api_rf):
-    backend = BackendFactory()
-    StatsFactory(backend=backend, url="/test")
-
-    update_backend_state(
-        backend,
-        api_rf.get(
-            "/new-url",
-            # In order to update stats there needs to be an appropriate header with a
-            # `last-seen-at` timestamp
-            headers={
-                "Flags": '{"last-seen-at": {"v": "2025-06-05T07:55:37.892772+00:00"}}'
-            },
-        ),
-    )
-
-    # check there are now two Stats for backend
-    assert backend.stats.count() == 2
-    assert backend.stats.last().url == "/new-url"
 
 
 def test_jobapiupdate_all_existing(api_rf, freezer):
@@ -636,7 +569,7 @@ def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     assert response.status_code == 200, response.data
 
 
-def test_jobapiupdate_post_with_flags(api_rf):
+def test_jobapiupdate_post(api_rf):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
@@ -658,22 +591,12 @@ def test_jobapiupdate_post_with_flags(api_rf):
         }
     ]
 
-    flags = json.dumps(
-        {
-            "mode": {"v": "test", "ts": "1659092411.5025"},
-            "paused": {"v": " ", "ts": "1657099752.16788"},
-            "db-maintenance": {"v": "", "ts": "1657194377.72893"},
-        },
-        separators=(",", ":"),
-    )
-
     request = api_rf.post(
         "/",
         data=data,
         format="json",
         headers={
             "authorization": backend.auth_token,
-            "flags": flags,
         },
     )
 
@@ -681,9 +604,6 @@ def test_jobapiupdate_post_with_flags(api_rf):
 
     assert response.status_code == 200, response.data
     assert Job.objects.count() == 1
-
-    backend.refresh_from_db()
-    assert backend.jobrunner_state["mode"]["v"] == "test"
 
 
 def test_jobapiupdate_unknown_job_request(api_rf):
@@ -784,43 +704,6 @@ def test_jobrequestapilist_get_only(api_rf):
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 405
-
-
-def test_jobrequestapilist_produce_stats_when_authed(api_rf):
-    backend = BackendFactory()
-
-    assert Stats.objects.filter(backend=backend).count() == 0
-
-    request = api_rf.get(
-        "/",
-        headers={
-            "authorization": backend.auth_token,
-            "Flags": '{"last-seen-at": {"v": "2025-06-05T07:55:37.1+00:00"}}',
-        },
-    )
-    response = JobRequestAPIList.as_view()(request)
-
-    assert response.status_code == 200
-    assert Stats.objects.filter(backend=backend).count() == 1
-    stat = Stats.objects.filter(backend=backend).first()
-    assert stat.api_last_seen == datetime.datetime(
-        2025, 6, 5, 7, 55, 37, 100000, tzinfo=datetime.UTC
-    )
-
-    # Make a second request and confirm timestamp is updated
-    request = api_rf.get(
-        "/",
-        headers={
-            "authorization": backend.auth_token,
-            "Flags": '{"last-seen-at": {"v": "2025-06-05T08:30:00.0+00:00"}}',
-        },
-    )
-
-    response = JobRequestAPIList.as_view()(request)
-    stat = Stats.objects.filter(backend=backend).first()
-    assert stat.api_last_seen == datetime.datetime(
-        2025, 6, 5, 8, 30, 0, 0, tzinfo=datetime.UTC
-    )
 
 
 def test_jobrequestapilist_success(api_rf):
@@ -984,27 +867,6 @@ def test_jobrequestapilist_success(api_rf):
             "codelists_ok": True,
         },
     ]
-
-
-def test_jobrequestapilist_with_flags(api_rf):
-    backend = BackendFactory()
-    flags = json.dumps({"mode": {"v": "test"}})
-
-    request = api_rf.get(
-        "/",
-        format="json",
-        headers={
-            "authorization": backend.auth_token,
-            "flags": flags,
-        },
-    )
-
-    response = JobRequestAPIList.as_view()(request)
-
-    assert response.status_code == 200, response.data
-
-    backend.refresh_from_db()
-    assert backend.jobrunner_state["mode"]["v"] == "test"
 
 
 def test_userapidetail_success(api_rf, project_membership):
