@@ -15,7 +15,16 @@ logger = structlog.get_logger(__name__)
 
 
 def get_active_job_request_identifiers():
+    """
+    Retrieve the identifiers of job requests that are considered to be active.
+
+    An active job request is one that is in an active status (known to be pending or running),
+    determined based on its status and the status of its associated jobs OR a job request that
+    is in an unknown status (i.e. it may be active, and we need to check for updates).
+    """
+
     # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
+    # Find IDs of job requests that are active based on the status of their jobs
     active_job_jobrequest_ids = (
         Job.objects.filter(
             status__in=["pending", "running"], job_request__backend__slug="test"
@@ -23,6 +32,9 @@ def get_active_job_request_identifiers():
         .values_list("job_request_id")
         .distinct()
     )
+    # Filter "active" job_requests based on the job_request's status AND the status of its individual jobs.
+    # Note that we use the "private" _status field here; this field can be stale
+    # as the jobs_status property updates it based on job status, so this filter may be over-inclusive.
     # We also filter JobRequests that we identify by their _status field to only those created within the
     # past year, to avoid returning any very old job requests that may have unknown status due to
     # historical differences in the way the job status field was set.
@@ -53,7 +65,7 @@ def rap_status_update(rap_ids):
         .in_bulk(field_name="identifier")
     )
     # Retrieve all pre-update job statuses for existing jobs before updates so
-    # we can idenitfy those that have newly completed
+    # we can identify those that have newly completed
     preupdate_job_statuses = {
         job.identifier: job.status
         for jr in job_request_by_identifier.values()
@@ -126,9 +138,7 @@ def rap_status_update(rap_ids):
 
                 job_from_db: Job
                 # Note: we use update_or_create here as it uses select_for_update behind the
-                # scenes and locks the row until it's done. We may be able to remove this once
-                # the RAP API V2 work is complete and the controller no longer also calls
-                # the API jobs endpoint to update.
+                # scenes and locks the row until it's done.
                 job_from_db, created = job_request.jobs.update_or_create(
                     identifier=job_from_api["identifier"],
                     defaults={**job_from_api},

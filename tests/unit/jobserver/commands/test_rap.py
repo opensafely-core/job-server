@@ -798,7 +798,7 @@ def test_rap_status_update_unknown_job_request(
     mock_rap_api_status.return_value = test_response_json
 
     # Queries:
-    # 1) Get all matching job requests, no jobs to prefetching
+    # 1) Get all matching job requests, no jobs to prefetch
     with django_assert_num_queries(1):
         rap.rap_status_update(["unknown-rap-id"])
 
