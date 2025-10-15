@@ -51,11 +51,19 @@ dokku$ sudo mkdir -p /var/log/journal
 
 ## View logs
 
+You can view logs through dokku:
+
 ```bash
 # web container
 dokku logs job-server
 # rapstatus container
 dokku logs -p rapstatus job-server
+```
+
+Or directly in journalctl:
+
+```bash
+sudo journalctl -t job-server
 ```
 
 ## Test Mailgun
