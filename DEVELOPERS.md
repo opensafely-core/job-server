@@ -582,12 +582,15 @@ against the modified schema.
 **For risky changes, split application changes from migrations into multiple PRs:**
 
 - **Removing a model or field**
-   - PR 1: remove all code references.
-       - If the field is not nullable, make it nullable in a commit before the
+   - PR 1:
+       - Remove all code references to the model/field.
+       - Remove the model/field in the last commit in the PR.
+       - Do **not** commit the schema migration for the removal.
+       - If the field is non-nullable, make it nullable in a commit before the
          commit that removes the field.  Include the corresponding migration.
          Else, the tests may fail as the objects created by the test framework may
          not be valid according to the database schema from the migrations.
-   - PR 2: associated migration to drop it.
+   - PR 2: Schema migration for the removal.
 
 - **Making a field non-nullable**
    - PR 1: migration to populate any current null values and code updates to ensure the field is always set.
