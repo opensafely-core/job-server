@@ -240,7 +240,7 @@ To view the compiled assets:
 
 Vite builds the assets and outputs them to the `assets/dist` folder.
 
-[Django Staticfiles app](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/) then collects the files and places them in the `staticfiles/assets` folder, with the manifest file located at `assets/dist/.vite/manifest.json`.
+[Django Staticfiles app](https://docs.djangoproject.com/en/5.2/ref/contrib/staticfiles/) then collects the files and places them in the `staticfiles/assets` folder, with the manifest file located at `assets/dist/.vite/manifest.json`.
 
 ### Setting up a fresh install
 
@@ -387,7 +387,7 @@ We have various paired fields in our database models.
 These are often, but not limited to fields which track _who_ performed an action and _when_ they performed it.
 It's useful to be able to ensure these related fields are in the correct state.
 
-Enter [Django's CheckConstraint constraint](https://docs.djangoproject.com/en/4.1/ref/models/constraints/#s-checkconstraint) which allows us to encode that relationship at the database level.
+Enter [Django's CheckConstraint constraint](https://docs.djangoproject.com/en/5.2/ref/models/constraints/#s-checkconstraint) which allows us to encode that relationship at the database level.
 We can set these in a model's Meta and use a `Q` object for the check kwarg.
 See the common patterns section below for some examples.
 
