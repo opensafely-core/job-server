@@ -33,20 +33,8 @@ def debug_log_output(log_output):
     logger.setLevel(old_level)
 
 
-def backend_test_factory():
-    # Temporary workaround for RAP API V2
-    # The code being tested in this module is currently limited to the test backend,
-    # so set the expected slug
-    # When code is extended to all backend, we can replace use of this function with
-    # just BackendFactory()
-    backend = BackendFactory()
-    backend.slug = "test"
-    backend.save()
-    return backend
-
-
 def test_get_active_job_request_ids():
-    backend = backend_test_factory()
+    backend = BackendFactory()
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
     JobFactory(job_request=job_request, status="running")
     active_job_request_ids = rap.get_active_job_request_identifiers()
@@ -54,7 +42,7 @@ def test_get_active_job_request_ids():
 
 
 def test_get_active_job_request_ids_stale_status():
-    backend = backend_test_factory()
+    backend = BackendFactory()
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
     JobFactory(job_request=job_request, status="succeeded")
     active_job_request_ids = rap.get_active_job_request_identifiers()
@@ -62,7 +50,7 @@ def test_get_active_job_request_ids_stale_status():
 
 
 def test_get_active_job_request_ids_no_jobs():
-    backend = backend_test_factory()
+    backend = BackendFactory()
     # Job requests with active _status are still considered active even if they have no jobs
     jr1 = JobRequestFactory(backend=backend, _status=JobRequestStatus.PENDING)
     jr2 = JobRequestFactory(backend=backend, _status=JobRequestStatus.UNKNOWN)
@@ -81,7 +69,7 @@ def test_get_active_job_request_ids_no_jobs():
 
 
 def test_get_active_job_request_ids_historical():
-    backend = backend_test_factory()
+    backend = BackendFactory()
     # active job request (no jobs)
     job_request = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
 
