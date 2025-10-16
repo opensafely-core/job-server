@@ -277,6 +277,7 @@ class JobRequest(models.Model):
         with structlog.contextvars.bound_contextvars(
             function=self.request_cancellation.__name__,
             rap_id=self.identifier,
+            # This has either one action or None, not too noisy.
             actions_to_cancel=actions_to_cancel,
         ):
             logger.info("Entering")
