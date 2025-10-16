@@ -13,7 +13,7 @@ from jobserver.models.job import COMPLETED_STATES
 
 
 logger = structlog.get_logger(__name__)
-tracer = trace.get_tracer(__name__)
+tracer = trace.get_tracer("rap_commands")
 
 
 def get_active_job_request_identifiers():

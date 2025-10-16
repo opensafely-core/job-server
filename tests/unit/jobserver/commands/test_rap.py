@@ -744,9 +744,8 @@ def test_flip_flop_updates(mock_rap_api_status, log_output, now):
     assert job.status == "succeeded"
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
-    trace = get_trace()
-    for i in range(0, 4):
-        assert trace[i].attributes["updated_job_identifiers"][0] == job.identifier
+    for span in get_trace():
+        assert span.attributes["updated_job_identifiers"][0] == job.identifier
 
 
 @patch("jobserver.rap_api.status")
