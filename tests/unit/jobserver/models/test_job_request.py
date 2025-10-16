@@ -229,9 +229,11 @@ def test_jobrequest_previous_url():
     assert comp_url.endswith("def5678..abc1234")
 
 
-def test_jobrequest_request_cancellation_all(log_output):
+def test_jobrequest_request_cancellation_all(mocker, log_output):
     """Test request_cancellation with no parameters cancels all and only active
     jobs."""
+    fake_cancel = mocker.patch("jobserver.rap_api.cancel", return_value={"ok": True})
+
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="job1", status="pending")
     JobFactory(job_request=job_request, action="job2", status="running")
@@ -254,10 +256,17 @@ def test_jobrequest_request_cancellation_all(log_output):
     )
     assert set(entries[1]["actions_sent"]) == {"job1", "job2"}
 
+    fake_cancel.assert_called_once()
+    args, _ = fake_cancel.call_args
+    assert args[0] == job_request.identifier
+    assert set(args[1]) == {"job1", "job2"}  # Order invariant
 
-def test_jobrequest_request_cancellation_truncated_logs(log_output):
+
+def test_jobrequest_request_cancellation_truncated_logs(mocker, log_output):
     """Test request_cancellation with no parameters and many jobs has truncated
     logs."""
+    fake_cancel = mocker.patch("jobserver.rap_api.cancel", return_value={"ok": True})
+
     # Ensure DEBUG level logs are visible
     logger = logging.getLogger("jobserver.models.job_request")
     old_level = logger.level
@@ -286,10 +295,17 @@ def test_jobrequest_request_cancellation_truncated_logs(log_output):
     finally:
         logger.setLevel(old_level)
 
+    fake_cancel.assert_called_once()
+    args, _ = fake_cancel.call_args
+    assert args[0] == job_request.identifier
+    assert set(args[1]) == {f"job{i}" for i in range(13)}  # Order invariant
 
-def test_jobrequest_request_cancellation_with_existing_cancelled_jobs():
+
+def test_jobrequest_request_cancellation_with_existing_cancelled_jobs(mocker):
     """Test request_cancellation with a previously cancelled job and no
     parameters leads to all jobs being cancelled."""
+    fake_cancel = mocker.patch("jobserver.rap_api.cancel", return_value={"ok": True})
+
     job_request = JobRequestFactory(cancelled_actions=["job1"])
     JobFactory(job_request=job_request, action="job1", status="pending")
     JobFactory(job_request=job_request, action="job2", status="running")
@@ -298,6 +314,11 @@ def test_jobrequest_request_cancellation_with_existing_cancelled_jobs():
 
     job_request.refresh_from_db()
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
+
+    fake_cancel.assert_called_once()
+    args, _ = fake_cancel.call_args
+    assert args[0] == job_request.identifier
+    assert set(args[1]) == {"job1", "job2"}  # Order invariant
 
 
 def test_jobrequest_request_cancellation_nothing_to_do(log_output):
@@ -325,9 +346,11 @@ def test_jobrequest_request_cancellation_nothing_to_do(log_output):
     assert entries[1]["event"] == "No actions to cancel"
 
 
-def test_jobrequest_request_cancellation_specify_action():
+def test_jobrequest_request_cancellation_specify_action(mocker):
     """Test request_cancellation with parameters cancels only those active jobs
     passed in, and already cancelled jobs remain cancelled."""
+    fake_cancel = mocker.patch("jobserver.rap_api.cancel", return_value={"ok": True})
+
     job_request = JobRequestFactory(cancelled_actions=["job5", "job6"])
     JobFactory(job_request=job_request, action="job1", status="pending")
     JobFactory(job_request=job_request, action="job2", status="running")
@@ -347,6 +370,11 @@ def test_jobrequest_request_cancellation_specify_action():
     # job6 pre-existing cancel request re-requested should remain cancelled
     # job7 didn't exist so should be ignored
     assert set(job_request.cancelled_actions) == {"job1", "job2", "job5", "job6"}
+
+    fake_cancel.assert_called_once()
+    args, _ = fake_cancel.call_args
+    assert args[0] == job_request.identifier
+    assert set(args[1]) == {"job1", "job2", "job6"}  # Order invariant
 
 
 def test_jobrequest_request_cancellation_not_started_yet():
@@ -401,40 +429,12 @@ def test_jobrequest_request_cancellation_nothing_to_do_specific_action():
     assert set(job_request.cancelled_actions) == set()
 
 
-# Note that the other tests don't use our temporary special-case backend so
-# don't trigger the api at all -- or the socket blocker would cause them to
-# fail. If this were a permanent situation it would be better to test for that
-# explicitly here, but we expect to roll this out to all backends too, which
-# will touch most of these tests again.
-def test_jobrequest_request_cancellation_test_backend(mocker):
-    """Test request_cancellation with no parameters and backend as 'Test'
-    causes API call and affects cancelled_actions."""
-    fake_cancel = mocker.patch("jobserver.rap_api.cancel", return_value={"ok": True})
-
-    job_request = JobRequestFactory(cancelled_actions=[], backend__name="Test")
-
-    JobFactory(job_request=job_request, action="job1", status="pending")
-    JobFactory(job_request=job_request, action="job2", status="running")
-    JobFactory(job_request=job_request, action="job3", status="failed")
-    JobFactory(job_request=job_request, action="job4", status="succeeded")
-
-    job_request.request_cancellation()
-
-    job_request.refresh_from_db()
-    assert set(job_request.cancelled_actions) == {"job1", "job2"}
-
-    fake_cancel.assert_called_once()  # Need to allow for order varying
-    args, _ = fake_cancel.call_args
-    assert args[0] == job_request.identifier
-    assert set(args[1]) == {"job1", "job2"}  # Order invariant
-
-
 def test_jobrequest_request_cancellation_test_backend_api_error(mocker):
-    """Test request_cancellation with no parameters and backend as 'Test'
-    with failing API call does not affect cancelled_actions."""
+    """Test request_cancellation with no parameters with failing API call does
+    not affect cancelled_actions."""
     fake_cancel = mocker.patch("jobserver.rap_api.cancel", side_effect=RapAPIError)
 
-    job_request = JobRequestFactory(cancelled_actions=[], backend__name="Test")
+    job_request = JobRequestFactory(cancelled_actions=[])
 
     JobFactory(job_request=job_request, action="job1", status="pending")
     JobFactory(job_request=job_request, action="job2", status="running")
@@ -446,13 +446,14 @@ def test_jobrequest_request_cancellation_test_backend_api_error(mocker):
     job_request.refresh_from_db()
     assert set(job_request.cancelled_actions) == set()  # Unchanged
 
-    fake_cancel.assert_called_once()  # Need to allow for order varying
+    fake_cancel.assert_called_once()
     args, _ = fake_cancel.call_args
     assert args[0] == job_request.identifier
     assert set(args[1]) == {"job1", "job2"}  # Order invariant
 
 
-def test_jobrequest_has_cancellable_actions():
+@patch("jobserver.rap_api.cancel")
+def test_jobrequest_has_cancellable_actions(_):
     # An action is cancellable if it is pending or running and has not
     # already been cancelled
     # This job has no cancelled actions
