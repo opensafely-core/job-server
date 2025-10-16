@@ -25,7 +25,6 @@ def get_active_job_request_identifiers():
     is in an unknown status (i.e. it may be active, and we need to check for updates).
     """
 
-    # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
     # Find IDs of job requests that are active based on the status of their jobs
     active_job_jobrequest_ids = (
         Job.objects.filter(status__in=["pending", "running"])
