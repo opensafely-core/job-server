@@ -274,31 +274,56 @@ class JobRequest(models.Model):
           NotStartedYet
           RapAPIError
         """
-        # Decide what to cancel
-        active_actions = self.get_active_actions()
-        if actions_to_cancel is None:
-            actions_to_cancel = list(active_actions)
-        else:
-            actions_to_cancel = list(
-                set(actions_to_cancel).intersection(active_actions)
-            )
+        with structlog.contextvars.bound_contextvars(
+            function=self.request_cancellation.__name__,
+            rap_id=self.identifier,
+            # This has either one action or None, not too noisy.
+            actions_to_cancel=actions_to_cancel,
+        ):
+            logger.info("Entering")
 
-        if not actions_to_cancel:
-            if self.jobs_status == JobRequestStatus.UNKNOWN:
-                # Probably this was called before we got any `Job` information
-                # from the RAP side. Let's distinguish that from other cases.
-                raise self.NotStartedYet
-            raise self.NoActionsToCancel
+            # Decide what to cancel.
+            active_actions = self.get_active_actions()
+            if actions_to_cancel is None:
+                actions_to_cancel = list(active_actions)
+            else:
+                actions_to_cancel = list(
+                    set(actions_to_cancel).intersection(active_actions)
+                )
 
-        # Special case for the RAP API v2 initiative. We intend to remove the
-        # conditionality if this works well in production.
-        if self.backend.name == "Test":
-            # Invoke the API. This might raise a RapAPIError.
-            rap_api.cancel(self.identifier, actions_to_cancel)
+            # Handle nothing to do.
+            if not actions_to_cancel:
+                if self.jobs_status == JobRequestStatus.UNKNOWN:
+                    # Probably this was called before we got any `Job` information
+                    # from the RAP side. Let's distinguish that from other cases.
+                    logger.error("Not started yet")
+                    raise self.NotStartedYet
+                logger.error("No actions to cancel")
+                raise self.NoActionsToCancel
 
-        # Track that we cancelled the actions.
-        self.cancelled_actions.extend(actions_to_cancel)
-        self.save(update_fields=["cancelled_actions"])
+            # Log actions we're actually sending, truncating if long.
+            num_actions_sent = len(actions_to_cancel)
+            if num_actions_sent < 10:
+                logger.info("Calling RAP API", actions_sent=actions_to_cancel)
+            else:
+                logger.info(
+                    "Calling RAP API to cancel jobs",
+                    num_actions_sent=num_actions_sent,
+                    actions_sent_trunc=actions_to_cancel[:10],
+                )
+                logger.debug(actions_sent=actions_to_cancel)
+
+            # Special case for the RAP API v2 initiative. We intend to remove the
+            # conditionality if this works well in production.
+            if self.backend.name == "Test":
+                # Invoke the API. This might raise a RapAPIError.
+                rap_api.cancel(self.identifier, actions_to_cancel)
+
+            # Track that we cancelled the actions.
+            self.cancelled_actions.extend(actions_to_cancel)
+            self.save(update_fields=["cancelled_actions"])
+
+            logger.debug("Exiting")
 
     def request_rap_creation(self):
         """

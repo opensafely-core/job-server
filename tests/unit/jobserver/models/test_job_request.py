@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from unittest.mock import patch
 
@@ -228,7 +229,7 @@ def test_jobrequest_previous_url():
     assert comp_url.endswith("def5678..abc1234")
 
 
-def test_jobrequest_request_cancellation_all():
+def test_jobrequest_request_cancellation_all(log_output):
     """Test request_cancellation with no parameters cancels all and only active
     jobs."""
     job_request = JobRequestFactory(cancelled_actions=[])
@@ -245,6 +246,46 @@ def test_jobrequest_request_cancellation_all():
     # Job.status -- that will get update later after an update from the RAP
     # API.
 
+    entries = log_output.entries
+    assert len(entries) == 2
+    assert all(
+        log["actions_to_cancel"] is None and log["rap_id"] == job_request.identifier
+        for log in entries
+    )
+    assert set(entries[1]["actions_sent"]) == {"job1", "job2"}
+
+
+def test_jobrequest_request_cancellation_truncated_logs(log_output):
+    """Test request_cancellation with no parameters and many jobs has truncated
+    logs."""
+    # Ensure DEBUG level logs are visible
+    logger = logging.getLogger("jobserver.models.job_request")
+    old_level = logger.level
+    logger.setLevel(logging.DEBUG)
+    try:
+        job_request = JobRequestFactory(cancelled_actions=[])
+        jobs = [
+            JobFactory(job_request=job_request, action=f"job{i}", status="running")
+            for i in range(13)
+        ]
+        assert len(jobs) == 13
+
+        job_request.request_cancellation()
+
+        job_request.refresh_from_db()
+        assert set(job_request.cancelled_actions) == {f"job{i}" for i in range(13)}
+
+        entries = log_output.entries
+        assert len(entries) == 4
+        assert entries[1]["level"] == "info"
+        # Only first ten entries sent to avoid flooding logs
+        assert len(entries[1]["actions_sent_trunc"]) == 10
+        # Full details
+        assert entries[2]["level"] == "debug"
+        assert set(entries[2]["actions_sent"]) == {f"job{i}" for i in range(13)}
+    finally:
+        logger.setLevel(old_level)
+
 
 def test_jobrequest_request_cancellation_with_existing_cancelled_jobs():
     """Test request_cancellation with a previously cancelled job and no
@@ -259,7 +300,7 @@ def test_jobrequest_request_cancellation_with_existing_cancelled_jobs():
     assert set(job_request.cancelled_actions) == {"job1", "job2"}
 
 
-def test_jobrequest_request_cancellation_nothing_to_do():
+def test_jobrequest_request_cancellation_nothing_to_do(log_output):
     """Test request_cancellation with no parameters when there are no active
     jobs."""
     job_request = JobRequestFactory(cancelled_actions=[])
@@ -273,6 +314,15 @@ def test_jobrequest_request_cancellation_nothing_to_do():
 
     job_request.refresh_from_db()
     assert set(job_request.cancelled_actions) == set()
+
+    entries = log_output.entries
+    assert len(entries) == 2
+    assert all(
+        log["actions_to_cancel"] is None and log["rap_id"] == job_request.identifier
+        for log in entries
+    )
+    assert entries[1]["level"] == "error"
+    assert entries[1]["event"] == "No actions to cancel"
 
 
 def test_jobrequest_request_cancellation_specify_action():
@@ -312,7 +362,7 @@ def test_jobrequest_request_cancellation_not_started_yet():
     assert set(job_request.cancelled_actions) == set()
 
 
-def test_jobrequest_request_cancellation_not_started_yet_specific_action():
+def test_jobrequest_request_cancellation_not_started_yet_specific_action(log_output):
     """Test request_cancellation with parameters when there are no associated
     job objects. We expect a `NotStartedYet` error as the status is unknown."""
     job_request = JobRequestFactory(cancelled_actions=[])
@@ -323,6 +373,15 @@ def test_jobrequest_request_cancellation_not_started_yet_specific_action():
 
     job_request.refresh_from_db()
     assert set(job_request.cancelled_actions) == set()
+
+    entries = log_output.entries
+    assert len(entries) == 2
+    assert all(
+        log["actions_to_cancel"] == ["job1"] and log["rap_id"] == job_request.identifier
+        for log in entries
+    )
+    assert entries[1]["level"] == "error"
+    assert entries[1]["event"] == "Not started yet"
 
 
 def test_jobrequest_request_cancellation_nothing_to_do_specific_action():
