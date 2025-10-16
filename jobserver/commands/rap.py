@@ -28,9 +28,7 @@ def get_active_job_request_identifiers():
     # For interim RAP API s2 work, this only finds Jobs/JobRequests for the test backend
     # Find IDs of job requests that are active based on the status of their jobs
     active_job_jobrequest_ids = (
-        Job.objects.filter(
-            status__in=["pending", "running"], job_request__backend__slug="test"
-        )
+        Job.objects.filter(status__in=["pending", "running"])
         .values_list("job_request_id")
         .distinct()
     )
@@ -45,7 +43,6 @@ def get_active_job_request_identifiers():
         Q(
             _status__in=JobRequest.active_statuses,
             created_at__gte=one_year_ago,
-            backend__slug="test",
         )
         | Q(id__in=active_job_jobrequest_ids)
     )
