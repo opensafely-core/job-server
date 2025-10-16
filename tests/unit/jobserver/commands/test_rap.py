@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from jobserver.commands import rap
 from jobserver.models import Job, JobRequest, JobRequestStatus
+from tests.conftest import get_trace
 from tests.factories import (
     BackendFactory,
     JobFactory,
@@ -202,6 +203,9 @@ def test_rap_status_update_single_job_request(
     assert log_output.entries[-1]["updated_job_ids"] == [job1.id]
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
+    trace = get_trace()
+    assert trace[0].attributes["updated_job_identifiers"][0] == job1.identifier
+
 
 @patch("jobserver.rap_api.status")
 def test_rap_status_update_single_job_request_create_job(
@@ -233,6 +237,9 @@ def test_rap_status_update_single_job_request_create_job(
     # check our jobs look as expected
     updated_job = jobs[0]
     assert updated_job.identifier == "new-job-identifier"
+
+    trace = get_trace()
+    assert trace[0].attributes["created_job_identifiers"][0] == updated_job.identifier
 
 
 @patch("jobserver.rap_api.status")
@@ -289,6 +296,10 @@ def test_rap_status_update_single_job_for_multiple_job_requests(
     updated_job2 = jobs[1]
     assert updated_job1.identifier == job1.identifier
     assert updated_job2.identifier == job2.identifier
+
+    trace = get_trace()
+    assert trace[0].attributes["updated_job_identifiers"][0] == job1.identifier
+    assert trace[0].attributes["updated_job_identifiers"][1] == job2.identifier
 
 
 @pytest.mark.parametrize(
@@ -390,6 +401,8 @@ def test_update_job_multiple(
         )
         assert log == expected, log
 
+    trace = get_trace()
+
     # succeeded
     assert job1.identifier == "job1"
     assert job1.started_at == minutes_ago(now, 1)
@@ -416,6 +429,10 @@ def test_update_job_multiple(
             "job_identifier": job1.identifier,
         },
     )
+    if pre_existing:
+        assert trace[0].attributes["updated_job_identifiers"][0] == job1.identifier
+    else:
+        assert trace[0].attributes["created_job_identifiers"][0] == job1.identifier
 
     # running
     assert job2.identifier == "job2"
@@ -432,6 +449,10 @@ def test_update_job_multiple(
             "status": "running",
         },
     )
+    if pre_existing:
+        assert trace[0].attributes["updated_job_identifiers"][1] == job2.identifier
+    else:
+        assert trace[0].attributes["created_job_identifiers"][1] == job2.identifier
 
     # pending
     assert job3.identifier == "job3"
@@ -448,6 +469,10 @@ def test_update_job_multiple(
             "status": "pending",
         },
     )
+    if pre_existing:
+        assert trace[0].attributes["updated_job_identifiers"][2] == job3.identifier
+    else:
+        assert trace[0].attributes["created_job_identifiers"][2] == job3.identifier
 
     final_log = debug_log_output.entries[4]
     assert final_log["event"] == "Created or updated Jobs"
@@ -552,6 +577,7 @@ def test_update_jobs_multiple_job_requests(
 
     # Check the details of the jobs
     updated_job1, updated_job2, updated_job3, updated_job4 = jobs
+    trace = get_trace()
 
     # job_request1 job succeeded
     assert updated_job1.identifier == job1.identifier
@@ -559,24 +585,28 @@ def test_update_jobs_multiple_job_requests(
     assert updated_job1.updated_at == now
     assert updated_job1.completed_at == seconds_ago(now, 30)
     assert updated_job1.metrics == {"cpu_peak": 99}
+    assert trace[0].attributes["updated_job_identifiers"][0] == job1.identifier
 
     # job_request2 job running
     assert updated_job2.identifier == job2.identifier
     assert updated_job2.started_at == minutes_ago(now, 1)
     assert updated_job2.updated_at == now
     assert updated_job2.completed_at is None
+    assert trace[0].attributes["updated_job_identifiers"][1] == job2.identifier
 
     # job_request3 job running
     assert updated_job3.identifier == job3.identifier
     assert updated_job3.started_at == minutes_ago(now, 1)
     assert updated_job3.updated_at == now
     assert updated_job3.completed_at is None
+    assert trace[0].attributes["updated_job_identifiers"][2] == job3.identifier
 
     # job_request4 job pending
     assert updated_job4.identifier == job4.identifier
     assert updated_job4.started_at is None
     assert updated_job4.updated_at == now
     assert updated_job4.completed_at is None
+    assert trace[0].attributes["updated_job_identifiers"][3] == job4.identifier
 
     check_job_request_status(job_request1.identifier, JobRequestStatus.RUNNING)
     check_job_request_status(job_request2.identifier, JobRequestStatus.RUNNING)
@@ -637,6 +667,10 @@ def test_unexpected_local_jobs(
     assert log_output.entries[-1]["unrecognised_job_identifiers"] == [
         jobs[1].identifier
     ]
+
+    trace = get_trace()
+    assert trace[0].attributes["updated_job_identifiers"][0] == jobs[0].identifier
+    assert trace[0].attributes["unrecognised_job_identifiers"][0] == jobs[1].identifier
 
     check_job_request_status(job_request.identifier, JobRequestStatus.RUNNING)
 
@@ -710,6 +744,10 @@ def test_flip_flop_updates(mock_rap_api_status, log_output, now):
     assert job.status == "succeeded"
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
+    trace = get_trace()
+    for i in range(0, 4):
+        assert trace[i].attributes["updated_job_identifiers"][0] == job.identifier
+
 
 @patch("jobserver.rap_api.status")
 def test_rap_status_update_unrecognised_rap_ids(
@@ -737,6 +775,9 @@ def test_rap_status_update_unrecognised_rap_ids(
     assert log_output.entries[-1]["event"] == "Unrecognised RAP ids"
     assert log_output.entries[-1]["level"] == "warning"
     assert log_output.entries[-1]["rap_ids"] == [job_request.identifier]
+
+    trace = get_trace()
+    assert trace[0].attributes["unrecognised_rap_ids"][0] == job_request.identifier
 
 
 @patch("jobserver.rap_api.status")
@@ -784,6 +825,10 @@ def test_rap_status_update_unrecognised_rap_ids_job_request_with_unknown_created
     assert log_output.entries[-1]["level"] == "info"
     assert log_output.entries[-1]["rap_ids"] == [job_request.identifier]
 
+    trace = get_trace()
+    assert trace[0].attributes["unrecognised_rap_ids"][0] == job_request.identifier
+    assert trace[0].attributes["failed_rap_ids"][0] == job_request.identifier
+
 
 @patch("jobserver.rap_api.status")
 def test_rap_status_update_unknown_job_request(
@@ -808,6 +853,9 @@ def test_rap_status_update_unknown_job_request(
     assert log_output.entries[-1]["event"] == "Job-server does not recognise RAP id"
     assert log_output.entries[-1]["level"] == "warning"
     assert log_output.entries[-1]["rap_id"] == "unknown-rap-id"
+
+    trace = get_trace()
+    assert trace[0].attributes == {}
 
 
 @patch("jobserver.rap_api.status")
