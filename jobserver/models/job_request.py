@@ -322,7 +322,7 @@ class JobRequest(models.Model):
             self.cancelled_actions.extend(actions_to_cancel)
             self.save(update_fields=["cancelled_actions"])
 
-            logger.info("Exiting")
+            logger.debug("Exiting")
 
     def request_rap_creation(self):
         """

@@ -247,7 +247,7 @@ def test_jobrequest_request_cancellation_all(log_output):
     # API.
 
     entries = log_output.entries
-    assert len(entries) == 3
+    assert len(entries) == 2
     assert all(
         log["actions_to_cancel"] is None and log["rap_id"] == job_request.identifier
         for log in entries
