@@ -560,19 +560,19 @@ def test_update_jobs_multiple_job_requests(
     assert updated_job1.completed_at == seconds_ago(now, 30)
     assert updated_job1.metrics == {"cpu_peak": 99}
 
-    # job_request1 job running
+    # job_request2 job running
     assert updated_job2.identifier == job2.identifier
     assert updated_job2.started_at == minutes_ago(now, 1)
     assert updated_job2.updated_at == now
     assert updated_job2.completed_at is None
 
-    # job_request2 job running
+    # job_request3 job running
     assert updated_job3.identifier == job3.identifier
     assert updated_job3.started_at == minutes_ago(now, 1)
     assert updated_job3.updated_at == now
     assert updated_job3.completed_at is None
 
-    # job_request2 job pending
+    # job_request4 job pending
     assert updated_job4.identifier == job4.identifier
     assert updated_job4.started_at is None
     assert updated_job4.updated_at == now
