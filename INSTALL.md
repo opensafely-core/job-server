@@ -26,16 +26,31 @@ dokku config:set job-server SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
 dokku config:set job-server SENTRY_ENVIRONMENT='production'
 dokku config:set job-server SOCIAL_AUTH_GITHUB_KEY='xxx'
 dokku config:set job-server SOCIAL_AUTH_GITHUB_SECRET='xxx'
+
+# Disable zero-downtime deploys for the rapstatus process (which runs the rap_status_service
+# manangement command). We don't ever want two of these loops running simultaneously
+dokku checks:disable job-server rapstatus
 ```
 
-## Manually pushing
+
+## Manually deploying from a docker image
+
+Manually deploy from a locally built docker image in the same way that we do in CI.
 
 ```bash
-local$ git clone git@github.com:opensafely-core/job-server.git
-local$ cd job-server
-local$ git remote add dokku dokku@MYSERVER:job-server
-local$ git push dokku main
+# build prod image, tag with a custom version and push
+local$ just docker/build prod
+local$ docker tag job-server ghcr.io/opensafely-core/job-server:job-server-manual-deploy
+local$ docker push ghcr.io/opensafely-core/job-server:job-server-manual-deploy
+# Find the image name and sha
+local$ docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/opensafely-core/job-server:job-server-manual-deploy
 ```
+
+Deploy:
+```bash
+dokku$ dokku git:from-image job-server <image name/sha>
+```
+
 
 ## extras
 
