@@ -69,10 +69,15 @@ def test_get_active_job_request_ids_no_jobs():
     jr3 = JobRequestFactory(backend=backend, _status=JobRequestStatus.RUNNING)
     JobRequestFactory(backend=backend, _status=JobRequestStatus.FAILED)
     JobRequestFactory(backend=backend, _status=JobRequestStatus.SUCCEEDED)
-    # job-request for non-test backend
-    JobRequestFactory(backend=BackendFactory(), _status=JobRequestStatus.RUNNING)
+    # job-request for alternative backend
+    jr4 = JobRequestFactory(backend=BackendFactory(), _status=JobRequestStatus.RUNNING)
     active_job_request_ids = rap.get_active_job_request_identifiers()
-    assert active_job_request_ids == [jr1.identifier, jr2.identifier, jr3.identifier]
+    assert active_job_request_ids == [
+        jr1.identifier,
+        jr2.identifier,
+        jr3.identifier,
+        jr4.identifier,
+    ]
 
 
 def test_get_active_job_request_ids_historical():
