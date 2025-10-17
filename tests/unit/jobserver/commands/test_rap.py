@@ -198,6 +198,7 @@ def test_rap_status_update_single_job_request(
 
     spans = get_trace()
     assert spans[0].attributes["rap_status.updated_job_identifiers"] == job1.identifier
+    assert spans[0].attributes["rap_status.affected_job_count"] == 1
 
 
 @patch("jobserver.rap_api.status")
@@ -236,6 +237,7 @@ def test_rap_status_update_single_job_request_create_job(
         spans[0].attributes["rap_status.created_job_identifiers"]
         == updated_job.identifier
     )
+    assert spans[0].attributes["rap_status.affected_job_count"] == 1
 
 
 @patch("jobserver.rap_api.status")
@@ -298,6 +300,7 @@ def test_rap_status_update_single_job_for_multiple_job_requests(
         spans[0].attributes["rap_status.updated_job_identifiers"]
         == f"{job1.identifier},{job2.identifier}"
     )
+    assert spans[0].attributes["rap_status.affected_job_count"] == 2
 
 
 @pytest.mark.parametrize(
@@ -467,6 +470,7 @@ def test_update_job_multiple(
             spans[0].attributes["rap_status.created_job_identifiers"]
             == f"{job1.identifier},{job2.identifier},{job3.identifier}"
         )
+    assert spans[0].attributes["rap_status.affected_job_count"] == 3
 
     final_log = debug_log_output.entries[4]
     assert final_log["event"] == "Created or updated Jobs"
@@ -602,6 +606,7 @@ def test_update_jobs_multiple_job_requests(
         spans[0].attributes["rap_status.updated_job_identifiers"]
         == f"{job1.identifier},{job2.identifier},{job3.identifier},{job4.identifier}"
     )
+    assert spans[0].attributes["rap_status.affected_job_count"] == 4
 
     check_job_request_status(job_request1.identifier, JobRequestStatus.RUNNING)
     check_job_request_status(job_request2.identifier, JobRequestStatus.RUNNING)
@@ -671,6 +676,7 @@ def test_unexpected_local_jobs(
         spans[0].attributes["rap_status.unrecognised_job_identifiers"]
         == jobs[1].identifier
     )
+    assert spans[0].attributes["rap_status.affected_job_count"] == 1
 
     check_job_request_status(job_request.identifier, JobRequestStatus.RUNNING)
 
@@ -746,6 +752,7 @@ def test_flip_flop_updates(mock_rap_api_status, log_output, now):
 
     for span in get_trace():
         assert span.attributes["rap_status.updated_job_identifiers"] == job.identifier
+        assert span.attributes["rap_status.affected_job_count"] == 1
 
 
 @patch("jobserver.rap_api.status")
