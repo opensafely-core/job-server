@@ -188,6 +188,10 @@ def rap_status_update(rap_ids):
                     for (k, v) in status_loop_info.items()
                 }
             )
+            span.set_attribute(
+                "rap_status.affected_job_count",
+                len(created_job_identifiers) + len(updated_job_identifiers),
+            )
         if unrecognised_job_identifiers:
             # TODO: Emit sentry event
             logger.error(
