@@ -3,6 +3,7 @@
 import argparse
 import time
 
+import sentry_sdk
 import structlog
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -33,3 +34,4 @@ class Command(BaseCommand):
                 time.sleep(settings.RAP_API_POLL_INTERVAL)
             except Exception as exc:
                 logger.error(exc)
+                sentry_sdk.capture_exception(exc)
