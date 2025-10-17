@@ -188,7 +188,7 @@ def rap_status_update(rap_ids):
             logger.info("Created or updated Jobs", **status_loop_info)
             span.set_attributes(
                 {
-                    k: ",".join([str(item) for item in v])
+                    f"rap_status.{k}": ",".join([str(item) for item in v])
                     for (k, v) in status_loop_info.items()
                 }
             )
@@ -199,14 +199,16 @@ def rap_status_update(rap_ids):
                 unrecognised_job_identifiers=unrecognised_job_identifiers,
             )
             span.set_attribute(
-                "unrecognised_job_identifiers", ",".join(unrecognised_job_identifiers)
+                "rap_status.unrecognised_job_identifiers",
+                ",".join(unrecognised_job_identifiers),
             )
         if json_response["unrecognised_rap_ids"]:
             logger.warning(
                 "Unrecognised RAP ids", rap_ids=json_response["unrecognised_rap_ids"]
             )
             span.set_attribute(
-                "unrecognised_rap_ids", ",".join(json_response["unrecognised_rap_ids"])
+                "rap_status.unrecognised_rap_ids",
+                ",".join(json_response["unrecognised_rap_ids"]),
             )
         if failed_job_request_identifiers:
             logger.info(
@@ -214,7 +216,7 @@ def rap_status_update(rap_ids):
                 rap_ids=failed_job_request_identifiers,
             )
             span.set_attribute(
-                "failed_rap_ids", ",".join(failed_job_request_identifiers)
+                "rap_status.failed_rap_ids", ",".join(failed_job_request_identifiers)
             )
 
 

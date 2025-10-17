@@ -204,7 +204,7 @@ def test_rap_status_update_single_job_request(
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
     spans = get_trace()
-    assert spans[0].attributes["updated_job_identifiers"] == job1.identifier
+    assert spans[0].attributes["rap_status.updated_job_identifiers"] == job1.identifier
 
 
 @patch("jobserver.rap_api.status")
@@ -239,7 +239,10 @@ def test_rap_status_update_single_job_request_create_job(
     assert updated_job.identifier == "new-job-identifier"
 
     spans = get_trace()
-    assert spans[0].attributes["created_job_identifiers"] == updated_job.identifier
+    assert (
+        spans[0].attributes["rap_status.created_job_identifiers"]
+        == updated_job.identifier
+    )
 
 
 @patch("jobserver.rap_api.status")
@@ -299,7 +302,7 @@ def test_rap_status_update_single_job_for_multiple_job_requests(
 
     spans = get_trace()
     assert (
-        spans[0].attributes["updated_job_identifiers"]
+        spans[0].attributes["rap_status.updated_job_identifiers"]
         == f"{job1.identifier},{job2.identifier}"
     )
 
@@ -463,12 +466,12 @@ def test_update_job_multiple(
     )
     if pre_existing:
         assert (
-            spans[0].attributes["updated_job_identifiers"]
+            spans[0].attributes["rap_status.updated_job_identifiers"]
             == f"{job1.identifier},{job2.identifier},{job3.identifier}"
         )
     else:
         assert (
-            spans[0].attributes["created_job_identifiers"]
+            spans[0].attributes["rap_status.created_job_identifiers"]
             == f"{job1.identifier},{job2.identifier},{job3.identifier}"
         )
 
@@ -603,7 +606,7 @@ def test_update_jobs_multiple_job_requests(
     assert updated_job4.completed_at is None
 
     assert (
-        spans[0].attributes["updated_job_identifiers"]
+        spans[0].attributes["rap_status.updated_job_identifiers"]
         == f"{job1.identifier},{job2.identifier},{job3.identifier},{job4.identifier}"
     )
 
@@ -668,8 +671,13 @@ def test_unexpected_local_jobs(
     ]
 
     spans = get_trace()
-    assert spans[0].attributes["updated_job_identifiers"] == jobs[0].identifier
-    assert spans[0].attributes["unrecognised_job_identifiers"] == jobs[1].identifier
+    assert (
+        spans[0].attributes["rap_status.updated_job_identifiers"] == jobs[0].identifier
+    )
+    assert (
+        spans[0].attributes["rap_status.unrecognised_job_identifiers"]
+        == jobs[1].identifier
+    )
 
     check_job_request_status(job_request.identifier, JobRequestStatus.RUNNING)
 
@@ -744,7 +752,7 @@ def test_flip_flop_updates(mock_rap_api_status, log_output, now):
     check_job_request_status(job_request.identifier, JobRequestStatus.SUCCEEDED)
 
     for span in get_trace():
-        assert span.attributes["updated_job_identifiers"] == job.identifier
+        assert span.attributes["rap_status.updated_job_identifiers"] == job.identifier
 
 
 @patch("jobserver.rap_api.status")
@@ -775,7 +783,9 @@ def test_rap_status_update_unrecognised_rap_ids(
     assert log_output.entries[-1]["rap_ids"] == [job_request.identifier]
 
     spans = get_trace()
-    assert spans[0].attributes["unrecognised_rap_ids"] == job_request.identifier
+    assert (
+        spans[0].attributes["rap_status.unrecognised_rap_ids"] == job_request.identifier
+    )
 
 
 @patch("jobserver.rap_api.status")
@@ -824,8 +834,10 @@ def test_rap_status_update_unrecognised_rap_ids_job_request_with_unknown_created
     assert log_output.entries[-1]["rap_ids"] == [job_request.identifier]
 
     spans = get_trace()
-    assert spans[0].attributes["unrecognised_rap_ids"] == job_request.identifier
-    assert spans[0].attributes["failed_rap_ids"] == job_request.identifier
+    assert (
+        spans[0].attributes["rap_status.unrecognised_rap_ids"] == job_request.identifier
+    )
+    assert spans[0].attributes["rap_status.failed_rap_ids"] == job_request.identifier
 
 
 @patch("jobserver.rap_api.status")
