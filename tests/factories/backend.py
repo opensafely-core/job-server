@@ -10,5 +10,4 @@ class BackendFactory(factory.django.DjangoModelFactory):
     slug = factory.Sequence(lambda n: f"backend-{n}")
     name = factory.Sequence(lambda n: f"Backend {n}")
     is_active = True
-    jobrunner_state = {}
     rap_api_state = {}
