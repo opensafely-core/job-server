@@ -4,19 +4,24 @@ to the RAP API. This allows us to test the interface between the rap_api module
 and other parts of the system.
 """
 
+from datetime import UTC, datetime
+
 import pytest
 import responses
 from django.conf import settings
+from django.core import mail
 from django.urls import reverse
 
 from jobserver.authorization import permissions
-from jobserver.models import JobRequest, JobRequestStatus
+from jobserver.commands.rap import rap_status_update
+from jobserver.models import Job, JobRequest, JobRequestStatus
 from tests.factories import (
     BackendFactory,
     BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
     WorkspaceFactory,
+    rap_status_response_factory,
 )
 from tests.fakes import FakeGitHubAPI
 
@@ -178,7 +183,10 @@ def test_jobrequestcancel_post_success(client, setup_backend_workspace_user):
 
     backend, workspace, user = setup_backend_workspace_user
     job_request = JobRequestFactory(
-        backend=backend, workspace=workspace, requested_actions=["action1"]
+        backend=backend,
+        workspace=workspace,
+        requested_actions=["action1"],
+        created_by=user,
     )
     JobFactory(action="action1", status="pending", job_request=job_request)
 
@@ -193,3 +201,114 @@ def test_jobrequestcancel_post_success(client, setup_backend_workspace_user):
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["action1"]
+
+
+@responses.activate
+def test_rap_status_update(client, setup_backend_workspace_user):
+    """
+    Tests the rap_status_update command that calls the RAP API status endpoint for job updates
+    """
+
+    backend, workspace, user = setup_backend_workspace_user
+    job_request = JobRequestFactory(
+        backend=backend, workspace=workspace, requested_actions=["action1"]
+    )
+    assert Job.objects.count() == 0
+
+    response_json = rap_status_response_factory(
+        [
+            {
+                "identifier": "new-job-identifier",
+                "rap_id": job_request.identifier,
+                "status": "running",
+            }
+        ],
+        [],
+        datetime(2025, 3, 1, 10, 0, tzinfo=UTC),
+    )
+
+    responses.post(
+        url=f"{settings.RAP_API_BASE_URL}rap/status/",
+        status=200,
+        json=response_json,
+        match=[
+            responses.matchers.header_matcher({"Authorization": settings.RAP_API_TOKEN})
+        ],
+    )
+
+    client.force_login(user)
+    rap_status_update([job_request.identifier])
+
+    assert Job.objects.count() == 1
+    assert Job.objects.first().identifier == "new-job-identifier"
+    job_request.refresh_from_db()
+    assert job_request.jobs_status == JobRequestStatus.RUNNING
+
+
+@responses.activate
+def test_rap_status_update_notifications_on(client, setup_backend_workspace_user):
+    """
+    Tests the rap_status_update command that calls the RAP API status endpoint for job updates
+    """
+
+    backend, workspace, user = setup_backend_workspace_user
+    job_request = JobRequestFactory(
+        backend=backend,
+        workspace=workspace,
+        requested_actions=["action1"],
+        will_notify=True,
+    )
+    running_job = JobFactory(job_request=job_request, status="running")
+    completed_job = JobFactory(job_request=job_request, status="succeeded")
+    assert Job.objects.count() == 2
+
+    response_json = rap_status_response_factory(
+        [
+            # new job, not newly completed
+            {
+                "identifier": "new-running-job",
+                "rap_id": job_request.identifier,
+                "status": "running",
+            },
+            # new job, newly completed, should notify
+            {
+                "identifier": "new-completed-job",
+                "rap_id": job_request.identifier,
+                "status": "succeeded",
+            },
+            # existing job already completed
+            {
+                "identifier": completed_job.identifier,
+                "rap_id": job_request.identifier,
+                "status": "succeeded",
+            },
+            # existing job newly completed, should notify
+            {
+                "identifier": running_job.identifier,
+                "rap_id": job_request.identifier,
+                "status": "succeeded",
+            },
+        ],
+        [],
+        datetime(2025, 3, 1, 10, 0, tzinfo=UTC),
+    )
+
+    responses.post(
+        url=f"{settings.RAP_API_BASE_URL}rap/status/",
+        status=200,
+        json=response_json,
+        match=[
+            responses.matchers.header_matcher({"Authorization": settings.RAP_API_TOKEN})
+        ],
+    )
+
+    client.force_login(user)
+    rap_status_update([job_request.identifier])
+
+    assert Job.objects.count() == 4
+
+    job_request.refresh_from_db()
+    assert job_request.jobs_status == JobRequestStatus.RUNNING
+
+    # One mail sent for each completed job
+    assert len(mail.outbox) == 2
