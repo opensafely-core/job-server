@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -61,7 +63,8 @@ def test_jobcancel_already_completed(rf, user, project_membership, role_factory)
     assert job_request.cancelled_actions == ["another-action"]
 
 
-def test_jobcancel_success(rf, project_membership, role_factory):
+@patch("jobserver.models.job_request.rap_api.cancel")
+def test_jobcancel_success(_, rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test", status="pending")
     user = UserFactory()
@@ -92,7 +95,8 @@ def test_jobcancel_success(rf, project_membership, role_factory):
     assert str(messages[0]) == 'Your request to cancel "test" was successful'
 
 
-def test_jobcancel_with_job_creator(rf):
+@patch("jobserver.models.job_request.rap_api.cancel")
+def test_jobcancel_with_job_creator(_, rf):
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
     job = JobFactory(job_request=job_request, action="test", status="pending")

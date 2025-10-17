@@ -313,11 +313,8 @@ class JobRequest(models.Model):
                 )
                 logger.debug(actions_sent=actions_to_cancel)
 
-            # Special case for the RAP API v2 initiative. We intend to remove the
-            # conditionality if this works well in production.
-            if self.backend.name == "Test":
-                # Invoke the API. This might raise a RapAPIError.
-                rap_api.cancel(self.identifier, actions_to_cancel)
+            # Invoke the API. This might raise a RapAPIError.
+            rap_api.cancel(self.identifier, actions_to_cancel)
 
             # Track that we cancelled the actions.
             self.cancelled_actions.extend(actions_to_cancel)

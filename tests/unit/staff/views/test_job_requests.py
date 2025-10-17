@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
@@ -18,7 +20,8 @@ from ....factories import (
 )
 
 
-def test_jobrequestcancel_success(rf, staff_area_administrator):
+@patch("jobserver.models.job_request.rap_api.cancel")
+def test_jobrequestcancel_success(_, rf, staff_area_administrator):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="test1", status="failed")
     JobFactory(job_request=job_request, action="test2", status="succeeded")

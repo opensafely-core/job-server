@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages import get_messages
@@ -73,7 +75,8 @@ def test_jobrequestcancel_already_completed(rf, project_membership, role_factory
     assert job_request.cancelled_actions == []
 
 
-def test_jobrequestcancel_success(rf, project_membership, role_factory):
+@patch("jobserver.models.job_request.rap_api.cancel")
+def test_jobrequestcancel_success(_, rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="test1", status="pending")
     JobFactory(job_request=job_request, action="test2", status="running")
@@ -110,7 +113,8 @@ def test_jobrequestcancel_success(rf, project_membership, role_factory):
     assert str(messages[0]) == "The requested actions have been cancelled"
 
 
-def test_jobrequestcancel_partially_completed(rf, project_membership, role_factory):
+@patch("jobserver.models.job_request.rap_api.cancel")
+def test_jobrequestcancel_partially_completed(_, rf, project_membership, role_factory):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="test1", status="failed")
     JobFactory(job_request=job_request, action="test2", status="succeeded")
@@ -145,7 +149,8 @@ def test_jobrequestcancel_partially_completed(rf, project_membership, role_facto
     assert str(messages[0]) == "The requested actions have been cancelled"
 
 
-def test_jobrequestcancel_with_job_request_creator(rf):
+@patch("jobserver.models.job_request.rap_api.cancel")
+def test_jobrequestcancel_with_job_request_creator(_, rf):
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
     JobFactory(job_request=job_request, action="test1", status="pending")
