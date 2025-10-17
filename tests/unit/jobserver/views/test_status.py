@@ -7,7 +7,7 @@ from django.utils import timezone
 from jobserver.utils import set_from_list
 from jobserver.views.status import DBAvailability, PerBackendStatus, Status
 
-from ....factories import BackendFactory, JobFactory, JobRequestFactory, StatsFactory
+from ....factories import BackendFactory, JobFactory, JobRequestFactory
 from ....utils import minutes_ago
 
 
@@ -58,8 +58,7 @@ def test_dbavailability_out_of_db_maintenance(rf):
 def test_perbackendstatus(rf, freezer, alert_timeout, last_seen, expected_status):
     freezer.move_to("2022-3-23")  # set a fixed time to work against
 
-    backend = BackendFactory(alert_timeout=alert_timeout)
-    StatsFactory(backend=backend, api_last_seen=last_seen)
+    backend = BackendFactory(alert_timeout=alert_timeout, last_seen_at=last_seen)
 
     request = rf.get("/")
     response = PerBackendStatus.as_view()(request, backend=backend.slug)
@@ -77,13 +76,11 @@ def test_perbackendstatus_not_checked_in(rf):
 
 
 def test_status_healthy(rf):
-    backend = BackendFactory()
+    last_seen = minutes_ago(timezone.now(), 1)
+    backend = BackendFactory(last_seen_at=last_seen)
 
     # acked, because JobFactory will implicitly create JobRequests
     JobFactory.create_batch(3, job_request__backend=backend)
-
-    last_seen = minutes_ago(timezone.now(), 1)
-    StatsFactory(backend=backend, api_last_seen=last_seen)
 
     request = rf.get("/")
     response = Status.as_view()(request)
@@ -112,10 +109,8 @@ def test_status_no_last_seen(rf):
 
 
 def test_status_unacked_jobs_but_recent_api_contact(rf):
-    backend = BackendFactory()
-
     last_seen = minutes_ago(timezone.now(), 1)
-    StatsFactory(backend=backend, api_last_seen=last_seen)
+    BackendFactory(last_seen_at=last_seen)
 
     request = rf.get("/")
     response = Status.as_view()(request)
@@ -129,16 +124,14 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
 
 
 def test_status_unhealthy(rf):
-    backend = BackendFactory()
+    last_seen = minutes_ago(timezone.now(), 10)
+    backend = BackendFactory(last_seen_at=last_seen)
 
     # acked, because JobFactory will implicitly create JobRequests
     JobFactory.create_batch(2, job_request__backend=backend)
 
     # unacked, because it has no Jobs
     JobRequestFactory(backend=backend)
-
-    last_seen = minutes_ago(timezone.now(), 10)
-    StatsFactory(backend=backend, api_last_seen=last_seen, url="foo")
 
     request = rf.get("/")
     response = Status.as_view()(request)
