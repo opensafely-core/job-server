@@ -4,7 +4,6 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
-from django.core import mail
 from django.utils import timezone
 
 from jobserver.commands import rap
@@ -15,6 +14,7 @@ from tests.factories import (
     JobFactory,
     JobRequestFactory,
     WorkspaceFactory,
+    rap_status_response_factory,
 )
 from tests.utils import minutes_ago, seconds_ago
 
@@ -104,46 +104,6 @@ def check_job_request_status(rap_id, expected_status):
     assert JobRequestStatus(job_request.jobs_status) == expected_status
     # return the refreshed job request for tests that need to use it
     return job_request
-
-
-def isoformat_datetime(dt):
-    if dt is not None:
-        dt = dt.isoformat()
-    return dt
-
-
-def rap_status_response_factory(jobs, unrecognised_rap_ids, now):
-    jobs_response = []
-    for job in jobs:
-        jobs_response.append(
-            {
-                "identifier": job.get("identifier", "identifier-0"),
-                "rap_id": job.get("rap_id", "rap-identifier-0"),
-                "action": job.get("action", "test-action1"),
-                "backend": job.get("backend", "test"),
-                "run_command": job.get("run_command", "do-research"),
-                "requires_db": job.get("requires_db", "false"),
-                "status": job.get("status", "succeeded"),
-                "status_code": "",
-                "status_message": "",
-                # datetimes in the json response from the RAP API are received as isoformat strings
-                "created_at": isoformat_datetime(
-                    job.get("created_at", minutes_ago(now, 2))
-                ),
-                "started_at": isoformat_datetime(
-                    job.get("started_at", minutes_ago(now, 1))
-                ),
-                "updated_at": now.isoformat(),
-                "completed_at": isoformat_datetime(
-                    job.get("completed_at", seconds_ago(now, 30))
-                ),
-                "metrics": {"cpu_peak": 99},
-            }
-        )
-    return {
-        "jobs": jobs_response,
-        "unrecognised_rap_ids": unrecognised_rap_ids,
-    }
 
 
 @patch("jobserver.rap_api.status")
@@ -866,44 +826,6 @@ def test_rap_status_update_unknown_job_request(
 
     spans = get_trace()
     assert spans[0].attributes == {}
-
-
-@patch("jobserver.rap_api.status")
-def test_rap_status_update_notifications_on_with_move_to_succeeded(
-    mock_rap_api_status, now, mocker
-):
-    workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace, will_notify=True)
-    job = JobFactory(job_request=job_request, status="pending")
-
-    test_response_json = rap_status_response_factory(
-        [
-            {
-                "identifier": job.identifier,
-                "rap_id": job_request.identifier,
-                "status": "succeeded",
-                "created_at": minutes_ago(now, 3),
-                "started_at": minutes_ago(now, 2),
-                "completed_at": seconds_ago(now, 45),
-            },
-            {
-                "identifier": "new-job-identifier",
-                "rap_id": job_request.identifier,
-                "status": "succeeded",
-                "created_at": minutes_ago(now, 3),
-                "started_at": minutes_ago(now, 1),
-                "completed_at": seconds_ago(now, 30),
-            },
-        ],
-        [],
-        now,
-    )
-    mock_rap_api_status.return_value = test_response_json
-
-    rap.rap_status_update([job_request.identifier])
-
-    # One mail sent for each completed job
-    assert len(mail.outbox) == 2
 
 
 @pytest.mark.parametrize(

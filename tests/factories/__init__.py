@@ -10,6 +10,7 @@ from .partial import *  # noqa: F401, F403
 from .project import *  # noqa: F401, F403
 from .project_collaboration import *  # noqa: F401, F403
 from .publish_request import *  # noqa: F401, F403
+from .rap_api import *  # noqa: F401, F403
 from .redirect import *  # noqa: F401, F403
 from .release import *  # noqa: F401, F403
 from .release_file import *  # noqa: F401, F403
