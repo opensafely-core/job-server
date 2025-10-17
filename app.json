@@ -34,5 +34,13 @@
         "timeout": 60
       }
     ]
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    },
+    "rapstatus": {
+      "quantity": 1
+    }
   }
 }

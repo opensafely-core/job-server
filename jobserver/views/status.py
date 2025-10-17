@@ -32,11 +32,8 @@ class PerBackendStatus(View):
     def get(self, request, *args, **kwargs):
         backend = get_object_or_404(Backend, slug=self.kwargs["backend"])
 
-        try:
-            last_seen = backend.stats.order_by("-api_last_seen").first().api_last_seen
-        except AttributeError:
-            # don't show Backends which have never checked in as an error
-            last_seen = timezone.now()
+        # don't show Backends which have never checked in as an error
+        last_seen = backend.last_seen_at or timezone.now()
 
         # how long ago did we last see this backend?
         time_since_last_seen = timezone.now() - last_seen
@@ -79,12 +76,7 @@ class Status(View):
                 if result["status"] == "running":
                     running = result["count"]
 
-            try:
-                last_seen = (
-                    backend.stats.order_by("-api_last_seen").first().api_last_seen
-                )
-            except AttributeError:
-                last_seen = None
+            last_seen = backend.last_seen_at
 
             return {
                 "name": backend.name,

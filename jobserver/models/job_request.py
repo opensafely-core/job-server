@@ -80,12 +80,7 @@ class JobRequestStatus(models.TextChoices):
     SUCCEEDED = "succeeded"
     NOTHING_TO_DO = "nothing_to_do"
     UNKNOWN = "unknown"
-
-    @classmethod
-    def is_completed(cls, value):
-        value = value.lower()
-        completed_states = [cls.FAILED, cls.SUCCEEDED, cls.NOTHING_TO_DO]
-        return value in cls.values and cls(value) in completed_states
+    UNKNOWN_ERROR_CREATING_JOBS = "unknown_error_creating_jobs"
 
 
 class JobRequest(models.Model):
@@ -128,6 +123,13 @@ class JobRequest(models.Model):
     _status = models.TextField(
         default=JobRequestStatus.UNKNOWN, choices=JobRequestStatus
     )
+    active_statuses = [
+        JobRequestStatus.PENDING,
+        JobRequestStatus.RUNNING,
+        JobRequestStatus.UNKNOWN,
+        JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS,
+    ]
+
     status_message = models.TextField(null=True, blank=True)
 
     objects = JobRequestManager()
@@ -228,7 +230,7 @@ class JobRequest(models.Model):
         # Is this job request in a completed status? We use the self.jobs_status
         # property here, which will first check the overall jobs_status, and
         # if necessary, calculate status from pending/running jobs
-        return JobRequestStatus.is_completed(self.jobs_status)
+        return self.jobs_status not in self.active_statuses
 
     @property
     def num_completed(self):
@@ -272,31 +274,56 @@ class JobRequest(models.Model):
           NotStartedYet
           RapAPIError
         """
-        # Decide what to cancel
-        active_actions = self.get_active_actions()
-        if actions_to_cancel is None:
-            actions_to_cancel = list(active_actions)
-        else:
-            actions_to_cancel = list(
-                set(actions_to_cancel).intersection(active_actions)
-            )
+        with structlog.contextvars.bound_contextvars(
+            function=self.request_cancellation.__name__,
+            rap_id=self.identifier,
+            # This has either one action or None, not too noisy.
+            actions_to_cancel=actions_to_cancel,
+        ):
+            logger.info("Entering")
 
-        if not actions_to_cancel:
-            if self.jobs_status == JobRequestStatus.UNKNOWN:
-                # Probably this was called before we got any `Job` information
-                # from the RAP side. Let's distinguish that from other cases.
-                raise self.NotStartedYet
-            raise self.NoActionsToCancel
+            # Decide what to cancel.
+            active_actions = self.get_active_actions()
+            if actions_to_cancel is None:
+                actions_to_cancel = list(active_actions)
+            else:
+                actions_to_cancel = list(
+                    set(actions_to_cancel).intersection(active_actions)
+                )
 
-        # Special case for the RAP API v2 initiative. We intend to remove the
-        # conditionality if this works well in production.
-        if self.backend.name == "Test":
-            # Invoke the API. This might raise a RapAPIError.
-            rap_api.cancel(self.identifier, actions_to_cancel)
+            # Handle nothing to do.
+            if not actions_to_cancel:
+                if self.jobs_status == JobRequestStatus.UNKNOWN:
+                    # Probably this was called before we got any `Job` information
+                    # from the RAP side. Let's distinguish that from other cases.
+                    logger.error("Not started yet")
+                    raise self.NotStartedYet
+                logger.error("No actions to cancel")
+                raise self.NoActionsToCancel
 
-        # Track that we cancelled the actions.
-        self.cancelled_actions.extend(actions_to_cancel)
-        self.save(update_fields=["cancelled_actions"])
+            # Log actions we're actually sending, truncating if long.
+            num_actions_sent = len(actions_to_cancel)
+            if num_actions_sent < 10:
+                logger.info("Calling RAP API", actions_sent=actions_to_cancel)
+            else:
+                logger.info(
+                    "Calling RAP API to cancel jobs",
+                    num_actions_sent=num_actions_sent,
+                    actions_sent_trunc=actions_to_cancel[:10],
+                )
+                logger.debug(actions_sent=actions_to_cancel)
+
+            # Special case for the RAP API v2 initiative. We intend to remove the
+            # conditionality if this works well in production.
+            if self.backend.name == "Test":
+                # Invoke the API. This might raise a RapAPIError.
+                rap_api.cancel(self.identifier, actions_to_cancel)
+
+            # Track that we cancelled the actions.
+            self.cancelled_actions.extend(actions_to_cancel)
+            self.save(update_fields=["cancelled_actions"])
+
+            logger.debug("Exiting")
 
     def request_rap_creation(self):
         """
@@ -330,11 +357,13 @@ class JobRequest(models.Model):
             except rap_api.RapAPIRequestError as exc:
                 # Encountered some unhandled error whilst contacting the RAP API to creating jobs.
                 # This is most likely due to some disconnect between job-server and controller, and jobs
-                # could have been created on the controller. We mark job requests status as unknown, and
-                # allow the code that polls the controller for job status to request updates for it again.
+                # could have been created on the controller, but we don't know that yet.
+                # We mark job requests status as UNKNOWN_ERROR_CREATING_JOBS. The code that polls the controller
+                # for job status to request updates will update appropriately if jobs  on the controller, and
+                # will fail this job if they were not created.
                 logger.error(exc)
                 sentry_sdk.capture_exception(exc)
-                self.update_status(JobRequestStatus.UNKNOWN)
+                self.update_status(JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS)
             except Exception as exc:
                 # Any other exception just fails the whole job request. We show an unknown error to avoid
                 # leaking the content of the exception to the user.
@@ -385,7 +414,7 @@ class JobRequest(models.Model):
     def jobs_status(self) -> str:
         # status has already been set to a completed status, we can just
         # return it
-        if JobRequestStatus.is_completed(self._status):
+        if self._status not in self.active_statuses:
             return self._status
 
         prefetched_jobs = (
@@ -447,7 +476,7 @@ class JobRequest(models.Model):
     def update_status(
         self, new_status: JobRequestStatus, message=None
     ) -> JobRequestStatus:
-        if self._status != new_status.value:
+        if self._status != new_status:
             self._status = new_status
             self.status_message = message
             self.save()
