@@ -179,19 +179,17 @@ def rap_status_update(rap_ids):
                 # TODO: Use bulk_create with update_conflicts=True to bulk create or update
 
         if created_job_ids or updated_job_ids:
-            logger.info(
-                "Created or updated Jobs",
-                created_job_ids=created_job_ids,
-                created_job_identifiers=created_job_identifiers,
-                updated_job_ids=updated_job_ids,
-                updated_job_identifiers=updated_job_identifiers,
-            )
+            status_loop_info = {
+                "created_job_ids": created_job_ids,
+                "created_job_identifiers": created_job_identifiers,
+                "updated_job_ids": updated_job_ids,
+                "updated_job_identifiers": updated_job_identifiers,
+            }
+            logger.info("Created or updated Jobs", **status_loop_info)
             span.set_attributes(
                 {
-                    "created_job_ids": created_job_ids,
-                    "created_job_identifiers": created_job_identifiers,
-                    "updated_job_ids": updated_job_ids,
-                    "updated_job_identifiers": updated_job_identifiers,
+                    k: ",".join([str(item) for item in v])
+                    for (k, v) in status_loop_info.items()
                 }
             )
         if unrecognised_job_identifiers:
@@ -201,21 +199,23 @@ def rap_status_update(rap_ids):
                 unrecognised_job_identifiers=unrecognised_job_identifiers,
             )
             span.set_attribute(
-                "unrecognised_job_identifiers", unrecognised_job_identifiers
+                "unrecognised_job_identifiers", ",".join(unrecognised_job_identifiers)
             )
         if json_response["unrecognised_rap_ids"]:
             logger.warning(
                 "Unrecognised RAP ids", rap_ids=json_response["unrecognised_rap_ids"]
             )
             span.set_attribute(
-                "unrecognised_rap_ids", json_response["unrecognised_rap_ids"]
+                "unrecognised_rap_ids", ",".join(json_response["unrecognised_rap_ids"])
             )
         if failed_job_request_identifiers:
             logger.info(
                 "Job requests with no RAP jobs updated to failed",
                 rap_ids=failed_job_request_identifiers,
             )
-            span.set_attribute("failed_rap_ids", failed_job_request_identifiers)
+            span.set_attribute(
+                "failed_rap_ids", ",".join(failed_job_request_identifiers)
+            )
 
 
 def convert_runtime_fields(job_from_db):
