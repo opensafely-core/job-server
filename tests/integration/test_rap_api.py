@@ -10,6 +10,7 @@ import pytest
 import responses
 from django.conf import settings
 from django.core import mail
+from django.core.management import call_command
 from django.urls import reverse
 
 from jobserver.authorization import permissions
@@ -204,12 +205,12 @@ def test_jobrequestcancel_post_success(client, setup_backend_workspace_user):
 
 
 @responses.activate
-def test_rap_status_update(client, setup_backend_workspace_user):
+def test_rap_status_update(setup_backend_workspace_user):
     """
     Tests the rap_status_update command that calls the RAP API status endpoint for job updates
     """
 
-    backend, workspace, user = setup_backend_workspace_user
+    backend, workspace, _ = setup_backend_workspace_user
     job_request = JobRequestFactory(
         backend=backend, workspace=workspace, requested_actions=["action1"]
     )
@@ -236,7 +237,6 @@ def test_rap_status_update(client, setup_backend_workspace_user):
         ],
     )
 
-    client.force_login(user)
     rap_status_update([job_request.identifier])
 
     assert Job.objects.count() == 1
@@ -246,12 +246,12 @@ def test_rap_status_update(client, setup_backend_workspace_user):
 
 
 @responses.activate
-def test_rap_status_update_notifications_on(client, setup_backend_workspace_user):
+def test_rap_status_update_notifications_on(setup_backend_workspace_user):
     """
     Tests the rap_status_update command that calls the RAP API status endpoint for job updates
     """
 
-    backend, workspace, user = setup_backend_workspace_user
+    backend, workspace, _ = setup_backend_workspace_user
     job_request = JobRequestFactory(
         backend=backend,
         workspace=workspace,
@@ -302,7 +302,6 @@ def test_rap_status_update_notifications_on(client, setup_backend_workspace_user
         ],
     )
 
-    client.force_login(user)
     rap_status_update([job_request.identifier])
 
     assert Job.objects.count() == 4
@@ -312,3 +311,66 @@ def test_rap_status_update_notifications_on(client, setup_backend_workspace_user
 
     # One mail sent for each completed job
     assert len(mail.outbox) == 2
+
+
+@responses.activate
+def test_backend_status():
+    """
+    Tests the check_rap_api_status management command that calls the RAP API backend status endpoint
+    """
+    backend1 = BackendFactory()
+    backend2 = BackendFactory()
+    responses.get(
+        url=f"{settings.RAP_API_BASE_URL}backend/status/",
+        status=200,
+        json={
+            "backends": [
+                {
+                    "slug": backend1.slug,
+                    "last_seen": "2025-10-01T10:30:55.123456Z",
+                    "paused": {
+                        "status": "off",
+                        "since": "2025-01-01T10:30:55.123456Z",
+                    },
+                    "db_maintenance": {
+                        "status": "off",
+                        "since": None,
+                        "type": None,
+                    },
+                },
+                {
+                    "slug": backend2.slug,
+                    "last_seen": "2025-10-10T12:30:55.123456Z",
+                    "paused": {
+                        "status": "off",
+                        "since": None,
+                    },
+                    "db_maintenance": {
+                        "status": "on",
+                        "since": "2025-10-09T11:30:55.123456Z",
+                        "type": None,
+                    },
+                },
+            ]
+        },
+        match=[
+            responses.matchers.header_matcher({"Authorization": settings.RAP_API_TOKEN})
+        ],
+    )
+
+    call_command("check_rap_api_status")
+    backend1.refresh_from_db()
+    backend2.refresh_from_db()
+
+    assert not backend1.is_in_maintenance_mode
+    assert backend1.last_seen_maintenance_mode is None
+    assert backend1.last_seen_at == datetime.fromisoformat(
+        "2025-10-01T10:30:55.123456Z"
+    )
+    assert backend2.is_in_maintenance_mode
+    assert backend2.last_seen_maintenance_mode == datetime.fromisoformat(
+        "2025-10-09T11:30:55.123456Z"
+    )
+    assert backend2.last_seen_at == datetime.fromisoformat(
+        "2025-10-10T12:30:55.123456Z"
+    )
