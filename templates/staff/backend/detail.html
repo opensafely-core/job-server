@@ -39,9 +39,6 @@
       {% #description_item title="Token" %}
         {{ backend.auth_token }}
       {% /description_item %}
-      {% #description_item title="Level 4 URL" %}
-        {{ backend.level_4_url|default:"-" }}
-      {% /description_item %}
       {% #description_item title="Active" %}
         {% if backend.is_active %}
           {% #pill variant="success" %}
