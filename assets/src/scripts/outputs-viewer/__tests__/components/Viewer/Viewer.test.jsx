@@ -250,30 +250,6 @@ describe("<Viewer />", () => {
     });
   });
 
-  it("checks the release-hatch for an un-uploaded file", async () => {
-    fetch.mockResponseOnce(() => ({
-      body: JSON.stringify(txtExample),
-      headers: {
-        Location: "https://www.example.com/",
-        Authorization: "d28e033e-e5f3-42a0-a8ec-c7b036c82df5",
-      },
-    }));
-
-    render(
-      <Viewer
-        authToken={props.authToken}
-        fileName={jsonFile.name}
-        fileSize={jsonFile.size}
-        fileUrl={jsonFile.url}
-        uuid={uuid}
-      />,
-    );
-
-    await waitFor(() => {
-      expect(fetch.requests().length).toEqual(2);
-    });
-  });
-
   it("throw error if fetch returns with a not ok response", async () => {
     fetch.mockRejectOnce(new Error(""));
 
@@ -286,32 +262,6 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />,
     );
-
-    await waitFor(() =>
-      expect(screen.getByText("Error: Unable to load file")).toBeVisible(),
-    );
-  });
-
-  it("throw error if release-hatch returns with a not ok response", async () => {
-    fetch.mockResponseOnce(() => ({
-      body: JSON.stringify(txtExample),
-      headers: {
-        Location: "https://www.example.com/",
-        Authorization: "d28e033e-e5f3-42a0-a8ec-c7b036c82df5",
-      },
-    }));
-
-    render(
-      <Viewer
-        authToken={props.authToken}
-        fileName={jsonFile.name}
-        fileSize={jsonFile.size}
-        fileUrl={jsonFile.url}
-        uuid={uuid}
-      />,
-    );
-
-    fetch.mockRejectOnce(new Error(""));
 
     await waitFor(() =>
       expect(screen.getByText("Error: Unable to load file")).toBeVisible(),

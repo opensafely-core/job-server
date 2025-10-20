@@ -57,7 +57,7 @@ skip_covered = true
 show_contexts = true
 
 [tool.pytest.ini_options]
-addopts = "--disable-socket --tb=native --ignore=./release-hatch --maxprocesses=6"
+addopts = "--disable-socket --tb=native --maxprocesses=6"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "JOBSERVER_GITHUB_TOKEN=empty",
@@ -103,7 +103,6 @@ exclude = [
   "htmlcov",
   "node_modules",
   "outputs",
-  "release-hatch",
   "releases",
   "snippets",
   "static",

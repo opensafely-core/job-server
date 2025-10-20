@@ -274,10 +274,6 @@ assets-test: assets-install
     npm run test:coverage
 
 
-# run a local release hatch instance, including adding and configuring a backend to use with it.
-release-hatch:
-    ./scripts/local-release-hatch.sh
-
 # dump data for co-pilot reporting to a compressed SQLite database
 dump-co-pilot-reporting-data:
     ./scripts/dump-co-pilot-reporting-data.sh
