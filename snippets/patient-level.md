@@ -1,3 +1,3 @@
-By applying to use OpenSAFELY you are declaring that you need patient level access, (even though you won’t directly see those patient level cohort tables in the OpenSAFELY Trusted Research Environment model). 
+By applying to use OpenSAFELY you are declaring that you need patient level access, (even though you won’t directly see those patient level cohort tables in the OpenSAFELY Trusted Research Environment model).
 
 You will need patient level data access if your question requires the creation of cohorts (cases/controls) of individuals and if for each specific individual you need to know the presence or absence of particular covariates / characteristics. Although the running of statistical models on these cohorts creates aggregate data, if you need the underlying patient level cohorts, then your study does require access to patient level data.

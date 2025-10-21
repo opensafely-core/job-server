@@ -24,7 +24,7 @@ repos:
       require_serial: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v6.0.0
     hooks:
     - id: trailing-whitespace
     - id: end-of-file-fixer
@@ -36,7 +36,7 @@ repos:
     - id: detect-private-key
 
   - repo: https://github.com/rtts/djhtml
-    rev: "3.0.8"
+    rev: "3.0.9"
     hooks:
       - id: djhtml
         entry: djhtml --tabwidth 2 # Use a tabwidth of 2 for HTML files
