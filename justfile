@@ -196,6 +196,15 @@ run bind="localhost:8000": devenv
     DJANGO_DEBUG_TOOLBAR=1 $BIN/python manage.py runserver {{ bind }}
 
 
+# Run the rap status service to fetch job updates from the RAP API
+run-rapstatus: devenv
+    $BIN/python manage.py rap_status_service
+
+# Run the dev server and the rap_status_service together
+run-all:
+    { just run & just run-rapstatus; }
+
+
 run-prod: prodenv
     $BIN/gunicorn -c gunicorn.conf.py jobserver.wsgi
 
