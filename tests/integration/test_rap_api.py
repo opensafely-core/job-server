@@ -176,7 +176,7 @@ def test_jobrequestcancel_post_success(client, setup_backend_workspace_user):
     responses.post(
         url=f"{settings.RAP_API_BASE_URL}rap/cancel/",
         status=200,
-        json={"success": "ok", "details": "1 action cancelled", "count": 1},
+        json={"result": "Success", "details": "1 action cancelled", "count": 1},
         match=[
             responses.matchers.header_matcher({"Authorization": settings.RAP_API_TOKEN})
         ],
