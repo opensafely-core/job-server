@@ -189,6 +189,21 @@ just run
 
 Access at [localhost:8000](http://localhost:8000)
 
+Note: the following commands require that you have a local RAP API
+to connect to. See the [job-runner docs](https://github.com/opensafely-core/job-runner/blob/main/DEVELOPERS.md#running-locally-with-a-local-job-server)
+for instructions on how to run job-server and the RAP controller/agent together.
+
+**Run the rap status service:**
+```sh
+just run-rapstatus
+```
+
+**Run the dev server and the rap status service together:**
+```sh
+just run-all
+```
+
+
 ### Docker Compose
 
 Run `just docker-serve`.
