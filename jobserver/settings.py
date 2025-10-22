@@ -384,6 +384,8 @@ SOCIAL_AUTH_PIPELINE = [
     "jobserver.auth_pipeline.pipeline",
 ]
 
+SOCIAL_AUTH_ACTIVE_USERS_FILTER = {}
+
 # Sentry
 initialise_sentry()
 
