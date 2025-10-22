@@ -43,19 +43,6 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
 
       if (!response.ok) throw new Error();
 
-      // check if redirected to release-hatch for an un-uploaded file
-      if (
-        response.headers.has("Location") &&
-        response.headers.has("Authorization")
-      ) {
-        response = await fetch(response.headers.get("Location"), {
-          headers: {
-            Authorization: response.headers.get("Authorization"),
-          },
-        });
-        if (!response.ok) throw new Error();
-      }
-
       // If the text matches the not uploaded string,
       // return early with that text
       const bodyText = await response.clone().text();
