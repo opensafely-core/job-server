@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-The job-server needs to store information about the status of every job, so that it can be presented to end-users. Until now, a sync loop in rap-controller would regularly post this information to the job-server's jobs API. As part of the RAP API phase 2 work, job-server will now retrieve this information from the rap-controller using a call to the RAP API. We have created a Django management command `rap_status` which gets this data from the RAP API and stores it in the database.
+The job-server needs to store information about the status of every job, so that it can be presented to end-users. Until now, a sync loop in rap-controller would regularly post this information to the job-server's jobs API. As part of the RAP API phase 2 work, job-server will now retrieve this information from the rap-controller using a call to the RAP API. We have created a function `jobserver/commands/rap.py::rap_status_update()` which gets this data from the RAP API and stores it in the database.
 
 ## Decision
 
