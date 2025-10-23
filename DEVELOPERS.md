@@ -33,7 +33,7 @@
 - [Auditing events](#auditing-events)
   - [Presenters](#presenters)
 - [Interfaces](#interfaces)
-  - [Job Runner interface](#job-runner-interface)
+  - [RAP API (RAP Controller interface)](#rap-api-rap-controller-interface)
   - [Airlock interface](#airlock-interface)
 - [Risky migrations](#risky-migrations)
 
@@ -519,29 +519,93 @@ object links to, if anywhere.
 Descriptions of interfaces between this repo or container and others. These
 interfaces can be changed, through coordination with the relevant teams.
 
-Except where mentioned otherwise, URLs are relative to the root of the
-Job Server API endpoint (https://jobs.opensafely.org/api/v2 in production).
-
 Management commands might be used in other repos' tooling and CI. While not
 required, it's helpful to check for downstream impacts if you change their API.
 
-### Job Runner interface
+### RAP API (RAP Controller interface)
 
-[Job Runner] is a container that runs in a secure backend. It executes
-[JobRequest]s initiated by users of Job Server.
+The [RAP Controller] is a component of [Job Runner] that schedules jobs requested
+by users of Job Server to be run in a secure backend.
 
-This interacts with [jobserver/api/jobs.py] It uses the `JobRequestAPIList`
-endpoint (`GET /job-requests/`) for reading `JobRequest`s. It uses the
-`JobAPIUpdate` endpoint (`POST /jobs/`) for updating the `Job` table.
-(Current as of 2024-09.)
+The [RAP Agent] is a component of [Job Runner] that runs in a container in a secure
+backend. It runs jobs scheduled by the [RAP Controller] for its backend.
 
- Refer to the documentation of [jobrunner.sync] for Job Runner's documentation
- of this interface.
+Job Server communicates with the [RAP Controller] via the [RAP API], using the [rap_api] module.
+The [RAP API] is specified using the OpenAPI specification and is documented publicly.
 
+Refer to the [Job Runner documentation] for further information on the design principles
+and architecture of the RAP API, Controller and Agent.
+
+#### Authorization
+
+Job Server provides an Authorization token (the `RAP_API_TOKEN` environment variable)
+in the header of any request to the [RAP API]. The [RAP API] uses this token to determine:
+
+  1. that the client (Job Server) is authorised to access the API
+  1.  which backends the client (Job Server) is allowed to add/modify jobs or request information about.
+
+Refer to the [RAP API Auth] for details on how the [RAP Controller] handles client tokens.
+
+#### Creating a job request
+
+When users initiate a [Job Request] in the UI, Job Server calls the [RAP API] (`POST /controller/v1/rap/create/`)
+to request that jobs are created for the requested actions ([JobRequest].request_job_creation).
+The [RAP API] responds with a count of jobs scheduled by the controller. At this point no jobs have
+yet been created on job server.
+
+#### Updating jobs
+
+Job Server's [RAP status service] runs in a separate container to the main Job Server web process. It
+[requests updates] from the [RAP Controller] about the status of jobs for active job requests. The service calls the
+[RAP API] (`GET /controller/v1/rap/status/`) in a loop (with a 60s delay between repeats, or
+as configured by the `RAP_API_POLL_INTERVAL` environment variable),
+and updates Job Server's `Job`s' status based on the job data returned in the RAP API response.
+
+"Active" job requests are those that are pending or running, and also those
+in an unknown status. If an initial job request creation failed with an unknown
+error, this allows Job Server to request an update from the [RAP Controller] and
+update the unknown status accordingly.
+
+```mermaid
+flowchart TD
+    User-->JobRequest
+    User-->Jobs
+    JobRequest--RAP API rap/create-->RAPController
+    JobRequest--RAP API rap/cancel-->RAPController
+    Jobs--RAP API rap/cancel-->RAPController
+    RAPStatusService--RAP API /rap/status (approximately every 60s)-->RAPController
+    RAPStatusService--creates/updates-->Jobs
+
+
+    subgraph JobServer
+      JobRequest@{ shape: cyl }
+      Jobs@{ shape: cyl }
+    end
+
+    RAPStatusService[RAP Status Service]
+
+    RAPController{{Rap Controller}}
+```
+
+#### Backend status
+
+A cron job calls the [RAP API] (`GET /controller/v1/backend/status/`) every 60 seconds to retrieve updates on the
+status of backends, using a [management command].
+
+(Current as of 2025-10.)
+
+[RAP Agent]: https://github.com/opensafely-core/job-runner/agent
+[RAP Controller]: https://github.com/opensafely-core/job-runner/controller
 [Job Runner]: https://github.com/opensafely-core/job-runner
-[jobrunner.sync]: https://github.com/opensafely-core/job-runner/blob/main/DEVELOPERS.md#jobrunnersync
+[RAP API]: https://controller.opensafely.org/controller/v1/docs
+[RAP API Auth]: https://github.com/opensafely-core/job-runner/blob/main/controller/webapp/views/auth/rap.py
+[Job Runner documentation]: https://github.com/opensafely-core/job-runner/blob/main/DEVELOPERS.md#operating-principles
 [JobRequest]: jobserver/models/job_request.py
-[jobserver/api/jobs.py]: jobserver/api/jobs.py
+[Job Request]: jobserver/views/job_requests.py
+[RAP status service]: jobserver/management/commands/rap_status_service.py
+[requests updates]: jobserver/commands/rap.py
+[management command]: jobserver/management/commands/check_rap_api_status.py
+[rap_api]: jobserver/rap_api.py
 
 ### Airlock interface
 
@@ -550,6 +614,9 @@ with it to view moderately sensitive outputs produced by [Job Runner], to view
 log output from jobs, and to create requests to release files.  Users with the
 [OutputChecker] role interact with it to review such release requests and to
 manage the release of files to Job Server.
+
+URLs are relative to the root of the
+Job Server API endpoint (https://jobs.opensafely.org/api/v2 in production).
 
 Airlock refers to Job Server's permissions model to determine what users can
 do. The code it needs is in [jobserver/api/releases.py]. The endpoints it uses
