@@ -25,4 +25,4 @@ In order to keep repeatedly run the `check_rap_api_status` management command, w
 ## Consequences
 
 * We did not have 'minutely' as a frequency for `runjobs` jobs, we have added it as part of this work.
-* Dokku will run the job on schedule every minute. At the time of writing the job typically takes about 140ms to run, and we do not expect that to change significantly. In the unlikely event that it took longer than a minute to run, it's possible we could have two jobs running simultaneously and conflicting.
+* Dokku will run the job on schedule every minute. At the time of writing the job typically takes about 140ms to run, and we do not expect that to change significantly. In the unlikely event that it took longer than a minute to run, it's possible we could have two jobs running simultaneously, both attempting to update the same model and potentially leaving us with stale data. However, the next run of the job 60 seconds later should resolve any issues.
