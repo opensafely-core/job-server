@@ -35,7 +35,7 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
       // Combine file URL with UUID
       const fileURL = `${fileUrl}?${uuid}`;
 
-      let response = await fetch(fileURL, {
+      const response = await fetch(fileURL, {
         headers: {
           Authorization: authToken,
         },
