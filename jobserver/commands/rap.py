@@ -188,6 +188,14 @@ def rap_status_update(rap_ids):
                     for (k, v) in status_loop_info.items()
                 }
             )
+            span.set_attributes(
+                {
+                    "rap_status.affected_job_count": len(created_job_identifiers)
+                    + len(updated_job_identifiers),
+                    "rap_status.created_job_count": len(created_job_identifiers),
+                    "rap_status.updated_job_count": len(updated_job_identifiers),
+                }
+            )
             span.set_attribute(
                 "rap_status.affected_job_count",
                 len(created_job_identifiers) + len(updated_job_identifiers),
