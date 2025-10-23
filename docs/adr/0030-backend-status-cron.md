@@ -22,6 +22,8 @@ We have decided to use the runjobs cron system to repeatedly run the one-off man
 
 In order to keep repeatedly run the `check_rap_api_status` management command, we will create a `runjobs` job in `jobserver/jobs/minutely/check_rap_api_status.py`.
 
+We decided not to use a separate dokku container to run a long-running process to do this update because the cron system supported the frequency that we wanted (i.e. once per minute) and we thought this job would have a fairly consistent runtime which was significantly less than a minute.
+
 ## Consequences
 
 * We did not have 'minutely' as a frequency for `runjobs` jobs, we have added it as part of this work.
