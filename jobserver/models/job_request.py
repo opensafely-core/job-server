@@ -293,7 +293,10 @@ class JobRequest(models.Model):
 
             # Handle nothing to do.
             if not actions_to_cancel:
-                if self.jobs_status == JobRequestStatus.UNKNOWN:
+                if self.jobs_status in (
+                    JobRequestStatus.PENDING,
+                    JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS,
+                ):
                     # Probably this was called before we got any `Job` information
                     # from the RAP side. Let's distinguish that from other cases.
                     logger.error("Not started yet")

@@ -377,11 +377,13 @@ def test_jobrequest_request_cancellation_specify_action(mocker):
     assert set(args[1]) == {"job1", "job2", "job6"}  # Order invariant
 
 
-def test_jobrequest_request_cancellation_not_started_yet():
-    """Test request_cancellation when there are no associated job objects. We
-    expect a `NotStartedYet` error as the status is unknown."""
-    job_request = JobRequestFactory(cancelled_actions=[])
-    # No associated `Job` objects
+def test_jobrequest_request_cancellation_not_started_yet_unknown_error():
+    """Test request_cancellation when there are no associated job objects and
+    status is unknown error during creation. We expect a NotStartedYet."""
+    job_request = JobRequestFactory(
+        cancelled_actions=[], _status=JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
+    )
+    # No associated Job objects
 
     with pytest.raises(JobRequest.NotStartedYet):
         job_request.request_cancellation()
@@ -390,11 +392,30 @@ def test_jobrequest_request_cancellation_not_started_yet():
     assert set(job_request.cancelled_actions) == set()
 
 
-def test_jobrequest_request_cancellation_not_started_yet_specific_action(log_output):
+def test_jobrequest_request_cancellation_not_started_yet_pending():
+    """Test request_cancellation when there are no associated job objects and
+    status is pending. We expect a NotStartedYet."""
+    job_request = JobRequestFactory(
+        cancelled_actions=[], _status=JobRequestStatus.PENDING
+    )
+    # No associated Job objects
+
+    with pytest.raises(JobRequest.NotStartedYet):
+        job_request.request_cancellation()
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == set()
+
+
+def test_jobrequest_request_cancellation_not_started_yet_specific_action_pending(
+    log_output,
+):
     """Test request_cancellation with parameters when there are no associated
-    job objects. We expect a `NotStartedYet` error as the status is unknown."""
-    job_request = JobRequestFactory(cancelled_actions=[])
-    # No associated `Job` objects
+    job objects and status is pending. We expect a NotStartedYet error."""
+    job_request = JobRequestFactory(
+        cancelled_actions=[], _status=JobRequestStatus.PENDING
+    )
+    # No associated Job objects
 
     with pytest.raises(JobRequest.NotStartedYet):
         job_request.request_cancellation(actions_to_cancel=["job1"])
