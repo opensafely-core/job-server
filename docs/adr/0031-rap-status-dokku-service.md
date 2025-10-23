@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-The `job-server` needs to store information about the status of every job, so that it can be presented to end-users. Until now, a sync loop in `rap-controller` would regularly post this information to the job-server's jobs API. As part of the RAP API phase 2 work, `job-server` will now retrieve this information from the `rap-controller` using a call to the RAP API. We have created a Django management command `rap_status` which gets this data from the RAP API and stores it in the database.
+The job-server needs to store information about the status of every job, so that it can be presented to end-users. Until now, a sync loop in rap-controller would regularly post this information to the job-server's jobs API. As part of the RAP API phase 2 work, job-server will now retrieve this information from the rap-controller using a call to the RAP API. We have created a Django management command `rap_status` which gets this data from the RAP API and stores it in the database.
 
 ## Decision
 
@@ -20,4 +20,4 @@ The second Dokku container and associated configuration is defined in `Procfile`
 
 ## Consequences
 
-The new container will be re-deployed automatically as part of the existing deployment mechanism every time there is an update to `job-server`. When Dokku deploys containers it creates the new container, switches over to the new container, waits 60 seconds, then kills the old container. This means that it's possible for two different containers to be running simultaneously.
+The new container will be re-deployed automatically as part of the existing deployment mechanism every time there is an update to job-server. When Dokku deploys containers it creates the new container, switches over to the new container, waits 60 seconds, then kills the old container. This means that it's possible for two different containers to be running simultaneously.
