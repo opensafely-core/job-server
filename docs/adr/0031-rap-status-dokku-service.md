@@ -18,6 +18,8 @@ The long-running update process will be a new management command `rap_status_ser
 
 The second Dokku container and associated configuration is defined in `Procfile` & `app.json`. We have disabled zero-downtime deploys for the second container in order to prevent Dokku from running two containers simultaneously.
 
+Although we have initially decided to update the data approximately every minute, we decided not to use the runjobs cron system because the runtime of this update is variable based on the size of job_requests. At the time of writing, the runtime could plausibly be over a minute in a realistic scenario, which would mean we would need to guard against multiple updates running simultaneously.
+
 ## Consequences
 
 The new container will be re-deployed automatically as part of the existing deployment mechanism every time there is an update to job-server.
