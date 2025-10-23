@@ -16,8 +16,8 @@ We have decided to use a long-running update process, with Dokku providing a sec
 
 The long-running update process will be a new management command `rap_status_service`, consisting of a loop which updates the job statuses and then sleeps for 60 seconds.
 
-The second Dokku container and associated configuration is defined in `Procfile` & `app.json`.
+The second Dokku container and associated configuration is defined in `Procfile` & `app.json`. We have disabled zero-downtime deploys for the second container in order to prevent Dokku from running two containers simultaneously.
 
 ## Consequences
 
-The new container will be re-deployed automatically as part of the existing deployment mechanism every time there is an update to job-server. When Dokku deploys containers it creates the new container, switches over to the new container, waits 60 seconds, then kills the old container. This means that it's possible for two different containers to be running simultaneously.
+The new container will be re-deployed automatically as part of the existing deployment mechanism every time there is an update to job-server.
