@@ -15,7 +15,6 @@ __pycache__
 /jobserver.dump
 /jobserver.sqlite.zip
 node_modules
-/release-hatch
 /releases
 /repos
 /staticfiles

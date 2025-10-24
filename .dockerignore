@@ -11,7 +11,6 @@ htmlcov
 node_modules
 outputs
 pyproject.toml
-release-hatch
 tests
 uploads
 venv

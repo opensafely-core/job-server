@@ -35,26 +35,13 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
       // Combine file URL with UUID
       const fileURL = `${fileUrl}?${uuid}`;
 
-      let response = await fetch(fileURL, {
+      const response = await fetch(fileURL, {
         headers: {
           Authorization: authToken,
         },
       });
 
       if (!response.ok) throw new Error();
-
-      // check if redirected to release-hatch for an un-uploaded file
-      if (
-        response.headers.has("Location") &&
-        response.headers.has("Authorization")
-      ) {
-        response = await fetch(response.headers.get("Location"), {
-          headers: {
-            Authorization: response.headers.get("Authorization"),
-          },
-        });
-        if (!response.ok) throw new Error();
-      }
 
       // If the text matches the not uploaded string,
       // return early with that text

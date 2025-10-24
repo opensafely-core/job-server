@@ -294,11 +294,8 @@ def test_handle_release_upload_db_error(monkeypatch, build_release):
 
 
 def test_serve_file(rf):
-    # FIXME: we only serve a file if it's found.  While testing the
-    # multi-select/review flow in the SPA we removed the only path which called
-    # serve_file with a deleted file to have it redirect to release-hatch.  We
-    # might not keep that path in so we're not removing this guard from
-    # serve_file(), but we still want to maintain coverage.
+    # We no longer redirect externally for deleted files; serving a deleted
+    # ReleaseFile must raise NotFound.
     rfile = ReleaseFile(deleted_at=timezone.now(), deleted_by=UserFactory())
     request = rf.get("/")
 
