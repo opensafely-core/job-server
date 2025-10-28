@@ -1,4 +1,5 @@
 import logging
+import os
 import warnings
 
 import structlog
@@ -135,7 +136,7 @@ logging_config_dict = {
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": env.str("DJANGO_LOG_LEVEL", default="INFO"),
+            "level": os.environ.get("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "django.template": {
