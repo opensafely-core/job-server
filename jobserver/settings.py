@@ -45,9 +45,9 @@ if OLD_SECRET_KEY is not None:
     SECRET_KEY_FALLBACKS = [OLD_SECRET_KEY]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = os.environ.get("DEBUG", default=False) == "True"
 
-DEBUG_TOOLBAR = env.bool("DJANGO_DEBUG_TOOLBAR", default=False)
+DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR", default=False) == "True"
 
 BASE_URL = os.environ.get("BASE_URL", default="http://localhost:8000")
 
@@ -192,7 +192,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
 STATIC_URL = "/static/"
 
-ASSETS_DEV_MODE = env.bool("ASSETS_DEV_MODE", default=False)
+ASSETS_DEV_MODE = os.environ.get("ASSETS_DEV_MODE", default=False) == "True"
 
 DJANGO_VITE = {
     "default": {
@@ -392,7 +392,7 @@ initialise_sentry()
 
 
 # PROJECT SETTINGS
-DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
+DISABLE_CREATING_JOBS = os.environ.get("DISABLE_CREATING_JOBS", default=False) == "True"
 
 # Released files per-file size limit
 RELEASE_FILE_SIZE_LIMIT = env.int(
