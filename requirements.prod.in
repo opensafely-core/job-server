@@ -44,9 +44,6 @@ slippers
 # Toolkit for building REST APIs in Django. Search "from rest_framework"
 djangorestframework
 
-# Simplifies environment variable management. Used in some services and app code.
-environs[django]
-
 # Simplifies retrieving the correct database URL from env variables
 dj_database_url
 
