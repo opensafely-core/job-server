@@ -454,9 +454,9 @@ dj-email-url==1.0.6 \
     --hash=sha256:55ffe3329e48f54f8a75aa36ece08f365e09d61f8a209773ef09a1d4760e699a \
     --hash=sha256:cbd08327fbb08b104eac160fb4703f375532e4c0243eb230f5b960daee7a96db
     # via environs
-django==5.1.13 \
-    --hash=sha256:06f257f79dc4c17f3f9e23b106a4c5ed1335abecbe731e83c598c941d14fbeed \
-    --hash=sha256:543ff21679f15e80edfc01fe7ea35f8291b6d4ea589433882913626a7c1cf929
+django==5.2.7 \
+    --hash=sha256:59a13a6515f787dec9d97a0438cd2efac78c8aca1c80025244b0fe507fe0754b \
+    --hash=sha256:e0f6f12e2551b1716a95a63a1366ca91bbcd7be059862c1b18f989b1da356cdd
     # via
     #   -r requirements.prod.in
     #   dj-database-url
