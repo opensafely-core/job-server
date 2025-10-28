@@ -47,6 +47,9 @@ djangorestframework
 # Simplifies environment variable management. Used in some services and app code.
 environs[django]
 
+# Simplifies retrieving the correct database URL from env variables
+dj_database_url
+
 # Integration of social authentication for Django projects.
 social-auth-app-django
 

@@ -14,6 +14,7 @@ import os
 import re
 from pathlib import Path
 
+import dj_database_url
 from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
@@ -137,7 +138,9 @@ WSGI_APPLICATION = "jobserver.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 DATABASES = {
-    "default": env.dj_db_url("DATABASE_URL", default="postgres://localhost/jobserver")
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
+    ),
 }
 
 # Default primary key field type
