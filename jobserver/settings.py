@@ -18,14 +18,36 @@ import dj_database_url
 from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
-from environs import Env
 
 from services.logging import logging_config_dict
 from services.sentry import initialise_sentry
 
 
-env = Env()
-env.read_env()
+_missing_env_var_hint = """\
+If you are running commands locally outside of `just` then you should
+make sure that your `.env` file is being loaded into the environment,
+which you can do in Bash using:
+
+    set -a; source .env; set +a
+
+If you are seeing this error when running via `just` (which should
+automatically load variables from `.env`) then you should check that
+`.env` contains all the variables listed in `dotenv-sample` (which may
+have been updated since `.env` was first created).
+
+If you are seeing this error in production then you haven't configured
+things properly.
+"""
+
+
+def get_env_var(name):
+    try:
+        return os.environ[name]
+    except KeyError:
+        raise RuntimeError(
+            f"Missing environment variable: {name}\n\n{_missing_env_var_hint}"
+        )
+
 
 # Build paths inside the project like this: BASE_DIR / ...
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,7 +57,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str("SECRET_KEY")
+SECRET_KEY = get_env_var("SECRET_KEY")
 
 # Optional fallback for rotating the secret key.
 # Any OLD_SECRET_KEY that is added should then be removed
@@ -246,8 +268,8 @@ LOGOUT_REDIRECT_URL = "/"
 LOGIN_ERROR_URL = "/"
 LOGIN_URL = reverse_lazy("login")
 LOGIN_URL_TIMEOUT_MINUTES = 60
-SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY")
-SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET")
+SOCIAL_AUTH_GITHUB_KEY = get_env_var("SOCIAL_AUTH_GITHUB_KEY")
+SOCIAL_AUTH_GITHUB_SECRET = get_env_var("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 RAP_API_BASE_URL = os.environ.get("RAP_API_BASE_URL", default="")
 RAP_API_TOKEN = os.environ.get("RAP_API_TOKEN", default="")
