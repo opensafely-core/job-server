@@ -252,11 +252,14 @@ RAP_API_TOKEN = os.environ.get("RAP_API_TOKEN", default="")
 
 # Passwords
 # https://docs.djangoproject.com/en/4.0/ref/settings/#password-hashers
-PASSWORD_HASHERS = env.list(
-    "PASSWORD_HASHERS",
-    default=[
-        "django.contrib.auth.hashers.Argon2PasswordHasher",
-    ],
+PASSWORD_HASHERS = (
+    [
+        hasher.strip()
+        for hasher in os.environ.get("PASSWORD_HASHERS").split(",")
+        if hasher.strip()
+    ]
+    if os.environ.get("PASSWORD_HASHERS")
+    else ["django.contrib.auth.hashers.Argon2PasswordHasher"]
 )
 
 
@@ -410,7 +413,15 @@ RELEASE_FILE_SIZE_LIMIT = int(
 RELEASE_STORAGE = Path(os.environ.get("RELEASE_STORAGE", default="releases"))
 
 # IP prefix of docker subnet on dokku 4
-TRUSTED_PROXIES = env.list("TRUSTED_PROXIES", default=["172.17.0."])
+TRUSTED_PROXIES = (
+    [
+        proxy.strip()
+        for proxy in os.environ.get("TRUSTED_PROXIES").split(",")
+        if proxy.strip()
+    ]
+    if os.environ.get("TRUSTED_PROXIES")
+    else ["172.17.0."]
+)
 
 # Map client IP addresses to backend slugs
 BACKEND_IP_MAP = {
