@@ -184,12 +184,14 @@ STORAGES = {
 
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 # Note: these *must* be strings. If they are paths, we cannot cleanly extract them in ./scripts/collect-me-maybe.sh
-BUILT_ASSETS = env.path("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")
+BUILT_ASSETS = Path(
+    os.environ.get("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")
+)
 STATICFILES_DIRS = [
     str(BASE_DIR / "static"),
     str(BUILT_ASSETS),
 ]
-STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
+STATIC_ROOT = Path(os.environ.get("STATIC_ROOT", default=BASE_DIR / "staticfiles"))
 STATIC_URL = "/static/"
 
 ASSETS_DEV_MODE = os.environ.get("ASSETS_DEV_MODE", default=False) == "True"
