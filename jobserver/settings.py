@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import os
 import re
 from pathlib import Path
 
@@ -39,7 +40,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 # Any OLD_SECRET_KEY that is added should then be removed
 # after the time in SESSION_COOKIE_AGE elapses.
 # Refer to INSTALL.md for guidance.
-OLD_SECRET_KEY = env.str("OLD_SECRET_KEY", default=None)
+OLD_SECRET_KEY = os.environ.get("OLD_SECRET_KEY", default=None)
 if OLD_SECRET_KEY is not None:
     SECRET_KEY_FALLBACKS = [OLD_SECRET_KEY]
 
@@ -48,7 +49,7 @@ DEBUG = env.bool("DEBUG", default=False)
 
 DEBUG_TOOLBAR = env.bool("DJANGO_DEBUG_TOOLBAR", default=False)
 
-BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
+BASE_URL = os.environ.get("BASE_URL", default="http://localhost:8000")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -215,7 +216,7 @@ WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 # User uploaded files
 # https://docs.djangoproject.com/en/4.0/topics/files/
-MEDIA_ROOT = Path(env.str("MEDIA_STORAGE", default="uploads"))
+MEDIA_ROOT = Path(os.environ.get("MEDIA_STORAGE", default="uploads"))
 MEDIA_URL = "/uploads/"
 
 
@@ -243,8 +244,8 @@ LOGIN_URL_TIMEOUT_MINUTES = 60
 SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY")
 SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
-RAP_API_BASE_URL = env.str("RAP_API_BASE_URL", default="")
-RAP_API_TOKEN = env.str("RAP_API_TOKEN", default="")
+RAP_API_BASE_URL = os.environ.get("RAP_API_BASE_URL", default="")
+RAP_API_TOKEN = os.environ.get("RAP_API_TOKEN", default="")
 
 
 # Passwords
@@ -308,7 +309,7 @@ if ASSETS_DEV_MODE:
 CONTENT_SECURITY_POLICY = {
     "EXCLUDE_URL_PREFIXES": ["/api"],
     "DIRECTIVES": {
-        "report-uri": env.str("CSP_REPORT_URI", default=""),
+        "report-uri": os.environ.get("CSP_REPORT_URI", default=""),
         "connect-src": CONNECT_SRC,
         "default-src": [NONE],
         "font-src": FONT_SRC,
@@ -345,11 +346,11 @@ FORMS_URLFIELD_ASSUME_HTTPS = True
 
 # Anymail
 ANYMAIL = {
-    "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=None),
+    "MAILGUN_API_KEY": os.environ.get("MAILGUN_API_KEY", default=None),
     "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3",
     "MAILGUN_SENDER_DOMAIN": "mg.jobs.opensafely.org",
 }
-EMAIL_BACKEND = env.str(
+EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
 DEFAULT_FROM_EMAIL = "you@example.com"
@@ -402,7 +403,7 @@ RELEASE_FILE_SIZE_LIMIT = env.int(
 # Released files storage location
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
-RELEASE_STORAGE = Path(env.str("RELEASE_STORAGE", default="releases"))
+RELEASE_STORAGE = Path(os.environ.get("RELEASE_STORAGE", default="releases"))
 
 # IP prefix of docker subnet on dokku 4
 TRUSTED_PROXIES = env.list("TRUSTED_PROXIES", default=["172.17.0."])
@@ -416,28 +417,28 @@ BACKEND_IP_MAP = {
 
 
 # SLACK CHANNELS
-RELEASES_SLACK_CHANNEL = env.str(
+RELEASES_SLACK_CHANNEL = os.environ.get(
     "RELEASES_SLACK_CHANNEL", default="opensafely-releases"
 )
-REGISTRATIONS_SLACK_CHANNEL = env.str(
+REGISTRATIONS_SLACK_CHANNEL = os.environ.get(
     "REGISTRATIONS_SLACK_CHANNEL", default="job-server-registrations"
 )
-APPLICATIONS_SLACK_CHANNEL = env.str(
+APPLICATIONS_SLACK_CHANNEL = os.environ.get(
     "RELEASES_SLACK_CHANNEL", default="job-server-applications"
 )
-COPILOT_SUPPORT_SLACK_CHANNEL = env.str(
+COPILOT_SUPPORT_SLACK_CHANNEL = os.environ.get(
     "COPILOT_SUPPORT_SLACK_CHANNEL", default="co-pilot-support"
 )
 # for Airlock
-DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL = env.str(
+DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL = os.environ.get(
     "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", default="opensafely-outputs"
 )
 
 # OUTPUT_CHECKING_REPOS
-DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = env.str(
+DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = os.environ.get(
     "DEFAULT_OUTPUT_CHECKING_GITHUB_ORG", default="ebmdatalab"
 )
-DEFAULT_OUTPUT_CHECKING_REPO = env.str(
+DEFAULT_OUTPUT_CHECKING_REPO = os.environ.get(
     "DEFAULT_OUTPUT_CHECKING_REPO", default="opensafely-output-review"
 )
 DEFAULT_MAX_GITHUB_RETRIES = env.int("DEFAULT_MAX_GITHUB_RETRIES", default=3)
