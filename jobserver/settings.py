@@ -405,7 +405,7 @@ RELEASE_FILE_SIZE_LIMIT = env.int(
 RELEASE_STORAGE = Path(env.str("RELEASE_STORAGE", default="releases"))
 
 # IP prefix of docker subnet on dokku 4
-TRUSTED_PROXIES = env.list("TRUSTED_PROXIES", ["172.17.0."])
+TRUSTED_PROXIES = env.list("TRUSTED_PROXIES", default=["172.17.0."])
 
 # Map client IP addresses to backend slugs
 BACKEND_IP_MAP = {
@@ -430,15 +430,15 @@ COPILOT_SUPPORT_SLACK_CHANNEL = env.str(
 )
 # for Airlock
 DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL = env.str(
-    "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", "opensafely-outputs"
+    "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", default="opensafely-outputs"
 )
 
 # OUTPUT_CHECKING_REPOS
 DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = env.str(
-    "DEFAULT_OUTPUT_CHECKING_GITHUB_ORG", "ebmdatalab"
+    "DEFAULT_OUTPUT_CHECKING_GITHUB_ORG", default="ebmdatalab"
 )
 DEFAULT_OUTPUT_CHECKING_REPO = env.str(
-    "DEFAULT_OUTPUT_CHECKING_REPO", "opensafely-output-review"
+    "DEFAULT_OUTPUT_CHECKING_REPO", default="opensafely-output-review"
 )
 DEFAULT_MAX_GITHUB_RETRIES = env.int("DEFAULT_MAX_GITHUB_RETRIES", default=3)
 
@@ -450,4 +450,4 @@ UNIVERSITY_OF_BRISTOL_ORG_PK = 9
 
 # How long in seconds to wait between calls to the RAP API status endpoint to
 # fetch job updates
-RAP_API_POLL_INTERVAL = env.int("RAP_API_POLL_INTERVAL", 60)
+RAP_API_POLL_INTERVAL = env.int("RAP_API_POLL_INTERVAL", default=60)
