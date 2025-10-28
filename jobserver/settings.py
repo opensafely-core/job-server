@@ -397,9 +397,11 @@ initialise_sentry()
 DISABLE_CREATING_JOBS = os.environ.get("DISABLE_CREATING_JOBS", default=False) == "True"
 
 # Released files per-file size limit
-RELEASE_FILE_SIZE_LIMIT = env.int(
-    "RELEASE_FILE_SIZE_LIMIT",
-    default=16 * 1024 * 1024,  # 16Mb
+RELEASE_FILE_SIZE_LIMIT = int(
+    os.environ.get(
+        "RELEASE_FILE_SIZE_LIMIT",
+        default=16 * 1024 * 1024,  # 16Mb
+    )
 )
 
 # Released files storage location
@@ -443,7 +445,9 @@ DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = os.environ.get(
 DEFAULT_OUTPUT_CHECKING_REPO = os.environ.get(
     "DEFAULT_OUTPUT_CHECKING_REPO", default="opensafely-output-review"
 )
-DEFAULT_MAX_GITHUB_RETRIES = env.int("DEFAULT_MAX_GITHUB_RETRIES", default=3)
+DEFAULT_MAX_GITHUB_RETRIES = int(
+    os.environ.get("DEFAULT_MAX_GITHUB_RETRIES", default=3)
+)
 
 # These orgs are not copiloted
 BENNETT_ORG_PK = 3
@@ -453,4 +457,4 @@ UNIVERSITY_OF_BRISTOL_ORG_PK = 9
 
 # How long in seconds to wait between calls to the RAP API status endpoint to
 # fetch job updates
-RAP_API_POLL_INTERVAL = env.int("RAP_API_POLL_INTERVAL", default=60)
+RAP_API_POLL_INTERVAL = int(os.environ.get("RAP_API_POLL_INTERVAL", default=60))
