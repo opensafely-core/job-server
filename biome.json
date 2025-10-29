@@ -52,6 +52,22 @@
       }
     }
   },
+  "overrides": [
+    {
+      "includes": ["**/*.css"],
+      "linter": {
+        "rules": {
+          "recommended": true,
+          "complexity": {
+            "noImportantStyles": "off"
+          },
+          "suspicious": {
+            "noUnknownAtRules": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "jsxRuntime": "reactClassic",
     "formatter": {
