@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })}`;
 
     if (heading.tagName === "H3") {
-      return ul.querySelector("li:last-of-type ul").insertAdjacentHTML(
+      ul.querySelector("li:last-of-type ul").insertAdjacentHTML(
         "beforeend",
         `<li>
           <a href="#${heading.id}">
@@ -29,16 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
           </a>
         </li>`,
       );
-    }
-
-    return ul.insertAdjacentHTML(
-      "beforeend",
-      `<li>
+    } else {
+      ul.insertAdjacentHTML(
+        "beforeend",
+        `<li>
         <a href="#${heading.id}">
           ${heading.textContent}
         </a>
         ${heading.parentElement.querySelector("h3") ? `<ul></ul>` : ""}
       </li>`,
-    );
+      );
+    }
   });
 });
