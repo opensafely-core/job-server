@@ -6,7 +6,7 @@ import structlog
 
 
 # add logging before app has booted
-DEBUG = os.environ.get("DEBUG", default=False) == "1"
+DEBUG = os.environ.get("DEBUG", default="0") == "1"
 
 
 def timestamper(logger, log_method, event_dict):

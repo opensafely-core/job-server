@@ -68,7 +68,7 @@ if OLD_SECRET_KEY is not None:
     SECRET_KEY_FALLBACKS = [OLD_SECRET_KEY]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", default=False) == "True"
+DEBUG = os.environ.get("DEBUG", default="0") == "1"
 
 DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR", default=False) == "True"
 
