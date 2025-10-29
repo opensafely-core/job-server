@@ -1,13 +1,12 @@
 import logging
+import os
 import warnings
 
 import structlog
-from environs import Env
 
 
 # add logging before app has booted
-env = Env()
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = os.environ.get("DEBUG", default="0") == "1"
 
 
 def timestamper(logger, log_method, event_dict):
@@ -135,7 +134,7 @@ logging_config_dict = {
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": env.str("DJANGO_LOG_LEVEL", default="INFO"),
+            "level": os.environ.get("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "django.template": {

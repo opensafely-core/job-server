@@ -1,6 +1,7 @@
+import os
+
 import structlog
 from django.conf import settings
-from environs import Env
 from furl import furl
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -8,9 +9,7 @@ from slack_sdk.errors import SlackApiError
 
 logger = structlog.get_logger(__name__)
 
-env = Env()
-
-slack_token = env.str("SLACK_BOT_TOKEN", default="")
+slack_token = os.environ.get("SLACK_BOT_TOKEN", default="")
 
 client = WebClient(token=slack_token)
 

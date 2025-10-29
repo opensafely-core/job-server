@@ -1,9 +1,9 @@
 import inspect
+import os
 
 import pytest
 import requests.exceptions
 import stamina
-from environs import Env
 from requests.models import Response
 
 from jobserver.github import (
@@ -81,7 +81,7 @@ def clear_topics(github_api):
 @pytest.fixture
 def github_api():
     """create a new API instance so that we can use a separate token for these tests"""
-    return GitHubAPI(token=Env().str("GITHUB_TOKEN_TESTING"))
+    return GitHubAPI(token=os.environ["GITHUB_TOKEN_TESTING"])
 
 
 @pytest.mark.usefixtures("socket_enabled")

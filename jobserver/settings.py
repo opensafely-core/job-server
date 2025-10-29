@@ -10,20 +10,44 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import os
 import re
 from pathlib import Path
 
+import dj_database_url
 from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
-from environs import Env
 
 from services.logging import logging_config_dict
 from services.sentry import initialise_sentry
 
 
-env = Env()
-env.read_env()
+_missing_env_var_hint = """\
+If you are running commands locally outside of `just` then you should
+make sure that your `.env` file is being loaded into the environment,
+which you can do in Bash using:
+
+    set -a; source .env; set +a
+
+If you are seeing this error when running via `just` (which should
+automatically load variables from `.env`) then you should check that
+`.env` contains all the variables listed in `dotenv-sample` (which may
+have been updated since `.env` was first created).
+
+If you are seeing this error in production then you haven't configured
+things properly.
+"""
+
+
+def get_env_var(name):
+    try:
+        return os.environ[name]
+    except KeyError:
+        raise RuntimeError(
+            f"Missing environment variable: {name}\n\n{_missing_env_var_hint}"
+        )
+
 
 # Build paths inside the project like this: BASE_DIR / ...
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,22 +57,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str("SECRET_KEY")
+SECRET_KEY = get_env_var("SECRET_KEY")
 
 # Optional fallback for rotating the secret key.
 # Any OLD_SECRET_KEY that is added should then be removed
 # after the time in SESSION_COOKIE_AGE elapses.
 # Refer to INSTALL.md for guidance.
-OLD_SECRET_KEY = env.str("OLD_SECRET_KEY", default=None)
+OLD_SECRET_KEY = os.environ.get("OLD_SECRET_KEY", default=None)
 if OLD_SECRET_KEY is not None:
     SECRET_KEY_FALLBACKS = [OLD_SECRET_KEY]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=False)
+DEBUG = os.environ.get("DEBUG", default="0") == "1"
 
-DEBUG_TOOLBAR = env.bool("DJANGO_DEBUG_TOOLBAR", default=False)
+DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR", default=False) == "True"
 
-BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
+BASE_URL = os.environ.get("BASE_URL", default="http://localhost:8000")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -136,7 +160,9 @@ WSGI_APPLICATION = "jobserver.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 DATABASES = {
-    "default": env.dj_db_url("DATABASE_URL", default="postgres://localhost/jobserver")
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
+    ),
 }
 
 # Default primary key field type
@@ -183,15 +209,17 @@ STORAGES = {
 
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 # Note: these *must* be strings. If they are paths, we cannot cleanly extract them in ./scripts/collect-me-maybe.sh
-BUILT_ASSETS = env.path("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")
+BUILT_ASSETS = Path(
+    os.environ.get("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")
+)
 STATICFILES_DIRS = [
     str(BASE_DIR / "static"),
     str(BUILT_ASSETS),
 ]
-STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
+STATIC_ROOT = Path(os.environ.get("STATIC_ROOT", default=BASE_DIR / "staticfiles"))
 STATIC_URL = "/static/"
 
-ASSETS_DEV_MODE = env.bool("ASSETS_DEV_MODE", default=False)
+ASSETS_DEV_MODE = os.environ.get("ASSETS_DEV_MODE", default=False) == "True"
 
 DJANGO_VITE = {
     "default": {
@@ -215,7 +243,7 @@ WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 # User uploaded files
 # https://docs.djangoproject.com/en/4.0/topics/files/
-MEDIA_ROOT = Path(env.str("MEDIA_STORAGE", default="uploads"))
+MEDIA_ROOT = Path(os.environ.get("MEDIA_STORAGE", default="uploads"))
 MEDIA_URL = "/uploads/"
 
 
@@ -240,20 +268,23 @@ LOGOUT_REDIRECT_URL = "/"
 LOGIN_ERROR_URL = "/"
 LOGIN_URL = reverse_lazy("login")
 LOGIN_URL_TIMEOUT_MINUTES = 60
-SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY")
-SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET")
+SOCIAL_AUTH_GITHUB_KEY = get_env_var("SOCIAL_AUTH_GITHUB_KEY")
+SOCIAL_AUTH_GITHUB_SECRET = get_env_var("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
-RAP_API_BASE_URL = env.str("RAP_API_BASE_URL", default="")
-RAP_API_TOKEN = env.str("RAP_API_TOKEN", default="")
+RAP_API_BASE_URL = os.environ.get("RAP_API_BASE_URL", default="")
+RAP_API_TOKEN = os.environ.get("RAP_API_TOKEN", default="")
 
 
 # Passwords
 # https://docs.djangoproject.com/en/4.0/ref/settings/#password-hashers
-PASSWORD_HASHERS = env.list(
-    "PASSWORD_HASHERS",
-    default=[
-        "django.contrib.auth.hashers.Argon2PasswordHasher",
-    ],
+PASSWORD_HASHERS = (
+    [
+        hasher.strip()
+        for hasher in os.environ.get("PASSWORD_HASHERS").split(",")
+        if hasher.strip()
+    ]
+    if os.environ.get("PASSWORD_HASHERS")
+    else ["django.contrib.auth.hashers.Argon2PasswordHasher"]
 )
 
 
@@ -308,7 +339,7 @@ if ASSETS_DEV_MODE:
 CONTENT_SECURITY_POLICY = {
     "EXCLUDE_URL_PREFIXES": ["/api"],
     "DIRECTIVES": {
-        "report-uri": env.str("CSP_REPORT_URI", default=""),
+        "report-uri": os.environ.get("CSP_REPORT_URI", default=""),
         "connect-src": CONNECT_SRC,
         "default-src": [NONE],
         "font-src": FONT_SRC,
@@ -345,11 +376,11 @@ FORMS_URLFIELD_ASSUME_HTTPS = True
 
 # Anymail
 ANYMAIL = {
-    "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=None),
+    "MAILGUN_API_KEY": os.environ.get("MAILGUN_API_KEY", default=None),
     "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3",
     "MAILGUN_SENDER_DOMAIN": "mg.jobs.opensafely.org",
 }
-EMAIL_BACKEND = env.str(
+EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
 DEFAULT_FROM_EMAIL = "you@example.com"
@@ -391,21 +422,31 @@ initialise_sentry()
 
 
 # PROJECT SETTINGS
-DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
+DISABLE_CREATING_JOBS = os.environ.get("DISABLE_CREATING_JOBS", default=False) == "True"
 
 # Released files per-file size limit
-RELEASE_FILE_SIZE_LIMIT = env.int(
-    "RELEASE_FILE_SIZE_LIMIT",
-    default=16 * 1024 * 1024,  # 16Mb
+RELEASE_FILE_SIZE_LIMIT = int(
+    os.environ.get(
+        "RELEASE_FILE_SIZE_LIMIT",
+        default=16 * 1024 * 1024,  # 16Mb
+    )
 )
 
 # Released files storage location
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
-RELEASE_STORAGE = Path(env.str("RELEASE_STORAGE", default="releases"))
+RELEASE_STORAGE = Path(os.environ.get("RELEASE_STORAGE", default="releases"))
 
 # IP prefix of docker subnet on dokku 4
-TRUSTED_PROXIES = env.list("TRUSTED_PROXIES", ["172.17.0."])
+TRUSTED_PROXIES = (
+    [
+        proxy.strip()
+        for proxy in os.environ.get("TRUSTED_PROXIES").split(",")
+        if proxy.strip()
+    ]
+    if os.environ.get("TRUSTED_PROXIES")
+    else ["172.17.0."]
+)
 
 # Map client IP addresses to backend slugs
 BACKEND_IP_MAP = {
@@ -416,31 +457,33 @@ BACKEND_IP_MAP = {
 
 
 # SLACK CHANNELS
-RELEASES_SLACK_CHANNEL = env.str(
+RELEASES_SLACK_CHANNEL = os.environ.get(
     "RELEASES_SLACK_CHANNEL", default="opensafely-releases"
 )
-REGISTRATIONS_SLACK_CHANNEL = env.str(
+REGISTRATIONS_SLACK_CHANNEL = os.environ.get(
     "REGISTRATIONS_SLACK_CHANNEL", default="job-server-registrations"
 )
-APPLICATIONS_SLACK_CHANNEL = env.str(
+APPLICATIONS_SLACK_CHANNEL = os.environ.get(
     "RELEASES_SLACK_CHANNEL", default="job-server-applications"
 )
-COPILOT_SUPPORT_SLACK_CHANNEL = env.str(
+COPILOT_SUPPORT_SLACK_CHANNEL = os.environ.get(
     "COPILOT_SUPPORT_SLACK_CHANNEL", default="co-pilot-support"
 )
 # for Airlock
-DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL = env.str(
-    "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", "opensafely-outputs"
+DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL = os.environ.get(
+    "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", default="opensafely-outputs"
 )
 
 # OUTPUT_CHECKING_REPOS
-DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = env.str(
-    "DEFAULT_OUTPUT_CHECKING_GITHUB_ORG", "ebmdatalab"
+DEFAULT_OUTPUT_CHECKING_GITHUB_ORG = os.environ.get(
+    "DEFAULT_OUTPUT_CHECKING_GITHUB_ORG", default="ebmdatalab"
 )
-DEFAULT_OUTPUT_CHECKING_REPO = env.str(
-    "DEFAULT_OUTPUT_CHECKING_REPO", "opensafely-output-review"
+DEFAULT_OUTPUT_CHECKING_REPO = os.environ.get(
+    "DEFAULT_OUTPUT_CHECKING_REPO", default="opensafely-output-review"
 )
-DEFAULT_MAX_GITHUB_RETRIES = env.int("DEFAULT_MAX_GITHUB_RETRIES", default=3)
+DEFAULT_MAX_GITHUB_RETRIES = int(
+    os.environ.get("DEFAULT_MAX_GITHUB_RETRIES", default=3)
+)
 
 # These orgs are not copiloted
 BENNETT_ORG_PK = 3
@@ -450,4 +493,4 @@ UNIVERSITY_OF_BRISTOL_ORG_PK = 9
 
 # How long in seconds to wait between calls to the RAP API status endpoint to
 # fetch job updates
-RAP_API_POLL_INTERVAL = env.int("RAP_API_POLL_INTERVAL", 60)
+RAP_API_POLL_INTERVAL = int(os.environ.get("RAP_API_POLL_INTERVAL", default=60))

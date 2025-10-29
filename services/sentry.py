@@ -1,11 +1,11 @@
+import os
+
 import sentry_sdk
 import structlog
-from environs import Env
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
 
-env = Env()
 logger = structlog.get_logger(__name__)
 
 
@@ -16,8 +16,8 @@ def initialise_sentry():  # pragma: no cover
     We initialise the client here so as not to pollute global settings with
     poorly named values, ie "dsn".
     """
-    dsn = env.str("SENTRY_DSN", default=None)
-    environment = env.str("SENTRY_ENVIRONMENT", default="localhost")
+    dsn = os.environ.get("SENTRY_DSN", default=None)
+    environment = os.environ.get("SENTRY_ENVIRONMENT", default="localhost")
 
     if dsn is None:
         return
@@ -92,7 +92,7 @@ def parse(data):
     ]
 
     for token in tokens:
-        value = env.str(token, default=None)
+        value = os.environ.get(token, default=None)
 
         if not value:
             continue

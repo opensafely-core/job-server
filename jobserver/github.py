@@ -4,16 +4,15 @@ from datetime import UTC, datetime
 import requests
 import structlog
 from django.conf import settings
-from environs import Env
 from furl import furl
+
+from jobserver.settings import get_env_var
 
 
 logger = structlog.getLogger(__name__)
 
-env = Env()
 
-
-JOBSERVER_GITHUB_TOKEN = env.str("JOBSERVER_GITHUB_TOKEN")
+JOBSERVER_GITHUB_TOKEN = get_env_var("JOBSERVER_GITHUB_TOKEN")
 
 
 session = requests.Session()
