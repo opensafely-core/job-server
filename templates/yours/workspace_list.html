@@ -18,7 +18,10 @@
       {% for workspace in object_list %}
         {% fragment as custom_status %}
           {% if workspace.is_archived %}
-            {% pill variant="warning" text="Archived" %}
+            <span class="relative group">
+              {% pill variant="warning" text="Archived" %}
+              {% tooltip position="-bottom-3" content="New jobs are disabled" %}
+            </span>
           {% else %}
             {% pill variant="primary" text="Active" %}
           {% endif %}
