@@ -139,10 +139,7 @@ class JobRequestCreate(CreateView):
             raise Http404
 
         if self.workspace.is_archived:
-            msg = (
-                "You cannot create Jobs for an archived Workspace."
-                "Please contact an admin if you need to have it unarchved."
-            )
+            msg = "You cannot create new jobs for an archived workspace. Contact an admin if you require the workspace to be unarchived."
             messages.error(request, msg)
             return redirect(self.workspace)
 
