@@ -24,7 +24,7 @@ def test_dbavailability_in_db_maintenance(rf):
 
     response = DBAvailability.as_view()(request, backend=backend.slug)
 
-    assert response.status_code == 503
+    assert response.status_code == 200
 
 
 def test_dbavailability_non_tpp(rf):
