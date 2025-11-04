@@ -1,7 +1,20 @@
+from django.core.exceptions import TooManyFieldsSent
 from django.template.response import TemplateResponse
 
 
 def bad_request(request, exception=None):
+    if isinstance(exception, TooManyFieldsSent):
+        return TemplateResponse(
+            request,
+            "error.html",
+            status=413,
+            context={
+                "error_code": "413",
+                "error_name": "Too many fields submitted",
+                "error_message": "Your submission contained too many fields. Please reduce the number of selected items and try again.",
+            },
+        )
+
     return TemplateResponse(
         request,
         "error.html",

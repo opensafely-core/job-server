@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import TooManyFieldsSent
 
 from jobserver.views.errors import (
     bad_request,
@@ -18,6 +19,20 @@ def test_bad_request(rf):
     assert response.status_code == 400
     assert "Bad request" in response.rendered_content
     assert "An error has occurred displaying this page." in response.rendered_content
+
+
+def test_bad_request_too_many_fields(rf):
+    request = rf.post("/")
+    request.user = AnonymousUser()
+
+    response = bad_request(request, exception=TooManyFieldsSent("Too many fields"))
+
+    assert response.status_code == 413
+    assert "Too many fields submitted" in response.rendered_content
+    assert (
+        "Your submission contained too many fields. Please reduce the number of selected items and try again."
+        in response.rendered_content
+    )
 
 
 def test_csrf_failure(rf):
