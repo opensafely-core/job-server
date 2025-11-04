@@ -249,7 +249,7 @@ MEDIA_URL = "/uploads/"
 
 # Form submission
 # https://docs.djangoproject.com/en/5.1/ref/settings/#data-upload-max-number-fields
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 4000
 
 
 # Logging
