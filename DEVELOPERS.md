@@ -130,7 +130,7 @@ GRANT ALL PRIVILEGES on database jobserver to jobsuser;
 #### Restoring Backups
 
 Copies of production can be restored to a local database using a dump pulled from production.
-If you do not have access to pull production backups, follow the [data setup section](#data-setup) instead of restoring a backup.
+If you do not have access to pull production backups, follow the [setting up a fresh install](#setting-up-a-fresh-install) instead of restoring a backup.
 
 
 Backups can be copied with:
