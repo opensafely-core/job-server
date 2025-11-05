@@ -46,7 +46,7 @@ jobs:
           install-just: true
 
       - name: Install Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
           cache: "npm"
