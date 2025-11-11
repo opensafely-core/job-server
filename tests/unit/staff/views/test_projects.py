@@ -4,8 +4,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from applications.models import Application
+from jobserver.actions import project_members
 from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
-from jobserver.commands import project_members
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
 from staff.views.projects import (

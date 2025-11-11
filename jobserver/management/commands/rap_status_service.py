@@ -8,7 +8,7 @@ import structlog
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from jobserver.commands.rap import get_active_job_request_identifiers, rap_status_update
+from jobserver.actions.rap import get_active_job_request_identifiers, rap_status_update
 
 
 logger = structlog.get_logger(__name__)

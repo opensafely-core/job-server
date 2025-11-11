@@ -11,7 +11,7 @@ from furl import furl
 from opentelemetry import trace
 from social_django.utils import load_strategy
 
-from jobserver.commands import users
+from jobserver.actions import users
 
 from ..forms import RequireNameForm, SettingsForm
 from ..models import JobRequest, User

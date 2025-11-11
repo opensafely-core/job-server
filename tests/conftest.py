@@ -22,8 +22,8 @@ from structlog.testing import LogCapture
 import jobserver.authorization.roles
 import services.slack
 from applications.form_specs import form_specs
+from jobserver.actions import project_members
 from jobserver.authorization.roles import StaffAreaAdministrator
-from jobserver.commands import project_members
 from jobserver.models import SiteAlert
 from services.logging import base_processors
 from services.tracing import add_exporter, get_provider

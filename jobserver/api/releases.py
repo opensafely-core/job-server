@@ -22,6 +22,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from jobserver import releases, slacks
+from jobserver.actions import users
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import (
     OutputChecker,
@@ -29,7 +30,6 @@ from jobserver.authorization import (
     has_role,
     permissions,
 )
-from jobserver.commands import users
 from jobserver.models import (
     Project,
     PublishRequest,

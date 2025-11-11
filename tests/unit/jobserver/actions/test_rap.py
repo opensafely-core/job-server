@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 from django.utils import timezone
 
-from jobserver.commands import rap
+from jobserver.actions import rap
 from jobserver.models import Job, JobRequest, JobRequestStatus
 from tests.conftest import get_trace
 from tests.factories import (
@@ -27,7 +27,7 @@ def now():
 @pytest.fixture()
 def debug_log_output(log_output):
     # Ensure DEBUG level logs are visible
-    logger = logging.getLogger("jobserver.commands.rap")
+    logger = logging.getLogger("jobserver.actions.rap")
     old_level = logger.level
     logger.setLevel(logging.DEBUG)
     yield log_output
@@ -363,7 +363,7 @@ def test_update_job_multiple(
             {
                 "log_level": "debug",
                 "job_request": job_request.id,
-                "logger": "jobserver.commands.rap",
+                "logger": "jobserver.actions.rap",
             }
         )
         assert log == expected, log

@@ -2,12 +2,12 @@ import pytest
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404
 
+from jobserver.actions import project_members
 from jobserver.authorization import (
     OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.commands import project_members
 from jobserver.utils import set_from_qs
 from staff.views.users import (
     UserAuditLog,

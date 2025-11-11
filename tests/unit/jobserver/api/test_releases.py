@@ -8,6 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
+from jobserver.actions.users import generate_login_token
 from jobserver.api.releases import (
     Level4AuthorisationAPI,
     Level4TokenAuthenticationAPI,
@@ -28,7 +29,6 @@ from jobserver.authorization import (
     ProjectCollaborator,
     permissions,
 )
-from jobserver.commands.users import generate_login_token
 from jobserver.models import (
     Project,
     PublishRequest,

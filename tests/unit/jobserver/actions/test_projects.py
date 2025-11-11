@@ -1,4 +1,4 @@
-from jobserver.commands import projects
+from jobserver.actions import projects
 from jobserver.utils import set_from_qs
 from staff.forms import ProjectEditForm
 from tests.factories import (

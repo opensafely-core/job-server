@@ -1,8 +1,8 @@
 import pytest
 from django.db import IntegrityError
 
+from jobserver.actions import project_members as members
 from jobserver.authorization import ProjectDeveloper
-from jobserver.commands import project_members as members
 from jobserver.models import AuditableEvent, ProjectMembership
 from jobserver.utils import set_from_list, set_from_qs
 from tests.factories import ProjectFactory, UserFactory
