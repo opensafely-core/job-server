@@ -12,9 +12,9 @@ from django.views.generic import FormView, ListView, UpdateView, View
 from applications.form_specs import form_specs
 from applications.models import Application
 from applications.wizard import Wizard
+from jobserver.actions import projects
 from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
-from jobserver.commands import projects
 from jobserver.hash_utils import unhash, unhash_or_404
 from jobserver.models import Org, Project, User
 

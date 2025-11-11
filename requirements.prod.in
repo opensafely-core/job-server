@@ -117,7 +117,7 @@ requests
 # Structured logging. Used pervasively.
 structlog
 
-# Password generator. See jobserver/commands/users.py.
+# Password generator. See jobserver/actions/users.py.
 xkcdpass
 
 # Handling exponential backoff. Used in managing github api call retries.

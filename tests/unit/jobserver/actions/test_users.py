@@ -3,8 +3,8 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
+from jobserver.actions import users
 from jobserver.authorization import ProjectDeveloper
-from jobserver.commands import users
 from jobserver.models import AuditableEvent
 
 from ....factories import (

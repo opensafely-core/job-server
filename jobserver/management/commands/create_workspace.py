@@ -1,11 +1,11 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+from jobserver.actions import project_members
 from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.commands import project_members
 from jobserver.models import Project, Repo, User, Workspace
 
 

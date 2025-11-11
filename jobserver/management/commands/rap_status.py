@@ -3,7 +3,7 @@
 import structlog
 from django.core.management.base import BaseCommand
 
-from jobserver.commands.rap import rap_status_update
+from jobserver.actions.rap import rap_status_update
 
 
 logger = structlog.get_logger(__name__)

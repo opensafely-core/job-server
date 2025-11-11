@@ -9,13 +9,13 @@ from django.views.generic import FormView, ListView, UpdateView, View
 from django.views.generic.detail import SingleObjectMixin
 from social_django.models import UserSocialAuth
 
+from jobserver.actions import users
 from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization import permissions
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.forms import RolesForm
 from jobserver.authorization.global_roles import GLOBAL_ROLE_NAMES
 from jobserver.authorization.utils import roles_for, strings_to_roles
-from jobserver.commands import users
 from jobserver.models import (
     AuditableEvent,
     Backend,

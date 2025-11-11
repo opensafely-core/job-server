@@ -13,8 +13,8 @@ from django.core import mail
 from django.core.management import call_command
 from django.urls import reverse
 
+from jobserver.actions.rap import rap_status_update
 from jobserver.authorization import permissions
-from jobserver.commands.rap import rap_status_update
 from jobserver.models import Job, JobRequest, JobRequestStatus
 from tests.factories import (
     BackendFactory,

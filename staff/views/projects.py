@@ -14,12 +14,12 @@ from markdown import markdown
 
 from applications.models import Application
 from jobserver import html_utils
+from jobserver.actions import project_members as members
+from jobserver.actions import projects
 from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
-from jobserver.commands import project_members as members
-from jobserver.commands import projects
 from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, User
 
 from ..forms import (

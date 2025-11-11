@@ -2,7 +2,7 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 
-from jobserver.commands import users
+from jobserver.actions import users
 from jobserver.utils import set_from_list
 from jobserver.views.users import (
     Login,

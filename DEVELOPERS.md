@@ -30,6 +30,7 @@
   - [Common patterns](#common-patterns)
     - [Both set or null](#both-set-or-null)
     - [updated\_at and updated\_by](#updated_at-and-updated_by)
+- [Actions](#actions)
 - [Auditing events](#auditing-events)
   - [Presenters](#presenters)
 - [Interfaces](#interfaces)
@@ -486,13 +487,25 @@ So we lean on `update()` instead:
             MyModel.objects.filter(pk=mymodel.pk).update(updated_at=None)
 
 
-## Auditing events
-We track events that we want in our audit trail with the AuditableEvent model.
-It avoids foreign keys so any related model isn't blocked from being deleted
+## Actions
 
-As such constructing these models can be a little onerous, so we have started wrapping the triggering event, eg adding a user to a project, with a function that does both that and sets up the AuditableEvent instance.
-These are currently called commands because naming things is hard, and they will, we hope, be better organised in the near future into a domain layer.
-In the meantime, it's just useful to know that creating AuditableEvent instances _can_ be easier.
+The [jobserver.actions](jobserver/actions/) package is, by convention, the home
+for code that applies create, update, or delete operations across multiple
+models. Centralising this business logic reduces duplication and keeps views
+focused.
+
+Model or manager methods may perform such operations where they don't involve
+complex cross-model interactions or significant side effects.
+
+This is currently a convention, not an enforced rule. It may not be
+consistently applied.
+
+## Auditing events
+
+We track events that we want in our audit trail with the AuditableEvent model.
+It avoids foreign keys so any related model isn't blocked from being deleted.
+Code that creates these should live in [jobserver.actions](jobserver/actions/),
+as it always involves multiple models.
 
 ### Presenters
 Since AuditableEvents have no relationships to the models they record changes in we have to manually look up those models, where we can for display in the UI.
@@ -501,7 +514,7 @@ There are a few key parts to it.
 
 AuditableEvents have a `type` field which tracks the event type they were created for.
 
-get_presenter() takes an AuditableEvent instance and returns the relevant presenter function, or raises an UnknownPresenter exception.
+`get_presenter()` takes an AuditableEvent instance and returns the relevant presenter function, or raises an UnknownPresenter exception.
 
 Presenter functions take an AuditableEvent instance and trust that the caller is passing in one relevant to that function.
 
@@ -603,7 +616,7 @@ status of backends, using a [management command].
 [JobRequest]: jobserver/models/job_request.py
 [Job Request]: jobserver/views/job_requests.py
 [RAP status service]: jobserver/management/commands/rap_status_service.py
-[requests updates]: jobserver/commands/rap.py
+[requests updates]: jobserver/actions/rap.py
 [management command]: jobserver/management/commands/check_rap_api_status.py
 [rap_api]: jobserver/rap_api.py
 

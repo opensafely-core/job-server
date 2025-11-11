@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 from xkcdpass import xkcd_password
 
-from jobserver.commands import project_members
+from jobserver.actions import project_members
 from jobserver.emails import (
     send_token_login_generated_email,
     send_token_login_used_email,
