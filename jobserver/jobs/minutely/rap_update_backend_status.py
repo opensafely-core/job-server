@@ -6,10 +6,10 @@ from services.sentry import monitor_config
 
 
 class Job(MinutelyJob):
-    help = "Run the check_rap_api_status management command"  # noqa: A003
+    help = "Run the rap_update_backend_status management command"  # noqa: A003
 
     @monitor(
-        monitor_slug="check_rap_api_status",
+        monitor_slug="rap_update_backend_status",
         monitor_config=monitor_config(
             "* * * * *",
             checkin_margin=1,
@@ -19,4 +19,4 @@ class Job(MinutelyJob):
         ),
     )
     def execute(self):
-        call_command("check_rap_api_status")
+        call_command("rap_update_backend_status")

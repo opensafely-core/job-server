@@ -617,7 +617,7 @@ status of backends, using a [management command].
 [Job Request]: jobserver/views/job_requests.py
 [RAP status service]: jobserver/management/commands/rap_status_service.py
 [requests updates]: jobserver/actions/rap.py
-[management command]: jobserver/management/commands/check_rap_api_status.py
+[management command]: jobserver/management/commands/rap_update_backend_status.py
 [rap_api]: jobserver/rap_api.py
 
 ### Airlock interface

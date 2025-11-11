@@ -316,7 +316,7 @@ def test_rap_status_update_notifications_on(setup_backend_workspace_user):
 @responses.activate
 def test_backend_status():
     """
-    Tests the check_rap_api_status management command that calls the RAP API backend status endpoint
+    Tests the rap_update_backend_status management command that calls the RAP API backend status endpoint
     """
     backend1 = BackendFactory()
     backend2 = BackendFactory()
@@ -358,7 +358,7 @@ def test_backend_status():
         ],
     )
 
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
     backend1.refresh_from_db()
     backend2.refresh_from_db()
 
