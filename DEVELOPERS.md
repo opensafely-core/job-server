@@ -559,6 +559,9 @@ in the header of any request to the [RAP API]. The [RAP API] uses this token to 
 
 Refer to the [RAP API Auth] for details on how the [RAP Controller] handles client tokens.
 
+This token was generated and configured in production for both components
+ad-hoc during the initiative that created the API. We don't rotate the token.
+
 #### Creating a job request
 
 When users initiate a [Job Request] in the UI, Job Server calls the [RAP API] (`POST /controller/v1/rap/create/`)
