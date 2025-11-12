@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-The job-server needs to store information about the status of the backends, so that it can be presented to end-users. As part of the RAP API phase 2 work, it will now retrieve this information from the rap-controller using a call to the RAP API. We have created a Django management command `check_rap_api_status` which gets this data from the RAP API and stores it in the database, however this command updates the data once and then exits.
+The job-server needs to store information about the status of the backends, so that it can be presented to end-users. As part of the RAP API phase 2 work, it will now retrieve this information from the rap-controller using a call to the RAP API. We have created a Django management command `rap_update_backend_status` which gets this data from the RAP API and stores it in the database, however this command updates the data once and then exits.
 We need to run this code repeatedly in order to keep the database up to date, we think that this should be once a minute.
 
 ## Decision
@@ -20,7 +20,7 @@ We have decided to use the runjobs cron system to repeatedly run the one-off man
 * the `runjobs` management command is run on a number of useful standard time intervals, e.g. `hourly`, `daily`, etc
 * the `runjobs` jobs are defined in subdirectories of `jobserver/jobs/` e.g. `jobserver/jobs/hourly`
 
-In order to keep repeatedly run the `check_rap_api_status` management command, we will create a `runjobs` job in `jobserver/jobs/minutely/check_rap_api_status.py`.
+In order to keep repeatedly run the `rap_update_backend_status` management command, we will create a `runjobs` job in `jobserver/jobs/minutely/rap_update_backend_status.py`.
 
 We decided not to use a separate dokku container to run a long-running process to do this update because the cron system supported the frequency that we wanted (i.e. once per minute) and we thought this job would have a fairly consistent runtime which was significantly less than a minute.
 

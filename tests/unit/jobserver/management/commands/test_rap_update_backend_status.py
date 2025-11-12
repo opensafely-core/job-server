@@ -51,7 +51,7 @@ def test_command(log_output, patch_backend_status_api_call):
 
     test_response_body = patch_backend_status_api_call(backend.slug)
 
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
 
     backend.refresh_from_db()
 
@@ -60,7 +60,7 @@ def test_command(log_output, patch_backend_status_api_call):
         "event": test_response_body,
         "log_level": "info",
         "level": "info",
-        "logger": "jobserver.management.commands.check_rap_api_status",
+        "logger": "jobserver.management.commands.rap_update_backend_status",
     }
 
 
@@ -70,7 +70,7 @@ def test_command_error(monkeypatch, log_output):
 
     monkeypatch.setattr("jobserver.rap_api.backend_status", fake_backend_status)
 
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
 
     assert "error" == log_output.entries[0]["log_level"]
     assert "something went wrong" in str(log_output.entries[0]["event"])
@@ -79,7 +79,7 @@ def test_command_error(monkeypatch, log_output):
 def test_update_nonexistent_backend(patch_backend_status_api_call, log_output):
     patch_backend_status_api_call("other_backend")
 
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
 
     assert "error" == log_output.entries[0]["log_level"]
     assert "does not exist" in str(log_output.entries[0]["event"])
@@ -90,7 +90,7 @@ def test_update_backend_state_no_timestamp(patch_backend_status_api_call):
 
     patch_backend_status_api_call(backend.slug, None)
 
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
 
     backend.refresh_from_db()
 
@@ -108,7 +108,7 @@ def test_update_backend_state_existing_url(patch_backend_status_api_call):
     backend = BackendFactory()
     patch_backend_status_api_call(backend.slug)
 
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
     backend.refresh_from_db()
 
     assert backend.rap_api_state == {
@@ -126,7 +126,7 @@ def test_update_backend_state_new_url(patch_backend_status_api_call, settings):
     backend = BackendFactory()
 
     patch_backend_status_api_call(backend.slug)
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
 
     backend.refresh_from_db()
 
@@ -138,7 +138,7 @@ def test_update_backend_state_new_url(patch_backend_status_api_call, settings):
     settings.RAP_API_BASE_URL = "http://example.com/rap/new"
 
     patch_backend_status_api_call(backend.slug, "2025-08-12T14:33:57.413881Z")
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
 
     backend.refresh_from_db()
 
@@ -192,7 +192,7 @@ def test_update_backend_state_multiple_backends(monkeypatch):
         lambda: test_response_body,
     )
 
-    call_command("check_rap_api_status")
+    call_command("rap_update_backend_status")
 
     backend1.refresh_from_db()
 
