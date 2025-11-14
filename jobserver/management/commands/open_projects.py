@@ -1,17 +1,20 @@
+from datetime import timedelta
+
 from django.core.management.base import BaseCommand
-from django.db.models import Q
+from django.utils import timezone
 
 from jobserver.models import Project
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        open_projects = Project.objects.filter(
-            Q(status=Project.Statuses.ONGOING)
-            | Q(status=Project.Statuses.ONGOING_LINKED)
-        )
-        open_project_list = [
-            f"{project.name} - {project.status}" for project in open_projects
-        ]
+        # Get open projects using metrics in sync with grafana database: open projects are those which have had a job request created within the last three months
+        three_months_ago = timezone.now() - timedelta(days=30 * 3)
 
-        print(open_project_list)
+        # A project can have multiple job requests, so calling distinct() in this query displays the unique projects
+        open_projects = Project.objects.filter(
+            workspaces__job_requests__created_at__gte=three_months_ago
+        ).distinct()
+
+        for project in open_projects:
+            print(project.name, project.status)
