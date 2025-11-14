@@ -72,6 +72,9 @@ DEBUG = os.environ.get("DEBUG", default="0") == "1"
 
 DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR", default=False) == "True"
 
+# Disable migrations for the django-debug-toolbar
+MIGRATION_MODULES = {"debug_toolbar": None}
+
 BASE_URL = os.environ.get("BASE_URL", default="http://localhost:8000")
 
 ALLOWED_HOSTS = ["*"]
