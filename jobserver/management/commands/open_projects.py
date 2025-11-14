@@ -2,8 +2,9 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from tabulate import tabulate
 
-from jobserver.models import Project
+from jobserver.models import Project, Workspace
 
 
 class Command(BaseCommand):
@@ -16,5 +17,23 @@ class Command(BaseCommand):
             workspaces__job_requests__created_at__gte=three_months_ago
         ).distinct()
 
-        for project in open_projects:
-            print(project.name, project.status)
+        workspace_projects = Workspace.objects.filter(project__in=open_projects)
+
+        project_workspace_repo = [
+            [
+                i + 1,
+                workspace.project,
+                workspace.project.status,
+                workspace.name,
+                workspace.repo,
+            ]
+            for i, workspace in enumerate(workspace_projects)
+        ]
+        headers = ["S/N", "Project", "Project Status", "Workspace", "Repo"]
+        table = tabulate(
+            project_workspace_repo,
+            headers=headers,
+            tablefmt="grid",
+            maxcolwidths=[None, 30, None, 30, 30],
+        )
+        print(table)
