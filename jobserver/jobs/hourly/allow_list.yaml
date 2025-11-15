@@ -1,0 +1,719 @@
+tables:
+
+  applications_application: [
+    id,
+    has_agreed_to_terms,
+    created_at,
+    completed_at,
+    created_by_id,
+    project_id,
+    approved_at,
+    approved_by_id,
+    status,
+    status_comment,
+    deleted_at,
+    deleted_by_id,
+    submitted_at,
+    submitted_by_id,
+  ]
+
+  applications_cmoprioritylistpage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    is_on_cmo_priority_list,
+    application_id,
+    reviewed_by_id
+  ]
+
+  applications_commercialinvolvementpage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    details,
+    application_id,
+    reviewed_by_id
+  ]
+
+  applications_contactdetailspage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    full_name,
+    job_title,
+    team_name,
+    organisation,
+    application_id,
+    reviewed_by_id
+  ]
+
+  applications_datasetspage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    needs_icnarc,
+    needs_isaric,
+    needs_ons_cis,
+    needs_phosp,
+    application_id,
+    reviewed_by_id
+    needs_ukrr
+  ]
+
+applications_legalbasispage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    legal_basis_for_accessing_data_under_dpa,
+    how_is_duty_of_confidentiality_satisfied,
+    application_id,
+    reviewed_by_id
+]
+
+applications_previousehrexperiencepage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    previous_experience_with_ehr,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_recordleveldatapage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    record_level_data_reasons,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_referencespage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    hra_ires_id,
+    hra_rec_reference,
+    institutional_rec_reference,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_researcherdetailspage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_researcherregistration: [
+    id,
+    name,
+    job_title,
+    does_researcher_need_server_access,
+    has_taken_safe_researcher_training,
+    training_with_org,
+    training_passed_at,
+    created_at,
+    application_id,
+    user_id,
+    daa,
+    github_username
+]
+
+
+applications_sharingcodepage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    evidence_of_sharing_in_public_domain_before,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_shortdatareportpage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_softwaredevelopmentexperiencepage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    evidence_of_coding,
+    all_applicants_completed_getting_started,
+    application_id,
+    reviewed_by_id
+  ]
+
+
+applications_sponsordetailspage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    sponsor_name,
+    sponsor_job_role,
+    institutional_rec_reference,
+    application_id,
+    reviewed_by_id,
+    is_member_of_bennett_or_lshtm
+]
+
+applications_studydatapage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    data_meets_purpose,
+    need_record_level_data,
+    application_id,
+    reviewed_by_id
+]
+
+applications_studyfundingpage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    funding_details,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_studyinformationpage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    study_name,
+    study_purpose,
+    application_id,
+    reviewed_by_id,
+    read_analytic_methods_policy
+]
+
+
+applications_studypurposepage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    description,
+    author_name,
+    author_organisation,
+    application_id,
+    reviewed_by_id,
+    is_covid_prevention,
+    is_covid_vaccine_effectiveness_or_safety,
+    is_covid_vaccine_eligibility_or_coverage,
+    is_other_impacts_of_covid,
+    is_post_covid_health_impacts,
+    is_risk_from_covid
+]
+
+applications_teamdetailspage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    team_details,
+    application_id,
+    reviewed_by_id
+]
+
+
+applications_typeofstudypage: [
+    id,
+    notes,
+    is_approved,
+    last_reviewed_at,
+    created_at,
+    updated_at,
+    is_study_research,
+    is_study_service_evaluation,
+    is_study_audit,
+    application_id,
+    reviewed_by_id,
+    is_study_short_data_report
+]
+
+
+auth_group: [
+    id,
+    name
+]
+
+
+auth_group_permissions: [
+    id,
+    group_id,
+    permission_id
+]
+
+
+auth_permission: [
+    id,
+    content_type_id,
+    codename,
+    name
+]
+
+auth_user: [
+    id,
+    last_login,
+    is_superuser,
+    username,
+    first_name,
+    is_staff,
+    is_active,
+    date_joined,
+    last_name
+]
+
+
+auth_user_groups: [
+    id,
+    user_id,
+    group_id
+]
+
+
+auth_user_user_permissions: [
+    id,
+    user_id,
+    permission_id
+]
+
+
+django_admin_log: [
+    id,
+    action_time,
+    object_id,
+    object_repr,
+    change_message,
+    content_type_id,
+    user_id,
+    action_flag smallint
+]
+
+django_content_type: [
+    id,
+    app_label,
+    model
+]
+
+
+django_migrations: [
+    id,
+    app,
+    name,
+    applied
+]
+
+
+django_session: [
+    session_key,
+    session_data,
+    expire_date
+]
+
+
+jobserver_auditableevent: [
+    id,
+    old,
+    new,
+    type,
+    target_model,
+    target_field,
+    target_id,
+    target_user,
+    parent_model,
+    parent_id,
+    created_at,
+    created_by
+]
+
+
+jobserver_backend: [
+    id,
+    name,
+    created_at,
+    updated_at,
+    is_active,
+    slug,
+    alert_timeout interval,
+    last_seen_at,
+    last_seen_maintenance_mode,
+    rap_api_state jsonb,
+    is_in_maintenance_mode
+]
+
+
+jobserver_backendmembership: [
+    id,
+    created_at,
+    backend_id,
+    created_by_id,
+    user_id
+]
+
+
+
+jobserver_job: [
+    id,
+    status_message,
+    created_at,
+    started_at,
+    completed_at,
+    job_request_id,
+    action,
+    updated_at,
+    identifier,
+    status,
+    status_code,
+    trace_con jsonb,
+    run_command,
+    metrics jsonb
+]
+
+
+jobserver_jobrequest: [
+    id,
+    force_run_dependencies,
+    sha,
+    identifier,
+    created_at,
+    backend_id,
+    created_by_id,
+    workspace_id,
+    cancelled_actions,
+    will_notify,
+    project_definition,
+    requested_actions,
+    codelists_ok,
+    _status,
+    status_message,
+]
+
+
+jobserver_org: [
+    id,
+    name,
+    slug,
+    created_at,
+    description,
+    logo,
+    created_by_id,
+    github_orgs,
+    logo_file
+]
+
+
+
+jobserver_orgmembership: [
+    id,
+    created_by_id,
+    org_id,
+    user_id,
+    created_at
+]
+
+
+
+jobserver_project: [
+    id,
+    slug,
+    name,
+    created_at,
+    created_by_id,
+    copilot_id,
+    copilot_support_ends_at,
+    number,
+    updated_at,
+    updated_by_id,
+    status,
+    status_description,
+    copilot_notes,
+]
+
+
+jobserver_projectcollaboration: [
+    id,
+    is_lead,
+    org_id,
+    project_id,
+    created_at,
+    created_by_id,
+    updated_at,
+    updated_by_id
+]
+
+
+
+jobserver_projectmembership: [
+    id,
+    project_id,
+    user_id,
+    created_at,
+    created_by_id,
+    roles
+]
+
+
+
+jobserver_publishrequest: [
+    id,
+    created_at,
+    created_by_id,
+    snapshot_id,
+    workspace_id,
+    decision,
+    decision_at,
+    decision_by_id,
+    updated_at,
+    updated_by_id
+]
+
+
+
+jobserver_release: [
+    backend_id,
+    workspace_id,
+    created_by_id,
+    created_at,
+    requested_files,
+    status,
+    id,
+    metadata jsonb,
+    review jsonb
+]
+
+
+
+jobserver_releasefile: [
+    id,
+    name,
+    path,
+    release_id,
+    workspace_id,
+    created_at,
+    created_by_id,
+    filehash,
+    deleted_at,
+    deleted_by_id,
+    size,
+    mtime,
+    uploaded_at,
+    metadata jsonb
+]
+
+
+
+jobserver_releasefilereview: [
+    id,
+    status,
+    comments jsonb,
+    created_at,
+    created_by_id,
+    release_file_id
+  ]
+
+
+
+jobserver_repo: [
+    id,
+    url,
+    researcher_signed_off_at,
+    researcher_signed_off_by_id,
+    internal_signed_off_at,
+    internal_signed_off_by_id,
+    has_github_outputs
+  ]
+
+
+
+jobserver_sitealert: [
+    id,
+    title,
+    message,
+    level,
+    created_at,
+    updated_at,
+    created_by_id,
+    updated_by_id
+]
+
+
+
+jobserver_snapshot: [
+    id,
+    created_at,
+    created_by_id,
+    workspace_id
+  ]
+
+
+
+jobserver_snapshot_files: [
+    id,
+    snapshot_id,
+    releasefile_id
+]
+
+
+
+jobserver_stats: [
+    id,
+    api_last_seen,
+    backend_id,
+    url
+]
+
+
+jobserver_user: [
+    id,
+    last_login,
+    username,
+    date_joined,
+    fullname,
+    created_by_id,
+    roles
+]
+
+
+
+
+jobserver_workspace: [
+    id,
+    name,
+    branch,
+    is_archived,
+    created_at,
+    created_by_id,
+    should_notify,
+    project_id,
+    uses_new_release_flow,
+    repo_id,
+    signed_off_at,
+    signed_off_by_id,
+    purpose,
+    updated_at,
+    updated_by_id
+]
+
+
+
+redirects_redirect: [
+    id,
+    old_url,
+    expires_at,
+    created_at,
+    updated_at,
+    deleted_at,
+    created_by_id,
+    deleted_by_id,
+    project_id,
+    workspace_id,
+    org_id
+]
+
+
+social_auth_association: [
+    id,
+    server_url,
+    handle,
+    issued,
+    lifetime,
+    assoc_type
+]
+
+
+social_auth_code: []
+
+
+social_auth_nonce: [
+    id,
+    server_url,
+    "timestamp",
+    salt
+]
+
+
+social_auth_partial: [
+    id,
+    next_step smallint,
+    backend,
+    "timestamp",
+    data jsonb
+]
+
+
+social_auth_usersocialauth: [
+    id,
+    provider,
+    user_id,
+    created,
+    modified,
+    uid,
+    extra_data jsonb
+]
