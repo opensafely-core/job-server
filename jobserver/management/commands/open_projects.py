@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 import requests
@@ -63,3 +64,22 @@ class Command(BaseCommand):
                 if ".py" in item:
                     dataset_definition.append(item)
         print(dataset_definition)
+
+        # Query the dataset definition files for ehrql tpp tables using regex
+        ehrql_tables = ""
+        for file in dataset_definition:
+            file_url = f"https://raw.githubusercontent.com/opensafely/post-covid-renal/main/{file}"
+            response = requests.get(file_url)
+            data = response.text
+
+            pattern = r"from ehrql.tables.tpp import \(?([\w, \n]+)"
+            imports = re.findall(pattern, data)
+
+            for i, item in enumerate(imports):
+                table_data = item.strip()
+                ehrql_tables += table_data
+
+                if i < (len(imports) - 1):
+                    ehrql_tables += ", "
+
+        print(ehrql_tables)
