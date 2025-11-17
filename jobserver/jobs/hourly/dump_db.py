@@ -97,11 +97,12 @@ class Job(HourlyJob):
             return {}
 
     def _create_safe_schema_and_copy(self, allowlist: dict[str, list[str]]):
-        """
-        Create TEMP_SCHEMA and copy allowlisted columns.
-        For allowlisted columns missing on the source table, emit plain NULL AS "col".
-        To avoid type inference errors when all columns are NULL, if none of the requested columns
-        exist in the source table we create the destination table with TEXT columns explicitly.
+        """Create TEMP_SCHEMA and copy data while preserving full table schema.
+
+        - TEMP_SCHEMA tables are created using LIKE source_table INCLUDING ALL, so all
+          columns and constraints are present.
+        - Columns listed in the allowlist are populated from the source.
+        - Columns not listed in the allowlist remain in the schema but are populated as NULL.
         """
         with connection.cursor() as cur:
             cur.execute(f"CREATE SCHEMA IF NOT EXISTS {TEMP_SCHEMA};")
@@ -137,68 +138,49 @@ class Job(HourlyJob):
                     """,
                     [schema_name, short_table],
                 )
-                existing_cols = {row[0] for row in cur.fetchall()}
+                existing_cols = [row[0] for row in cur.fetchall()]
 
-                # Build select expressions: real column if exists, else plain NULL AS "col"
-                select_exprs = []
-                safe_col_names = []
-                real_column_present = False
+                if not existing_cols:
+                    continue
 
+                # Validate allowlisted columns and build lookup set
+                allowed_set: set[str] = set()
                 for col in columns:
                     if not _valid_ident(col):
                         raise ValueError(
                             f"Invalid column name in allowlist for {table_name}: {col}"
                         )
-                    safe_col_names.append(col)
-
-                    if col in existing_cols:
-                        # Use the real column (quoted)
-                        select_exprs.append(f'"{col}"')
-                        real_column_present = True
-                    else:
-                        # Missing column -> plain NULL (no cast)
-                        select_exprs.append(f'NULL AS "{col}"')
+                    allowed_set.add(col)
 
                 # Qualified names
                 src_table_q = f'"{schema_name}"."{short_table}"'
                 dst_table_q = f'"{TEMP_SCHEMA}"."{short_table}"'
 
-                # Normalise select expressions: ensure quoted columns have explicit alias to guarantee column names
-                normalized_selects = []
-                for expr in select_exprs:
-                    expr_strip = expr.strip()
-                    if expr_strip.startswith('"') and expr_strip.endswith('"'):
-                        # plain column name -> add alias
-                        colname = expr_strip.strip('"')
-                        normalized_selects.append(f'{expr_strip} AS "{colname}"')
-                    else:
-                        # expression already has alias form like NULL AS "col"
-                        normalized_selects.append(expr)
-
-                select_list = ", ".join(normalized_selects)
-
-                # CREATE TABLE step:
-                if real_column_present:
-                    # Use CREATE TABLE AS SELECT ... WITH NO DATA to preserve real types for existing columns.
-                    create_sql = f"CREATE TABLE IF NOT EXISTS {dst_table_q} AS SELECT {select_list} FROM {src_table_q} WITH NO DATA;"
-                else:
-                    # No real columns present in source table for these allowlisted columns:
-                    # create table with explicit TEXT columns so plain NULL can be inserted.
-                    col_defs = ", ".join(f'"{c}" text' for c in safe_col_names)
-                    create_sql = (
-                        f"CREATE TABLE IF NOT EXISTS {dst_table_q} ({col_defs});"
-                    )
+                # Create table in TEMP_SCHEMA with full schema of source table
+                create_sql = (
+                    f"CREATE TABLE IF NOT EXISTS {dst_table_q} "
+                    f"(LIKE {src_table_q} INCLUDING ALL);"
+                )
 
                 try:
                     cur.execute(create_sql)
                 except Exception as exc:
                     raise RuntimeError(f"Failed to create table {dst_table_q}: {exc}")
 
-                # Insert rows: use plain NULL expressions where appropriate
-                # Build insert column list using safe_col_names
-                quoted_cols = ", ".join(f'"{c}"' for c in safe_col_names)
-                insert_select_list = ", ".join(normalized_selects)
-                insert_sql = f"INSERT INTO {dst_table_q} ({quoted_cols}) SELECT {insert_select_list} FROM {src_table_q};"
+                # Build SELECT list: allowed columns as real values, others as NULL
+                select_exprs: list[str] = []
+                for col in existing_cols:
+                    if col in allowed_set:
+                        select_exprs.append(f'"{col}"')
+                    else:
+                        select_exprs.append(f'NULL AS "{col}"')
+
+                select_list = ", ".join(select_exprs)
+                quoted_all_cols = ", ".join(f'"{c}"' for c in existing_cols)
+                insert_sql = (
+                    f"INSERT INTO {dst_table_q} ({quoted_all_cols}) "
+                    f"SELECT {select_list} FROM {src_table_q};"
+                )
                 try:
                     cur.execute(insert_sql)
                 except Exception as exc:
