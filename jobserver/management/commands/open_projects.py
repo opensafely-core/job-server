@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+import requests
+import yaml
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from tabulate import tabulate
@@ -26,14 +28,38 @@ class Command(BaseCommand):
                 workspace.project.status,
                 workspace.name,
                 workspace.repo,
+                workspace.branch,
             ]
             for i, workspace in enumerate(workspace_projects)
         ]
-        headers = ["S/N", "Project", "Project Status", "Workspace", "Repo"]
+        headers = ["S/N", "Project", "Project Status", "Workspace", "Repo", "Branch"]
         table = tabulate(
             project_workspace_repo,
             headers=headers,
             tablefmt="grid",
-            maxcolwidths=[None, 30, None, 30, 30],
+            maxcolwidths=[None, 30, None, 30, 30, None],
         )
+
+        # Display open projects in console
         print(table)
+
+        # TODO: Write a script that can query the repo for information on the tables that are used in the ehrQL code
+        # This will use the github API
+
+        # Get the actual file using githubusercontent and not the html github page of the file
+        base_url = "https://raw.githubusercontent.com/opensafely/post-covid-renal/main/project.yaml"  # hardcoded example
+        response = requests.get(base_url)
+
+        yaml_file = response.text
+
+        # Parse the yaml file into a python dictionary
+        yaml_dict = yaml.safe_load(yaml_file)
+
+        # Get the paths to the dataset definition in repos
+        dataset_definition = []
+        for _, value in yaml_dict["actions"].items():
+            data_string = str(value)
+            for item in data_string.split():
+                if ".py" in item:
+                    dataset_definition.append(item)
+        print(dataset_definition)
