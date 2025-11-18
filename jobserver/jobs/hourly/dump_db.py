@@ -16,10 +16,7 @@ from services.sentry import monitor_config
 
 # Temporary schema to hold safe copies
 TEMP_SCHEMA = "safe_dump"
-# OUTPUT_PATH = pathlib.Path("/storage/jobserver.dump")
-OUTPUT_PATH = pathlib.Path("./jobserver.dump")
-# ALLOWLIST_ENV = "DUMP_DB_ALLOWLIST_FILE"
-ALLOWLIST_SETTING = "DUMP_DB_ALLOWLIST_FILE"
+OUTPUT_PATH = pathlib.Path("/storage/jobserver.dump")
 
 
 class Job(HourlyJob):
@@ -28,51 +25,59 @@ class Job(HourlyJob):
     @monitor(monitor_slug="dump_db", monitor_config=monitor_config("0 * * * *"))
     def execute(self):
         db = settings.DATABASES["default"]
-
-        # allowlist_path = os.environ.get(ALLOWLIST_ENV) or getattr(settings, ALLOWLIST_SETTING, None)
         allowlist_path = pathlib.Path(__file__).with_name("allow_list.json")
         allowlist = self._load_allowlist(allowlist_path)
-        # print(f"Loaded allowlist for {len(allowlist)} tables")
+        allowlist_exists = bool(allowlist)
 
-        # If allowlist empty -> conservative schema-only dump
-        dump_rows = bool(allowlist)
-        # print("dump_rows:", dump_rows)
-
-        # Ensure output directory exists
         out_dir = OUTPUT_PATH.parent
         if not out_dir.is_dir():
             print(f"Unknown output directory: {out_dir}", file=sys.stderr)
             sys.exit(1)
 
-        # Temporary output file (atomic replace later)
         with tempfile.NamedTemporaryFile(
             prefix="jobserver-", dir=str(out_dir), delete=False
         ) as tmp:
             tmp_name = tmp.name
-            # print(tmp_name)
 
         try:
-            if dump_rows:
+            if allowlist_exists:
                 self._create_safe_schema_and_copy(allowlist)
                 try:
                     self._run_pg_dump_for_schema(tmp_name, TEMP_SCHEMA, db)
                 finally:
-                    # Always drop the temp schema
                     self._drop_temp_schema()
             else:
-                # No allowlist -> schema-only dump (no row data)
                 self._run_pg_dump_schema_only(tmp_name, db)
 
             os.chmod(tmp_name, 0o600)
             os.replace(tmp_name, OUTPUT_PATH)
         except Exception:
-            # Cleanup on error
             try:
                 if os.path.exists(tmp_name):
                     os.remove(tmp_name)
             except Exception:
                 pass
             raise
+
+    def _fake_expression(self, table: str, col: str, meta: dict) -> str:
+        dtype = (meta.get("data_type") or "").lower()
+
+        if "char" in dtype or "text" in dtype:
+            return f"'fake_{table}_{col}_' || id::text"
+
+        if "boolean" in dtype:
+            return "false"
+
+        if "integer" in dtype or "bigint" in dtype or "smallint" in dtype:
+            return "0"
+
+        if "timestamp" in dtype or "date" in dtype:
+            return "now()"
+
+        if "json" in dtype:
+            return "'{}'::jsonb"
+
+        return "NULL"
 
     def _load_allowlist(self, path: str | None) -> dict[str, list[str]]:
         if not path:
@@ -97,15 +102,9 @@ class Job(HourlyJob):
             return {}
 
     def _create_safe_schema_and_copy(self, allowlist: dict[str, list[str]]):
-        """Create TEMP_SCHEMA and copy data while preserving full table schema.
-
-        - TEMP_SCHEMA tables are created using LIKE source_table INCLUDING ALL, so all
-          columns and constraints are present.
-        - Columns listed in the allowlist are populated from the source.
-        - Columns not listed in the allowlist remain in the schema but are populated as NULL.
-        """
         with connection.cursor() as cur:
-            cur.execute(f"CREATE SCHEMA IF NOT EXISTS {TEMP_SCHEMA};")
+            cur.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE;")
+            cur.execute(f"CREATE SCHEMA {TEMP_SCHEMA};")
 
             for table_name, columns in allowlist.items():
                 if not columns:
@@ -129,21 +128,24 @@ class Job(HourlyJob):
                 if not _valid_ident(short_table) or not _valid_ident(schema_name):
                     raise ValueError(f"Invalid table name in allowlist: {table_name}")
 
-                # Get existing columns for the source table
                 cur.execute(
                     """
-                    SELECT column_name
+                    SELECT column_name, is_nullable, data_type
                     FROM information_schema.columns
                     WHERE table_schema = %s AND table_name = %s;
                     """,
                     [schema_name, short_table],
                 )
-                existing_cols = [row[0] for row in cur.fetchall()]
-
-                if not existing_cols:
+                rows = cur.fetchall()
+                if not rows:
                     continue
 
-                # Validate allowlisted columns and build lookup set
+                existing_cols = [row[0] for row in rows]
+                col_meta = {
+                    row[0]: {"is_nullable": row[1], "data_type": row[2]} for row in rows
+                }
+
+                # validate allowlisted columns and build lookup set
                 allowed_set: set[str] = set()
                 for col in columns:
                     if not _valid_ident(col):
@@ -167,13 +169,15 @@ class Job(HourlyJob):
                 except Exception as exc:
                     raise RuntimeError(f"Failed to create table {dst_table_q}: {exc}")
 
-                # Build SELECT list: allowed columns as real values, others as NULL
                 select_exprs: list[str] = []
                 for col in existing_cols:
+                    meta = col_meta[col]
+
                     if col in allowed_set:
                         select_exprs.append(f'"{col}"')
                     else:
-                        select_exprs.append(f'NULL AS "{col}"')
+                        expr = self._fake_expression(short_table, col, meta)
+                        select_exprs.append(f'{expr} AS "{col}"')
 
                 select_list = ", ".join(select_exprs)
                 quoted_all_cols = ", ".join(f'"{c}"' for c in existing_cols)
