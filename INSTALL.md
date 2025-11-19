@@ -26,6 +26,8 @@ dokku config:set job-server SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
 dokku config:set job-server SENTRY_ENVIRONMENT='production'
 dokku config:set job-server SOCIAL_AUTH_GITHUB_KEY='xxx'
 dokku config:set job-server SOCIAL_AUTH_GITHUB_SECRET='xxx'
+dokku config:set job-server RAP_API_TOKEN='xxx'
+dokku config:set job-server RAP_API_BASE_URL=https://controller.opensafely.org/controller/v1/
 
 # Disable zero-downtime deploys for the rapstatus process (which runs the rap_status_service
 # manangement command). We don't ever want two of these loops running simultaneously
