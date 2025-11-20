@@ -252,7 +252,7 @@ assets-build:
 collectstatic: devenv
     ./scripts/collect-me-maybe.sh $BIN/python
 
-# install npm toolchaing, build and collect assets
+# install npm toolchain, build and collect assets
 assets: assets-install assets-build collectstatic
 
 # rebuild all npm/static assets
