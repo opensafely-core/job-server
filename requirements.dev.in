@@ -1,8 +1,9 @@
 --constraint requirements.prod.txt
 
 # Additional dev requirements
-# To generate a requirements file that includes both prod and dev requirements, run:
-# pip-compile --generate-hashes --output-file=requirements.dev.txt requirements.dev.in
+# To generate a requirements file that includes both prod and dev
+# requirements, install `uv` into your virtual environment and run:
+# uv pip compile --generate-hashes requirements.dev.in --output-file # requirements.dev.txt
 
 coverage[toml]
 coverage-enable-subprocess
