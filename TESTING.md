@@ -39,7 +39,7 @@ Test modules mirror their non-testing counterparts, so tests covering functions 
 
 Each function/class should have at least one test, ideally one for each exit condition.
 
-For views we use [`RequestFactory` instances](https://docs.djangoproject.com/en/5.1/topics/testing/advanced/#the-request-factory) as the default testing method, reserving Client instances for Integration tests (more below), testing the Python responses of views under test.
+For views we use [`RequestFactory` instances](https://docs.djangoproject.com/en/5.2/topics/testing/advanced/#the-request-factory) as the default testing method, reserving Client instances for Integration tests (more below), testing the Python responses of views under test.
 
 *Author's Note:* in an ideal world testing views would be bumped up to Integration tests since they typically test across at least one boundary, the database.
 However, since testing without the database in a Django codebase is not a trivial job we've decided to stick with the flow and treat them like unit tests.
@@ -51,7 +51,7 @@ However, since testing without the database in a Django codebase is not a trivia
 Integration tests live at a level above unit tests, testing the combination of various pieces.
 
 Each view should have at least one integration test for the happy path.
-These tests should use [`Client` instances](https://docs.djangoproject.com/en/5.1/topics/testing/tools/#the-test-client).
+These tests should use [`Client` instances](https://docs.djangoproject.com/en/5.2/topics/testing/tools/#the-test-client).
 Ideally these tests would avoid mocking.
 
 This lets us test views with all the surrounding parts turned on: URL routing, middleware, etc.
