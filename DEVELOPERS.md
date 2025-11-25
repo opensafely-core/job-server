@@ -270,13 +270,18 @@ In that situation you can follow the steps below to set up your local copy of th
 
 Workspace creation currently requires a link to a repo, so from this point onwards you will need to make changes directly in the database to create a workspace, and make job requests.
 
+### Compiling requirements
+
+The generation of `requirements*.txt` files is handled by the `_compile` `just` recipe, which uses `uv pip compile`.
+
+Some of our `just` recipes may ultimately call `_compile` internally (e.g. `just devenv`). To run these commands locally, you will need to ensure `uv` is installed in your virtual environment: `pip install uv`.
 
 ### Upgrade OpenTelemetry dependencies
 
 The opentelemetry dependencies need to be upgraded as a group. To do this, bump the relevant versions in `requirements.prod.in` and then attempt to manually resolve the dependencies by upgrading a number of packages simultaneously. A recent example of this is:
 
 ```bash
-$ pip-compile --resolver=backtracking --allow-unsafe --generate-hashes --strip-extras --output-file=requirements.prod.txt requirements.prod.in --upgrade-package opentelemetry-instrumentation --upgrade-package opentelemetry-exporter-otlp-proto-http --upgrade-package opentelemetry-sdk --upgrade-package opentelemetry-instrumentation-django --upgrade-package opentelemetry-instrumentation-psycopg2 --upgrade-package opentelemetry-instrumentation-requests --upgrade-package opentelemetry-instrumentation-wsgi --upgrade-package opentelemetry-semantic-conventions --upgrade-package opentelemetry-util-http --upgrade-package opentelemetry-instrumentation-dbapi --upgrade-package opentelemetry-api --upgrade-package opentelemetry-proto --upgrade-package opentelemetry-exporter-otlp-proto-common
+$ uv pip compile --generate-hashes --output-file=requirements.prod.txt requirements.prod.in --upgrade-package opentelemetry-instrumentation --upgrade-package opentelemetry-exporter-otlp-proto-http --upgrade-package opentelemetry-sdk --upgrade-package opentelemetry-instrumentation-django --upgrade-package opentelemetry-instrumentation-psycopg2 --upgrade-package opentelemetry-instrumentation-requests --upgrade-package opentelemetry-instrumentation-wsgi --upgrade-package opentelemetry-semantic-conventions --upgrade-package opentelemetry-util-http --upgrade-package opentelemetry-instrumentation-dbapi --upgrade-package opentelemetry-api --upgrade-package opentelemetry-proto --upgrade-package opentelemetry-exporter-otlp-proto-common
 ```
 
 
