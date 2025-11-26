@@ -11,7 +11,6 @@ from jobserver.github import (
     GitHubError,
     HTTPError,
     IssueNotFound,
-    LabelAlreadyExists,
     Timeout,
 )
 from jobserver.models.common import new_ulid_str
@@ -192,35 +191,6 @@ class TestGithubAPIPrivate:
         real = github_api.get_issue_labels(*args)
         fake = FakeGitHubAPI().get_issue_labels(*args)
         assert_deep_type_equality(fake, real)
-
-    def test_create_label(self, github_api):
-        def delete_label():
-            reset_url = github_api._url(
-                [
-                    "repos",
-                    "opensafely-testing",
-                    "github-api-testing-private",
-                    "labels",
-                    "foo",
-                ]
-            )
-            headers = {
-                "Accept": "application/vnd.github.v3+json",
-            }
-            resp = github_api._delete(reset_url, headers=headers)
-            return resp
-
-        delete_label()
-        args = ["opensafely-testing", "github-api-testing-private", "foo"]
-        real = github_api.create_label(*args)
-        fake = FakeGitHubAPI().create_label(*args)
-        assert_deep_type_equality(fake, real)
-
-        with pytest.raises(LabelAlreadyExists):
-            github_api.create_label(*args)
-
-        # reset the label
-        assert delete_label().status_code == 204
 
     def test_get_repo_is_private(self, github_api):
         args = ["opensafely-testing", "github-api-testing-private"]

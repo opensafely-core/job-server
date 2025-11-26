@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import pytest
 from django.conf import settings
 
 from airlock.issues import (
@@ -18,9 +19,18 @@ from tests.factories import (
 from tests.fakes import FakeGitHubAPI
 
 
-def test_create_output_checking_request_external(github_api):
+ALL_LABELS = [
+    IssueStatusLabel.PENDING_REVIEW.value,
+    IssueStatusLabel.UNDER_REVIEW.value,
+    IssueStatusLabel.WITH_REQUESTER.value,
+]
+
+
+@pytest.mark.parametrize("repo_labels", [[], ALL_LABELS])
+def test_create_output_checking_request_external(repo_labels, github_api):
     user = UserFactory()
     workspace = WorkspaceFactory(name="test-workspace")
+    github_api.labels += repo_labels
 
     assert (
         create_output_checking_issue(
@@ -36,7 +46,11 @@ def test_create_output_checking_request_external(github_api):
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
-    assert set(issue.labels) == {"external", IssueStatusLabel.PENDING_REVIEW.value}
+    expected_labels = {"external"}
+    if IssueStatusLabel.PENDING_REVIEW.value in repo_labels:
+        expected_labels |= {IssueStatusLabel.PENDING_REVIEW.value}
+
+    assert set(issue.labels) == expected_labels
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -48,11 +62,13 @@ def test_create_output_checking_request_external(github_api):
     assert workspace.name in lines[3]
 
 
-def test_create_output_checking_request_internal(github_api):
+@pytest.mark.parametrize("repo_labels", [[], ALL_LABELS])
+def test_create_output_checking_request_internal(github_api, repo_labels):
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)
     workspace = WorkspaceFactory(name="test-workspace")
+    github_api.labels += repo_labels
 
     assert (
         create_output_checking_issue(
@@ -68,7 +84,11 @@ def test_create_output_checking_request_internal(github_api):
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
-    assert set(issue.labels) == {"internal", IssueStatusLabel.PENDING_REVIEW.value}
+    expected_labels = {"internal"}
+    if IssueStatusLabel.PENDING_REVIEW.value in repo_labels:
+        expected_labels |= {IssueStatusLabel.PENDING_REVIEW.value}
+
+    assert set(issue.labels) == expected_labels
     assert issue.org == "ebmdatalab"
     assert issue.repo == "opensafely-output-review"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
@@ -81,13 +101,9 @@ def test_create_output_checking_request_internal(github_api):
 
 
 def test_create_output_checking_request_no_label_matches(github_api):
-    class GithubApiWithMismatchedLabels(github_api.__class__):
-        def get_labels(self, org, repo):
-            return ["a label"]
-
+    github_api.labels = []
     user = UserFactory()
     workspace = WorkspaceFactory(name="test-workspace")
-    github_api_with_mismatched_labels = GithubApiWithMismatchedLabels()
     assert (
         create_output_checking_issue(
             workspace,
@@ -95,7 +111,7 @@ def test_create_output_checking_request_no_label_matches(github_api):
             user,
             "ebmdatalab",
             "repo-without-internal-external-labels",
-            github_api_with_mismatched_labels,
+            github_api,
         )
         == "http://example.com"
     )
@@ -104,18 +120,10 @@ def test_create_output_checking_request_no_label_matches(github_api):
 
     # the default label is "external", but it doesn't exist for this repo
     # so we just ignore it
-    assert issue.labels == [IssueStatusLabel.PENDING_REVIEW.value]
+    assert issue.labels == []
     assert issue.org == "ebmdatalab"
     assert issue.repo == "repo-without-internal-external-labels"
     assert issue.title == "test-workspace 01AAA1AAAAAAA1AAAAA11A1AAA"
-    # new labels (github_abi fixture returns just [] for the repo's labels)
-    assert len(github_api.labels) == 3
-    new_labels = {label.label_name for label in github_api.labels}
-    assert new_labels == {
-        IssueStatusLabel.PENDING_REVIEW.value,
-        IssueStatusLabel.UNDER_REVIEW.value,
-        IssueStatusLabel.WITH_REQUESTER.value,
-    }
 
 
 def test_close_output_checking_request(github_api):
