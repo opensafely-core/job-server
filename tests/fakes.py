@@ -83,9 +83,6 @@ class FakeGitHubAPI:
     def get_labels(self, org, repo):
         return ["internal", "external"]
 
-    def create_label(self, org, repo, label_name):
-        return {"name": label_name}
-
     def get_repos_with_branches(self, org):
         return [
             {
@@ -220,9 +217,6 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def get_labels(self, org, repo):
-        raise GitHubError()
-
-    def create_label(self, org, repo, label_name):
         raise GitHubError()
 
     def get_repos_with_branches(self, org):
