@@ -24,11 +24,8 @@ virtualenv: _dotenv
     # allow users to specify python version in .env
     PYTHON_VERSION=${PYTHON_VERSION:-python3.12}
 
-    # create venv and install latest pip compatible with pip-tools
-    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install pip==25.2; }
-
-    # ensure we have pip-tools so we can run pip-compile
-    test -e $BIN/pip-compile || $PIP install pip-tools
+    # create venv and install latest pip
+    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
 
 
 # create a default .env file
