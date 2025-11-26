@@ -57,6 +57,7 @@ _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/articl
 - **Python v3.12.x**
 - **virtualenv**
 - **Pip**
+- **uv**
 - **Node.js v20.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
 - **Postgres 17**
@@ -273,8 +274,6 @@ Workspace creation currently requires a link to a repo, so from this point onwar
 ### Compiling requirements
 
 The generation of `requirements*.txt` files is handled by the `_compile` `just` recipe, which uses `uv pip compile`.
-
-Some of our `just` recipes may ultimately call `_compile` internally (e.g. `just devenv`). To run these commands locally, you will need to ensure `uv` is installed in your virtual environment: `pip install uv`.
 
 ### Upgrade OpenTelemetry dependencies
 
