@@ -130,3 +130,6 @@ extend-ignore = [
 "gunicorn.conf.py" = ["INP001"]
 "manage.py" = ["INP001"]
 "sitecustomize.py" = ["INP001"]
+
+[tool.uv]
+required-version = ">=0.9"

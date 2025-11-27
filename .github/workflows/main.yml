@@ -17,6 +17,7 @@ jobs:
         with:
           python-version: "3.12"
           install-just: true
+          install-uv: true
       - name: Check formatting, linting and import sorting
         run: just check
 
@@ -44,6 +45,7 @@ jobs:
         with:
           python-version: "3.12"
           install-just: true
+          install-uv: true
 
       - name: Install Node.js
         uses: actions/setup-node@v6
@@ -108,6 +110,7 @@ jobs:
       - uses: "opensafely-core/setup-action@v1"
         with:
           install-just: true
+          install-uv: true
 
       - name: Build docker image for both prod and dev
         run: |

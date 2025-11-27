@@ -1,8 +1,9 @@
 --constraint requirements.prod.txt
 
 # Additional dev requirements
-# To generate a requirements file that includes both prod and dev requirements, run:
-# pip-compile --generate-hashes --output-file=requirements.dev.txt requirements.dev.in
+# To generate a requirements file that includes both prod and dev
+# requirements, install `uv` into your virtual environment and run:
+# uv pip compile --generate-hashes requirements.dev.in --output-file # requirements.dev.txt
 
 coverage[toml]
 coverage-enable-subprocess
@@ -10,7 +11,6 @@ django-debug-toolbar
 django-upgrade
 djhtml
 factory_boy
-pip-tools
 pre-commit
 pytest-django
 pytest-env
@@ -21,7 +21,3 @@ pytest-socket
 pytest-xdist[psutil]
 responses
 ruff
-
-# Pin pip due to incompatibility of later releases with pip-tools
-# https://github.com/jazzband/pip-tools/issues/2252
-pip==25.2

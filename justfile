@@ -24,11 +24,8 @@ virtualenv: _dotenv
     # allow users to specify python version in .env
     PYTHON_VERSION=${PYTHON_VERSION:-python3.12}
 
-    # create venv and install latest pip compatible with pip-tools
-    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install pip==25.2; }
-
-    # ensure we have pip-tools so we can run pip-compile
-    test -e $BIN/pip-compile || $PIP install pip-tools
+    # create venv and install latest pip
+    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
 
 
 # create a default .env file
@@ -48,7 +45,7 @@ _compile src dst *args: virtualenv
 
     # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
     test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
-    $BIN/pip-compile --allow-unsafe --generate-hashes --strip-extras --output-file={{ dst }} {{ src }} {{ args }}
+    uv pip compile --generate-hashes --output-file {{ dst }} {{ src }} {{ args }}
 
 
 # update requirements.prod.txt if requirements.prod.in has changed

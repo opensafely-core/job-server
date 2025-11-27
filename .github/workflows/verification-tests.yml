@@ -16,6 +16,7 @@ jobs:
         with:
           python-version: "3.12"
           install-just: true
+          install-uv: true
 
       - name: Install venv
         run: just devenv
