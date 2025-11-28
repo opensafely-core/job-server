@@ -21,11 +21,8 @@ virtualenv: _dotenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.12}
-
     # create venv and install latest pip
-    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
+    test -d $VIRTUAL_ENV || { uv venv $VIRTUAL_ENV && uv pip install --upgrade pip; }
 
 
 # create a default .env file
