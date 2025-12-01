@@ -63,9 +63,9 @@ prodenv: requirements-prod
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
 
-    # --no-deps is recommended when using hashes, and also worksaround a bug with constraints and hashes.
-    # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
-    $PIP install --no-deps -r requirements.prod.txt
+    # --no-deps so that we only install the packages explicitly listed in requirements.prod.txt.
+    # https://docs.astral.sh/uv/reference/cli/#uv-pip-install--no-deps
+    uv pip install -r requirements.prod.txt
     touch $VIRTUAL_ENV/.prod
 
 
@@ -80,9 +80,9 @@ devenv: prodenv requirements-dev && install-precommit
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
 
-    # --no-deps is recommended when using hashes, and also worksaround a bug with constraints and hashes.
-    # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
-    $PIP install --no-deps -r requirements.dev.txt
+    # --no-deps so that we only install the packages explicitly listed in requirements.dev.txt.
+    # https://docs.astral.sh/uv/reference/cli/#uv-pip-install--no-deps
+    uv pip install --no-deps -r requirements.dev.txt
     touch $VIRTUAL_ENV/.dev
 
 # ensure precommit is installed
