@@ -1,14 +1,25 @@
+import os
+import re
+
 import psycopg2 as pg
+import requests
 from django.core.management.base import BaseCommand
+from dotenv import load_dotenv
 from psycopg2.extras import RealDictCursor
 from tabulate import tabulate
 
 
+# TODO: Write a just recipe which will get the latest jobserver.dump every tiime the script is run and the run just docker/restore-db so it rebuilds the docker container with the latest db
+
+# TODO: move these to a .env file in new repo
 HOSTNAME = "localhost"
 DATABASE = "jobserver"
 USERNAME = "user"
 PASSWORD = "pass"
 PORT = "6543"
+
+load_dotenv()
+SEARCH_API_TOKEN = os.getenv("SEARCH_API_TOKEN")
 
 conn = pg.connect(
     host=HOSTNAME, user=USERNAME, password=PASSWORD, dbname=DATABASE, port=PORT
@@ -47,3 +58,75 @@ class Command(BaseCommand):
             return table
 
         print(display_table())
+
+        # Using post-covid-renal repo (https://github.com/opensafely/post-covid-renal) to test code logic
+        repo_url = "https://github.com/opensafely/post-covid-renal"
+
+        def get_info_from_data():
+            # TODO: query read_data()
+            pass
+
+        def get_org_repo_name(repo_url) -> str:
+            url_segments = repo_url.split("/")
+            repo_name = "/".join(url_segments[3:])
+            return repo_name
+
+        def get_branch_commit_hash():
+            org_repo = get_org_repo_name(repo_url)
+
+            # Use branches endpoint to get all the branches in the repo
+            url = f"https://api.github.com/repos/{org_repo}/branches"
+            response = requests.get(
+                url,
+                headers={"Authorization": f"token {SEARCH_API_TOKEN}"},
+            )
+
+            for branch in response.json():
+                if branch["name"] == "main":
+                    tree_sha = branch["commit"]["sha"]
+
+            # return url for accessing trees endpoint
+            tree_url = f"https://api.github.com/repos/{org_repo}/git/trees/{tree_sha}?recursive=true"
+            return tree_url
+
+        def get_file_from_trees():
+            repo_tree_url = get_branch_commit_hash()
+            response = requests.get(
+                repo_tree_url,
+                headers={"Authorization": f"token {SEARCH_API_TOKEN}"},
+            )
+            for item in response.json()["tree"]:
+                if ".py" in item["path"]:
+                    pass
+            repo_py_scripts = [
+                item["path"]
+                for item in response.json()["tree"]
+                if ".py" in item["path"]
+            ]
+            return repo_py_scripts
+
+        print(get_file_from_trees())
+
+        def get_table_from_file_content():
+            python_files_in_repo = get_file_from_trees()
+
+            ehrql_tables = set()
+            for file in python_files_in_repo:
+                repo = get_org_repo_name(repo_url)
+                branch = "main"
+                file_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{file}"
+                response = requests.get(file_url)
+                data = response.text
+
+                pattern = r"from ehrql.tables.tpp import \(?([\w, \n]+)"
+                imports = re.findall(pattern, data)
+
+                for item in imports:
+                    tables = [t.strip() for t in item.split(",") if t.strip()]
+                    for table in tables:
+                        ehrql_tables.add(table)
+
+            # TODO: add an extra column to display_table() called "tpp tables"
+            return ehrql_tables
+
+        print(get_table_from_file_content())
