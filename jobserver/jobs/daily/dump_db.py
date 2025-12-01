@@ -17,19 +17,20 @@ from services.sentry import monitor_config
 # Temporary schema to hold safe copies
 TEMP_SCHEMA = "safe_dump"
 OUTPUT_PATH = pathlib.Path("/storage/jobserver.dump")
+# OUTPUT_PATH = pathlib.Path("./jobserver_scrubbed.dump") #for testing
 
 
 class Job(HourlyJob):
-    help = "Dump an allowlisted subset of the DB suitable for local dev (missing cols -> NULL)"
+    help = "Dump a safe copy of the DB with non-allowlisted columns replaced by fake values"
 
-    @monitor(monitor_slug="dump_db", monitor_config=monitor_config("0 * * * *"))
+    @monitor(monitor_slug="dump_db", monitor_config=monitor_config("0 19 * * *"))
     def execute(self):
         db = settings.DATABASES["default"]
         allowlist_path = pathlib.Path(__file__).with_name("allow_list.json")
         allowlist = self._load_allowlist(allowlist_path)
         allowlist_exists = bool(allowlist)
-
         out_dir = OUTPUT_PATH.parent
+
         if not out_dir.is_dir():
             print(f"Unknown output directory: {out_dir}", file=sys.stderr)
             sys.exit(1)
@@ -59,6 +60,28 @@ class Job(HourlyJob):
                 pass
             raise
 
+    def _load_allowlist(self, path: str | None) -> dict[str, list[str]]:
+        if not path:
+            return {}
+
+        try:
+            with open(path, encoding="utf-8") as file:
+                data = json.load(file)
+            allowlist_dict: dict[str, list[str]] = {}
+            for table_name, cols in data.items():
+                if isinstance(cols, list) and cols:
+                    allowlist_dict[str(table_name)] = [str(c) for c in cols]
+            return allowlist_dict
+        except FileNotFoundError:
+            print(
+                f"Allowlist file not found at {path}; proceeding with schema-only dump",
+                file=sys.stderr,
+            )
+            return {}
+        except Exception as exc:
+            print(f"Error loading allowlist file {path}: {exc}", file=sys.stderr)
+            return {}
+
     def _fake_expression(self, table: str, col: str, meta: dict) -> str:
         dtype = (meta.get("data_type") or "").lower()
 
@@ -79,27 +102,8 @@ class Job(HourlyJob):
 
         return "NULL"
 
-    def _load_allowlist(self, path: str | None) -> dict[str, list[str]]:
-        if not path:
-            return {}
-
-        try:
-            with open(path, encoding="utf-8") as file:
-                data = json.load(file)
-            clean: dict[str, list[str]] = {}
-            for table, cols in data.items():
-                if isinstance(cols, list) and cols:
-                    clean[str(table)] = [str(c) for c in cols]
-            return clean
-        except FileNotFoundError:
-            print(
-                f"Allowlist file not found at {path}; proceeding with schema-only dump",
-                file=sys.stderr,
-            )
-            return {}
-        except Exception as exc:
-            print(f"Error loading allowlist file {path}: {exc}", file=sys.stderr)
-            return {}
+    def _valid_ident(x: str) -> bool:
+        return bool(x) and (x.replace("_", "").isalnum()) and (not x[0].isdigit())
 
     def _create_safe_schema_and_copy(self, allowlist: dict[str, list[str]]):
         with connection.cursor() as cur:
@@ -110,22 +114,16 @@ class Job(HourlyJob):
                 if not columns:
                     continue
 
-                # Support "schema.table" or just "table" (default schema public)
+                # Table name could be like "schema.table" or just "table"
                 if "." in table_name:
                     schema_name, short_table = table_name.split(".", 1)
                 else:
                     schema_name = "public"
                     short_table = table_name
 
-                # Basic identifier validation
-                def _valid_ident(x: str) -> bool:
-                    return (
-                        bool(x)
-                        and (x.replace("_", "").isalnum())
-                        and (not x[0].isdigit())
-                    )
-
-                if not _valid_ident(short_table) or not _valid_ident(schema_name):
+                if not self._valid_ident(short_table) or not self._valid_ident(
+                    schema_name
+                ):
                     raise ValueError(f"Invalid table name in allowlist: {table_name}")
 
                 cur.execute(
@@ -148,7 +146,7 @@ class Job(HourlyJob):
                 # validate allowlisted columns and build lookup set
                 allowed_set: set[str] = set()
                 for col in columns:
-                    if not _valid_ident(col):
+                    if not self._valid_ident(col):
                         raise ValueError(
                             f"Invalid column name in allowlist for {table_name}: {col}"
                         )
