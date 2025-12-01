@@ -65,7 +65,10 @@ prodenv: requirements-prod
 
     # --no-deps so that we only install the packages explicitly listed in requirements.prod.txt.
     # https://docs.astral.sh/uv/reference/cli/#uv-pip-install--no-deps
-    uv pip install -r requirements.prod.txt
+    #--require-hashes enforces that every package has a hash entry in
+    # the requirements file, keeping installs deterministic
+    # https://docs.astral.sh/uv/reference/cli/#uv-pip-install--require-hashes
+    uv pip install --no-deps --require-hashes -r requirements.prod.txt
     touch $VIRTUAL_ENV/.prod
 
 
