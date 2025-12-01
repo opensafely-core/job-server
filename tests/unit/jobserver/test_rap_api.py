@@ -26,7 +26,7 @@ from jobserver.rap_api import (
     create,
     status,
 )
-from tests.factories import JobRequestFactory
+from tests.factories import JobRequestFactory, ProjectFactory, WorkspaceFactory
 
 
 class TestApiCall:
@@ -327,7 +327,10 @@ class TestStatus:
 
 @pytest.fixture
 def job_request_for_create():
-    job_request = JobRequestFactory()
+    project = ProjectFactory(number="111")
+    workspace = WorkspaceFactory(project=project)
+    job_request = JobRequestFactory(workspace=workspace)
+
     request_body = {
         "rap_id": job_request.identifier,
         "backend": job_request.backend.slug,
@@ -342,6 +345,7 @@ def job_request_for_create():
         "created_by": job_request.created_by.username,
         "project": job_request.workspace.project.slug,
         "orgs": list(job_request.workspace.project.orgs.values_list("slug", flat=True)),
+        "analysis_scope": {},
     }
     yield job_request, request_body
 
@@ -379,6 +383,31 @@ class TestCreate:
 
         result = create(job_request)
 
+        assert result == fake_json
+        mock_api_call.assert_called_once_with(
+            requests.post,
+            "rap/create/",
+            request_body,
+        )
+
+    def test_population_permissions(
+        self, monkeypatch, patch_api_call, job_request_for_create
+    ):
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
+        fake_json = {"some": "content"}
+        mock_api_call = patch_api_call(fake_json=fake_json)
+
+        job_request, request_body = job_request_for_create
+        # mock ndoo permission for the job's project
+        monkeypatch.setattr(
+            "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
+            [job_request.workspace.project.number],
+        )
+        # update request body with expected analysis scope
+        request_body["analysis_scope"] = {"population_permissions": ["include_ndoo"]}
+
+        result = create(job_request)
         assert result == fake_json
         mock_api_call.assert_called_once_with(
             requests.post,

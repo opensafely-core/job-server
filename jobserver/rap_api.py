@@ -22,6 +22,8 @@ import structlog
 from django.conf import settings
 from structlog.contextvars import bound_contextvars
 
+from jobserver.permissions import population_permissions
+
 
 logger = structlog.get_logger(__name__)
 
@@ -199,6 +201,13 @@ def create(job_request):
         RapAPIRequestError
         RapAPIResponseError
     """
+    if ndoo_permission := population_permissions.ndoo.analysis_scope_for_project(
+        job_request.workspace.project
+    ):
+        analysis_scope = {"population_permissions": [ndoo_permission]}
+    else:
+        analysis_scope = {}
+
     request_body = {
         "rap_id": job_request.identifier,
         "backend": job_request.backend.slug,
@@ -213,6 +222,7 @@ def create(job_request):
         "created_by": job_request.created_by.username,
         "project": job_request.workspace.project.slug,
         "orgs": list(job_request.workspace.project.orgs.values_list("slug", flat=True)),
+        "analysis_scope": analysis_scope,
     }
 
     response = _api_call(requests.post, "rap/create/", request_body)
