@@ -44,12 +44,6 @@ class FakeGitHubAPI:
     def get_issue_labels(self, org, repo, issue_number):
         return ["Pending review"]
 
-    def create_repo(self, org, repo):
-        return {
-            "html_url": "http://example.com",
-            "topics": [],
-        }
-
     def get_branch(self, org, repo, branch):
         return {
             "commit": {
@@ -203,9 +197,6 @@ class FakeGitHubAPIWithErrors:
     ):
         # Some unit tests want to check the message.
         raise GitHubError("An error occurred")
-
-    def create_repo(self, org, repo):
-        raise GitHubError()
 
     def get_branch(self, org, repo, branch):
         raise GitHubError()

@@ -3,7 +3,6 @@ import os
 
 import pytest
 import requests.exceptions
-import stamina
 from requests.models import Response
 
 from jobserver.github import (
@@ -13,8 +12,6 @@ from jobserver.github import (
     HTTPError,
     IssueNotFound,
     LabelAlreadyExists,
-    RepoAlreadyExists,
-    RepoNotYetCreated,
     Timeout,
 )
 from jobserver.models.common import new_ulid_str
@@ -33,8 +30,6 @@ class TestGitHubAPIAgainstFakes:
         assert_public_method_signature_equality(
             GitHubAPI,
             FakeGitHubAPI,
-            # delete_repo is only used in testing.
-            ignored_methods=["delete_repo"],
         )
 
     def test_fake_with_errors_public_method_signatures(self):
@@ -43,8 +38,6 @@ class TestGitHubAPIAgainstFakes:
         assert_public_method_signature_equality(
             GitHubAPI,
             FakeGitHubAPIWithErrors,
-            # delete_repo is only used in testing.
-            ignored_methods=["delete_repo"],
         )
 
 
@@ -228,38 +221,6 @@ class TestGithubAPIPrivate:
 
         # reset the label
         assert delete_label().status_code == 204
-
-    def test_create_repo(self, github_api):
-        try:
-            # create a unique ID for this test using our existing ULID function.
-            # we can have multiple CI runs executing concurrently which means this
-            # test can be running in different CI jobs at the same time.  Given the
-            # test talks to an external API we can't use the same repo name for every
-            # execution.  Instead we use our new_ulid_str since it's already available
-            # and should have more than enough uniqueness for our needs to create
-            # a unique repo name.
-            unique_id = new_ulid_str()
-            args = [
-                "opensafely-testing",
-                f"testing-create_repo-{unique_id}",
-            ]
-
-            real = github_api.create_repo(*args)
-            fake = FakeGitHubAPI().create_repo(*args)
-
-            assert_deep_type_equality(fake, real)
-
-            assert real is not None
-
-            # do we get the appropriate error when the repo already exists?
-            with pytest.raises(RepoAlreadyExists):
-                github_api.create_repo(*args)
-        finally:
-            # clean up after the test but accept that sometimes the repo hasn't
-            # been created and make a few attempts at removing it
-            for attempt in stamina.retry_context(on=RepoNotYetCreated):
-                with attempt:
-                    github_api.delete_repo(*args)
 
     def test_get_repo_is_private(self, github_api):
         args = ["opensafely-testing", "github-api-testing-private"]
