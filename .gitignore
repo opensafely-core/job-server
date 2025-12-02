@@ -17,6 +17,7 @@ __pycache__
 node_modules
 /releases
 /repos
+/sanitised_jobserver.dump
 /staticfiles
 /uploads
 /workspaces
