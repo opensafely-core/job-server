@@ -369,16 +369,6 @@ class TestGithubAPINonPrivate:
         # string so no need to throw assert_deep_type_equality() at it
         assert isinstance(fake, str)
 
-    def test_get_tag_sha(self, github_api):
-        args = ["opensafely-testing", "github-api-testing", "test-tag"]
-
-        real = github_api.get_tag_sha(*args)
-        fake = FakeGitHubAPI().get_tag_sha(*args)
-
-        assert real == "7c48e4e81db5fe932628cd92f51c7858759d6b98"
-
-        assert isinstance(fake, str)
-
     def test_get_branch_sha_with_missing_branch(self, github_api):
         sha = github_api.get_branch_sha(
             "opensafely-testing",

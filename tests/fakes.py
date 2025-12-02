@@ -67,9 +67,6 @@ class FakeGitHubAPI:
     def get_branch_sha(self, org, repo, branch):
         return self.get_branch(org, repo, branch)["commit"]["sha"]
 
-    def get_tag_sha(self, org, repo, tag):
-        return "test_sha"
-
     def get_file(self, org, repo, branch, filepath="project.yaml"):
         return textwrap.dedent(
             """
@@ -222,9 +219,6 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def get_branch_sha(self, org, repo, branch):
-        raise GitHubError()
-
-    def get_tag_sha(self, org, repo, tag):
         raise GitHubError()
 
     def get_file(self, org, repo, branch, filepath="project.yaml"):
