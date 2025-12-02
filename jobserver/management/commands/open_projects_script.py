@@ -28,15 +28,14 @@ conn = pg.connect(
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        # This query finds the project, workspace, and repo information for workspaces that have a job that ran in the last three months
         open_project_query = """
-        SELECT p."id" AS "Project ID", p."name" AS "Project name", p."status" AS "Project Status", w."name" AS "Workspace name", w."branch" AS "Branch", r."url" AS "Repo"
-        FROM "jobserver_workspace" AS w
-        INNER JOIN "jobserver_project" AS p ON (p."id" = w."project_id")
-        LEFT JOIN "jobserver_repo" AS r ON (r."id" = w."repo_id")
-        WHERE w."project_id"
-        IN (SELECT DISTINCT U0."id" FROM "jobserver_project" U0 INNER JOIN "jobserver_workspace" U1 ON (U0."id" = U1."project_id")
-        INNER JOIN "jobserver_jobrequest" U2 ON (U1."id" = U2."workspace_id")
-        WHERE U2."created_at" >= date_trunc('month', current_date - interval '3' month))
+        SELECT DISTINCT w.name AS workspace_name, p."id" AS "Project ID", p."name" AS "Project name", p."status" AS "Project Status", w."branch" AS "Branch", r."url" AS "Repo"
+        FROM jobserver_workspace AS w
+        INNER JOIN jobserver_project AS p ON (p.id = w.project_id)
+        INNER JOIN jobserver_repo AS r ON (r.id = w.repo_id)
+        INNER JOIN jobserver_jobrequest AS jr ON (w.id = jr.workspace_id)
+        WHERE jr.created_at >= date_trunc('month', CURRENT_DATE - interval '3' MONTH)
         """
 
         def read_data():
@@ -59,19 +58,18 @@ class Command(BaseCommand):
 
         print(display_table())
 
-        # Using post-covid-renal repo (https://github.com/opensafely/post-covid-renal) to test code logic
-        repo_url = "https://github.com/opensafely/post-covid-renal"
-
         def get_info_from_data():
-            # TODO: query read_data()
-            pass
+            yield from read_data()
 
         def get_org_repo_name(repo_url) -> str:
             url_segments = repo_url.split("/")
             repo_name = "/".join(url_segments[3:])
             return repo_name
 
-        def get_branch_commit_hash():
+        def get_branch_url(project):
+            repo_url = project["Repo"]
+            repo_branch = project["Branch"]
+
             org_repo = get_org_repo_name(repo_url)
 
             # Use branches endpoint to get all the branches in the repo
@@ -82,15 +80,22 @@ class Command(BaseCommand):
             )
 
             for branch in response.json():
-                if branch["name"] == "main":
+                if branch["name"] == repo_branch:
                     tree_sha = branch["commit"]["sha"]
 
             # return url for accessing trees endpoint
             tree_url = f"https://api.github.com/repos/{org_repo}/git/trees/{tree_sha}?recursive=true"
             return tree_url
 
+        for item in get_info_from_data():
+            print(item["Repo"])
+            project_hashes = get_branch_url(item)
+            print(project_hashes)
+
+        # breakpoint()
+
         def get_file_from_trees():
-            repo_tree_url = get_branch_commit_hash()
+            repo_tree_url = get_branch_url()
             response = requests.get(
                 repo_tree_url,
                 headers={"Authorization": f"token {SEARCH_API_TOKEN}"},
@@ -112,7 +117,7 @@ class Command(BaseCommand):
 
             ehrql_tables = set()
             for file in python_files_in_repo:
-                repo = get_org_repo_name(repo_url)
+                repo = get_org_repo_name()
                 branch = "main"
                 file_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{file}"
                 response = requests.get(file_url)
@@ -126,7 +131,7 @@ class Command(BaseCommand):
                     for table in tables:
                         ehrql_tables.add(table)
 
-            # TODO: add an extra column to display_table() called "tpp tables"
+            # TODO: add an extra column & key to display_table() and read_data() respectively called "tpp tables"
             return ehrql_tables
 
         print(get_table_from_file_content())
