@@ -134,7 +134,16 @@ GRANT ALL PRIVILEGES on database jobserver to jobsuser;
 
 #### Restoring Backups
 
-Copies of production can be restored to a local database using a dump pulled from production.
+Copies of production can be restored to a local database using a sanitised dump pulled from production.
+
+##### dump_db script
+The sanitised dump is created using `dump_db` job that runs daily. The job builds a temporary schema (`temp_scrubbed_schema`) that contains a copy of each table but with only allowlisted columns populated fetched from `allow_list.json`. All other columns are replaced with type-appropriate fake values. Once the schema is populated, the job drops this temporary schema.
+
+##### allow_list.json
+The scrubbed dump is driven by `jobserver/jobs/daily/allow_list.json`. Each entry maps a table to the list of columns that are safe to copy with real values. Columns not listed will still exist in the dump, but they’ll be populated with fake data (or nulls) to satisfy constraints without leaking secrets.
+
+Whenever you add a new model or a column that should retain real data, please update `allow_list.json` so the dump job knows about it. If you forget, the column will still be present in the schema, but your dump will contain only fake values for that field, which may break local testing if the app relies on real data there.
+
 If you do not have access to pull production backups, follow the [setting up a fresh install](#setting-up-a-fresh-install) instead of restoring a backup.
 
 
@@ -164,7 +173,6 @@ Note: This assumes ident auth (the default in Postgres.app) is set up.
 Note: `pg_restore` will throw errors in various scenarios, which can often be ignored.
 The important line to check for (typically at the very end) is `errors ignored on restore: N`.
 Where `N` should match the number of errors you got.
-
 
 
 #### Steps
