@@ -66,10 +66,7 @@ class Command(BaseCommand):
             repo_name = "/".join(url_segments[3:])
             return repo_name
 
-        def get_branch_url(project):
-            repo_url = project["Repo"]
-            repo_branch = project["Branch"]
-
+        def get_branch_url(repo_url, repo_branch):
             org_repo = get_org_repo_name(repo_url)
 
             # Use branches endpoint to get all the branches in the repo
@@ -87,15 +84,8 @@ class Command(BaseCommand):
             tree_url = f"https://api.github.com/repos/{org_repo}/git/trees/{tree_sha}?recursive=true"
             return tree_url
 
-        for item in get_info_from_data():
-            print(item["Repo"])
-            project_hashes = get_branch_url(item)
-            print(project_hashes)
-
-        # breakpoint()
-
-        def get_file_from_trees():
-            repo_tree_url = get_branch_url()
+        def get_file_from_trees(repo_tree_url):
+            # repo_tree_url = get_branch_url()
             response = requests.get(
                 repo_tree_url,
                 headers={"Authorization": f"token {SEARCH_API_TOKEN}"},
@@ -110,14 +100,12 @@ class Command(BaseCommand):
             ]
             return repo_py_scripts
 
-        print(get_file_from_trees())
-
-        def get_table_from_file_content():
-            python_files_in_repo = get_file_from_trees()
+        def get_table_from_file_content(repo_url, python_files_in_repo):
+            # python_files_in_repo = get_file_from_trees()
 
             ehrql_tables = set()
             for file in python_files_in_repo:
-                repo = get_org_repo_name()
+                repo = get_org_repo_name(repo_url)
                 branch = "main"
                 file_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{file}"
                 response = requests.get(file_url)
@@ -134,4 +122,12 @@ class Command(BaseCommand):
             # TODO: add an extra column & key to display_table() and read_data() respectively called "tpp tables"
             return ehrql_tables
 
-        print(get_table_from_file_content())
+        for project in get_info_from_data():
+            repo_url = project["Repo"]
+            repo_branch = project["Branch"]
+
+            workspace_tree_url = get_branch_url(repo_url, repo_branch)
+            python_files_in_repo = get_file_from_trees(workspace_tree_url)
+            tpp_tables = get_table_from_file_content(repo_url, python_files_in_repo)
+
+            print(f"Repo:\n{repo_url}\nTpp tables:\n{tpp_tables}\n\n")
