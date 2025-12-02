@@ -8,7 +8,7 @@ import tempfile
 
 from django.conf import settings
 from django.db import connection
-from django_extensions.management.jobs import HourlyJob
+from django_extensions.management.jobs import DailyJob
 from sentry_sdk.crons.decorator import monitor
 
 from services.sentry import monitor_config
@@ -17,10 +17,9 @@ from services.sentry import monitor_config
 # Temporary schema to hold safe copies
 TEMP_SCHEMA = "safe_dump"
 OUTPUT_PATH = pathlib.Path("/storage/jobserver.dump")
-# OUTPUT_PATH = pathlib.Path("./jobserver_scrubbed.dump") #for testing
 
 
-class Job(HourlyJob):
+class Job(DailyJob):
     help = "Dump a safe copy of the DB with non-allowlisted columns replaced by fake values"
 
     @monitor(monitor_slug="dump_db", monitor_config=monitor_config("0 19 * * *"))
@@ -102,91 +101,108 @@ class Job(HourlyJob):
 
         return "NULL"
 
-    def _valid_ident(x: str) -> bool:
+    def _valid_ident(self, x: str) -> bool:
         return bool(x) and (x.replace("_", "").isalnum()) and (not x[0].isdigit())
+
+    def _normalize_table_name(self, table: str) -> tuple[str, str]:
+        if "." in table:
+            schema_name, table_name = table.split(".", 1)
+        else:
+            schema_name = "public"
+            table_name = table
+
+        if not self._valid_ident(table_name) or not self._valid_ident(schema_name):
+            raise ValueError(f"Invalid table name in allowlist: {table}")
+
+        return schema_name, table_name
+
+    def _get_column_metadata(
+        self, cur, schema_name: str, table_name: str
+    ) -> tuple[list[str], dict[str, dict[str, str]]]:
+        cur.execute(
+            """
+            SELECT column_name, is_nullable, data_type
+            FROM information_schema.columns
+            WHERE table_schema = %s AND table_name = %s
+            ORDER BY ordinal_position;
+            """,
+            [schema_name, table_name],
+        )
+        rows = cur.fetchall()
+        if not rows:
+            return [], {}
+
+        existing_cols = [row[0] for row in rows]
+        col_meta = {
+            row[0]: {"is_nullable": row[1], "data_type": row[2]} for row in rows
+        }
+        return existing_cols, col_meta
+
+    def _build_allowed_set(self, table: str, columns: list[str]) -> set[str]:
+        allowed_set: set[str] = set()
+        for col in columns:
+            if not self._valid_ident(col):
+                raise ValueError(f"Invalid column name in allowlist for {table}: {col}")
+            allowed_set.add(col)
+        return allowed_set
+
+    def _create_safe_table(self, cur, src_table: str, dst_table: str) -> None:
+        create_sql = (
+            f"CREATE TABLE IF NOT EXISTS {dst_table} (LIKE {src_table} INCLUDING ALL);"
+        )
+        try:
+            cur.execute(create_sql)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to create table {dst_table}: {exc}")
+
+    def _build_select_expressions(
+        self,
+        table_name: str,
+        existing_cols: list[str],
+        allowed_set: set[str],
+        col_meta: dict[str, dict[str, str]],
+    ) -> tuple[list[str], str]:
+        select_exprs: list[str] = []
+        for col in existing_cols:
+            if col in allowed_set:
+                select_exprs.append(f'"{col}"')
+            else:
+                expr = self._fake_expression(table_name, col, col_meta[col])
+                select_exprs.append(f'{expr} AS "{col}"')
+        quoted_all_cols = ", ".join(f'"{c}"' for c in existing_cols)
+        return select_exprs, quoted_all_cols
 
     def _create_safe_schema_and_copy(self, allowlist: dict[str, list[str]]):
         with connection.cursor() as cur:
             cur.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE;")
             cur.execute(f"CREATE SCHEMA {TEMP_SCHEMA};")
 
-            for table_name, columns in allowlist.items():
+            for table, columns in allowlist.items():
                 if not columns:
                     continue
 
-                # Table name could be like "schema.table" or just "table"
-                if "." in table_name:
-                    schema_name, short_table = table_name.split(".", 1)
-                else:
-                    schema_name = "public"
-                    short_table = table_name
-
-                if not self._valid_ident(short_table) or not self._valid_ident(
-                    schema_name
-                ):
-                    raise ValueError(f"Invalid table name in allowlist: {table_name}")
-
-                cur.execute(
-                    """
-                    SELECT column_name, is_nullable, data_type
-                    FROM information_schema.columns
-                    WHERE table_schema = %s AND table_name = %s;
-                    """,
-                    [schema_name, short_table],
+                schema_name, table_name = self._normalize_table_name(table)
+                existing_cols, col_meta = self._get_column_metadata(
+                    cur, schema_name, table_name
                 )
-                rows = cur.fetchall()
-                if not rows:
+                if not existing_cols:
                     continue
 
-                existing_cols = [row[0] for row in rows]
-                col_meta = {
-                    row[0]: {"is_nullable": row[1], "data_type": row[2]} for row in rows
-                }
+                allowed_set = self._build_allowed_set(table, columns)
+                original_table = f'"{schema_name}"."{table_name}"'
+                temp_table = f'"{TEMP_SCHEMA}"."{table_name}"'
 
-                # validate allowlisted columns and build lookup set
-                allowed_set: set[str] = set()
-                for col in columns:
-                    if not self._valid_ident(col):
-                        raise ValueError(
-                            f"Invalid column name in allowlist for {table_name}: {col}"
-                        )
-                    allowed_set.add(col)
+                self._create_safe_table(cur, original_table, temp_table)
 
-                # Qualified names
-                src_table_q = f'"{schema_name}"."{short_table}"'
-                dst_table_q = f'"{TEMP_SCHEMA}"."{short_table}"'
-
-                # Create table in TEMP_SCHEMA with full schema of source table
-                create_sql = (
-                    f"CREATE TABLE IF NOT EXISTS {dst_table_q} "
-                    f"(LIKE {src_table_q} INCLUDING ALL);"
+                select_exprs, quoted_all_cols = self._build_select_expressions(
+                    table_name, existing_cols, allowed_set, col_meta
                 )
 
-                try:
-                    cur.execute(create_sql)
-                except Exception as exc:
-                    raise RuntimeError(f"Failed to create table {dst_table_q}: {exc}")
-
-                select_exprs: list[str] = []
-                for col in existing_cols:
-                    meta = col_meta[col]
-
-                    if col in allowed_set:
-                        select_exprs.append(f'"{col}"')
-                    else:
-                        expr = self._fake_expression(short_table, col, meta)
-                        select_exprs.append(f'{expr} AS "{col}"')
-
-                select_list = ", ".join(select_exprs)
-                quoted_all_cols = ", ".join(f'"{c}"' for c in existing_cols)
                 insert_sql = (
-                    f"INSERT INTO {dst_table_q} ({quoted_all_cols}) "
-                    f"SELECT {select_list} FROM {src_table_q};"
+                    f"INSERT INTO {temp_table} ({quoted_all_cols}) "
+                    f"SELECT {', '.join(select_exprs)} FROM {original_table};"
                 )
-                try:
-                    cur.execute(insert_sql)
-                except Exception as exc:
-                    raise RuntimeError(f"Failed to populate table {dst_table_q}: {exc}")
+                cur.execute(insert_sql)
 
     def _drop_temp_schema(self):
         with connection.cursor() as cur:
