@@ -15,13 +15,16 @@ from services.sentry import monitor_config
 
 # Temporary schema to hold safe copies
 TEMP_SCHEMA = "temp_scrubbed_schema"
-OUTPUT_PATH = pathlib.Path("/storage/jobserver.dump")
+OUTPUT_PATH = pathlib.Path("/storage/sanitised_jobserver.dump")
 
 
 class Job(DailyJob):
     help = "Dump a safe copy of the DB with non-allowlisted columns replaced by fake values"
 
-    @monitor(monitor_slug="dump_db", monitor_config=monitor_config("0 19 * * *"))
+    # Keeping the job at 2pm right now to test this script in production. Will change to 7pm once the testing is done.
+    @monitor(
+        monitor_slug="dump_sanitised_db", monitor_config=monitor_config("0 14 * * *")
+    )
     def execute(self):
         db = settings.DATABASES["default"]
         allowlist_path = pathlib.Path(__file__).with_name("allow_list.json")
@@ -178,7 +181,7 @@ class Job(DailyJob):
             cur.execute(
                 f"COMMENT ON SCHEMA {TEMP_SCHEMA} IS %s;",
                 (
-                    "Temporary scrubbed copy of jobserver; used by dump_db and dropped after the job finishes.",
+                    "Temporary scrubbed copy of jobserver; used by dump_sanitised_db and dropped after the job finishes.",
                 ),
             )
 
