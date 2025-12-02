@@ -1,4 +1,3 @@
-# dump_db.py
 import json
 import os
 import pathlib
