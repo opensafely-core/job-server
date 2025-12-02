@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 from django.conf import settings
 
+import airlock.issues
 from airlock.issues import (
     IssueStatusLabel,
     close_output_checking_issue,
@@ -32,8 +33,10 @@ def test_create_output_checking_request_external(repo_labels, github_api):
     workspace = WorkspaceFactory(name="test-workspace")
     github_api.labels += repo_labels
 
-    assert (
-        create_output_checking_issue(
+    with patch.object(
+        airlock.issues.sentry_sdk, "capture_event", autospec=True
+    ) as mock_capture_event:
+        result = create_output_checking_issue(
             workspace,
             "01AAA1AAAAAAA1AAAAA11A1AAA",
             user,
@@ -41,8 +44,22 @@ def test_create_output_checking_request_external(repo_labels, github_api):
             "opensafely-output-review",
             github_api,
         )
-        == "http://example.com"
-    )
+    assert result == "http://example.com"
+
+    if repo_labels:
+        assert not mock_capture_event.called
+    else:
+        mock_capture_event.assert_called_once_with(
+            {
+                "message": "Missing expected labels on repo opensafely-output-review",
+                "level": "error",
+                "extra": {
+                    "org": "ebmdatalab",
+                    "repo": "opensafely-output-review",
+                    "unknown_labels": set(ALL_LABELS),
+                },
+            }
+        )
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
@@ -70,8 +87,10 @@ def test_create_output_checking_request_internal(github_api, repo_labels):
     workspace = WorkspaceFactory(name="test-workspace")
     github_api.labels += repo_labels
 
-    assert (
-        create_output_checking_issue(
+    with patch.object(
+        airlock.issues.sentry_sdk, "capture_event", autospec=True
+    ) as mock_capture_event:
+        result = create_output_checking_issue(
             workspace,
             "01AAA1AAAAAAA1AAAAA11A1AAA",
             user,
@@ -79,8 +98,22 @@ def test_create_output_checking_request_internal(github_api, repo_labels):
             "opensafely-output-review",
             github_api,
         )
-        == "http://example.com"
-    )
+    assert result == "http://example.com"
+
+    if repo_labels:
+        assert not mock_capture_event.called
+    else:
+        mock_capture_event.assert_called_once_with(
+            {
+                "message": "Missing expected labels on repo opensafely-output-review",
+                "level": "error",
+                "extra": {
+                    "org": "ebmdatalab",
+                    "repo": "opensafely-output-review",
+                    "unknown_labels": set(ALL_LABELS),
+                },
+            }
+        )
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
 
@@ -104,8 +137,11 @@ def test_create_output_checking_request_no_label_matches(github_api):
     github_api.labels = []
     user = UserFactory()
     workspace = WorkspaceFactory(name="test-workspace")
-    assert (
-        create_output_checking_issue(
+
+    with patch.object(
+        airlock.issues.sentry_sdk, "capture_event", autospec=True
+    ) as mock_capture_event:
+        result = create_output_checking_issue(
             workspace,
             "01AAA1AAAAAAA1AAAAA11A1AAA",
             user,
@@ -113,7 +149,18 @@ def test_create_output_checking_request_no_label_matches(github_api):
             "repo-without-internal-external-labels",
             github_api,
         )
-        == "http://example.com"
+    assert result == "http://example.com"
+
+    mock_capture_event.assert_called_once_with(
+        {
+            "message": "Missing expected labels on repo repo-without-internal-external-labels",
+            "level": "error",
+            "extra": {
+                "org": "ebmdatalab",
+                "repo": "repo-without-internal-external-labels",
+                "unknown_labels": set(ALL_LABELS),
+            },
+        }
     )
 
     issue = next(i for i in github_api.issues if i)  # pragma: no branch
@@ -127,6 +174,7 @@ def test_create_output_checking_request_no_label_matches(github_api):
 
 
 def test_close_output_checking_request(github_api):
+    github_api.labels += ALL_LABELS
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)
@@ -160,6 +208,7 @@ def test_close_output_checking_request(github_api):
 
 
 def test_update_output_checking_request(github_api, slack_messages):
+    github_api.labels += ALL_LABELS
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)
@@ -191,6 +240,7 @@ def test_update_output_checking_request(github_api, slack_messages):
 
 
 def test_update_output_checking_request_no_label(github_api, slack_messages):
+    github_api.labels += ALL_LABELS
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)

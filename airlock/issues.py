@@ -33,7 +33,7 @@ def filter_issue_status_labels(org, repo, github_api):
         # we want to know that the labels need creating
         sentry_sdk.capture_event(
             {
-                "message": f"Missing expected labels on repo {repo}: {unknown_labels}",
+                "message": f"Missing expected labels on repo {repo}",
                 "level": "error",
                 "extra": {
                     "org": org,
