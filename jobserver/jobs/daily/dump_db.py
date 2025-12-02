@@ -15,7 +15,7 @@ from services.sentry import monitor_config
 
 
 # Temporary schema to hold safe copies
-TEMP_SCHEMA = "safe_dump"
+TEMP_SCHEMA = "temp_scrubbed_schema"
 OUTPUT_PATH = pathlib.Path("/storage/jobserver.dump")
 
 
@@ -176,6 +176,12 @@ class Job(DailyJob):
         with connection.cursor() as cur:
             cur.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE;")
             cur.execute(f"CREATE SCHEMA {TEMP_SCHEMA};")
+            cur.execute(
+                f"COMMENT ON SCHEMA {TEMP_SCHEMA} IS %s;",
+                (
+                    "Temporary scrubbed copy of jobserver; used by dump_db and dropped after the job finishes.",
+                ),
+            )
 
             for table, columns in allowlist.items():
                 if not columns:
