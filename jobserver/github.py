@@ -764,28 +764,6 @@ class GitHubAPI:
                     "url": repo["url"],
                 }
 
-    def set_repo_topics(self, org, repo, topics):
-        path_segments = [
-            "repos",
-            org,
-            repo,
-            "topics",
-        ]
-        url = self._url(path_segments)
-
-        payload = {
-            "names": topics,
-        }
-
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        r = self._put(url, headers=headers, json=payload)
-
-        self._raise_for_status(r)
-
-        return r.json()
-
 
 def _get_github_api():
     """Simple invocation wrapper of GitHubAPI"""

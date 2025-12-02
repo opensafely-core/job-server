@@ -63,22 +63,6 @@ class TestFakeGitHubAPIWithErrors:
 
 
 @pytest.fixture
-def clear_topics(github_api):
-    args = [
-        "opensafely-testing",
-        "github-api-testing-topics",
-        [],
-    ]
-
-    github_api.set_repo_topics(*args)
-
-    try:
-        yield
-    finally:
-        github_api.set_repo_topics(*args)
-
-
-@pytest.fixture
 def github_api():
     """create a new API instance so that we can use a separate token for these tests"""
     return GitHubAPI(token=os.environ["GITHUB_TOKEN_TESTING"])
@@ -282,23 +266,6 @@ class TestGithubAPIPrivate:
 
         assert github_api.get_repo_is_private(*args)
         assert FakeGitHubAPI().get_repo_is_private(*args)
-
-    def test_set_repo_topics(self, github_api, clear_topics):
-        args = [
-            "opensafely-testing",
-            "github-api-testing-topics",
-            ["testing"],
-        ]
-
-        real = github_api.set_repo_topics(*args)
-        fake = FakeGitHubAPI().set_repo_topics(*args)
-
-        assert_deep_type_equality(fake, real)
-
-        assert real is not None
-
-        repo = github_api.get_repo("opensafely-testing", "github-api-testing-topics")
-        assert repo["topics"] == ["testing"]
 
     def test_get_labels(self, github_api):
         args = ["opensafely-testing", "github-api-testing-private"]

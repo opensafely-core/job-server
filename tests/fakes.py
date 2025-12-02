@@ -171,11 +171,6 @@ class FakeGitHubAPI:
             },
         ]
 
-    def set_repo_topics(self, org, repo, topics):
-        return {
-            "names": [],
-        }
-
 
 class FakeGitHubAPIWithErrors:
     """Fake GitHubAPI that returns an error for each corresponding public
@@ -246,9 +241,6 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def get_repos_with_status_and_url(self, orgs):
-        raise GitHubError()
-
-    def set_repo_topics(self, org, repo, topics):
         raise GitHubError()
 
 
