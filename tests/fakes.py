@@ -10,9 +10,6 @@ class FakeGitHubAPI:
     """Fake GitHubAPI that returns reasonable values for each corresponding
     public function."""
 
-    def add_repo_to_team(self, team, org, repo):
-        return
-
     def create_issue(self, org, repo, title, body, labels):
         return {
             "html_url": "http://example.com",
@@ -186,9 +183,6 @@ class FakeGitHubAPI:
 class FakeGitHubAPIWithErrors:
     """Fake GitHubAPI that returns an error for each corresponding public
     function."""
-
-    def add_repo_to_team(self, team, org, repo):
-        raise GitHubError()
 
     def create_issue(self, org, repo, title, body, labels):
         # Some unit tests want to check the message.

@@ -89,16 +89,6 @@ class TestGithubAPIPrivate:
     """Tests of the real GitHubAPI that require permissions on a private
     repo."""
 
-    def test_add_repo_to_team(self, github_api):
-        args = [
-            "testing",
-            "opensafely-testing",
-            "github-api-testing-topics",
-        ]
-
-        assert github_api.add_repo_to_team(*args) is None
-        assert FakeGitHubAPI().add_repo_to_team(*args) is None
-
     def test_create_issue(self, github_api):
         # use a private repo to test here so we can mirror what the output checkers
         # are doing

@@ -211,31 +211,6 @@ class GitHubAPI:
 
         return f.url
 
-    def add_repo_to_team(self, team, org, repo):
-        path_segments = [
-            "orgs",
-            org,
-            "teams",
-            team,
-            "repos",
-            org,
-            repo,
-        ]
-        url = self._url(path_segments)
-
-        payload = {
-            "permission": "maintain",
-        }
-
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        r = self._put(url, headers=headers, json=payload)
-
-        self._raise_for_status(r)
-
-        return
-
     def create_issue(self, org, repo, title, body, labels):
         if settings.DEBUG:  # pragma: no cover
             logger.info("Issue created", title=title, org=org, repo=repo, body=body)
