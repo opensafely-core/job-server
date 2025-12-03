@@ -421,9 +421,9 @@ dj-database-url==3.0.1 \
     --hash=sha256:43950018e1eeea486bf11136384aec0fe55b29fe6fd8a44553231b85661d9383 \
     --hash=sha256:8994961efb888fc6bf8c41550870c91f6f7691ca751888ebaa71442b7f84eff8
     # via -r requirements.prod.in
-django==5.2.8 \
-    --hash=sha256:23254866a5bb9a2cfa6004e8b809ec6246eba4b58a7589bc2772f1bcc8456c7f \
-    --hash=sha256:37e687f7bd73ddf043e2b6b97cfe02fcbb11f2dbb3adccc6a2b18c6daa054d7f
+django==5.2.9 \
+    --hash=sha256:16b5ccfc5e8c27e6c0561af551d2ea32852d7352c67d452ae3e76b4f6b2ca495 \
+    --hash=sha256:3a4ea88a70370557ab1930b332fd2887a9f48654261cdffda663fef5976bb00a
     # via
     #   -r requirements.prod.in
     #   dj-database-url
@@ -437,7 +437,7 @@ django==5.2.8 \
     #   djangorestframework
     #   slippers
     #   social-auth-app-django
-django-anymail==13.1 \
+django-anymail[mailgun]==13.1 \
     --hash=sha256:63e48402ec8258f17640eb73c8c64141f16d2f8ae7d448d0fb1c66e82b7cbcf6 \
     --hash=sha256:b51783176f8a8382e958808151551558e4a46d1375fbc343742d1ebd06ce8e9e
     # via -r requirements.prod.in
@@ -531,7 +531,7 @@ oauthlib==3.3.1 \
     # via
     #   requests-oauthlib
     #   social-auth-core
-opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip \
+opensafely-pipeline[fastparser] @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip \
     --hash=sha256:1b63f0ea0d6df2d3ecedbb6fc0550185e96b5164b956bc2b5d5eb47cb0d0611f
     # via -r requirements.prod.in
 opentelemetry-api==1.38.0 \
@@ -638,7 +638,7 @@ protobuf==6.33.1 \
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg==3.2.13 \
+psycopg[binary]==3.2.13 \
     --hash=sha256:309adaeda61d44556046ec9a83a93f42bbe5310120b1995f3af49ab6d9f13c1d \
     --hash=sha256:a481374514f2da627157f767a9336705ebefe93ea7a0522a6cbacba165da179a
     # via -r requirements.prod.in
@@ -714,10 +714,12 @@ pygments==2.19.2 \
     --hash=sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887 \
     --hash=sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b
     # via -r requirements.prod.in
-pyjwt==2.10.1 \
+pyjwt[crypto]==2.10.1 \
     --hash=sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953 \
     --hash=sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb
-    # via social-auth-core
+    # via
+    #   pyjwt
+    #   social-auth-core
 python-ipware==3.0.0 \
     --hash=sha256:9117b1c4dddcb5d5ca49e6a9617de2fc66aec2ef35394563ac4eecabdf58c062 \
     --hash=sha256:fc936e6e7ec9fcc107f9315df40658f468ac72f739482a707181742882e36b60
@@ -884,10 +886,6 @@ sentry-sdk==2.46.0 \
     --hash=sha256:4eeeb60198074dff8d066ea153fa6f241fef1668c10900ea53a4200abc8da9b1 \
     --hash=sha256:91821a23460725734b7741523021601593f35731808afc0bb2ba46c27b8acd91
     # via -r requirements.prod.in
-setuptools==80.9.0 \
-    --hash=sha256:062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922 \
-    --hash=sha256:f36b47402ecde768dbfafc46e8e4207b4360c654f1f3bb84475f0a28628fb19c
-    # via ruyaml
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
     --hash=sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81
@@ -951,7 +949,7 @@ urllib3==2.5.0 \
     #   django-anymail
     #   requests
     #   sentry-sdk
-whitenoise==6.11.0 \
+whitenoise[brotli]==6.11.0 \
     --hash=sha256:0f5bfce6061ae6611cd9396a8231e088722e4fc67bc13a111be74c738d99375f \
     --hash=sha256:b2aeb45950597236f53b5342b3121c5de69c8da0109362aee506ce88e022d258
     # via -r requirements.prod.in
