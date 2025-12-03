@@ -136,8 +136,8 @@ GRANT ALL PRIVILEGES on database jobserver to jobsuser;
 
 Copies of production can be restored to a local database using a sanitised dump pulled from production.
 
-##### dump_db script
-The sanitised dump is created using `dump_db` job that runs daily. The job builds a temporary schema (`temp_scrubbed_schema`) that contains a copy of each table but with only allowlisted columns populated fetched from `allow_list.json`. All other columns are replaced with type-appropriate fake values. Once the schema is populated, the job drops this temporary schema.
+##### dump_sanitised_db.py
+The sanitised dump is created using `dump_sanitised_db` job that runs daily. The job builds a temporary schema (`temp_scrubbed_schema`) that contains a copy of each table but with only allowlisted columns populated fetched from `allow_list.json`. All other columns are replaced with type-appropriate fake values. Once the schema is populated, the job drops this temporary schema.
 
 ##### allow_list.json
 The scrubbed dump is driven by `jobserver/jobs/daily/allow_list.json`. Each entry maps a table to the list of columns that are safe to copy with real values. Columns not listed will still exist in the dump, but they’ll be populated with fake data (or nulls) to satisfy constraints without leaking secrets.
