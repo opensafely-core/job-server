@@ -10,9 +10,6 @@ class FakeGitHubAPI:
     """Fake GitHubAPI that returns reasonable values for each corresponding
     public function."""
 
-    def add_repo_to_team(self, team, org, repo):
-        return
-
     def create_issue(self, org, repo, title, body, labels):
         return {
             "html_url": "http://example.com",
@@ -47,12 +44,6 @@ class FakeGitHubAPI:
     def get_issue_labels(self, org, repo, issue_number):
         return ["Pending review"]
 
-    def create_repo(self, org, repo):
-        return {
-            "html_url": "http://example.com",
-            "topics": [],
-        }
-
     def get_branch(self, org, repo, branch):
         return {
             "commit": {
@@ -69,9 +60,6 @@ class FakeGitHubAPI:
 
     def get_branch_sha(self, org, repo, branch):
         return self.get_branch(org, repo, branch)["commit"]["sha"]
-
-    def get_tag_sha(self, org, repo, tag):
-        return "test_sha"
 
     def get_file(self, org, repo, branch, filepath="project.yaml"):
         return textwrap.dedent(
@@ -177,18 +165,10 @@ class FakeGitHubAPI:
             },
         ]
 
-    def set_repo_topics(self, org, repo, topics):
-        return {
-            "names": [],
-        }
-
 
 class FakeGitHubAPIWithErrors:
     """Fake GitHubAPI that returns an error for each corresponding public
     function."""
-
-    def add_repo_to_team(self, team, org, repo):
-        raise GitHubError()
 
     def create_issue(self, org, repo, title, body, labels):
         # Some unit tests want to check the message.
@@ -218,9 +198,6 @@ class FakeGitHubAPIWithErrors:
         # Some unit tests want to check the message.
         raise GitHubError("An error occurred")
 
-    def create_repo(self, org, repo):
-        raise GitHubError()
-
     def get_branch(self, org, repo, branch):
         raise GitHubError()
 
@@ -228,9 +205,6 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def get_branch_sha(self, org, repo, branch):
-        raise GitHubError()
-
-    def get_tag_sha(self, org, repo, tag):
         raise GitHubError()
 
     def get_file(self, org, repo, branch, filepath="project.yaml"):
@@ -258,9 +232,6 @@ class FakeGitHubAPIWithErrors:
         raise GitHubError()
 
     def get_repos_with_status_and_url(self, orgs):
-        raise GitHubError()
-
-    def set_repo_topics(self, org, repo, topics):
         raise GitHubError()
 
 

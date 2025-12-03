@@ -50,14 +50,6 @@ class HTTPError(GitHubError):
     API."""
 
 
-class RepoAlreadyExists(HTTPError):
-    """Tried to create a repo that already existed."""
-
-
-class RepoNotYetCreated(HTTPError):
-    """Tried to delete a repo that did not already exist."""
-
-
 class IssueNotFound(HTTPError):
     """Tried to get an issue that did not already exist."""
 
@@ -210,31 +202,6 @@ class GitHubAPI:
             f.add(query_args)
 
         return f.url
-
-    def add_repo_to_team(self, team, org, repo):
-        path_segments = [
-            "orgs",
-            org,
-            "teams",
-            team,
-            "repos",
-            org,
-            repo,
-        ]
-        url = self._url(path_segments)
-
-        payload = {
-            "permission": "maintain",
-        }
-
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        r = self._put(url, headers=headers, json=payload)
-
-        self._raise_for_status(r)
-
-        return
 
     def create_issue(self, org, repo, title, body, labels):
         if settings.DEBUG:  # pragma: no cover
@@ -441,67 +408,6 @@ class GitHubAPI:
 
         return [label["name"] for label in r.json()]
 
-    def create_repo(self, org, repo):
-        path_segments = [
-            "orgs",
-            org,
-            "repos",
-        ]
-        url = self._url(path_segments)
-
-        payload = {
-            "name": repo,
-        }
-
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        r = self._post(url, headers=headers, json=payload)
-        if r.status_code == 422:
-            raise RepoAlreadyExists()
-
-        self._raise_for_status(r)
-
-        return r.json()
-
-    def delete_repo(self, org, repo):  # pragma: no cover
-        """
-        Delete the given repo
-
-        This exists to help with testing create_repo().  Since it only runs
-        against the live GitHub API and we don't control state there we're
-        ignoring coverage for the whole method.
-        """
-        path_segments = [
-            "repos",
-            org,
-            repo,
-        ]
-        url = self._url(path_segments)
-
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        r = self._delete(url, headers=headers)
-
-        if r.status_code == 404:
-            return
-
-        if not r.ok:
-            print(r.headers)
-            print(r.content)
-
-        if r.status_code == 403:
-            # It's possible for us to create and then attempt to delete a repo
-            # faster than GitHub can create it on disk, so lets wait and retry
-            # if that's happened.
-            # Note: 403 isn't just used for this state.
-            msg = "Repository cannot be deleted until it is done being created on disk."
-            if msg in r.json().get("message", ""):
-                raise RepoNotYetCreated()
-
-        self._raise_for_status(r)
-
     def get_branch(self, org, repo, branch):
         path_segments = [
             "repos",
@@ -552,18 +458,6 @@ class GitHubAPI:
             return
 
         return branch["commit"]["sha"]
-
-    def get_tag_sha(self, org, repo, tag):
-        path_segments = ["repos", org, repo, "git", "refs", "tags", tag]
-        url = self._url(path_segments)
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-
-        r = self._get(url, headers=headers)
-        self._raise_for_status(r)
-
-        return r.json()["object"]["sha"]
 
     def get_file(self, org, repo, branch, filepath="project.yaml"):
         path_segments = [
@@ -800,28 +694,6 @@ class GitHubAPI:
                     "is_private": repo["isPrivate"],
                     "url": repo["url"],
                 }
-
-    def set_repo_topics(self, org, repo, topics):
-        path_segments = [
-            "repos",
-            org,
-            repo,
-            "topics",
-        ]
-        url = self._url(path_segments)
-
-        payload = {
-            "names": topics,
-        }
-
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        r = self._put(url, headers=headers, json=payload)
-
-        self._raise_for_status(r)
-
-        return r.json()
 
 
 def _get_github_api():

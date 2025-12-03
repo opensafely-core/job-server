@@ -3,7 +3,6 @@ import os
 
 import pytest
 import requests.exceptions
-import stamina
 from requests.models import Response
 
 from jobserver.github import (
@@ -13,8 +12,6 @@ from jobserver.github import (
     HTTPError,
     IssueNotFound,
     LabelAlreadyExists,
-    RepoAlreadyExists,
-    RepoNotYetCreated,
     Timeout,
 )
 from jobserver.models.common import new_ulid_str
@@ -33,8 +30,6 @@ class TestGitHubAPIAgainstFakes:
         assert_public_method_signature_equality(
             GitHubAPI,
             FakeGitHubAPI,
-            # delete_repo is only used in testing.
-            ignored_methods=["delete_repo"],
         )
 
     def test_fake_with_errors_public_method_signatures(self):
@@ -43,8 +38,6 @@ class TestGitHubAPIAgainstFakes:
         assert_public_method_signature_equality(
             GitHubAPI,
             FakeGitHubAPIWithErrors,
-            # delete_repo is only used in testing.
-            ignored_methods=["delete_repo"],
         )
 
 
@@ -63,22 +56,6 @@ class TestFakeGitHubAPIWithErrors:
 
 
 @pytest.fixture
-def clear_topics(github_api):
-    args = [
-        "opensafely-testing",
-        "github-api-testing-topics",
-        [],
-    ]
-
-    github_api.set_repo_topics(*args)
-
-    try:
-        yield
-    finally:
-        github_api.set_repo_topics(*args)
-
-
-@pytest.fixture
 def github_api():
     """create a new API instance so that we can use a separate token for these tests"""
     return GitHubAPI(token=os.environ["GITHUB_TOKEN_TESTING"])
@@ -88,16 +65,6 @@ def github_api():
 class TestGithubAPIPrivate:
     """Tests of the real GitHubAPI that require permissions on a private
     repo."""
-
-    def test_add_repo_to_team(self, github_api):
-        args = [
-            "testing",
-            "opensafely-testing",
-            "github-api-testing-topics",
-        ]
-
-        assert github_api.add_repo_to_team(*args) is None
-        assert FakeGitHubAPI().add_repo_to_team(*args) is None
 
     def test_create_issue(self, github_api):
         # use a private repo to test here so we can mirror what the output checkers
@@ -255,60 +222,11 @@ class TestGithubAPIPrivate:
         # reset the label
         assert delete_label().status_code == 204
 
-    def test_create_repo(self, github_api):
-        try:
-            # create a unique ID for this test using our existing ULID function.
-            # we can have multiple CI runs executing concurrently which means this
-            # test can be running in different CI jobs at the same time.  Given the
-            # test talks to an external API we can't use the same repo name for every
-            # execution.  Instead we use our new_ulid_str since it's already available
-            # and should have more than enough uniqueness for our needs to create
-            # a unique repo name.
-            unique_id = new_ulid_str()
-            args = [
-                "opensafely-testing",
-                f"testing-create_repo-{unique_id}",
-            ]
-
-            real = github_api.create_repo(*args)
-            fake = FakeGitHubAPI().create_repo(*args)
-
-            assert_deep_type_equality(fake, real)
-
-            assert real is not None
-
-            # do we get the appropriate error when the repo already exists?
-            with pytest.raises(RepoAlreadyExists):
-                github_api.create_repo(*args)
-        finally:
-            # clean up after the test but accept that sometimes the repo hasn't
-            # been created and make a few attempts at removing it
-            for attempt in stamina.retry_context(on=RepoNotYetCreated):
-                with attempt:
-                    github_api.delete_repo(*args)
-
     def test_get_repo_is_private(self, github_api):
         args = ["opensafely-testing", "github-api-testing-private"]
 
         assert github_api.get_repo_is_private(*args)
         assert FakeGitHubAPI().get_repo_is_private(*args)
-
-    def test_set_repo_topics(self, github_api, clear_topics):
-        args = [
-            "opensafely-testing",
-            "github-api-testing-topics",
-            ["testing"],
-        ]
-
-        real = github_api.set_repo_topics(*args)
-        fake = FakeGitHubAPI().set_repo_topics(*args)
-
-        assert_deep_type_equality(fake, real)
-
-        assert real is not None
-
-        repo = github_api.get_repo("opensafely-testing", "github-api-testing-topics")
-        assert repo["topics"] == ["testing"]
 
     def test_get_labels(self, github_api):
         args = ["opensafely-testing", "github-api-testing-private"]
@@ -377,16 +295,6 @@ class TestGithubAPINonPrivate:
 
         # get_branch_sha is a wrapper for get_branch to extract just the SHA as a
         # string so no need to throw assert_deep_type_equality() at it
-        assert isinstance(fake, str)
-
-    def test_get_tag_sha(self, github_api):
-        args = ["opensafely-testing", "github-api-testing", "test-tag"]
-
-        real = github_api.get_tag_sha(*args)
-        fake = FakeGitHubAPI().get_tag_sha(*args)
-
-        assert real == "7c48e4e81db5fe932628cd92f51c7858759d6b98"
-
         assert isinstance(fake, str)
 
     def test_get_branch_sha_with_missing_branch(self, github_api):
