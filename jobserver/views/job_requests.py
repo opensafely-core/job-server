@@ -20,9 +20,7 @@ from jobserver.rap_api import RapAPIError
 
 from .. import honeycomb
 from ..authorization import (
-    StaffAreaAdministrator,
     has_permission,
-    has_role,
     permissions,
 )
 from ..backends import backends_to_choices
@@ -321,7 +319,9 @@ class JobRequestDetail(View):
         can_cancel_jobs = job_request.created_by == request.user or has_permission(
             request.user, permissions.job_cancel, project=job_request.workspace.project
         )
-        honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)
+        honeycomb_can_view_links = has_permission(
+            self.request.user, permissions.staff_area_access
+        )
 
         # build up is_missing_updates to define if we've not seen the backend
         # running this JobRequest for a while.
