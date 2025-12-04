@@ -889,6 +889,7 @@ def test_userapidetail_success(api_rf, project_membership):
         "application_manage",
         "backend_manage",
         "org_create",
+        "staff_area_access",
         "user_manage",
     ]
 
