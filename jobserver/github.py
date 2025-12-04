@@ -54,10 +54,6 @@ class IssueNotFound(HTTPError):
     """Tried to get an issue that did not already exist."""
 
 
-class LabelAlreadyExists(HTTPError):
-    """Tried to create a label that already existed."""
-
-
 class GitHubAPI:
     """
     A thin wrapper around requests, furl, and the GitHub API.
@@ -527,37 +523,6 @@ class GitHubAPI:
         self._raise_for_status(r)
 
         return [label["name"] for label in r.json()]
-
-    def create_label(self, org, repo, label_name):
-        """Create a label for this repo"""
-        path_segments = [
-            "repos",
-            org,
-            repo,
-            "labels",
-        ]
-        payload = {"name": label_name}
-
-        if settings.DEBUG:  # pragma: no cover
-            logger.info("Label created", name=label_name)
-            print("")
-            print(f"Repo: https://github.com/{org}/{repo}/")
-            print(f"Label: {label_name}")
-            print("")
-            return {"name": label_name}
-
-        url = self._url(path_segments)
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-
-        r = self._post(url, headers=headers, json=payload)
-        if r.status_code == 422:
-            raise LabelAlreadyExists()
-
-        self._raise_for_status(r)
-
-        return r.json()
 
     def get_repos_with_branches(self, org):
         """
