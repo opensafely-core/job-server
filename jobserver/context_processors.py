@@ -6,7 +6,8 @@ from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from furl import furl
 
-from .authorization import StaffAreaAdministrator, has_role
+from jobserver.authorization import has_permission, permissions
+
 from .models import Backend, SiteAlert
 from .nav import NavItem, iter_nav
 
@@ -31,7 +32,9 @@ def in_production(request):
 
 def can_view_staff_area(request):
     user = getattr(request, "user", None) or AnonymousUser()
-    return {"user_can_view_staff_area": has_role(user, StaffAreaAdministrator)}
+    return {
+        "user_can_view_staff_area": has_permission(user, permissions.staff_area_access)
+    }
 
 
 def disable_creating_jobs(request):

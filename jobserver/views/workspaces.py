@@ -13,9 +13,7 @@ from django.utils import timezone
 from django.views.generic import CreateView, FormView, ListView, View
 
 from ..authorization import (
-    StaffAreaAdministrator,
     has_permission,
-    has_role,
     permissions,
 )
 from ..forms import (
@@ -201,7 +199,9 @@ class WorkspaceDetail(View):
         # Should we show the admin section in the UI?
         show_admin = can_archive_workspace or can_toggle_notifications
 
-        honeycomb_can_view_links = has_role(self.request.user, StaffAreaAdministrator)
+        honeycomb_can_view_links = has_permission(
+            self.request.user, permissions.staff_area_access
+        )
 
         outputs = self.get_output_permissions(workspace)
 
