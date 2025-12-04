@@ -1,5 +1,8 @@
 # syntax=docker/dockerfile:1.2
+
+## These build args are used in FROM lines, so need to be declared globally and have defaults set.
 ARG NODE_VERSION
+ARG UV_VERSION=0.9
 
 #################################################
 #
@@ -32,6 +35,18 @@ COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/dependencies.txt
 
+##################################################
+#
+# Reusable uv CLI layer
+#
+# This allows us to specify the version in one place, and also works
+# around a limitation that you cannot use build args directly in `COPY
+# --from`.
+#
+# See: https://github.com/moby/buildkit/issues/2412 for more information
+#
+#
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv-cli
 
 #################################################
 #
@@ -71,6 +86,9 @@ FROM base-python as builder
 COPY docker/build-dependencies.txt /tmp/build-dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
+
+# Pull in the binaries from the uv-cli stage
+COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
 # Install everything in venv for isolation from system python libraries
 RUN python3.12 -m venv /opt/venv
