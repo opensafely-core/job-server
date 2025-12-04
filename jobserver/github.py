@@ -79,9 +79,6 @@ class GitHubAPI:
         self.session = _session
         self.token = token
 
-    def _delete(self, *args, **kwargs):
-        return self._request("delete", *args, **kwargs)
-
     def _get(self, *args, **kwargs):
         return self._request("get", *args, **kwargs)
 
