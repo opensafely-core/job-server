@@ -92,9 +92,6 @@ class GitHubAPI:
     def _post(self, *args, **kwargs):
         return self._request("post", *args, **kwargs)
 
-    def _put(self, *args, **kwargs):
-        return self._request("put", *args, **kwargs)
-
     def _request(self, method, *args, **kwargs):
         """
         Make a request to the remote GitHub API.
