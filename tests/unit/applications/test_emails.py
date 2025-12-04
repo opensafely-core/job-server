@@ -10,13 +10,8 @@ def test_send_finished_notification(mailoutbox):
     send_submitted_application_email("test@example.com", application)
 
     m = mailoutbox[0]
-    text_content = m.body
-    html_content = m.alternatives[0][0]
 
     assert list(m.to) == ["test@example.com"]
-    assert application.get_absolute_url() in text_content
-    assert application.get_absolute_url() in html_content
-    assert application.submitted_by.fullname in text_content
-    assert application.submitted_by.fullname in html_content
-    assert f"ref: {application.pk_hash}" in text_content
-    assert f"ref: {application.pk_hash}" in html_content
+    assert m.body_contains(application.get_absolute_url())
+    assert m.body_contains(application.submitted_by.fullname)
+    assert m.body_contains(f"ref: {application.pk_hash}")
