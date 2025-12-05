@@ -100,19 +100,24 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # Pull in the binaries from the uv-cli stage
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
-# Install everything in venv for isolation from system python libraries
-RUN python3.12 -m venv /opt/venv
+# Create a venv with uv
+# (https://docs.astral.sh/uv/guides/integration/docker/#using-the-pip-interface)
+RUN uv venv /opt/venv
+# Use the virtual environment automatically
+ENV VIRTUAL_ENV=/opt/venv
+# Place entry points in the environment at the front of the path
+ENV PATH="/opt/venv/bin:$PATH"
 
-# The cache mount means a) /root/.cache is not in the image, and b) it's preserved
-# between docker builds locally, for faster dev rebuild.
 COPY requirements.prod.txt /tmp/requirements.prod.txt
 
+# The cache mount means a) /root/.cache is not in the image, and b) it's
+# preserved between docker builds locally, for faster dev rebuild.
 # DL3042: using cache mount instead
-# DL3013: we always want latest pip/setuptools/wheel, at least for now
-# hadolint ignore=DL3042,DL3013
+# hadolint ignore=DL3042
+# install prod dependencies using the same flags we use in our `just
+# prodenv` recipe (see justfile)
 RUN --mount=type=cache,target=/root/.cache \
-    /opt/venv/bin/python -m pip install -U pip setuptools wheel && \
-    /opt/venv/bin/python -m pip install --no-deps --require-hashes --requirement /tmp/requirements.prod.txt
+    uv pip install --no-deps --require-hashes -r /tmp/requirements.prod.txt
 
 
 ##################################################
@@ -233,12 +238,16 @@ USER ${USERID}:${GROUPID}
 #
 FROM job-server-base as job-server-dev
 
-# install development requirements
+# Pull in the binaries from the uv-cli stage to install dev requirements
+COPY --from=uv-cli /uv /uvx /usr/local/bin/
+
 COPY requirements.dev.txt /tmp/requirements.dev.txt
 # using cache mount instead
 # hadolint ignore=DL3042
+# install dev dependencies using the same flags we use in our `just
+# devdenv` recipe (see justfile)
 RUN --mount=type=cache,target=/root/.cache \
-    python -m pip install --require-hashes --requirement /tmp/requirements.dev.txt
+    uv pip install --no-deps -r /tmp/requirements.dev.txt
 
 # Override ENTRYPOINT rather than CMD so we can pass arbitrary commands to the entrypoint script
 ENTRYPOINT ["/app/docker/entrypoints/dev.sh"]
