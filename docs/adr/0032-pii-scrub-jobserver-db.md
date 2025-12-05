@@ -1,4 +1,4 @@
-# 32. PII scrubbed copy of Job Server database for local development
+# 32. Sanitised copy of Job Server database for local development
 
 Date: 2025-12-03
 
