@@ -6,7 +6,14 @@
 # which references it:
 # https://github.com/opensafely/documentation/blob/af88baf1/docs/type-one-opt-outs.md
 
-jobserver/permissions/*    @opensafely-core/ig-team
+
+# The IG team (@opensafely-core/ig-team) own any file in the `jobserver/permissions/ `
+# directory except for the `jobserver/permissions/population_permissions/`
+# subdirectory, as its owners are left empty. Without an owner, changes
+# to files in `jobserver/permissions/population_permissions/` can be made with the approval
+# of any user who has write access to the repository.
+jobserver/permissions/    @opensafely-core/ig-team
+jobserver/permissions/population_permissions/
 
 # Replacement for Dependabot reviewers
 **/package*.json @tomodwyer

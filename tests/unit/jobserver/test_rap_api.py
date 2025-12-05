@@ -26,7 +26,7 @@ from jobserver.rap_api import (
     create,
     status,
 )
-from tests.factories import JobRequestFactory
+from tests.factories import JobRequestFactory, ProjectFactory, WorkspaceFactory
 
 
 class TestApiCall:
@@ -327,7 +327,13 @@ class TestStatus:
 
 @pytest.fixture
 def job_request_for_create():
-    job_request = JobRequestFactory()
+    # Ensure this job_request has a project with a number (by default it will be None)
+    # so that it can be looked up in the project-specific permissions files that
+    # determine the value of the analysis_scope request parameter
+    project = ProjectFactory(number=111)
+    workspace = WorkspaceFactory(project=project)
+    job_request = JobRequestFactory(workspace=workspace)
+
     request_body = {
         "rap_id": job_request.identifier,
         "backend": job_request.backend.slug,
@@ -342,6 +348,7 @@ def job_request_for_create():
         "created_by": job_request.created_by.username,
         "project": job_request.workspace.project.slug,
         "orgs": list(job_request.workspace.project.orgs.values_list("slug", flat=True)),
+        "analysis_scope": {},
     }
     yield job_request, request_body
 
@@ -352,13 +359,20 @@ class TestCreate:
     This just returns the response and doesn't distinguish between non-200/201
     error codes, so these are pretty simple."""
 
-    def test_success_200(self, patch_api_call, job_request_for_create):
+    def test_success_200(self, monkeypatch, patch_api_call, job_request_for_create):
         """Test api_call is called with expected parameters and its body
         returned when it returns a 200."""
         fake_json = {"some": "content"}
         mock_api_call = patch_api_call(fake_json=fake_json)
 
-        job_request, request_body = job_request_for_create
+        job_request, expected_request_body = job_request_for_create
+
+        # mock ndoo permission to ensure that our mock project (number 111) does not have permission
+        # this means the api will be called with `"analysis_scope": {}` in the request body
+        monkeypatch.setattr(
+            "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
+            [222, 333],
+        )
 
         result = create(job_request)
 
@@ -366,24 +380,58 @@ class TestCreate:
         mock_api_call.assert_called_once_with(
             requests.post,
             "rap/create/",
-            request_body,
+            expected_request_body,
         )
 
-    def test_success_201(self, patch_api_call, job_request_for_create):
+    def test_success_201(self, monkeypatch, patch_api_call, job_request_for_create):
         """Test api_call is called with expected parameters and its body
         returned when it returns a 201."""
         fake_json = {"some": "content"}
         mock_api_call = patch_api_call(fake_json=fake_json, status_code=201)
 
-        job_request, request_body = job_request_for_create
+        job_request, expected_request_body = job_request_for_create
 
+        # mock ndoo permission to ensure that our mock project (number 111) does not have permission
+        # this means the api will be called with `"analysis_scope": {}` in the request body
+        monkeypatch.setattr(
+            "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
+            [],
+        )
         result = create(job_request)
 
         assert result == fake_json
         mock_api_call.assert_called_once_with(
             requests.post,
             "rap/create/",
-            request_body,
+            expected_request_body,
+        )
+
+    def test_population_permissions(
+        self, monkeypatch, patch_api_call, job_request_for_create
+    ):
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
+        fake_json = {"some": "content"}
+        mock_api_call = patch_api_call(fake_json=fake_json)
+
+        job_request, expected_request_body = job_request_for_create
+        # mock ndoo permission to ensure this job's project has permission
+        # with no permission, the request body will send `"analysis_scop": {}`
+        monkeypatch.setattr(
+            "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
+            [job_request.workspace.project.number],
+        )
+        # update request body with expected analysis scope
+        expected_request_body["analysis_scope"] = {
+            "population_permissions": ["include_ndoo"]
+        }
+
+        result = create(job_request)
+        assert result == fake_json
+        mock_api_call.assert_called_once_with(
+            requests.post,
+            "rap/create/",
+            expected_request_body,
         )
 
     def test_bad_status_code(self, patch_api_call):
