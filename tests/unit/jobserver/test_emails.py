@@ -36,8 +36,6 @@ def test_send_finished_notification(mailoutbox):
     send_finished_notification("test@example.com", job)
 
     m = mailoutbox[0]
-    text_content = m.body
-    html_content = m.alternatives[0][0]
 
     assert job.action in m.subject
     assert job.status in m.subject
@@ -45,18 +43,12 @@ def test_send_finished_notification(mailoutbox):
 
     assert list(m.to) == ["test@example.com"]
 
-    assert job.action in text_content
-    assert job.action in html_content
-    assert job.status in text_content
-    assert job.status in html_content
-    assert job.status_message in text_content
-    assert job.status_message in html_content
-    assert str(job.runtime.total_seconds) in text_content
-    assert str(job.runtime.total_seconds) in html_content
-    assert job.get_absolute_url() in text_content
-    assert job.get_absolute_url() in html_content
-    assert settings.BASE_URL in text_content
-    assert settings.BASE_URL in html_content
+    assert m.body_contains(job.action)
+    assert m.body_contains(job.status)
+    assert m.body_contains(job.status_message)
+    assert m.body_contains(str(job.runtime.total_seconds))
+    assert m.body_contains(job.get_absolute_url())
+    assert m.body_contains(settings.BASE_URL)
 
 
 def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
@@ -75,16 +67,12 @@ def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
     send_repo_signed_off_notification_to_researchers(repo)
 
     m = mailoutbox[0]
-    text_content = m.body
-    html_content = m.alternatives[0][0]
 
     assert list(m.to) == ["notifications@jobs.opensafely.org"]
     assert set(m.bcc) == {user1.email, user2.email, user3.email}
 
-    assert repo.name in text_content
-    assert repo.name in html_content
-    assert repo.researcher_signed_off_by.fullname in text_content
-    assert repo.researcher_signed_off_by.fullname in html_content
+    assert m.body_contains(repo.name)
+    assert m.body_contains(repo.researcher_signed_off_by.fullname)
 
 
 def test_send_repo_signed_off_notification_to_staff(mailoutbox):
@@ -100,15 +88,10 @@ def test_send_repo_signed_off_notification_to_staff(mailoutbox):
     send_repo_signed_off_notification_to_staff(repo)
 
     m = mailoutbox[0]
-    text_content = m.body
-    html_content = m.alternatives[0][0]
 
     assert list(m.to) == ["publications@opensafely.org"]
     assert "7,42" in m.subject
 
-    assert repo.name in text_content
-    assert repo.name in html_content
-    assert repo.researcher_signed_off_by.fullname in text_content
-    assert repo.researcher_signed_off_by.fullname in html_content
-    assert repo.get_staff_url() in text_content
-    assert repo.get_staff_url() in html_content
+    assert m.body_contains(repo.name)
+    assert m.body_contains(repo.researcher_signed_off_by.fullname)
+    assert m.body_contains(repo.get_staff_url())
