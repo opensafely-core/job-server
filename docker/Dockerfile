@@ -35,6 +35,16 @@ COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/dependencies.txt
 
+# uv environment variable documentation:
+# https://docs.astral.sh/uv/reference/environment/
+# copy files rather than symlink since the cache and the target are on different filesystems
+ENV UV_LINK_MODE=copy
+# compile at installation time, not import time
+ENV UV_COMPILE_BYTECODE=1
+# we are providing python via deadsnakes ppa
+# (as we require dynamic linking of openssl for security reasons)
+ENV UV_PYTHON_DOWNLOADS=never
+
 ##################################################
 #
 # Reusable uv CLI layer
