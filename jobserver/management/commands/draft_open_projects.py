@@ -1,4 +1,4 @@
-from open_projects_script import get_tables, read_data
+from open_projects_script import read_data
 
 
 repo_url = "https://github.com/opensafely/disparities-comparison"
@@ -13,13 +13,19 @@ project_query = """
         INNER JOIN jobserver_jobrequest AS jr ON (w.id = jr.workspace_id)
         WHERE jr.created_at >= date_trunc('month', CURRENT_DATE - interval '3' MONTH)
         """
-for project in read_data(project_query):
-    if project["Repo"] == repo_url and project["Branch"] == repo_branch:
-        get_tables(repo_url, repo_branch)
-        tables = get_tables(repo_url, repo_branch)
-        # print(tables)
-        project["TPP tables"] = tables
-        print(project)
+# print(read_data(project_query))
+
+for i, project in enumerate(read_data(project_query)):
+    print(f"\n\nRound{i}: \n\n{project['Project name']}\n{project['Repo']}")
+
+
+# for project in read_data(project_query):
+#     if project["Repo"] == repo_url and project["Branch"] == repo_branch:
+#         get_tables(repo_url, repo_branch)
+#         tables = get_tables(repo_url, repo_branch)
+#         # print(tables)
+#         project["TPP tables"] = tables
+#         print(project)
 
 # def write_table_to_csv(months, filename='output.csv'):
 #     project_query = f"""

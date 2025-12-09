@@ -6,7 +6,6 @@ import requests
 from django.core.management.base import BaseCommand
 from dotenv import load_dotenv
 from psycopg2.extras import RealDictCursor
-from tabulate import tabulate
 
 
 # TODO: Write a just recipe which will get the latest jobserver.dump every tiime the script is run and the run just docker/restore-db so it rebuilds the docker container with the latest db
@@ -25,8 +24,9 @@ conn = pg.connect(
     host=HOSTNAME, user=USERNAME, password=PASSWORD, dbname=DATABASE, port=PORT
 )
 
+# This query finds the project, workspace, and repo information for workspaces that have a job that ran in the last three months
 open_project_query = """
-        SELECT DISTINCT w.name AS "Workspace Name", p.id AS "Project ID", p.slug AS "Project slug", p.status AS "Project Status", w.branch AS "Branch", r.url AS "Repo"
+        SELECT DISTINCT w.name AS "Workspace Name", p.id AS "Project ID", p.slug AS "Project Slug", p.status AS "Project Status", w.branch AS "Branch", r.url AS "Repo"
         FROM jobserver_workspace AS w
         INNER JOIN jobserver_project AS p ON (p.id = w.project_id)
         INNER JOIN jobserver_repo AS r ON (r.id = w.repo_id)
@@ -41,18 +41,6 @@ def read_data(query):
     cursor.execute(query)
     project_info = cursor.fetchall()
     return project_info
-
-
-def display_table(project_query):
-    table_rows = read_data(project_query)
-    table = tabulate(
-        table_rows,
-        headers="keys",
-        tablefmt="grid",
-        maxcolwidths=[30, None, 60, 30, 30, 15],
-        showindex="always",
-    )
-    return table
 
 
 def get_org_repo_name(repo_url) -> str:
@@ -138,24 +126,43 @@ def get_tables(repo_url, repo_branch):
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        # This query finds the project, workspace, and repo information for workspaces that have a job that ran in the last three months
-
         def get_info_from_data():
             yield from read_data(open_project_query)
 
-        project_list = []
-        for project in get_info_from_data():
+        project_dict = {}
+        for i, project in enumerate(get_info_from_data()):
             repo_url = project["Repo"]
             repo_branch = project["Branch"]
             tables = get_tables(repo_url, repo_branch)
-            project_dict = {}
-            # TODO: group same projects together
-            project_dict["Project Slug"] = project["Project slug"]
-            project_dict["TPP tables"] = tables
-            print(project_dict)
 
-            project_list.append(project_dict)
+            project_tables = tables
 
-        # Display list of projects (representing a workspace job request) and the tpp tables for each
-        print(project_list)
-        # print(display_table(open_project_query))
+            project_slug = project["Project Slug"]
+
+            with open("project_tables_mapping.txt", "a") as f:
+                f.write(
+                    f"\n\n Round {i} before gouping: \n\n{project_slug}: {project_tables}"
+                )
+
+            existing_project = [
+                item for item in project_dict.keys() if project_slug == item
+            ]
+
+            if project_tables and existing_project:
+                merged_tables = project_dict[existing_project[0]] | project_tables
+                project_dict[existing_project[0]] = merged_tables
+
+            elif not project_tables and existing_project:
+                with open("project_tables_mapping.txt", "a") as f:
+                    f.write(
+                        f"\n\nround {i} existing name but no tables: \n\n{project_dict}"
+                    )
+                continue
+            else:
+                project_dict[project_slug] = project_tables
+
+            with open("project_tables_mapping.txt", "a") as f:
+                f.write(f"\n\nround {i} after grouping: \n\n{project_dict}")
+
+        with open("project_tables_mapping.txt", "a") as f:
+            f.write(f"\n\nFull project-tables mapping: \n\n{project_dict}")
