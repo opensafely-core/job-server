@@ -47,6 +47,8 @@ source = [
   "staff",
   "tests",
 ]
+# Required to get full coverage when using Playwright
+concurrency = ["greenlet", "thread"]
 
 [tool.coverage.report]
 fail_under = 100
