@@ -249,6 +249,10 @@ COPY requirements.dev.txt /tmp/requirements.dev.txt
 RUN --mount=type=cache,target=/root/.cache \
     uv pip install --no-deps -r /tmp/requirements.dev.txt
 
+# Install playwright chromium dependencies. This needs to be done AFTER
+# playwright is pip-installed
+RUN playwright install-deps chromium
+
 # Override ENTRYPOINT rather than CMD so we can pass arbitrary commands to the entrypoint script
 ENTRYPOINT ["/app/docker/entrypoints/dev.sh"]
 
