@@ -15,8 +15,9 @@ from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, View
 
-from jobserver.authorization import StaffAreaAdministrator, has_permission, permissions
-from jobserver.authorization.decorators import require_role
+from jobserver.authorization import has_permission, permissions
+from jobserver.authorization.decorators import require_permission
+from jobserver.authorization.permissions import staff_area_access
 from jobserver.github import _get_github_api
 from jobserver.issues import create_switch_repo_to_public_request
 from jobserver.models import Job, Org, Project, Repo, User
@@ -46,7 +47,7 @@ def ran_at(job):
     return job.started_at or job.created_at
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_permission(staff_area_access), name="dispatch")
 class RepoDetail(View):
     get_github_api = staticmethod(_get_github_api)
 
@@ -157,7 +158,7 @@ class RepoDetail(View):
         )
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_permission(staff_area_access), name="dispatch")
 class RepoList(ListView):
     model = Repo
     ordering = "name"
@@ -189,7 +190,7 @@ class RepoList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_role(StaffAreaAdministrator), name="dispatch")
+@method_decorator(require_permission(staff_area_access), name="dispatch")
 class RepoSignOff(View):
     get_github_api = staticmethod(_get_github_api)
 

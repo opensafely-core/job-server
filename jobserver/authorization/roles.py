@@ -11,6 +11,7 @@ from .permissions import (
     repo_sign_off_with_outputs,
     snapshot_create,
     snapshot_publish,
+    staff_area_access,
     unreleased_outputs_view,
     user_manage,
     workspace_archive,
@@ -33,6 +34,7 @@ class StaffAreaAdministrator:
         backend_manage,
         org_create,
         user_manage,
+        staff_area_access,
     ]
 
 
