@@ -102,6 +102,11 @@ services:
       - ../.test.env
     environment:
       - GITHUB_TOKEN_TESTING
+      # For Playwright:
+      # Ensure playwright browser binaries are installed to a path in the
+      # mounted volume that the non-root docker user has access to
+      - PLAYWRIGHT_BROWSERS_PATH=/app/.playwright-browsers/
+      - PLAYWRIGHT_BROWSER_EXECUTABLE_PATH=/app/.playwright-browsers/chrome-linux/chrome
     command: ./scripts/test-coverage.sh
 
 volumes:
