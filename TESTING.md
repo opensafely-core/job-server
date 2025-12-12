@@ -27,6 +27,7 @@ Tests should be fast where possible.
 
 Job Server uses a testing pyramid, with the following layers from top to bottom:
 
+* Functional end-to-end
 * Integration
 * Unit
 
@@ -56,11 +57,22 @@ Ideally these tests would avoid mocking.
 
 This lets us test views with all the surrounding parts turned on: URL routing, middleware, etc.
 
+### Functional
+**Directory:** `tests/functional`
+
+The functional tests are browser-based automated tests run using Playwright.
+
+This allows testing functionality of the entire running system, as a user would interact with it.
+
 ### Notes for test authors
+
+#### Slow tests
 
 We have a custom `@pytest.mark.slow_test` marker that should be used on test
 that take more than about 0.1s to run. These are excluded from `just test` to
 provide a quicker feedback loop.
+
+#### Database access
 
 All unit and integration tests have access to the database by default. You can
 use the `db` fixture fixture to provide access to other tests if required. Or
@@ -87,6 +99,17 @@ changes, won't be tested implicitly because the test database is generated
 empty. Such migrations should be tested manually against a recent production
 dataset and possibly with `pytest` test cases.
 
+#### Functional tests
+
+Functional tests must have the custom `@pytest.mark.functional` marker added which:
+
+* allows separating these tests from other kinds of tests (they are implicitly slow
+  tests since they use the browser)
+* disable the use of pytest-socket which restricts network access, via configuration
+  in `tests/functional/conftest.py`
+
+Setting `pytestmark = [pytest.mark.functional]` at global level in functional test
+modules avoids having to add the marker individually to each test.
 
 ## Tooling
 We use [coverage.py](https://coverage.readthedocs.io/) to check test coverage on the code base and require 100% coverage for CI to pass.
