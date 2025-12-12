@@ -84,6 +84,7 @@ filterwarnings = [
 markers = [
   "slow_test: mark test as being slow running",
   "verification: tests that verify fakes",
+  "functional: tests that use Playwright in functional tests",
 ]
 
 [tool.ruff]

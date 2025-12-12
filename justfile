@@ -129,9 +129,14 @@ manage command *args:
 test-ci *args: assets
     #!/bin/bash
     export COVERAGE_PROCESS_START="pyproject.toml"
-    export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*"
-    ./scripts/test-coverage.sh -m "not verification" {{ args }}
+    export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*,tests/functional/*"
+    ./scripts/test-coverage.sh -m "not verification and not functional" {{ args }}
 
+# Run the Python functional tests, using Playwright.
+test-functional *ARGS: devenv
+    $BIN/python manage.py collectstatic --no-input && \
+    $BIN/python -m pytest \
+    -m "functional" {{ ARGS }}
 
 test-verification *args: devenv
     #!/bin/bash
@@ -139,10 +144,8 @@ test-verification *args: devenv
     export COVERAGE_REPORT_ARGS="--include=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*"
     ./scripts/test-coverage.sh -m "verification" {{ args }}
 
-
 test *args: assets
-    $BIN/pytest -n auto -m "not verification and not slow_test" {{ args }}
-
+    $BIN/pytest -n auto -m "not verification and not slow_test and not functional" {{ args }}
 
 format *args=".": devenv
     $BIN/ruff format --check {{ args }}
@@ -283,10 +286,13 @@ docker-build env="dev":
     {{ just_executable() }} docker/build {{ env }}
 
 
-# run tests in the dev docker container
-docker-test *args="":
-    {{ just_executable() }} docker/test {{ args }}
+# run python non-functional tests in the dev docker container
+docker-test-py *args="":
+    {{ just_executable() }} docker/test-py {{ args }}
 
+# run functional tests in docker container
+docker-test-functional *args="":
+    {{ just_executable() }} docker/test-functional {{ args }}
 
 # run server in dev or prod docker container
 docker-serve env="dev" *args="":
