@@ -20,3 +20,4 @@ node_modules
 /staticfiles
 /uploads
 /workspaces
+.playwright-browsers
