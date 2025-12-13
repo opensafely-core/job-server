@@ -7,6 +7,9 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-22.04
@@ -118,6 +121,10 @@ jobs:
 
   docker-test:
     runs-on: ubuntu-22.04
+
+    permissions:
+      contents: read
+      actions: write
 
     steps:
       - uses: actions/checkout@v5
