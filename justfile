@@ -3,7 +3,6 @@ set dotenv-load := true
 export VIRTUAL_ENV  := env_var_or_default("VIRTUAL_ENV", ".venv")
 
 export BIN := VIRTUAL_ENV + if os_family() == "unix" { "/bin" } else { "/Scripts" }
-export PIP := BIN + if os_family() == "unix" { "/python -m pip" } else { "/python.exe -m pip" }
 
 
 # list available commands
@@ -14,15 +13,6 @@ default:
 # clean up temporary files
 clean:
     rm -rf .venv
-
-
-# ensure valid virtualenv
-virtualenv: _dotenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # create venv and install latest pip
-    test -d $VIRTUAL_ENV || { uv venv $VIRTUAL_ENV && uv pip install --upgrade pip; }
 
 
 # create a default .env file
@@ -36,57 +26,33 @@ _dotenv:
     fi
 
 
-_compile src dst *args: virtualenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
-    uv pip compile --generate-hashes --output-file {{ dst }} {{ src }} {{ args }}
-
-
-# update requirements.prod.txt if requirements.prod.in has changed
-requirements-prod *args:
-    {{ just_executable() }} _compile requirements.prod.in requirements.prod.txt {{ args }}
-
-
-# update requirements.dev.txt if requirements.dev.in has changed
-requirements-dev *args: requirements-prod
-    {{ just_executable() }} _compile requirements.dev.in requirements.dev.txt {{ args }}
-
-
-# ensure prod requirements installed and up to date
-prodenv: requirements-prod
+# Install production requirements into venv.
+prodenv:
     #!/usr/bin/env bash
     set -euxo pipefail
 
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
+    # Ensure all project dependencies are installed and up-to-date with
+    # the lockfile. The project is re-locked before syncing, so any
+    # changes to pyproject.toml are reflected in the environment
+    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
+    # Disable the dev dependency group (--no-dev) and remove any
+    # extraneous packages (default uv sync behaviour)
+    # (https://docs.astral.sh/uv/reference/cli/#uv-sync)
+    uv sync --no-dev
 
-    # --no-deps so that we only install the packages explicitly listed in requirements.prod.txt.
-    # https://docs.astral.sh/uv/reference/cli/#uv-pip-install--no-deps
-    #--require-hashes enforces that every package has a hash entry in
-    # the requirements file, keeping installs deterministic
-    # https://docs.astral.sh/uv/reference/cli/#uv-pip-install--require-hashes
-    uv pip install --no-deps --require-hashes -r requirements.prod.txt
-    touch $VIRTUAL_ENV/.prod
-
-
-# && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
-# a killer feature over Makefiles.
-#
-# ensure dev requirements installed and up to date
-devenv: prodenv requirements-dev && install-precommit
+# && dependencies are run after the recipe has run. Needs just>=0.9.9. # This is a killer feature over Makefiles.
+# Install dev requirements into venv.
+devenv: _dotenv && install-precommit
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
-
-    # --no-deps so that we only install the packages explicitly listed in requirements.dev.txt.
-    # https://docs.astral.sh/uv/reference/cli/#uv-pip-install--no-deps
-    uv pip install --no-deps -r requirements.dev.txt
-    touch $VIRTUAL_ENV/.dev
+    # Ensure all project dependencies are installed and up-to-date with
+    # the lockfile. The project is re-locked before syncing, so any
+    # changes to pyproject.toml are reflected in the environment
+    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
+    # Do not remove extraneous packages (--inexact)
+    # (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
+    uv sync --inexact
 
 # ensure precommit is installed
 install-precommit:
@@ -97,25 +63,17 @@ install-precommit:
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
 
-# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
-upgrade env package="": virtualenv
-    #!/usr/bin/env bash
-    set -euo pipefail
+# Upgrade a single package to the latest version per pyproject.toml
+upgrade-package package: && devenv
+    uv lock --upgrade-package {{ package }}
 
-    opts="--upgrade"
-    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
-    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
-
-# Upgrade all dev and prod dependencies.
-# This is the default input command to update-dependencies action
-# https://github.com/bennettoxford/update-dependencies-action
-update-dependencies:
-    just upgrade prod
-    just upgrade dev
+# Upgrade all packages to the latest version per pyproject.toml
+upgrade-all: && devenv
+    uv lock --upgrade
 
 # upgrade our internal pipeline library
-upgrade-pipeline: && requirements-prod
-    ./scripts/upgrade-pipeline.sh requirements.prod.in
+upgrade-pipeline:
+    ./scripts/upgrade-pipeline.sh pyproject.toml
 
 
 # Run the dev project with telemetry
