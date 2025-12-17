@@ -21,6 +21,7 @@ jobs:
           python-version: "3.12"
           install-just: true
           install-uv: true
+          cache: uv
       - name: Check formatting, linting and import sorting
         run: just check
 
@@ -49,6 +50,7 @@ jobs:
           python-version: "3.12"
           install-just: true
           install-uv: true
+          cache: uv
 
       - name: Install Node.js
         uses: actions/setup-node@v6
@@ -128,6 +130,7 @@ jobs:
         with:
           install-just: true
           install-uv: true
+          cache: uv
 
       - name: Build docker image for both prod and dev
         run: |
