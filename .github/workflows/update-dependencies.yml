@@ -15,6 +15,7 @@ jobs:
         python-version: "3.12"
         install-just: true
         install-uv: true
+        cache: uv
 
     - uses: actions/create-github-app-token@v2
       id: generate-token
@@ -27,4 +28,4 @@ jobs:
         token: ${{ steps.generate-token.outputs.token }}
         update_command: |
           just upgrade-pipeline
-          just update-dependencies
+          just upgrade-all
