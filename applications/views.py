@@ -9,9 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, RedirectView, UpdateView, View
 
 from jobserver.authorization import (
-    StaffAreaAdministrator,
     has_permission,
-    has_role,
     permissions,
 )
 from jobserver.hash_utils import unhash_or_404
@@ -192,7 +190,9 @@ def page(request, pk_hash, key):
     # check the user can access this application
     validate_application_access(request.user, application)
 
-    if application.approved_at and not has_role(request.user, StaffAreaAdministrator):
+    if application.approved_at and not has_permission(
+        request.user, permissions.staff_area_access
+    ):
         messages.warning(
             request, "This application has been approved and can no longer be edited"
         )

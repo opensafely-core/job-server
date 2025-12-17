@@ -2,7 +2,11 @@ import pytest
 from django.core.exceptions import PermissionDenied
 
 from jobserver.authorization import StaffAreaAdministrator
-from jobserver.authorization.decorators import require_manage_backends, require_role
+from jobserver.authorization.decorators import (
+    require_manage_backends,
+    require_permission,
+)
+from jobserver.authorization.permissions import staff_area_access
 
 from ....factories import UserFactory
 
@@ -35,7 +39,7 @@ def test_require_role_success(rf):
     def dispatch(request):
         return request
 
-    returned_request = require_role(StaffAreaAdministrator)(dispatch)(request)
+    returned_request = require_permission(staff_area_access)(dispatch)(request)
 
     assert returned_request == request
 
@@ -45,4 +49,4 @@ def test_require_role_without_role(rf):
     request.user = UserFactory(roles=[])
 
     with pytest.raises(PermissionDenied):
-        require_role(StaffAreaAdministrator)(None)(request)
+        require_permission(staff_area_access)(None)(request)
