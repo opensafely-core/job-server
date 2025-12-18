@@ -5,6 +5,7 @@
 .github
 .pre-commit-config.yaml
 .venv
+**/*.egg-info/
 coverage
 doc
 htmlcov
