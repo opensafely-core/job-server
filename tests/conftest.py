@@ -23,7 +23,7 @@ import jobserver.authorization.roles
 import services.slack
 from applications.form_specs import form_specs
 from jobserver.actions import project_members
-from jobserver.authorization.roles import StaffAreaAdministrator
+from jobserver.authorization.roles import ServiceAdministrator, StaffAreaAdministrator
 from jobserver.models import SiteAlert
 from services.logging import base_processors
 from services.tracing import add_exporter, get_provider
@@ -70,6 +70,12 @@ def api_rf():
 @pytest.fixture
 def staff_area_administrator():
     return UserFactory(roles=[StaffAreaAdministrator])
+
+
+@pytest.fixture
+def service_administrator():
+    # Not used in any tests yet, so, for now, exclude from coverage:
+    return UserFactory(roles=[ServiceAdministrator])  # pragma: no cover
 
 
 @pytest.fixture(name="log_output")
