@@ -168,8 +168,12 @@ extend-ignore = [
 "manage.py" = ["INP001"]
 "sitecustomize.py" = ["INP001"]
 
+# Note: any `exclude-newer-package` timestamps should be removed if > 7 days old.
+# See https://github.com/opensafely-core/repo-template/blob/main/DEVELOPERS.md for details.
 [tool.uv]
 required-version = ">=0.9"
+exclude-newer = "2025-12-11T00:00:00Z"
+exclude-newer-package = {}
 
 [dependency-groups]
 dev = [

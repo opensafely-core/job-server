@@ -28,4 +28,4 @@ jobs:
         token: ${{ steps.generate-token.outputs.token }}
         update_command: |
           just upgrade-pipeline
-          just upgrade-all
+          just update-dependencies
