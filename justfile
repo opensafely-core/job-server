@@ -67,11 +67,6 @@ install-precommit:
 upgrade-package package: && devenv
     uv lock --upgrade-package {{ package }}
 
-# Upgrade all packages to the latest version per pyproject.toml, then
-# update the local venv. This does not upgrade the opensafely-pipeline;
-# to upgrade, run the upgrade-pipeline recipe
-upgrade-all-except-pipeline: && devenv
-    uv lock --upgrade
 
 # Move the cutoff date in pyproject.toml to N days ago (default: 7) at midnight UTC
 bump-uv-cutoff days="7":
@@ -103,11 +98,15 @@ bump-uv-cutoff days="7":
 # This is the default input command to update-dependencies action
 # https://github.com/bennettoxford/update-dependencies-action
 
+# Upgrade all packages to the latest version per pyproject.toml, then
+# update the local venv. NOTE: This does not upgrade the opensafely-pipeline;
+# to upgrade, run the upgrade-pipeline recipe
 # Bump the timestamp cutoff to midnight UTC 7 days ago and upgrade all dependencies
-update-dependencies: bump-uv-cutoff upgrade-all-except-pipeline
+update-dependencies: bump-uv-cutoff && devenv
+    uv lock --upgrade
 
 # upgrade our internal pipeline library
-upgrade-pipeline:
+upgrade-pipeline: && prodenv
     ./scripts/upgrade-pipeline.sh pyproject.toml
 
 
