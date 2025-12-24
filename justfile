@@ -25,6 +25,13 @@ _dotenv:
       cp dotenv-sample .env
     fi
 
+virtualenv: _dotenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # create venv
+    test -d $VIRTUAL_ENV || uv venv $VIRTUAL_ENV
+
 
 # Install production requirements into venv.
 prodenv:
