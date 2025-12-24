@@ -289,11 +289,11 @@ exclude-newer = "YYYY-MM-DDTHH:MM:SSZ"
 ```
 Changes to dependencies should be made via `uv` commands, or by modifying `pyproject.toml` directly followed by
 [locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/) via `uv` or `just` commands like
-`just devenv` or `just upgrade-all`. You should not modify `uv.lock` manually.
+`just devenv` or `just update-dependencies`. You should not modify `uv.lock` manually.
 
 Note that `uv.lock` must be reproducible from `pyproject.toml`. Otherwise, `just check` will fail.
 If `just check` errors saying that the timestamps must match, you might have modified one file but not the other:
-  - If you modified `pyproject.toml`, you must update `uv.lock` via `uv lock` / `just upgrade-all` or similar.
+  - If you modified `pyproject.toml`, you must update `uv.lock` via `uv lock` / `just update-dependencies` or similar.
   - If you did not modify `pyproject.toml` but have changes in `uv.lock`, you should revert the changes to `uv.lock`, modify `pyproject.toml` as you require, then run `uv lock` to update `uv.lock`.
 
 The timestamp cutoff should usually be set to midnight UTC of a past date.
@@ -306,7 +306,7 @@ The cutoff timestamp can be modified to a more recent date either manually in th
 For example, to set the cutoff to today's date and upgrade all dependencies, run:
 ```
 just bump-uv-cutoff 0
-just upgrade-all
+just update-dependencies
 ```
 
 ### Adding a package-specific timestamp cutoff
