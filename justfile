@@ -306,3 +306,9 @@ docker-exec env="dev" *args="bash":
 # run basic smoke test against a running job-server
 docker-smoke-test host="http://localhost:8000":
     {{ just_executable() }} docker/smoke-test {{ host }}
+
+
+local-deploy branch="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./deploy/local/deploy.sh {{branch}}
