@@ -38,6 +38,18 @@ class StaffAreaAdministrator:
     ]
 
 
+class ServiceAdministrator:
+    display_name = "Service Administrator"
+    description = """DO NOT ASSIGN IN PRODUCTION.
+    Access the Create Project page.
+    Create projects.
+    Assign users to projects and project roles."""
+    models = [
+        "jobserver.models.user.User",
+    ]
+    permissions = []
+
+
 class OutputChecker:
     display_name = "Output Checker"
     description = """View, upload, and delete any outputs that have been released to Job Server.
