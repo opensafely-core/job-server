@@ -5,12 +5,12 @@
 .github
 .pre-commit-config.yaml
 .venv
+**/*.egg-info/
 coverage
 doc
 htmlcov
 node_modules
 outputs
-pyproject.toml
 tests
 uploads
 venv
