@@ -1,18 +1,23 @@
-application_manage = "application_manage"
-backend_manage = "backend_manage"
-job_cancel = "job_cancel"
-job_run = "job_run"
-org_create = "org_create"
-project_manage = "project_manage"
-release_file_delete = "release_file_delete"
-release_file_upload = "release_file_upload"
-release_file_view = "release_file_view"
-repo_sign_off_with_outputs = "repo_sign_off_with_outputs"
-snapshot_create = "snapshot_create"
-snapshot_publish = "snapshot_publish"
-staff_area_access = "staff_area_access"
-unreleased_outputs_view = "unreleased_outputs_view"
-user_manage = "user_manage"
-workspace_archive = "workspace_archive"
-workspace_create = "workspace_create"
-workspace_toggle_notifications = "workspace_toggle_notifications"
+from enum import StrEnum, auto
+
+
+# Using auto with StrEnum results in the lower-cased member name as the # value (https://docs.python.org/3/library/enum.html#enum.StrEnum)
+class Permission(StrEnum):
+    APPLICATION_MANAGE = auto()
+    BACKEND_MANAGE = auto()
+    JOB_CANCEL = auto()
+    JOB_RUN = auto()
+    ORG_CREATE = auto()
+    PROJECT_MANAGE = auto()
+    RELEASE_FILE_DELETE = auto()
+    RELEASE_FILE_UPLOAD = auto()
+    RELEASE_FILE_VIEW = auto()
+    REPO_SIGN_OFF_WITH_OUTPUTS = auto()
+    SNAPSHOT_CREATE = auto()
+    SNAPSHOT_PUBLISH = auto()
+    STAFF_AREA_ACCESS = auto()
+    UNRELEASED_OUTPUTS_VIEW = auto()
+    USER_MANAGE = auto()
+    WORKSPACE_ARCHIVE = auto()
+    WORKSPACE_CREATE = auto()
+    WORKSPACE_TOGGLE_NOTIFICATIONS = auto()
