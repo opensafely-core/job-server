@@ -16,6 +16,8 @@ from services.sentry import monitor_config
 # Temporary schema to hold safe copies
 TEMP_SCHEMA = "temp_scrubbed_schema"
 OUTPUT_PATH = pathlib.Path("/storage/sanitised_jobserver.dump")
+ALLOWLIST_PATH = pathlib.Path(__file__).with_name("allow_list.json")
+OUT_DIR = OUTPUT_PATH.parent
 
 
 class Job(DailyJob):
@@ -27,17 +29,15 @@ class Job(DailyJob):
     )
     def execute(self):
         db = settings.DATABASES["default"]
-        allowlist_path = pathlib.Path(__file__).with_name("allow_list.json")
-        allowlist = self._load_allowlist(allowlist_path)
+        allowlist = self._load_allowlist(ALLOWLIST_PATH)
         allowlist_exists = bool(allowlist)
-        out_dir = OUTPUT_PATH.parent
 
-        if not out_dir.is_dir():
-            print(f"Unknown output directory: {out_dir}", file=sys.stderr)
+        if not OUT_DIR.is_dir():
+            print(f"Unknown output directory: {OUT_DIR}", file=sys.stderr)
             sys.exit(1)
 
         with tempfile.NamedTemporaryFile(
-            prefix="jobserver-", dir=str(out_dir), delete=False
+            prefix="jobserver-", dir=str(OUT_DIR), delete=False
         ) as tmp:
             tmp_name = tmp.name
 
