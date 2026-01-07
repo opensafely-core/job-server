@@ -87,10 +87,7 @@ class Job(DailyJob):
         dtype = (meta.get("data_type") or "").lower()
 
         if "char" in dtype or "text" in dtype:
-            return f"'fake_{table}_{col}_' || id::text"
-
-        if "boolean" in dtype:
-            return "false"
+            return f"'fake_{table}_{col}_' || FLOOR(random() * 1000000)::bigint"
 
         if "integer" in dtype or "bigint" in dtype or "smallint" in dtype:
             return "0"
@@ -98,10 +95,9 @@ class Job(DailyJob):
         if "timestamp" in dtype or "date" in dtype:
             return "now()"
 
-        if "json" in dtype:
-            return "'{}'::jsonb"
-
-        return "NULL"
+        raise ValueError(
+            f"Unsupported data type '{dtype}' for {table}.{col}; add handling or allowlist it"
+        )
 
     def _valid_ident(self, x: str) -> bool:
         return bool(x) and (x.replace("_", "").isalnum()) and (not x[0].isdigit())
