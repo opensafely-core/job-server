@@ -7,30 +7,30 @@ from jobserver.authorization.decorators import (
     has_permission,
     require_permission,
 )
-from jobserver.authorization.permissions import staff_area_access
+from jobserver.authorization.permissions import Permission
 from jobserver.models import Backend, JobRequest, Org, Project, User, Workspace
 from jobserver.views.job_requests import JobRequestCancel as BaseJobRequestCancel
 
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class JobRequestCancel(BaseJobRequestCancel):
     def user_has_permission_to_cancel(self, request):
-        return has_permission(request.user, staff_area_access)
+        return has_permission(request.user, Permission.STAFF_AREA_ACCESS)
 
     def redirect(self):
         return redirect(self.job_request.get_staff_url())
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class JobRequestDetail(DetailView):
     context_object_name = "job_request"
     model = JobRequest
     template_name = "staff/job_request/detail.html"
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class JobRequestList(ListView):
     ordering = "-created_at"
     paginate_by = 25

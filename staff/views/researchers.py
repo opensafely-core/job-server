@@ -4,13 +4,13 @@ from django.views.generic import UpdateView
 
 from applications.models import ResearcherRegistration
 from jobserver.authorization.decorators import require_permission
-from jobserver.authorization.permissions import staff_area_access
+from jobserver.authorization.permissions import Permission
 from jobserver.hash_utils import unhash_or_404
 
 from ..forms import ResearcherRegistrationEditForm
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ResearcherEdit(UpdateView):
     context_object_name = "researcher"
     form_class = ResearcherRegistrationEditForm

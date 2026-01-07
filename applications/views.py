@@ -8,10 +8,8 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, RedirectView, UpdateView, View
 
-from jobserver.authorization import (
-    has_permission,
-    permissions,
-)
+from jobserver.authorization import has_permission
+from jobserver.authorization.permissions import Permission
 from jobserver.hash_utils import unhash_or_404
 from jobserver.slacks import notify_application
 
@@ -24,7 +22,7 @@ from .wizard import Wizard
 
 
 def validate_application_access(user, application):
-    if has_permission(user, permissions.application_manage):
+    if has_permission(user, Permission.APPLICATION_MANAGE):
         return
 
     if application.created_by == user:
@@ -191,7 +189,7 @@ def page(request, pk_hash, key):
     validate_application_access(request.user, application)
 
     if application.approved_at and not has_permission(
-        request.user, permissions.staff_area_access
+        request.user, Permission.STAFF_AREA_ACCESS
     ):
         messages.warning(
             request, "This application has been approved and can no longer be edited"

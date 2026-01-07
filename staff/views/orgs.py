@@ -9,9 +9,8 @@ from django.views.generic import CreateView, FormView, ListView, UpdateView, Vie
 from django_htmx.http import HttpResponseClientRedirect
 from furl import furl
 
-from jobserver.authorization import permissions
 from jobserver.authorization.decorators import require_permission
-from jobserver.authorization.permissions import staff_area_access
+from jobserver.authorization.permissions import Permission
 from jobserver.models import Org, OrgMembership, User
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
@@ -19,7 +18,7 @@ from ..htmx_tools import get_redirect_url
 from .qwargs_tools import qwargs
 
 
-@require_permission(staff_area_access)
+@require_permission(Permission.STAFF_AREA_ACCESS)
 def org_add_github_org(request, slug):
     org = get_object_or_404(Org, slug=slug)
 
@@ -43,7 +42,7 @@ def org_add_github_org(request, slug):
     return redirect(org.get_staff_url())
 
 
-@method_decorator(require_permission(permissions.org_create), name="dispatch")
+@method_decorator(require_permission(Permission.ORG_CREATE), name="dispatch")
 class OrgCreate(CreateView):
     fields = ["name"]
     model = Org
@@ -84,7 +83,7 @@ class OrgCreate(CreateView):
         return [template_name]
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class OrgDetail(FormView):
     form_class = OrgAddMemberForm
     template_name = "staff/org/detail.html"
@@ -127,7 +126,7 @@ class OrgDetail(FormView):
         }
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class OrgEdit(UpdateView):
     fields = [
         "name",
@@ -159,7 +158,7 @@ class OrgEdit(UpdateView):
         return redirect(new.get_staff_url())
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class OrgList(ListView):
     queryset = Org.objects.order_by("name")
     paginate_by = 25
@@ -182,7 +181,7 @@ class OrgList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class OrgRemoveGitHubOrg(View):
     def post(self, request, *args, **kwargs):
         org = get_object_or_404(Org, slug=self.kwargs["slug"])
@@ -200,7 +199,7 @@ class OrgRemoveGitHubOrg(View):
         return redirect(org.get_staff_url())
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class OrgRemoveMember(View):
     def post(self, request, *args, **kwargs):
         org = get_object_or_404(Org, slug=self.kwargs["slug"])

@@ -12,10 +12,8 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.views.generic import CreateView, FormView, ListView, View
 
-from ..authorization import (
-    has_permission,
-    permissions,
-)
+from ..authorization import has_permission
+from ..authorization.permissions import Permission
 from ..forms import (
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -45,7 +43,7 @@ class WorkspaceArchiveToggle(View):
         )
 
         if not has_permission(
-            request.user, permissions.workspace_archive, project=workspace.project
+            request.user, Permission.WORKSPACE_ARCHIVE, project=workspace.project
         ):
             raise Http404
 
@@ -69,7 +67,7 @@ class WorkspaceCreate(CreateView):
 
         can_create_workspaces = has_permission(
             self.request.user,
-            permissions.workspace_create,
+            Permission.WORKSPACE_CREATE,
             project=self.project,
         )
         if not can_create_workspaces:
@@ -184,14 +182,14 @@ class WorkspaceDetail(View):
         )
 
         can_archive_workspace = has_permission(
-            request.user, permissions.workspace_archive, project=workspace.project
+            request.user, Permission.WORKSPACE_ARCHIVE, project=workspace.project
         )
         can_run_jobs = has_permission(
-            request.user, permissions.job_run, project=workspace.project
+            request.user, Permission.JOB_RUN, project=workspace.project
         )
         can_toggle_notifications = has_permission(
             request.user,
-            permissions.workspace_toggle_notifications,
+            Permission.WORKSPACE_TOGGLE_NOTIFICATIONS,
             project=workspace.project,
         )
         has_backends = request.user.is_authenticated and request.user.backends.exists()
@@ -200,7 +198,7 @@ class WorkspaceDetail(View):
         show_admin = can_archive_workspace or can_toggle_notifications
 
         honeycomb_can_view_links = has_permission(
-            self.request.user, permissions.staff_area_access
+            self.request.user, Permission.STAFF_AREA_ACCESS
         )
 
         outputs = self.get_output_permissions(workspace)
@@ -250,7 +248,7 @@ class WorkspaceEdit(FormView):
 
         can_create_workspaces = has_permission(
             self.request.user,
-            permissions.workspace_create,
+            Permission.WORKSPACE_CREATE,
             project=self.workspace.project,
         )
         if not can_create_workspaces:
@@ -342,14 +340,14 @@ class WorkspaceLatestOutputsDetail(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, permissions.release_file_view, project=workspace.project
+            request.user, Permission.RELEASE_FILE_VIEW, project=workspace.project
         ):
             raise Http404
 
         # only show the publish button if the user has permission to publish
         # ouputs
         can_publish = has_permission(
-            request.user, permissions.snapshot_create, project=workspace.project
+            request.user, Permission.SNAPSHOT_CREATE, project=workspace.project
         )
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
@@ -388,7 +386,7 @@ class WorkspaceLatestOutputsDownload(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, permissions.release_file_view, project=workspace.project
+            request.user, Permission.RELEASE_FILE_VIEW, project=workspace.project
         ):
             raise Http404
 
@@ -413,7 +411,7 @@ class WorkspaceNotificationsToggle(View):
 
         if not has_permission(
             request.user,
-            permissions.workspace_toggle_notifications,
+            Permission.WORKSPACE_TOGGLE_NOTIFICATIONS,
             project=workspace.project,
         ):
             raise Http404
@@ -445,7 +443,7 @@ class WorkspaceOutputList(ListView):
         snapshots = workspace.snapshots.order_by("-created_at")
 
         can_view_all_files = has_permission(
-            request.user, permissions.release_file_view, project=workspace.project
+            request.user, Permission.RELEASE_FILE_VIEW, project=workspace.project
         )
         if not can_view_all_files:
             snapshots = snapshots.filter(

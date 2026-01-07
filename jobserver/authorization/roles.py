@@ -1,23 +1,4 @@
-from .permissions import (
-    application_manage,
-    backend_manage,
-    job_cancel,
-    job_run,
-    org_create,
-    project_manage,
-    release_file_delete,
-    release_file_upload,
-    release_file_view,
-    repo_sign_off_with_outputs,
-    snapshot_create,
-    snapshot_publish,
-    staff_area_access,
-    unreleased_outputs_view,
-    user_manage,
-    workspace_archive,
-    workspace_create,
-    workspace_toggle_notifications,
-)
+from .permissions import Permission
 
 
 class StaffAreaAdministrator:
@@ -30,11 +11,11 @@ class StaffAreaAdministrator:
         "jobserver.models.user.User",
     ]
     permissions = [
-        application_manage,
-        backend_manage,
-        org_create,
-        user_manage,
-        staff_area_access,
+        Permission.APPLICATION_MANAGE,
+        Permission.BACKEND_MANAGE,
+        Permission.ORG_CREATE,
+        Permission.USER_MANAGE,
+        Permission.STAFF_AREA_ACCESS,
     ]
 
 
@@ -58,10 +39,10 @@ class OutputChecker:
         "jobserver.models.user.User",
     ]
     permissions = [
-        release_file_delete,
-        release_file_upload,
-        release_file_view,
-        unreleased_outputs_view,
+        Permission.RELEASE_FILE_DELETE,
+        Permission.RELEASE_FILE_UPLOAD,
+        Permission.RELEASE_FILE_VIEW,
+        Permission.UNRELEASED_OUTPUTS_VIEW,
     ]
 
 
@@ -72,7 +53,7 @@ class OutputPublisher:
         "jobserver.models.user.User",
     ]
     permissions = [
-        snapshot_publish,
+        Permission.SNAPSHOT_PUBLISH,
     ]
 
 
@@ -84,7 +65,7 @@ class ProjectCollaborator:
         "jobserver.models.user.User",
     ]
     permissions = [
-        release_file_view,
+        Permission.RELEASE_FILE_VIEW,
     ]
 
 
@@ -99,15 +80,15 @@ class ProjectDeveloper:
         "jobserver.models.project_membership.ProjectMembership",
     ]
     permissions = [
-        job_cancel,
-        job_run,
-        project_manage,
-        release_file_view,
-        snapshot_create,
-        unreleased_outputs_view,
-        workspace_archive,
-        workspace_create,
-        workspace_toggle_notifications,
+        Permission.JOB_CANCEL,
+        Permission.JOB_RUN,
+        Permission.PROJECT_MANAGE,
+        Permission.RELEASE_FILE_VIEW,
+        Permission.SNAPSHOT_CREATE,
+        Permission.UNRELEASED_OUTPUTS_VIEW,
+        Permission.WORKSPACE_ARCHIVE,
+        Permission.WORKSPACE_CREATE,
+        Permission.WORKSPACE_TOGGLE_NOTIFICATIONS,
     ]
 
 
@@ -118,7 +99,7 @@ class SignOffRepoWithOutputs:
         "jobserver.models.user.User",
     ]
     permissions = [
-        repo_sign_off_with_outputs,
+        Permission.REPO_SIGN_OFF_WITH_OUTPUTS,
     ]
 
 
@@ -131,6 +112,6 @@ class DeploymentAdministrator:
         "jobserver.models.user.User",
     ]
     permissions = [
-        job_cancel,
-        job_run,
+        Permission.JOB_CANCEL,
+        Permission.JOB_RUN,
     ]

@@ -18,7 +18,7 @@ from jobserver.actions import project_members as members
 from jobserver.actions import projects
 from jobserver.auditing.presenters.lookup import get_presenter
 from jobserver.authorization.decorators import require_permission
-from jobserver.authorization.permissions import staff_area_access
+from jobserver.authorization.permissions import Permission
 from jobserver.authorization.utils import roles_for
 from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, User
 
@@ -32,7 +32,7 @@ from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectAddMember(FormView):
     form_class = ProjectAddMemberForm
     template_name = "staff/project/membership_create.html"
@@ -72,7 +72,7 @@ class ProjectAddMember(FormView):
         }
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectAuditLog(ListView):
     paginate_by = 25
     template_name = "staff/project/audit_log.html"
@@ -109,7 +109,7 @@ class ProjectAuditLog(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectDetail(DetailView):
     model = Project
     template_name = "staff/project/detail.html"
@@ -129,7 +129,7 @@ class ProjectDetail(DetailView):
         }
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
@@ -142,7 +142,7 @@ class ProjectEdit(UpdateView):
         return redirect(new.get_staff_url())
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectLinkApplication(UpdateView):
     form_class = ProjectLinkApplicationForm
     model = Project
@@ -175,7 +175,7 @@ class ProjectLinkApplication(UpdateView):
         }
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectList(ListView):
     queryset = Project.objects.order_by("-number", Lower("name"))
     paginate_by = 25
@@ -203,7 +203,7 @@ class ProjectList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectMembershipEdit(UpdateView):
     context_object_name = "membership"
     form_class = ProjectMembershipForm
@@ -244,7 +244,7 @@ class ProjectMembershipEdit(UpdateView):
         )
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectMembershipRemove(View):
     def post(self, request, *args, **kwargs):
         membership = get_object_or_404(

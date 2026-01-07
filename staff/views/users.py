@@ -11,10 +11,10 @@ from social_django.models import UserSocialAuth
 
 from jobserver.actions import users
 from jobserver.auditing.presenters.lookup import get_presenter
-from jobserver.authorization import permissions
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.forms import RolesForm
 from jobserver.authorization.global_roles import GLOBAL_ROLE_NAMES
+from jobserver.authorization.permissions import Permission
 from jobserver.authorization.utils import roles_for, strings_to_roles
 from jobserver.models import (
     AuditableEvent,
@@ -34,7 +34,7 @@ from .qwargs_tools import qwargs
 logger = structlog.get_logger(__name__)
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserAuditLog(ListView):
     paginate_by = 25
     template_name = "staff/user/audit_log.html"
@@ -81,7 +81,7 @@ class UserAuditLog(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserClearRoles(View):
     def post(self, request, *args, **kwargs):
         user = get_object_or_404(User, username=self.kwargs["username"])
@@ -91,7 +91,7 @@ class UserClearRoles(View):
         return redirect(get_next_url(request.GET, user.get_staff_roles_url()))
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserDetail(SingleObjectMixin, View):
     model = User
     slug_field = "username"
@@ -104,7 +104,7 @@ class UserDetail(SingleObjectMixin, View):
         return view.as_view()(request, *args, **kwargs)
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserDetailWithEmail(UpdateView):
     fields = [
         "fullname",
@@ -142,7 +142,7 @@ class UserDetailWithEmail(UpdateView):
         return self.object.get_staff_url()
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserDetailWithOAuth(UpdateView):
     form_class = UserForm
     model = User
@@ -198,7 +198,7 @@ class UserDetailWithOAuth(UpdateView):
         }
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserList(ListView):
     model = User
     paginate_by = 25
@@ -278,7 +278,7 @@ class UserList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserRoleList(FormView):
     form_class = RolesForm
     template_name = "staff/user/role_list.html"
@@ -312,7 +312,7 @@ class UserRoleList(FormView):
         return super().get_initial() | {"roles": self.user.roles}
 
 
-@method_decorator(require_permission(permissions.user_manage), name="dispatch")
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
 class UserSetOrgs(FormView):
     form_class = UserOrgsForm
     template_name = "staff/user/set_orgs.html"
