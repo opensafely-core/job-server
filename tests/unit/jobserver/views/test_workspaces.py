@@ -8,7 +8,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import StaffAreaAdministrator, permissions
+from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization.permissions import Permission
 from jobserver.models import PublishRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
@@ -54,7 +55,7 @@ def test_workspacearchivetoggle_success(rf, project_membership, role_factory):
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_archive)],
+        roles=[role_factory(permission=Permission.WORKSPACE_ARCHIVE)],
     )
 
     request = rf.post("/", {"is_archived": "True"})
@@ -106,7 +107,7 @@ def test_workspacecreate_get_success(rf, project_membership, user, role_factory)
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_create)],
+        roles=[role_factory(permission=Permission.WORKSPACE_CREATE)],
     )
 
     request = rf.get("/")
@@ -137,7 +138,7 @@ def test_workspacecreate_post_success(rf, project_membership, user, role_factory
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_create)],
+        roles=[role_factory(permission=Permission.WORKSPACE_CREATE)],
     )
 
     data = {
@@ -165,7 +166,7 @@ def test_workspacecreate_without_github(rf, project_membership, user, role_facto
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_create)],
+        roles=[role_factory(permission=Permission.WORKSPACE_CREATE)],
     )
 
     request = rf.get("/")
@@ -203,7 +204,7 @@ def test_workspacecreate_without_org(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_create)],
+        roles=[role_factory(permission=Permission.WORKSPACE_CREATE)],
     )
 
     request = rf.get("/")
@@ -234,7 +235,7 @@ def test_workspacedetail_authorized_archive_workspaces(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_archive)],
+        roles=[role_factory(permission=Permission.WORKSPACE_ARCHIVE)],
     )
 
     request = rf.get("/")
@@ -272,7 +273,7 @@ def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_archive)],
+        roles=[role_factory(permission=Permission.WORKSPACE_ARCHIVE)],
     )
 
     request = rf.get("/")
@@ -310,7 +311,7 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_archive)],
+        roles=[role_factory(permission=Permission.WORKSPACE_ARCHIVE)],
     )
 
     request = rf.get("/")
@@ -341,7 +342,7 @@ def test_workspacedetail_authorized_private_repo_show_workspace_admin_panel(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_archive)],
+        roles=[role_factory(permission=Permission.WORKSPACE_ARCHIVE)],
     )
 
     request = rf.get("/")
@@ -359,7 +360,7 @@ def test_workspacedetail_authorized_private_repo_show_workspace_admin_panel(
 
 def test_workspacedetail_authorized_toggle_notifications(rf, role_factory):
     user = UserFactory(
-        roles=[role_factory(permission=permissions.workspace_toggle_notifications)]
+        roles=[role_factory(permission=Permission.WORKSPACE_TOGGLE_NOTIFICATIONS)]
     )
     workspace = WorkspaceFactory()
 
@@ -380,7 +381,7 @@ def test_workspacedetail_authorized_toggle_notifications(rf, role_factory):
 
 def test_workspacedetail_authorized_view_outputs(rf, role_factory):
     backend = BackendFactory()
-    user = UserFactory(roles=[role_factory(permission=permissions.release_file_view)])
+    user = UserFactory(roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)])
     workspace = WorkspaceFactory()
     ReleaseFactory(workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace)
@@ -415,7 +416,7 @@ def test_workspacedetail_authorized_run_jobs(rf, project_membership, role_factor
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_run)],
+        roles=[role_factory(permission=Permission.JOB_RUN)],
     )
     BackendMembershipFactory(backend=backend, user=user)
 
@@ -442,7 +443,7 @@ def test_workspacedetail_authorized_run_jobs_no_backends(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_run)],
+        roles=[role_factory(permission=Permission.JOB_RUN)],
     )
 
     request = rf.get("/")
@@ -593,7 +594,7 @@ def test_workspaceedit_get_success(rf, project_membership, role_factory):
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_create)],
+        roles=[role_factory(permission=Permission.WORKSPACE_CREATE)],
     )
 
     request = rf.get("/")
@@ -628,7 +629,7 @@ def test_workspaceedit_post_success(rf, project_membership, role_factory):
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_create)],
+        roles=[role_factory(permission=Permission.WORKSPACE_CREATE)],
     )
 
     request = rf.post("/", {"purpose": "test"})
@@ -830,13 +831,13 @@ def test_workspaceeventlog_with_unauthenticated_user(rf):
 
 
 def test_workspacelatestoutputsdetail_success(rf, project_membership, role_factory):
-    user = UserFactory(roles=[role_factory(permission=permissions.release_file_view)])
+    user = UserFactory(roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)])
     workspace = WorkspaceFactory()
 
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.snapshot_create)],
+        roles=[role_factory(permission=Permission.SNAPSHOT_CREATE)],
     )
 
     request = rf.get("/")
@@ -871,7 +872,7 @@ def test_workspacelatestoutputsdetail_without_publish_permission(rf, role_factor
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permission=permissions.release_file_view)]
+        roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)]
     )
 
     response = WorkspaceLatestOutputsDetail.as_view()(
@@ -902,7 +903,7 @@ def test_workspacelatestoutputsdownload_no_files(rf, role_factory):
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permission=permissions.release_file_view)]
+        roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)]
     )
 
     with pytest.raises(Http404):
@@ -922,7 +923,7 @@ def test_workspacelatestoutputsdownload_success(
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permission=permissions.release_file_view)]
+        roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)]
     )
 
     response = WorkspaceLatestOutputsDownload.as_view()(
@@ -945,7 +946,7 @@ def test_workspacelatestoutputsdownload_unknown_workspace(rf, role_factory):
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permission=permissions.release_file_view)]
+        roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)]
     )
 
     with pytest.raises(Http404):
@@ -978,7 +979,7 @@ def test_workspacenotificationstoggle_success(rf, project_membership, role_facto
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_toggle_notifications)],
+        roles=[role_factory(permission=Permission.WORKSPACE_TOGGLE_NOTIFICATIONS)],
     )
 
     request = rf.post("/", {"should_notify": ""})
@@ -1022,7 +1023,7 @@ def test_workspacenotificationstoggle_unknown_workspace(
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.workspace_toggle_notifications)],
+        roles=[role_factory(permission=Permission.WORKSPACE_TOGGLE_NOTIFICATIONS)],
     )
 
     request = rf.post("/")
@@ -1061,7 +1062,7 @@ def test_workspaceoutputlist_success(
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permission=permissions.release_file_view)]
+        roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)]
     )
 
     response = WorkspaceOutputList.as_view()(
@@ -1118,7 +1119,7 @@ def test_workspaceoutputlist_without_snapshots(rf, freezer, role_factory):
 
     request = rf.get("/")
     request.user = UserFactory(
-        roles=[role_factory(permission=permissions.release_file_view)]
+        roles=[role_factory(permission=Permission.RELEASE_FILE_VIEW)]
     )
 
     response = WorkspaceOutputList.as_view()(

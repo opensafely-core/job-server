@@ -6,7 +6,7 @@ from jobserver.authorization.decorators import (
     require_manage_backends,
     require_permission,
 )
-from jobserver.authorization.permissions import staff_area_access
+from jobserver.authorization.permissions import Permission
 
 from ....factories import UserFactory
 
@@ -39,7 +39,9 @@ def test_require_role_success(rf):
     def dispatch(request):
         return request
 
-    returned_request = require_permission(staff_area_access)(dispatch)(request)
+    returned_request = require_permission(Permission.STAFF_AREA_ACCESS)(dispatch)(
+        request
+    )
 
     assert returned_request == request
 
@@ -49,4 +51,4 @@ def test_require_role_without_role(rf):
     request.user = UserFactory(roles=[])
 
     with pytest.raises(PermissionDenied):
-        require_permission(staff_area_access)(None)(request)
+        require_permission(Permission.STAFF_AREA_ACCESS)(None)(request)

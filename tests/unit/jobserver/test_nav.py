@@ -1,6 +1,7 @@
 import pytest
 
-from jobserver.authorization import StaffAreaAdministrator, has_permission, permissions
+from jobserver.authorization import StaffAreaAdministrator, has_permission
+from jobserver.authorization.permissions import Permission
 from jobserver.nav import NavItem, iter_nav
 
 from ...factories import UserFactory
@@ -72,7 +73,7 @@ def test_iter_nav_optional_items(rf, roles, expected):
             name="Only Shown for CoreDevs",
             url_name="staff:user-list",
             predicate=lambda request: has_permission(
-                request.user, permissions.staff_area_access
+                request.user, Permission.STAFF_AREA_ACCESS
             ),
         ),
     ]

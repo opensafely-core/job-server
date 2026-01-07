@@ -14,7 +14,7 @@ from django.core.management import call_command
 from django.urls import reverse
 
 from jobserver.actions.rap import rap_status_update
-from jobserver.authorization import permissions
+from jobserver.authorization.permissions import Permission
 from jobserver.models import Job, JobRequest, JobRequestStatus
 from tests.factories import (
     BackendFactory,
@@ -36,7 +36,7 @@ def setup_backend_workspace_user(mocker, project_membership, role_factory, user)
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_run)],
+        roles=[role_factory(permission=Permission.JOB_RUN)],
     )
 
     dummy_yaml = """

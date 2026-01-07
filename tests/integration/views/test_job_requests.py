@@ -1,7 +1,7 @@
 from django.urls import reverse
 from opentelemetry import trace
 
-from jobserver.authorization import permissions
+from jobserver.authorization.permissions import Permission
 from jobserver.models import JobRequest
 from tests.conftest import get_trace
 
@@ -27,7 +27,7 @@ def test_jobrequestcreate_post_telemetry(
     project_membership(
         project=workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_run)],
+        roles=[role_factory(permission=Permission.JOB_RUN)],
     )
 
     dummy_yaml = """

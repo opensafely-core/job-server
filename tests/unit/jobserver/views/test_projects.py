@@ -4,7 +4,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import StaffAreaAdministrator, permissions
+from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization.permissions import Permission
 from jobserver.models import Project, PublishRequest, Snapshot
 from jobserver.utils import set_from_list, set_from_qs
 from jobserver.views.projects import (
@@ -233,7 +234,7 @@ def test_projectedit_get_success(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.project_manage)],
+        roles=[role_factory(permission=Permission.PROJECT_MANAGE)],
     )
 
     request = rf.get("/")
@@ -251,7 +252,7 @@ def test_projectedit_post_success(rf, project_membership, role_factory):
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.project_manage)],
+        roles=[role_factory(permission=Permission.PROJECT_MANAGE)],
     )
 
     data = {
@@ -278,7 +279,7 @@ def test_projectedit_post_success_with_next(rf, project_membership, role_factory
     project_membership(
         project=project,
         user=user,
-        roles=[role_factory(permission=permissions.project_manage)],
+        roles=[role_factory(permission=Permission.PROJECT_MANAGE)],
     )
 
     data = {
@@ -324,7 +325,7 @@ def test_projectedit_user_has_global_project_manage(
     rf, project_membership, role_factory
 ):
     project = ProjectFactory()
-    user = UserFactory(roles=[role_factory(permission=permissions.project_manage)])
+    user = UserFactory(roles=[role_factory(permission=Permission.PROJECT_MANAGE)])
     project_membership(project=project, user=user)
     request = rf.get("/")
     request.user = user
