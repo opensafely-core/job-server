@@ -22,6 +22,8 @@ OUT_DIR = OUTPUT_PATH.parent
 
 
 class Job(DailyJob):
+    """Daily job that produces a sanitised dump for local development"""
+
     help = "Dump a safe copy of the DB with non-allowlisted columns replaced by fake values"
 
     # Keeping the job at 2pm right now to test this script in production. Will change to 7pm once the testing is done.
@@ -29,6 +31,7 @@ class Job(DailyJob):
         monitor_slug="dump_sanitised_db", monitor_config=monitor_config("0 14 * * *")
     )
     def execute(self):
+        """Create a scrubbed copy of the production DB and dump it for dev use."""
         db = settings.DATABASES["default"]
         allowlist = self._load_allowlist(ALLOWLIST_PATH)
         if not allowlist:
@@ -61,6 +64,7 @@ class Job(DailyJob):
             shutil.copy2(tmp_name, OUTPUT_PATH)
 
     def _load_allowlist(self, path: str | None) -> dict[str, list[str]]:
+        """Read allow_list.json and return a table -> allowed columns mapping."""
         if not path:
             return {}
 
@@ -83,6 +87,7 @@ class Job(DailyJob):
             return {}
 
     def _fake_expression(self, table: str, col: str, meta: dict) -> str:
+        """Return SQL to generate a fake-but-valid value for the given column."""
         dtype = (meta.get("data_type") or "").lower()
 
         if "char" in dtype or "text" in dtype:
@@ -99,9 +104,11 @@ class Job(DailyJob):
         )
 
     def _valid_ident(self, x: str) -> bool:
+        """Reject identifiers containing characters that could lead to SQL injection."""
         return bool(x) and (x.replace("_", "").isalnum()) and (not x[0].isdigit())
 
     def _normalize_table_name(self, table: str) -> tuple[str, str]:
+        """Split dotted table names and default schema to public."""
         if "." in table:
             schema_name, table_name = table.split(".", 1)
         else:
@@ -116,6 +123,7 @@ class Job(DailyJob):
     def _get_column_metadata(
         self, cur, schema_name: str, table_name: str
     ) -> tuple[list[str], dict[str, dict[str, str]]]:
+        """Pull column order and metadata from information_schema for a table."""
         cur.execute(
             """
             SELECT column_name, is_nullable, data_type
@@ -136,6 +144,7 @@ class Job(DailyJob):
         return existing_cols, col_meta
 
     def _build_allowed_set(self, table: str, columns: list[str]) -> set[str]:
+        """Validate allow-listed column names before interpolating into SQL."""
         allowed_set: set[str] = set()
         for col in columns:
             if not self._valid_ident(col):
@@ -144,6 +153,7 @@ class Job(DailyJob):
         return allowed_set
 
     def _create_safe_table(self, cur, src_table: str, dst_table: str) -> None:
+        """Create a destination table identical to the source."""
         create_sql = (
             f"CREATE TABLE IF NOT EXISTS {dst_table} (LIKE {src_table} INCLUDING ALL);"
         )
@@ -159,6 +169,7 @@ class Job(DailyJob):
         allowed_set: set[str],
         col_meta: dict[str, dict[str, str]],
     ) -> tuple[list[str], str]:
+        """Produce SELECT expressions that copy allow-listed data and fake the rest."""
         select_exprs: list[str] = []
         for col in existing_cols:
             if col in allowed_set:
@@ -170,6 +181,7 @@ class Job(DailyJob):
         return select_exprs, quoted_all_cols
 
     def _create_safe_schema_and_copy(self, allowlist: dict[str, list[str]]):
+        """Populate the temporary schema with scrubbed data for each table."""
         with connection.cursor() as cur:
             cur.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE;")
             cur.execute(f"CREATE SCHEMA {TEMP_SCHEMA};")
@@ -208,10 +220,12 @@ class Job(DailyJob):
                 cur.execute(insert_sql)
 
     def _drop_temp_schema(self):
+        """Drop the scratch schema if it exists."""
         with connection.cursor() as cur:
             cur.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE;")
 
     def _run_pg_dump_for_schema(self, outfile: str, schema: str, db: dict):
+        """Use pg_dump to export only the sanitised schema to the temp file."""
         conn_uri = f"postgresql://{db['USER']}@{db['HOST']}:{db['PORT']}/{db['NAME']}"
         env = os.environ.copy()
         if db.get("PASSWORD"):
