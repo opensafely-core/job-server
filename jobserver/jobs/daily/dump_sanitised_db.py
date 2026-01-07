@@ -30,7 +30,12 @@ class Job(DailyJob):
     def execute(self):
         db = settings.DATABASES["default"]
         allowlist = self._load_allowlist(ALLOWLIST_PATH)
-        allowlist_exists = bool(allowlist)
+        if not allowlist:
+            print(
+                "Unable to create a sanitised dump as allowlist is missing",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
         if not OUT_DIR.is_dir():
             print(f"Unknown output directory: {OUT_DIR}", file=sys.stderr)
@@ -42,14 +47,11 @@ class Job(DailyJob):
             tmp_name = tmp.name
 
         try:
-            if allowlist_exists:
-                self._create_safe_schema_and_copy(allowlist)
-                try:
-                    self._run_pg_dump_for_schema(tmp_name, TEMP_SCHEMA, db)
-                finally:
-                    self._drop_temp_schema()
-            else:
-                self._run_pg_dump_schema_only(tmp_name, db)
+            self._create_safe_schema_and_copy(allowlist)
+            try:
+                self._run_pg_dump_for_schema(tmp_name, TEMP_SCHEMA, db)
+            finally:
+                self._drop_temp_schema()
 
             os.chmod(tmp_name, 0o600)
             os.replace(tmp_name, OUTPUT_PATH)
@@ -231,25 +233,4 @@ class Job(DailyJob):
         if res.returncode != 0:
             raise RuntimeError(
                 f"pg_dump failed: returncode={res.returncode}; stderr={res.stderr}"
-            )
-
-    def _run_pg_dump_schema_only(self, outfile: str, db: dict):
-        conn_uri = f"postgresql://{db['USER']}@{db['HOST']}:{db['PORT']}/{db['NAME']}"
-        env = os.environ.copy()
-        if db.get("PASSWORD"):
-            env["PGPASSWORD"] = db["PASSWORD"]
-
-        cmd = [
-            "pg_dump",
-            "--format=c",
-            "--no-acl",
-            "--no-owner",
-            "--schema-only",
-            f"--file={outfile}",
-            conn_uri,
-        ]
-        res = subprocess.run(cmd, env=env, capture_output=True, text=True)
-        if res.returncode != 0:
-            raise RuntimeError(
-                f"pg_dump (schema-only) failed: returncode={res.returncode}; stderr={res.stderr}"
             )
