@@ -1,6 +1,6 @@
 # Note: this assumes docker dev db. You will need to change it if you want to
 # point another postgres
-DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
+DATABASE_URL=postgres://user:pass@localhost:6543/jobserver?options=-csearch_path=temp_scrubbed_schema,public
 
 # Turn on debug
 DEBUG=1

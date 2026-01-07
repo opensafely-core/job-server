@@ -321,7 +321,11 @@
     "name",
     "applied"
   ],
-  "django_session": [],
+
+  "django_session": [
+    "session_key",
+    "expire_date"
+  ],
   "jobserver_auditableevent": [
     "id",
     "old",
