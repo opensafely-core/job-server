@@ -1,6 +1,7 @@
 import json
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -42,26 +43,22 @@ class Job(DailyJob):
             sys.exit(1)
 
         with tempfile.NamedTemporaryFile(
-            prefix="jobserver-", dir=str(OUT_DIR), delete=False
+            prefix="tmp-sanitised-jobserver-dump-", dir=str(OUT_DIR), delete=True
         ) as tmp:
             tmp_name = tmp.name
 
-        try:
-            self._create_safe_schema_and_copy(allowlist)
+            # Ensure any leftover scratch schema from previous failures is removed
+            self._drop_temp_schema()
+
             try:
+                self._create_safe_schema_and_copy(allowlist)
                 self._run_pg_dump_for_schema(tmp_name, TEMP_SCHEMA, db)
             finally:
                 self._drop_temp_schema()
 
+            tmp.flush()
             os.chmod(tmp_name, 0o600)
-            os.replace(tmp_name, OUTPUT_PATH)
-        except Exception:
-            try:
-                if os.path.exists(tmp_name):
-                    os.remove(tmp_name)
-            except Exception:
-                pass
-            raise
+            shutil.copy2(tmp_name, OUTPUT_PATH)
 
     def _load_allowlist(self, path: str | None) -> dict[str, list[str]]:
         if not path:
