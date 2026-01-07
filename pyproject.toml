@@ -57,7 +57,7 @@ skip_covered = true
 show_contexts = true
 
 [tool.pytest.ini_options]
-addopts = "--disable-socket --tb=native --maxprocesses=6"
+addopts = "--disable-socket --tb=native --maxprocesses=6 --strict-markers"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "JOBSERVER_GITHUB_TOKEN=empty",
@@ -84,6 +84,7 @@ filterwarnings = [
 markers = [
   "slow_test: mark test as being slow running",
   "verification: tests that verify fakes",
+  "functional: tests that use Playwright in functional tests",
 ]
 
 [tool.ruff]

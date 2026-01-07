@@ -7,6 +7,9 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-22.04
@@ -93,6 +96,20 @@ jobs:
           if-no-files-found: ignore
         if: ${{ failure() }}  # only upload when the previous step, run tests, fails
 
+  test-functional:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+
+      - name: Build docker image and run functional tests in it
+        run: |
+          # build docker and run test
+          just docker-test-functional
+
   lint-dockerfile:
     runs-on: ubuntu-22.04
 
@@ -122,7 +139,7 @@ jobs:
           GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
         run: |
           # build docker and run test
-          just docker-test -n 4  # hardcode n because auto does not dtrt in docker
+          just docker-test-py -n 4  # hardcode n because auto does not dtrt in docker
 
       - name: Run smoke test on prod
         run: |

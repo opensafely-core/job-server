@@ -17,6 +17,7 @@ pytest-env
 pytest-freezer
 pytest-icdiff
 pytest-mock
+pytest-playwright
 pytest-socket
 pytest-xdist[psutil]
 responses

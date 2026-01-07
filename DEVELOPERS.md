@@ -304,6 +304,18 @@ Run all of the tests (including slow tests) apart from verification tests (that 
 just test-ci
 ```
 
+# run Playwright functional tests
+just test-functional
+
+# watch a specific functional test in browser, slowed down
+# This is useful in combination with script pausing when writing tests:
+# https://playwright.dev/python/docs/api/class-page#page-pause
+just test-functional <path/to/test>::<test name> --headed --slowmo=500
+
+# debug a specific functional test
+# See https://playwright.dev/python/docs/debug for more information.
+PWDEBUG=1 just test-functional <path/to/test>::<test name>
+
 More details on testing can be found in [TESTING.md](TESTING.md).
 
 ### Slack Testing

@@ -22,11 +22,16 @@ build env="dev": _dotenv
     docker compose build --pull {{ env }}
 
 
-# run tests in dev container
-test *pytest_args="": _dotenv build
+# run Python (non-functional) tests in dev container
+test-py *pytest_args="": _dotenv build
     #!/bin/bash
     # Note, we do *not* run coverage in docker, as we want to use xdist, and coverage does not seem to work reliably.
-    docker compose run --rm test pytest -m "not verification" {{ pytest_args }}
+    docker compose run --rm test pytest -m "not verification and not functional" {{ pytest_args }}
+
+# run functional tests in docker container
+test-functional *args="": _dotenv build
+    docker compose run --rm test python -m pytest \
+    -m "functional" {{ args }}
 
 # run as service in dev|prod container
 serve env="dev" *args="": _dotenv (build env)
