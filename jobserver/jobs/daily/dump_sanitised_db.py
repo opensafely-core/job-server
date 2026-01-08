@@ -126,7 +126,7 @@ class Job(DailyJob):
         """Pull column order and metadata from information_schema for a table."""
         cur.execute(
             """
-            SELECT column_name, is_nullable, data_type
+            SELECT column_name, data_type
             FROM information_schema.columns
             WHERE table_schema = %s AND table_name = %s
             ORDER BY ordinal_position;
@@ -138,9 +138,7 @@ class Job(DailyJob):
             return [], {}
 
         existing_cols = [row[0] for row in rows]
-        col_meta = {
-            row[0]: {"is_nullable": row[1], "data_type": row[2]} for row in rows
-        }
+        col_meta = {row[0]: {"data_type": row[1]} for row in rows}
         return existing_cols, col_meta
 
     def _build_allowed_set(self, table: str, columns: list[str]) -> set[str]:
