@@ -78,7 +78,7 @@ class Job(DailyJob):
             return allowlist_dict
         except FileNotFoundError:
             print(
-                f"Allowlist file not found at {path}; proceeding with schema-only dump",
+                f"Allowlist file not found at {path}",
                 file=sys.stderr,
             )
             return {}
