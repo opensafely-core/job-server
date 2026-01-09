@@ -1,6 +1,7 @@
 from collections.abc import Iterable, Iterator
 
 import pytest
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.test import RequestFactory
 from django.urls.resolvers import URLPattern, URLResolver
@@ -52,9 +53,12 @@ def test_staff_urls_require_permission(rf: RequestFactory) -> None:  # pragma: n
 
         try:
             pattern.callback(request, **kwargs)
+        # good case, where we get PermissionDenied
+        except PermissionDenied:
+            pass
+        # failing case, where the exception isn't PermissionDenied
         except Exception:
-            # Any exception is fine here; permission checks typically raise.
-            continue
+            pytest.fail("Expected PermissionDenied")
+        # failing case, where no exception is raised at all
         else:
-            # A normal return suggests the view skipped access checks.
-            pytest.fail(f"Expected an exception for staff URL '{pattern.pattern}'")
+            pytest.fail("Expected PermissionDenied, found no exception")
