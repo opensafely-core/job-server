@@ -24,7 +24,11 @@ def iter_urlpatterns(
             yield pattern
         elif isinstance(pattern, URLResolver):
             # Include nested patterns from include() calls.
-            yield from iter_urlpatterns(pattern.url_patterns)
+            yield from iter_urlpatterns(
+                p
+                for p in pattern.url_patterns
+                if isinstance(p, (URLPattern, URLResolver))
+            )
 
 
 def test_staff_urls_require_permission(rf: RequestFactory) -> None:  # pragma: no cover
