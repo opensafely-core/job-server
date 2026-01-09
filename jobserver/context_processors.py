@@ -6,7 +6,8 @@ from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from furl import furl
 
-from jobserver.authorization import has_permission, permissions
+from jobserver.authorization import has_permission
+from jobserver.authorization.permissions import Permission
 
 from .models import Backend, SiteAlert
 from .nav import NavItem, iter_nav
@@ -33,7 +34,7 @@ def in_production(request):
 def can_view_staff_area(request):
     user = getattr(request, "user", None) or AnonymousUser()
     return {
-        "user_can_view_staff_area": has_permission(user, permissions.staff_area_access)
+        "user_can_view_staff_area": has_permission(user, Permission.STAFF_AREA_ACCESS)
     }
 
 

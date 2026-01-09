@@ -28,8 +28,8 @@ from jobserver.authorization import (
     OutputChecker,
     has_permission,
     has_role,
-    permissions,
 )
+from jobserver.authorization.permissions import Permission
 from jobserver.models import (
     Project,
     PublishRequest,
@@ -174,7 +174,7 @@ def validate_upload_access(request, workspace):
 
     # check the user has permission to upload release files
     if not has_permission(
-        user, permissions.release_file_upload, project=workspace.project
+        user, Permission.RELEASE_FILE_UPLOAD, project=workspace.project
     ):
         raise NotAuthenticated
 
@@ -202,7 +202,7 @@ def validate_release_access(request, workspace):
         raise NotAuthenticated("Invalid user or token")
 
     if not has_permission(
-        request.user, permissions.release_file_view, project=workspace.project
+        request.user, Permission.RELEASE_FILE_VIEW, project=workspace.project
     ):
         raise NotAuthenticated(f"Invalid user or token for workspace {workspace.name}")
 
@@ -220,7 +220,7 @@ def validate_snapshot_access(request, snapshot):
         raise NotAuthenticated("Invalid user or token")
 
     if not has_permission(
-        request.user, permissions.release_file_view, project=snapshot.workspace.project
+        request.user, Permission.RELEASE_FILE_VIEW, project=snapshot.workspace.project
     ):
         raise NotAuthenticated(f"Invalid user or token for snapshot pk={snapshot.pk}")
 
@@ -461,7 +461,7 @@ class SnapshotCreateAPI(APIView):
         data = serializer.data
 
         if not has_permission(
-            request.user, permissions.snapshot_create, project=workspace.project
+            request.user, Permission.SNAPSHOT_CREATE, project=workspace.project
         ):
             raise NotAuthenticated
 
@@ -493,7 +493,7 @@ class SnapshotPublishAPI(APIView):
 
         if not has_permission(
             request.user,
-            permissions.snapshot_publish,
+            Permission.SNAPSHOT_PUBLISH,
             project=snapshot.workspace.project,
         ):
             raise NotAuthenticated
@@ -555,7 +555,7 @@ def build_level4_user(user):
 
     # this is 1 or 2 queries per project, not ideal, but the permissions are not stored in the db
     for project in user.projects.all():
-        if has_permission(user, permissions.unreleased_outputs_view, project=project):
+        if has_permission(user, Permission.UNRELEASED_OUTPUTS_VIEW, project=project):
             for workspace in project.workspaces.all().values("name", "is_archived"):
                 workspaces[workspace["name"]] = build_level4_workspace(
                     workspace, project

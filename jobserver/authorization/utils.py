@@ -123,7 +123,9 @@ def roles_for(model):
 
     # get all role classes
     available_roles = [
-        value for name, value in inspect.getmembers(roles, inspect.isclass)
+        value
+        for name, value in inspect.getmembers(roles, inspect.isclass)
+        if hasattr(value, "models")
     ]
 
     # get roles where the given model is listed

@@ -7,10 +7,8 @@ from django.views.generic import RedirectView, View
 from jobserver.views.job_requests import JobRequestCancel
 
 from .. import honeycomb
-from ..authorization import (
-    has_permission,
-    permissions,
-)
+from ..authorization import has_permission
+from ..authorization.permissions import Permission
 from ..models import Job, JobRequest
 
 
@@ -56,12 +54,12 @@ class JobDetail(View):
 
         can_cancel_jobs = job.job_request.created_by == request.user or has_permission(
             request.user,
-            permissions.job_cancel,
+            Permission.JOB_CANCEL,
             project=job.job_request.workspace.project,
         )
 
         honeycomb_can_view_links = has_permission(
-            self.request.user, permissions.staff_area_access
+            self.request.user, Permission.STAFF_AREA_ACCESS
         )
 
         # we need all HTML to be in HTML files, so we built this here and make

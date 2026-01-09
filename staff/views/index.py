@@ -8,7 +8,7 @@ from django.views.generic import View
 
 from applications.models import Application
 from jobserver.authorization.decorators import require_permission
-from jobserver.authorization.permissions import staff_area_access
+from jobserver.authorization.permissions import Permission
 from jobserver.models import Backend, Org, Project, User, Workspace
 
 
@@ -95,7 +95,7 @@ def get_results(q):
     return list(itertools.chain.from_iterable(queries))
 
 
-@method_decorator(require_permission(staff_area_access), name="dispatch")
+@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class Index(View):
     def get(self, request, *args, **kwargs):
         q = self.request.GET.get("q")

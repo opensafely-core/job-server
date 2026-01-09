@@ -15,7 +15,8 @@ from opentelemetry import trace
 from jobserver import html_utils
 from jobserver.utils import set_from_qs
 
-from ..authorization import has_permission, permissions
+from ..authorization import has_permission
+from ..authorization.permissions import Permission
 from ..github import GitHubError, _get_github_api
 from ..models import Job, JobRequest, Project, PublishRequest, Repo, Snapshot
 
@@ -37,7 +38,7 @@ class ProjectDetail(View):
         )
 
         can_create_workspaces = has_permission(
-            request.user, permissions.workspace_create, project=project
+            request.user, Permission.WORKSPACE_CREATE, project=project
         )
 
         is_member = project.members.filter(username=request.user.username).exists()
@@ -198,7 +199,7 @@ class ProjectEdit(UpdateView):
 
         user = self.request.user
         user_has_project_manage = has_permission(
-            user, permissions.project_manage, project=project
+            user, Permission.PROJECT_MANAGE, project=project
         )
 
         if not user_has_project_manage:

@@ -19,10 +19,8 @@ from pipeline import load_pipeline
 from jobserver.rap_api import RapAPIError
 
 from .. import honeycomb
-from ..authorization import (
-    has_permission,
-    permissions,
-)
+from ..authorization import has_permission
+from ..authorization.permissions import Permission
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm
 from ..github import _get_github_api
@@ -99,7 +97,7 @@ class JobRequestCancel(View):
     def user_has_permission_to_cancel(self, request):
         return self.job_request.created_by == request.user or has_permission(
             request.user,
-            permissions.job_cancel,
+            Permission.JOB_CANCEL,
             project=self.job_request.workspace.project,
         )
 
@@ -132,7 +130,7 @@ class JobRequestCreate(CreateView):
             return redirect("/")
 
         if not has_permission(
-            request.user, permissions.job_run, project=self.workspace.project
+            request.user, Permission.JOB_RUN, project=self.workspace.project
         ):
             raise Http404
 
@@ -317,10 +315,10 @@ class JobRequestDetail(View):
         is_invalid = jobs.filter(action="__error__").exists()
 
         can_cancel_jobs = job_request.created_by == request.user or has_permission(
-            request.user, permissions.job_cancel, project=job_request.workspace.project
+            request.user, Permission.JOB_CANCEL, project=job_request.workspace.project
         )
         honeycomb_can_view_links = has_permission(
-            self.request.user, permissions.staff_area_access
+            self.request.user, Permission.STAFF_AREA_ACCESS
         )
 
         # build up is_missing_updates to define if we've not seen the backend

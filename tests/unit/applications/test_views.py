@@ -23,7 +23,7 @@ from applications.views import (
     validate_application_access,
 )
 from applications.wizard import Wizard
-from jobserver.authorization import permissions
+from jobserver.authorization.permissions import Permission
 
 from ...factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
 
@@ -672,7 +672,7 @@ def test_validate_application_access_error():
 
 def test_validate_application_access_with_permission(role_factory):
     application = ApplicationFactory()
-    user = UserFactory(roles=[role_factory(permission=permissions.application_manage)])
+    user = UserFactory(roles=[role_factory(permission=Permission.APPLICATION_MANAGE)])
     assert validate_application_access(user, application) is None
 
 

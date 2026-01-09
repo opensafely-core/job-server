@@ -2,7 +2,7 @@ from functools import wraps
 
 from django.core.exceptions import PermissionDenied
 
-from .permissions import backend_manage
+from .permissions import Permission
 from .utils import has_permission
 
 
@@ -26,4 +26,4 @@ def require_permission(permission):
     return decorator_require_permission
 
 
-require_manage_backends = require_permission(backend_manage)
+require_manage_backends = require_permission(Permission.BACKEND_MANAGE)

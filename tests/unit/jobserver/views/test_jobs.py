@@ -7,7 +7,8 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver import honeycomb
-from jobserver.authorization import StaffAreaAdministrator, permissions
+from jobserver.authorization import StaffAreaAdministrator
+from jobserver.authorization.permissions import Permission
 from jobserver.models import JobRequest
 from jobserver.views.jobs import JobCancel, JobDetail, JobDetailRedirect
 
@@ -26,7 +27,7 @@ def test_jobcancel_already_cancelled(rf, user, project_membership, role_factory)
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_cancel)],
+        roles=[role_factory(permission=Permission.JOB_CANCEL)],
     )
 
     request = rf.post("/")
@@ -48,7 +49,7 @@ def test_jobcancel_already_completed(rf, user, project_membership, role_factory)
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_cancel)],
+        roles=[role_factory(permission=Permission.JOB_CANCEL)],
     )
 
     request = rf.post("/")
@@ -72,7 +73,7 @@ def test_jobcancel_success(_, rf, project_membership, role_factory):
     project_membership(
         project=job_request.workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_cancel)],
+        roles=[role_factory(permission=Permission.JOB_CANCEL)],
     )
 
     request = rf.post("/")
@@ -165,7 +166,7 @@ def test_jobdetail_with_permission(rf, project_membership, role_factory):
     project_membership(
         project=job.job_request.workspace.project,
         user=user,
-        roles=[role_factory(permission=permissions.job_cancel)],
+        roles=[role_factory(permission=Permission.JOB_CANCEL)],
     )
 
     request = rf.get("/")
