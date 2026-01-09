@@ -17,6 +17,14 @@ class StubCursor:
         return self._rows
 
 
+class RecordingCursor:
+    def __init__(self):
+        self.executed = []
+
+    def execute(self, sql):
+        self.executed.append(sql)
+
+
 @pytest.fixture
 def job():
     return dump_sanitised_db.Job()
@@ -102,12 +110,7 @@ def test_normalize_table_name_rejects_invalid_identifiers(job):
 
 
 def test_get_column_metadata_returns_list(job):
-    cursor = StubCursor(
-        [
-            ("id", "NO", "integer"),
-            ("email", "YES", "character varying"),
-        ]
-    )
+    cursor = StubCursor([("id", "integer"), ("email", "character varying")])
 
     cols, meta = job._get_column_metadata(cursor, "public", "users")
 
@@ -123,6 +126,34 @@ def test_get_column_metadata_handles_missing_table(job):
     assert meta == {}
 
 
+def test_build_allowed_set_returns_unique_columns(job):
+    allowed = job._build_allowed_set("table", ["col_a", "col_b", "col_a"])
+
+    assert allowed == {"col_a", "col_b"}
+
+
 def test_build_allowed_set_rejects_invalid_columns(job):
     with pytest.raises(ValueError):
         job._build_allowed_set("table", ["valid", "not-ok!"])
+
+
+def test_create_safe_table_builds_sql(job):
+    cursor = RecordingCursor()
+
+    job._create_safe_table(cursor, '"public"."users"', '"temp"."users"')
+
+    assert cursor.executed
+    assert "CREATE TABLE IF NOT EXISTS" in cursor.executed[0]
+
+
+def test_build_select_expressions_copies_allowed(job):
+    cols = ["id", "email"]
+    allowed = {"id"}
+    meta = {"id": {"data_type": "integer"}, "email": {"data_type": "text"}}
+
+    select_exprs, quoted_cols = job._build_select_expressions(
+        "users", cols, allowed, meta
+    )
+    assert quoted_cols == '"id", "email"'
+    assert select_exprs[0] == '"id"'
+    assert "fake_users_email" in select_exprs[1]
