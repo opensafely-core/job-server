@@ -12,7 +12,7 @@ from ....factories import UserFactory
 
 def iter_urlpatterns(
     patterns: Iterable[URLPattern | URLResolver],
-) -> Iterator[URLPattern]:
+) -> Iterator[URLPattern]:  # pragma: no cover
     """
     Walk through nested include() URL groups and return only the
     actual routes.
@@ -26,7 +26,7 @@ def iter_urlpatterns(
             yield from iter_urlpatterns(pattern.url_patterns)
 
 
-def test_staff_urls_require_permission(rf: RequestFactory) -> None:
+def test_staff_urls_require_permission(rf: RequestFactory) -> None:  # pragma: no cover
     """
     This test does a broad sweep over the Staff Area URLs to make sure we are
     not missing basic unauthorized permission checks.
