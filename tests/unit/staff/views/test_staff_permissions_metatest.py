@@ -31,7 +31,10 @@ def iter_urlpatterns(
             )
 
 
-def test_staff_urls_require_permission(rf: RequestFactory) -> None:  # pragma: no cover
+@pytest.mark.parametrize("method", ["GET", "POST"])
+def test_staff_urls_require_permission(
+    rf: RequestFactory, method: str
+) -> None:  # pragma: no cover
     """
     This test does a broad sweep over the Staff Area URLs to make sure we are
     not missing basic unauthorized permission checks.
@@ -52,7 +55,10 @@ def test_staff_urls_require_permission(rf: RequestFactory) -> None:  # pragma: n
             continue
 
         kwargs: dict[str, str] = {name: "test" for name in pattern.pattern.converters}
-        request: HttpRequest = rf.get("/")
+        if method == "GET":
+            request: HttpRequest = rf.get("/")
+        else:
+            request: HttpRequest = rf.post("/", data={"placeholder": "value"})
         request.user = UserFactory()
 
         try:
