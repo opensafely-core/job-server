@@ -176,7 +176,7 @@ just devenv
 **Run migrations:**
 
 ```sh
-python manage.py migrate
+just manage migrate
 ```
 
 **Build the assets:**
@@ -256,7 +256,7 @@ In that situation you can follow the steps below to set up your local copy of th
 1. Once you have created an account, give your user the `StaffAreaAdministrator` role by running:
 
    ```sh
-   python manage.py create_user <your_github_username> -s
+   just manage create_user <your_github_username> -s
    ```
 
 1. Click on your avatar in the top right-hand corner of the site to access the Staff Area from the dropdown menu
