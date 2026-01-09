@@ -44,6 +44,8 @@ ENV UV_COMPILE_BYTECODE=1
 # we are providing python via deadsnakes ppa
 # (as we require dynamic linking of openssl for security reasons)
 ENV UV_PYTHON_DOWNLOADS=never
+# set the directory for the venv
+ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 
 ##################################################
 #
@@ -108,16 +110,20 @@ ENV VIRTUAL_ENV=/opt/venv
 # Place entry points in the environment at the front of the path
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY requirements.prod.txt /tmp/requirements.prod.txt
-
 # The cache mount means a) /root/.cache is not in the image, and b) it's
 # preserved between docker builds locally, for faster dev rebuild.
-# DL3042: using cache mount instead
-# hadolint ignore=DL3042
-# install prod dependencies using the same flags we use in our `just
-# prodenv` recipe (see justfile)
+# install prod dependencies
+# --frozen for deterministic installs
+# (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
+# --no-dev so we only install prod dependencies
+#  (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-dev)
+# --no-install-project so we only install the dependencies, not the
+# project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+# --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
-    uv pip install --no-deps --require-hashes -r /tmp/requirements.prod.txt
+    --mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=/root/uv.lock \
+    uv sync --frozen --no-dev --no-install-project --directory /root
 
 
 ##################################################
@@ -235,19 +241,21 @@ USER ${USERID}:${GROUPID}
 #
 # Now we build a dev image from our job-server-base image. This is basically
 # installing dev dependencies and changing the entrypoint
-#
 FROM job-server-base as job-server-dev
 
 # Pull in the binaries from the uv-cli stage to install dev requirements
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
-COPY requirements.dev.txt /tmp/requirements.dev.txt
-# using cache mount instead
-# hadolint ignore=DL3042
-# install dev dependencies using the same flags we use in our `just
-# devdenv` recipe (see justfile)
+# install dev dependencies
+# --frozen for deterministic installs
+# (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
+# --no-install-project so we only install the dependencies, not the
+# project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+# --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
-    uv pip install --no-deps -r /tmp/requirements.dev.txt
+    --mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=/root/uv.lock \
+    uv sync --frozen --no-install-project --directory /root
 
 # Install playwright chromium dependencies. This needs to be done AFTER
 # playwright is pip-installed
