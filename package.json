@@ -47,7 +47,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-papaparse": "^4.4.0",
-    "react-router-dom": "^7.11.0",
+    "react-router-dom": "^7.12.0",
     "react-toastify": "^11.0.5",
     "simple-datatables": "^10.2.0",
     "slugify": "^1.6.6",
