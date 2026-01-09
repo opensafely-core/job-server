@@ -22,7 +22,7 @@ def iter_urlpatterns(
     for pattern in patterns:
         if isinstance(pattern, URLPattern):
             yield pattern
-        elif isinstance(pattern, URLResolver):
+        else:
             # Include nested patterns from include() calls.
             yield from iter_urlpatterns(
                 p
