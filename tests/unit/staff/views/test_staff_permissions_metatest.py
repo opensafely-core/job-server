@@ -27,6 +27,18 @@ def iter_urlpatterns(
             yield from iter_urlpatterns(pattern.url_patterns)
 
 
+def describe_staff_view(pattern: URLPattern) -> str:  # pragma: no cover
+    callback = pattern.callback
+    view_class = getattr(callback, "view_class", None)
+    if view_class is not None:
+        view_name = f"{view_class.__module__}.{view_class.__qualname__}"
+    else:
+        callback_name = getattr(callback, "__qualname__", callback.__name__)
+        view_name = f"{callback.__module__}.{callback_name}"
+
+    return f"{view_name}"
+
+
 @pytest.mark.parametrize("method", ["GET", "POST"])
 def test_staff_urls_require_permission(
     rf: RequestFactory, method: str
@@ -49,6 +61,7 @@ def test_staff_urls_require_permission(
     for pattern in iter_urlpatterns(staff_urls.urlpatterns):
         if not pattern.callback.__module__.startswith("staff.views."):
             continue
+        view_description = describe_staff_view(pattern)
 
         kwargs: dict[str, str] = {name: "test" for name in pattern.pattern.converters}
         if method == "GET":
@@ -63,8 +76,15 @@ def test_staff_urls_require_permission(
         except PermissionDenied:
             pass
         # failing case, where the exception isn't PermissionDenied
-        except Exception:
-            pytest.fail("Expected PermissionDenied")
+        except Exception as exc:
+            pytest.fail(
+                "Expected PermissionDenied from "
+                f"{view_description} for {method}, got "
+                f"{exc.__class__.__name__}: {exc}"
+            )
         # failing case, where no exception is raised at all
         else:
-            pytest.fail("Expected PermissionDenied, found no exception")
+            pytest.fail(
+                "Expected PermissionDenied from "
+                f"{view_description} for {method}, found no exception"
+            )
