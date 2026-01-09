@@ -1,3 +1,6 @@
+import pytest
+from django.core.exceptions import PermissionDenied
+
 from staff.views.index import Index
 
 from ....factories import (
@@ -16,6 +19,14 @@ def test_index_without_search(rf, staff_area_administrator):
 
     assert response.context_data["q"] is None
     assert response.context_data["results"] == []
+
+
+def test_index_without_search_unauthorized(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        Index.as_view()(request)
 
 
 def test_index_search(rf, staff_area_administrator, project_membership):
