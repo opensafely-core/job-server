@@ -2,7 +2,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.db import connection
 
-from jobserver.jobs.daily import dump_sanitised_db
+from jobserver.jobs.yearly import dump_sanitised_db
 
 
 @pytest.mark.django_db

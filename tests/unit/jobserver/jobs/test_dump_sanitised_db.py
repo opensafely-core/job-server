@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from jobserver.jobs.daily import dump_sanitised_db
+from jobserver.jobs.yearly import dump_sanitised_db
 
 
 class StubCursor:
@@ -64,13 +64,13 @@ def test_fake_expression_char_column(job):
     expr = job._fake_expression("users", "email", {"data_type": "character varying"})
 
     assert "fake_users_email" in expr
-    assert "random" in expr
+    assert "ROW_NUMBER() OVER ()" in expr
 
 
 def test_fake_expression_integer_column(job):
     expr = job._fake_expression("stats", "count", {"data_type": "integer"})
 
-    assert expr == "0"
+    assert "ROW_NUMBER() OVER ()" in expr
 
 
 def test_fake_expression_timestamp_column(job):

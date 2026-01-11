@@ -8,7 +8,7 @@ import tempfile
 
 from django.conf import settings
 from django.db import connection
-from django_extensions.management.jobs import DailyJob
+from django_extensions.management.jobs import YearlyJob
 from sentry_sdk.crons.decorator import monitor
 
 from services.sentry import monitor_config
@@ -21,14 +21,15 @@ ALLOWLIST_PATH = pathlib.Path(__file__).with_name("allow_list.json")
 OUT_DIR = OUTPUT_PATH.parent
 
 
-class Job(DailyJob):
-    """Daily job that produces a sanitised dump for local development"""
+class Job(YearlyJob):
+    """Job that produces a sanitised dump for local development."""
 
     help = "Dump a safe copy of the DB with non-allowlisted columns replaced by fake values"
 
-    # Keeping the job at 2pm right now to test this script in production. Will change to 7pm once the testing is done.
+    # Keeping this job unscheduled for now; once we're confident we can switch it
+    # to a DailyJob and update the monitor schedule.
     @monitor(
-        monitor_slug="dump_sanitised_db", monitor_config=monitor_config("0 14 * * *")
+        monitor_slug="dump_sanitised_db", monitor_config=monitor_config("0 0 1 1 *")
     )
     def execute(self):
         """Create a scrubbed copy of the production DB and dump it for dev use."""
