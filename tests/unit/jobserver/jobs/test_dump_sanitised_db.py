@@ -1,6 +1,8 @@
 import json
 
 import pytest
+from django.db import connection
+from psycopg import sql
 
 from jobserver.jobs.yearly import dump_sanitised_db
 
@@ -20,6 +22,7 @@ class StubCursor:
 class RecordingCursor:
     def __init__(self):
         self.executed = []
+        self.connection = connection
 
     def execute(self, sql):
         self.executed.append(sql)
@@ -140,10 +143,14 @@ def test_build_allowed_set_rejects_invalid_columns(job):
 def test_create_safe_table_builds_sql(job):
     cursor = RecordingCursor()
 
-    job._create_safe_table(cursor, '"public"."users"', '"temp"."users"')
+    src = sql.Identifier("public", "users")
+    dst = sql.Identifier("temp", "users")
+
+    job._create_safe_table(cursor, src, dst)
 
     assert cursor.executed
-    assert "CREATE TABLE IF NOT EXISTS" in cursor.executed[0]
+    sql_text = cursor.executed[0].as_string(cursor.connection)
+    assert 'CREATE TABLE IF NOT EXISTS "temp"."users"' in sql_text
 
 
 def test_build_select_expressions_copies_allowed(job):

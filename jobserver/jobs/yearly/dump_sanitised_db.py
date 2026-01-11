@@ -9,6 +9,7 @@ import tempfile
 from django.conf import settings
 from django.db import connection
 from django_extensions.management.jobs import YearlyJob
+from psycopg import sql
 from sentry_sdk.crons.decorator import monitor
 
 from services.sentry import monitor_config
@@ -126,12 +127,14 @@ class Job(YearlyJob):
     ) -> tuple[list[str], dict[str, dict[str, str]]]:
         """Pull column order and metadata from information_schema for a table."""
         cur.execute(
-            """
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_schema = %s AND table_name = %s
-            ORDER BY ordinal_position;
-            """,
+            sql.SQL(
+                """
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema = %s AND table_name = %s
+                ORDER BY ordinal_position;
+                """
+            ),
             [schema_name, table_name],
         )
         rows = cur.fetchall()
@@ -151,11 +154,11 @@ class Job(YearlyJob):
             allowed_set.add(col)
         return allowed_set
 
-    def _create_safe_table(self, cur, src_table: str, dst_table: str) -> None:
+    def _create_safe_table(self, cur, src_table, dst_table) -> None:
         """Create a destination table identical to the source."""
-        create_sql = (
-            f"CREATE TABLE IF NOT EXISTS {dst_table} (LIKE {src_table} INCLUDING ALL);"
-        )
+        create_sql = sql.SQL(
+            "CREATE TABLE IF NOT EXISTS {dst} (LIKE {src} INCLUDING ALL);"
+        ).format(dst=dst_table, src=src_table)
         try:
             cur.execute(create_sql)
         except Exception as exc:
@@ -182,10 +185,20 @@ class Job(YearlyJob):
     def _create_safe_schema_and_copy(self, allowlist: dict[str, list[str]]):
         """Populate the temporary schema with scrubbed data for each table."""
         with connection.cursor() as cur:
-            cur.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE;")
-            cur.execute(f"CREATE SCHEMA {TEMP_SCHEMA};")
             cur.execute(
-                f"COMMENT ON SCHEMA {TEMP_SCHEMA} IS %s;",
+                sql.SQL("DROP SCHEMA IF EXISTS {schema} CASCADE;").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                )
+            )
+            cur.execute(
+                sql.SQL("CREATE SCHEMA {schema};").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                )
+            )
+            cur.execute(
+                sql.SQL("COMMENT ON SCHEMA {schema} IS %s;").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                ),
                 (
                     "Temporary scrubbed copy of jobserver; used by dump_sanitised_db and dropped after the job finishes.",
                 ),
@@ -203,8 +216,8 @@ class Job(YearlyJob):
                     continue
 
                 allowed_set = self._build_allowed_set(table, columns)
-                original_table = f'"{schema_name}"."{table_name}"'
-                temp_table = f'"{TEMP_SCHEMA}"."{table_name}"'
+                original_table = sql.Identifier(schema_name, table_name)
+                temp_table = sql.Identifier(TEMP_SCHEMA, table_name)
 
                 self._create_safe_table(cur, original_table, temp_table)
 
@@ -212,16 +225,24 @@ class Job(YearlyJob):
                     table_name, existing_cols, allowed_set, col_meta
                 )
 
-                insert_sql = (
-                    f"INSERT INTO {temp_table} ({quoted_all_cols}) "
-                    f"SELECT {', '.join(select_exprs)} FROM {original_table};"
+                insert_sql = sql.SQL(
+                    "INSERT INTO {dst} ({cols}) SELECT {select} FROM {src}"
+                ).format(
+                    dst=temp_table,
+                    cols=sql.SQL(quoted_all_cols),
+                    select=sql.SQL(", ".join(select_exprs)),
+                    src=original_table,
                 )
                 cur.execute(insert_sql)
 
     def _drop_temp_schema(self):
         """Drop the scratch schema if it exists."""
         with connection.cursor() as cur:
-            cur.execute(f"DROP SCHEMA IF EXISTS {TEMP_SCHEMA} CASCADE;")
+            cur.execute(
+                sql.SQL("DROP SCHEMA IF EXISTS {schema} CASCADE;").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                )
+            )
 
     def _run_pg_dump_for_schema(self, outfile: str, schema: str, db: dict):
         """Use pg_dump to export only the sanitised schema to the temp file."""
