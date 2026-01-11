@@ -279,37 +279,6 @@
     "codename",
     "name"
   ],
-  "auth_user": [
-    "id",
-    "last_login",
-    "is_superuser",
-    "username",
-    "first_name",
-    "is_staff",
-    "is_active",
-    "date_joined",
-    "last_name"
-  ],
-  "auth_user_groups": [
-    "id",
-    "user_id",
-    "group_id"
-  ],
-  "auth_user_user_permissions": [
-    "id",
-    "user_id",
-    "permission_id"
-  ],
-  "django_admin_log": [
-    "id",
-    "action_time",
-    "object_id",
-    "object_repr",
-    "change_message",
-    "content_type_id",
-    "user_id",
-    "action_flag"
-  ],
   "django_content_type": [
     "id",
     "app_label",
