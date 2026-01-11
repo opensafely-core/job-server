@@ -91,10 +91,10 @@ class Job(DailyJob):
         dtype = (meta.get("data_type") or "").lower()
 
         if "char" in dtype or "text" in dtype:
-            return f"'fake_{table}_{col}_' || FLOOR(random() * 1000000)::bigint"
+            return f"'fake_{table}_{col}_' || ROW_NUMBER() OVER ()::text"
 
         if "integer" in dtype or "bigint" in dtype or "smallint" in dtype:
-            return "0"
+            return "ROW_NUMBER() OVER ()"
 
         if "timestamp" in dtype or "date" in dtype:
             return "now()"
