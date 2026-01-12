@@ -14,39 +14,113 @@ classifiers = [
 requires-python = ">=3.12"
 dynamic = ["version"]
 dependencies = [
+    # Password hasher. django.contrib.auth.hashers.Argon2PasswordHasher in settings.py.
     "argon2-cffi",
+
+    # Simplifies retrieving the correct database URL from env variables
     "dj-database-url",
+
+    # The main Django web framework for building applications.
+    # Pin to 5.2.x until we are happy with 6.0 compatibility.
     "django>=5.2,<6.0",
+
+    # Email backend integration for Mailgun, used to send emails in Django. See settings.py.
     "django-anymail[mailgun]",
+
+    # Content Security Policy headers for web app security. Search 'csp' in settings.py.
     "django-csp",
+
+    # Provides additional management commands and utilities for Django projects.
+    # See jobserver/jobs.
     "django-extensions",
+
+    # Integration for using HTMX with Django, enabling server-driven interactivity.
     "django-htmx",
+
+    # Adds Permissions-Policy headers for feature policy management in Django.
+    # See PERMISSIONS_POLICY in settings.py.
     "django-permissions-policy",
+
+    # Integration of the structlog logging library with Django.
     "django-structlog",
+
+    # Helps integrate Vite.js (frontend tooling) into a Django project.
     "django-vite",
+
+    # Toolkit for building REST APIs in Django. Search "from rest_framework"
     "djangorestframework",
+
+    # URL manipulation and building. Used pervasively.
     "furl",
+
+    # A WSGI HTTP server for running Django in production.
     "gunicorn",
+
+    # Handling markdown. Used in some views and snippets.
     "markdown",
+
+    # HTML sanitization. See jobserver/html_utils.py. clean_html() is used in a few views.
     "nh3",
+
+    # A specific version of the OpenSAFELY Pipeline for health data analysis.
+    # Search 'pipeline' in jobserver/
     "opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip",
+
+    # OpenTelemetry exporter for sending traces/metrics via OTLP over HTTP.
     "opentelemetry-exporter-otlp-proto-http",
+
+    # Instrumentation for tracing Django applications using OpenTelemetry.
     "opentelemetry-instrumentation-django",
+
+    # Instrumentation for tracing database queries made via psycopg2.
     "opentelemetry-instrumentation-psycopg2",
+
+    # Instrumentation for tracing HTTP requests made with the `requests` library.
     "opentelemetry-instrumentation-requests",
+
+    # SDK for working with OpenTelemetry tracing and metrics.
     "opentelemetry-sdk",
+
+    # PostgreSQL database adapter for Python binary.
     "psycopg[binary]",
+
+    # Syntax highlighter. See jobserver/pipeline_config.py where it's used to convert YAML to HTML.
     "pygments",
+
+    # Generates and parses ULID (Universally Unique Lexicographically Sortable Identifier).
+    # https://github.com/ulid/spec
+    # Search 'ulid' in jobserver/models/
     "python-ulid",
+
+    # Making HTTP requests. Used pervasively.
     "requests",
+
+    # Client for error reporting and performance monitoring with Sentry.
     "sentry-sdk",
+
+    # Slack SDK for building integrations with Slack (e.g., bots, notifications).
     "slack-sdk",
+
+    # Simplifies building Django templates with Tailwind CSS and Alpine.js.
     "slippers",
+
+    # Integration of social authentication for Django projects.
     "social-auth-app-django",
+
+    # Core library for handling social authentication workflows.
     "social-auth-core",
+
+    # Handling exponential backoff. Used in managing github api call retries.
     "stamina",
+
+    # Structured logging. Used pervasively.
     "structlog",
+
+    # Serves static files. Dependabot wasn't updating past 6.3.0 for
+    # unclear reasons, and we want to fix #612 from 6.8.0.
     "whitenoise[brotli]>=6.8.0",
+
+    # Password generator. See jobserver/actions/users.py.
     "xkcdpass",
 ]
 
