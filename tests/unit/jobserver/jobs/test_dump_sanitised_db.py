@@ -164,3 +164,12 @@ def test_build_select_expressions_copies_allowed(job):
     assert quoted_cols == '"id", "email"'
     assert select_exprs[0] == '"id"'
     assert "fake_users_email" in select_exprs[1]
+
+
+def test_build_select_expressions_missing_allowlisted_column_raises_error(job):
+    cols = ["id", "email"]
+    allowed = {"missing"}
+    meta = {"id": {"data_type": "integer"}, "email": {"data_type": "text"}}
+
+    with pytest.raises(ValueError):
+        job._build_select_expressions("users", cols, allowed, meta)

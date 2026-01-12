@@ -39,5 +39,12 @@ When adding new columns/tables, update the allow list accordingly. If a column i
 - Tests:
   * Unit tests cover helper functions (`tests/unit/jobserver/jobs/test_dump_sanitised_db.py`).
   * Integration tests ensure each allow-listed table/column exists and that the scrubbed schema actually contains fake values (`tests/integration/test_dump_sanitised_db.py`).
+- When ready to schedule this job automatically, switch the class back to `DailyJob`, update the Sentry monitor cron string, and add a `python manage.py runjobs daily` entry in `app.json`. Until then, keep running it manually after backups and verify the sanitised dump before distributing it to developers.
 
-When ready to schedule this job automatically, switch the class back to `DailyJob`, update the Sentry monitor cron string, and add a `python manage.py runjobs daily` entry in `app.json`. Until then, keep running it manually after backups and verify the sanitised dump before distributing it to developers.
+## FAQs
+
+**What happens if a column is renamed/removed or its type changes?**
+The integration test (`tests/integration/test_dump_sanitised_db.py`) queries `information_schema` to ensure every table/column in `allow_list.json` still exists. If a column is missing, the test fails before deployment. If it slips through and the job hits a missing column or unknown type, `_build_select_expressions`/`_fake_expression` raises an error, so the job aborts instead of producing a partial dump. This forces us to update the allow list (and fake-expression logic) whenever the schema changes.
+
+**What if a new column is added but not added to the allow list?**
+The job treats it as “sensitive” by default: it copies the column but fills it with fake values. The dump remains structurally valid, but developers won’t see real data for that column until we explicitly add it to the allow list. This is an intentional safe default.

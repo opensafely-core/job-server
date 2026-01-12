@@ -173,6 +173,11 @@ class Job(YearlyJob):
     ) -> tuple[list[str], str]:
         """Produce SELECT expressions that copy allow-listed data and fake the rest."""
         select_exprs: list[str] = []
+        missing_cols = allowed_set - set(existing_cols)
+        if missing_cols:
+            raise ValueError(
+                f"Allow list references missing columns for {table_name}: {sorted(missing_cols)}"
+            )
         for col in existing_cols:
             if col in allowed_set:
                 select_exprs.append(f'"{col}"')
