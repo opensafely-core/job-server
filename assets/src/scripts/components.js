@@ -8,37 +8,54 @@ hljs.registerLanguage("django", django);
 hljs.highlightAll();
 
 document.addEventListener("DOMContentLoaded", () => {
-  const anchors = document.querySelectorAll(
+  const headings = document.querySelectorAll(
     '.prose :where(h2, h3):not(:where([class~="not-prose"] *))',
   );
 
-  const ul = document.getElementById("table-of-contents");
+  const toc = /** @type {HTMLUListElement} */ (
+    document.getElementById("table-of-contents")
+  );
 
-  anchors.forEach((heading) => {
-    heading.id = `${slugify(heading.textContent, {
-      lower: true,
-      strict: true,
-    })}`;
+  /**
+   * @param {Element} heading - h2 or h3 from the prose content
+   */
+  function makeListItem(heading) {
+    heading.id = slugify(heading.textContent, { lower: true, strict: true });
+
+    const li = document.createElement("li");
+    li.dataset.headingId = heading.id;
+
+    const a = document.createElement("a");
+    a.href = `#${heading.id}`;
+    a.textContent = heading.textContent;
+
+    li.appendChild(a);
+    return li;
+  }
+
+  for (const heading of headings) {
+    const li = makeListItem(heading);
+
+    if (heading.tagName === "H2") {
+      toc.appendChild(li);
+      continue;
+    }
 
     if (heading.tagName === "H3") {
-      ul.querySelector("li:last-of-type ul").insertAdjacentHTML(
-        "beforeend",
-        `<li>
-          <a href="#${heading.id}">
-            ${heading.textContent}
-          </a>
-        </li>`,
+      const parentH2 = heading.closest("section")?.querySelector("h2");
+      if (!parentH2) continue;
+
+      // Find the existing H2 entry in the TOC
+      const parentEntry = toc.querySelector(
+        `[data-heading-id="${parentH2.id}"]`,
       );
-    } else {
-      ul.insertAdjacentHTML(
-        "beforeend",
-        `<li>
-        <a href="#${heading.id}">
-          ${heading.textContent}
-        </a>
-        ${heading.parentElement.querySelector("h3") ? `<ul></ul>` : ""}
-      </li>`,
-      );
+      if (!parentEntry) continue;
+
+      // Append to existing sub-list or create a new one
+      let subList = parentEntry.querySelector("ul");
+      if (!subList)
+        subList = parentEntry.appendChild(document.createElement("ul"));
+      subList.appendChild(li);
     }
-  });
+  }
 });
