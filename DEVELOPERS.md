@@ -654,10 +654,22 @@ flowchart TD
     RAPController{{Rap Controller}}
 ```
 
+There is a [Status Honeycomb trigger] that alerts us if the RAP Controller is
+not receiving the expected number of updates. This may indicate either service is
+down, stuck, or having network connectivity problems.
+
+Refer to the [RAP Status Dokku Service ADR] for some additional information on
+the rationale for the design.
+
+
 #### Backend status
 
 A cron job calls the [RAP API] (`GET /controller/v1/backend/status/`) every 60 seconds to retrieve updates on the
 status of backends, using a [management command].
+
+Refer to the [Backend Status cron ADR]  for some additional information on
+the rationale for the design.
+
 
 (Current as of 2025-10.)
 
@@ -673,6 +685,9 @@ status of backends, using a [management command].
 [requests updates]: jobserver/actions/rap.py
 [management command]: jobserver/management/commands/rap_update_backend_status.py
 [rap_api]: jobserver/rap_api.py
+[Status Honeycomb trigger]: https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/rap-controller/triggers/ajJK5aXkAeh
+[RAP Status Dokku Service ADR]: docs/adr/0031-rap-status-dokku-service.md
+[Backend Status cron ADR]: docs/adr/0030-backend-status-cron.md
 
 ### Airlock interface
 
