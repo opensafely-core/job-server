@@ -58,6 +58,8 @@ def test_staff_urls_require_permission(
     potential missing permission check tests.
     """
 
+    failures: list[str] = []
+
     for pattern in iter_urlpatterns(staff_urls.urlpatterns):
         if not pattern.callback.__module__.startswith("staff.views."):
             continue
@@ -77,14 +79,17 @@ def test_staff_urls_require_permission(
             pass
         # failing case, where the exception isn't PermissionDenied
         except Exception as exc:
-            pytest.fail(
+            failures.append(
                 "Expected PermissionDenied from "
                 f"{view_description} for {method}, got "
                 f"{exc.__class__.__name__}: {exc}"
             )
         # failing case, where no exception is raised at all
         else:
-            pytest.fail(
+            failures.append(
                 "Expected PermissionDenied from "
                 f"{view_description} for {method}, found no exception"
             )
+
+    if failures:
+        pytest.fail("\n".join(failures))
