@@ -49,6 +49,6 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         with:
-          channel_id: C069SADHP1Q
+          channel_id: C0A8AJA249K
           status: "Verification Test Failure"
           color: danger
