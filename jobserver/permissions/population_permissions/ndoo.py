@@ -19,6 +19,7 @@
 # See https://www.opensafely.org/approved-projects/ for the full list of approved projects.
 
 # 2025-12-05: This list consists of approved projects from #156 onwards, as of 2025-12-05 (#156-200). All of these projects are COVID projects, out of scope for NDOO.
+# 2026-01-13: Projects #201-205 added to the list; these projects have been confirmed as also approved under the COVID-19 Direction
 ANALYSIS_SCOPE_KEY = "include_ndoo"
 
 PROJECTS_WITH_NDOO_PERMISSION = {
@@ -67,6 +68,11 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     198,  # https://jobs.opensafely.org/identify-risk-factors-associated-with-disparities-for-resistant-bloodstream-infections-before-during-and-after-the-global-covid-19-pandemic-a-national-case-control-and-cohort-study/
     199,  # https://jobs.opensafely.org/effects-of-the-covid-19-pandemic-on-antibiotic-prescribing/
     200,  # https://jobs.opensafely.org/burden-of-neurodegenerative-disease-2020-2024/
+    201,  # https://jobs.opensafely.org/impact-of-covid-19-pandemic-on-life-expectancy-among-people-with-hiv/
+    202,  # https://jobs.opensafely.org/a-longitudinal-evaluation-of-pharmacy-consultation-services-including-the-pharmacy-first-programme-on-healthcare-utilisation-over-the-period-2017-2026/
+    203,  # https://jobs.opensafely.org/migration-related-coding-in-english-primary-care-electronic-health-records/
+    204,  # https://jobs.opensafely.org/the-effect-of-the-covid-19-pandemic-on-ae-attendances-for-cardiovascular-diseases/
+    205,  # https://jobs.opensafely.org/short-data-report-recording-of-medicines-prescribed-outside-primary-care-in-gp-ehr-data/
 }
 
 
