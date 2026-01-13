@@ -50,12 +50,8 @@ def test_staff_urls_require_permission(
     In simple terms it:
     - looks at every staff URL (including ones inside `include()` blocks)
     - keeps only the ones that point at `staff.views.*`
-    - calls each view with a simple `GET` request and placeholder URL arguments
-    - expects the view to raise some kind of error (usually a permission error)
-    - fails the test only if the view returns normally
-
-    The view could fail for other reasons, but this test is a backstop for any
-    potential missing permission check tests.
+    - calls each view with a request for a user without Staff Area permissions
+    - expects the view to raise `PermissionDenied`
     """
 
     failures: list[str] = []
