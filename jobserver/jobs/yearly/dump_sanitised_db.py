@@ -23,7 +23,11 @@ OUT_DIR = OUTPUT_PATH.parent
 
 
 class Job(YearlyJob):
-    """Job that produces a sanitised dump for local development."""
+    """
+    Produces a sanitised jobserver dump for local development.
+    Tables/columns are controlled by allow_list.json and disallowed columns are replaced with fake values.
+    See dump_sanitised_db.md for more information about this script.
+    """
 
     help = "Dump a safe copy of the DB with non-allowlisted columns replaced by fake values"
 

@@ -1,5 +1,16 @@
 # Sanitised Database Dump Job
 
+## Content
+
+- [About](#about)
+- [High-Level Algorithm](#high-level-algorithm)
+- [Allow List](#allow-list)
+- [Manually testing the script](#manually-testing-the-script)
+- [Notes and Decisions](#notes-and-decisions)
+- [FAQs](#faqs)
+
+## About
+
 This job exists so developers can work with a production‑like dataset without exposing sensitive information. Instead of copying the raw production database, it creates a temporary schema containing only safe columns (non‑allow‑listed columns are replaced with fake values) and dumps that schema for local use.
 
 The code lives in `jobserver/jobs/yearly/dump_sanitised_db.py` alongside its allow list (`allow_list.json`). The job currently inherits from `YearlyJob` so it only runs when triggered manually; once we are confident it is safe, we can switch it back to `DailyJob`.
@@ -31,7 +42,74 @@ The code lives in `jobserver/jobs/yearly/dump_sanitised_db.py` alongside its all
 
 When adding new columns/tables, update the allow list accordingly. If a column is sensitive but referenced by the UI, we keep it in the schema but set its values to fake data (so the schema stays intact).
 
-## Notes & Decisions
+## Manually testing the script
+
+We can manually test this script by following these steps:
+
+1. Switch to a virtual environment
+
+2. Copy dotenv-sample and rename copy to .env
+
+```
+scripts/dev-env.sh .env
+```
+
+3. Start docker and install requirements
+
+```
+just docker/db
+just devenv
+```
+
+4. In another terminal, download and restore the latest production database dump to a separate database. We need to do this so that the sanitised db script can use this production like db when creating a sanitised dump. In real case scenario, we would not need to do this as we will be pointing the db on dokku server.
+
+```
+scp dokku4:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
+createdb -h localhost -p 6543 -U user jobserver_prod
+pg_restore -h localhost -p 6543 -U user -d jobserver_prod --no-owner --no-acl jobserver.dump
+```
+
+5. Update `DATABASE_URL` in `.env` to point to this db
+
+```
+DATABASE_URL=postgres://user:pass@localhost:6543/jobserver_prod
+```
+
+6. Build assets
+
+```
+just assets-rebuild
+```
+
+7. Load changes in `.env` and run the sanitised db job to create a sanitised dump.
+Make sure the `OUTPUT_PATH` mentioned in the script is available on your system.
+
+```
+set -a; source .env; set +a
+just manage runjob dump_sanitised_db
+```
+
+8. Restore this sanitised db
+
+```
+just docker/restore-db sanitised_jobserver.dump
+```
+
+9. Update `DATABASE_URL` in `.env` to point back to db
+
+```
+DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
+```
+
+10. Load changes in `.env` and run
+
+```
+set -a; source .env; set +a
+just manage migrate
+just run
+```
+
+## Notes and Decisions
 
 - We are leaving the legacy `dump_db` raw-dump script untouched for now; once the sanitised job proves itself we can move `dump_db` to the yearly bucket so a full, unsanitised dump is still available on demand (via an explicit run) when a debugging emergency requires it.
 - SQL safety: all dynamic identifiers are validated and interpolated via `psycopg.sql.Identifier`/`sql.SQL`. Values use parameterized queries. This protects us against accidental SQL injection in allow list entries.
