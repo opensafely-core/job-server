@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.generic import View
 
 from ..backends import show_warning
-from ..models import Backend, Job
+from ..models import Backend, Job, JobRequestStatus
 
 
 class DBAvailability(View):
@@ -59,6 +59,12 @@ class Status(View):
             unacked = (
                 backend.job_requests.annotate(num_jobs=Count("jobs"))
                 .filter(num_jobs=0)
+                .exclude(
+                    _status__in=[
+                        JobRequestStatus.NOTHING_TO_DO,
+                        JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS,
+                    ]
+                )
                 .count()
             )
             counts_by_status = (
