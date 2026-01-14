@@ -63,7 +63,7 @@ def test_projectaddmember_post_success(rf, staff_area_administrator):
     assert project.memberships.filter(roles=[ProjectDeveloper]).count() == 2
 
 
-def test_projectaddmember_unauthorized(rf, staff_area_administrator):
+def test_projectaddmember_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
