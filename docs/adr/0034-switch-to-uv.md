@@ -67,4 +67,4 @@ Job Server will use `uv` for Python dependency management, replacing `pip`, `pip
 
 ### Negative
 - Developers must install and become familiar with `uv`.
-- Some ecosystem tools and documentation assume `pip`-based workflows and may require translation to `uv` equivalents, adjustment of those tools to use `uv` commands, or [generation of `requirements.txt` files from `uv.lock`](https://docs.astral.sh/uv/reference/cli/#uv-export) if necessary.
+- Some third party tools that we use, and their associated documentation, may assume `pip`-based workflows that require translation to `uv` equivalents, adjustment of those tools to use `uv` commands, or [generation of `requirements.txt` files from `uv.lock`](https://docs.astral.sh/uv/reference/cli/#uv-export) if necessary.
