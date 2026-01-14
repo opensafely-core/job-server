@@ -16,6 +16,7 @@ class StaffAreaAdministrator:
         Permission.ORG_CREATE,
         Permission.USER_MANAGE,
         Permission.STAFF_AREA_ACCESS,
+        Permission.USER_EDIT_PROJECT_ROLES,
     ]
 
 
@@ -28,7 +29,9 @@ class ServiceAdministrator:
     models = [
         "jobserver.models.user.User",
     ]
-    permissions = []
+    permissions = [
+        Permission.USER_EDIT_PROJECT_ROLES,
+    ]
 
 
 class OutputChecker:
