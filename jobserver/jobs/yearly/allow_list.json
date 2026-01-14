@@ -543,7 +543,12 @@
     "lifetime",
     "assoc_type"
   ],
-  "social_auth_code": [],
+  "social_auth_code": [
+    "code",
+    "id",
+    "timestamp",
+    "verified"
+  ],
   "social_auth_nonce": [
     "id",
     "server_url",
