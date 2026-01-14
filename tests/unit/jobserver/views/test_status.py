@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from django.utils import timezone
 
+from jobserver.models import JobRequestStatus
 from jobserver.utils import set_from_list
 from jobserver.views.status import DBAvailability, PerBackendStatus, Status
 
@@ -143,6 +144,26 @@ def test_status_unhealthy(rf):
     assert output["queue"]["acked"] == 2
     assert output["queue"]["unacked"] == 1
     assert output["show_warning"]
+
+
+def test_status_unacked_excludes_non_actionable_statuses(rf):
+    backend = BackendFactory()
+
+    # 2 requests that should show, 2 that should not
+    JobRequestFactory(backend=backend)
+    JobRequestFactory(backend=backend, _status=JobRequestStatus.NOTHING_TO_DO)
+    JobRequestFactory(
+        backend=backend, _status=JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
+    )
+    JobRequestFactory(backend=backend)
+
+    request = rf.get("/")
+    response = Status.as_view()(request)
+
+    output = next(  # pragma: no branch
+        d for d in response.context_data["backends"] if d
+    )
+    assert output["queue"]["unacked"] == 2
 
 
 def test_status_counts_all_running_jobs(rf):
