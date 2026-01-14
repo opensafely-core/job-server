@@ -37,6 +37,8 @@ class Permission(StrEnum):
 
     USER_MANAGE = auto()
 
+    USER_EDIT_PROJECT_ROLES = auto()
+
     WORKSPACE_ARCHIVE = auto()
     WORKSPACE_CREATE = auto()
     WORKSPACE_TOGGLE_NOTIFICATIONS = auto()
