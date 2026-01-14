@@ -111,7 +111,7 @@ just run
 
 ## Notes and Decisions
 
-- We are leaving the legacy `dump_db` raw-dump script untouched for now; once the sanitised job proves itself we can move `dump_db` to the yearly bucket so a full, unsanitised dump is still available on demand (via an explicit run) when a debugging emergency requires it.
+- We are leaving the legacy `dump_db` raw-dump script untouched for now. Once the sanitised job proves itself we can change `dump_db` to a normal script so an unsanitised dump is still available on demand (via an explicit run) when a debugging emergency requires it.
 - SQL safety: all dynamic identifiers are validated and interpolated via `psycopg.sql.Identifier`/`sql.SQL`. Values use parameterized queries. This protects us against accidental SQL injection in allow list entries.
 - Fake expressions use `ROW_NUMBER()` so they remain unique within each table copy (no collisions with `random()`).
 - Tests:
