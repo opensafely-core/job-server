@@ -13,7 +13,7 @@ Usage:
      " > all_columns.txt
 
   3. Then run this script, pointing it at that column list:
-     python jobserver/jobs/yearly/get_excluded_columns.py all_columns.txt
+     python scripts/get_excluded_columns.py all_columns.txt
 """
 
 from __future__ import annotations
