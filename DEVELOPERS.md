@@ -21,6 +21,7 @@
   - [Manually bumping the cutoff date](#manually-bumping-the-cutoff-date)
   - [Adding a package-specific timestamp cutoff](#adding-a-package-specific-timestamp-cutoff)
 - [Deployment](#deployment)
+- [Modifying the production database](#modifying-the-production-database)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
 - [`django-upgrade`](#django-upgrade)
@@ -324,6 +325,22 @@ Currently no automated tooling is in place to enforce removal of stale package-s
 It is currently configured to be deployed Heroku-style, and requires the environment variables defined in `dotenv-sample`.
 
 The Bennett Institute job server is deployed to our `dokku4` instance, instructions are are in [INSTALL.md](INSTALL.md).
+
+## Modifying the production database
+
+Examples of legitimate reasons to modify the production database outside of the
+normal Django request-response cycle include bugs in production code, fixing or
+reversing problematic migrations, and doing database maintenance that is not
+possible through the site UI. Appropriate ways to do these include migrations,
+management commands, or as part of a scripted automated process. If you think
+you need to do this, always discuss with the team first.
+
+Direct write access is error-prone and not reviewable, testable, or auditable.
+We would prefer developers use other more appropriate methods to edit the
+database. Sometimes the team may agree to edit the production database
+directly in exceptional circumstances, such as during an incident, or when it is
+not possible to do any other way.
+
 
 ## Testing
 
