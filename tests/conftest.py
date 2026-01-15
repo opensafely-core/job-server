@@ -74,8 +74,7 @@ def staff_area_administrator():
 
 @pytest.fixture
 def service_administrator():
-    # Not used in any tests yet, so, for now, exclude from coverage:
-    return UserFactory(roles=[ServiceAdministrator])  # pragma: no cover
+    return UserFactory(roles=[ServiceAdministrator])
 
 
 @pytest.fixture(name="log_output")

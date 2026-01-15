@@ -32,7 +32,9 @@ from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
 
 
-@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
+@method_decorator(
+    require_permission(Permission.USER_EDIT_PROJECT_ROLES), name="dispatch"
+)
 class ProjectAddMember(FormView):
     form_class = ProjectAddMemberForm
     template_name = "staff/project/membership_create.html"
@@ -203,7 +205,9 @@ class ProjectList(ListView):
         return qs.distinct()
 
 
-@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
+@method_decorator(
+    require_permission(Permission.USER_EDIT_PROJECT_ROLES), name="dispatch"
+)
 class ProjectMembershipEdit(UpdateView):
     context_object_name = "membership"
     form_class = ProjectMembershipForm
@@ -244,7 +248,9 @@ class ProjectMembershipEdit(UpdateView):
         )
 
 
-@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
+@method_decorator(
+    require_permission(Permission.USER_EDIT_PROJECT_ROLES), name="dispatch"
+)
 class ProjectMembershipRemove(View):
     def post(self, request, *args, **kwargs):
         membership = get_object_or_404(

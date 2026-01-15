@@ -27,21 +27,29 @@ from ....factories import (
 )
 
 
-def test_projectaddmember_get_success(rf, staff_area_administrator):
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["staff_area_administrator", "service_administrator"],
+)
+def test_projectaddmember_get_success(request, rf, user_fixture):
     project = ProjectFactory()
     UserFactory(username="beng", fullname="Ben Goldacre")
 
-    request = rf.get("/")
-    request.user = staff_area_administrator
+    req = rf.get("/")
+    req.user = request.getfixturevalue(user_fixture)
 
-    response = ProjectAddMember.as_view()(request, slug=project.slug)
+    response = ProjectAddMember.as_view()(req, slug=project.slug)
 
     assert response.status_code == 200
     assert response.context_data["project"] == project
     assert "Ben Goldacre (beng)" in response.rendered_content
 
 
-def test_projectaddmember_post_success(rf, staff_area_administrator):
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["staff_area_administrator", "service_administrator"],
+)
+def test_projectaddmember_post_success(request, rf, user_fixture):
     project = ProjectFactory()
     user1 = UserFactory()
     user2 = UserFactory()
@@ -50,10 +58,10 @@ def test_projectaddmember_post_success(rf, staff_area_administrator):
         "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
         "users": [user1.pk, user2.pk],
     }
-    request = rf.post("/", data)
-    request.user = staff_area_administrator
+    req = rf.post("/", data)
+    req.user = request.getfixturevalue(user_fixture)
 
-    response = ProjectAddMember.as_view()(request, slug=project.slug)
+    response = ProjectAddMember.as_view()(req, slug=project.slug)
 
     assert response.status_code == 302
     assert response.url == project.get_staff_url()
@@ -63,7 +71,7 @@ def test_projectaddmember_post_success(rf, staff_area_administrator):
     assert project.memberships.filter(roles=[ProjectDeveloper]).count() == 2
 
 
-def test_projectaddmember_unauthorized(rf, staff_area_administrator):
+def test_projectaddmember_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
@@ -71,12 +79,16 @@ def test_projectaddmember_unauthorized(rf, staff_area_administrator):
         ProjectAddMember.as_view()(request)
 
 
-def test_projectaddmember_unknown_project(rf, staff_area_administrator):
-    request = rf.post("/")
-    request.user = staff_area_administrator
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["staff_area_administrator", "service_administrator"],
+)
+def test_projectaddmember_unknown_project(request, rf, user_fixture):
+    req = rf.post("/")
+    req.user = request.getfixturevalue(user_fixture)
 
     with pytest.raises(Http404):
-        ProjectAddMember.as_view()(request, slug="test")
+        ProjectAddMember.as_view()(req, slug="test")
 
 
 def test_projectauditlog_filter_by_type(
@@ -463,9 +475,13 @@ def test_projectlist_unauthorized(rf):
         ProjectList.as_view()(request, project_slug=project.slug)
 
 
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["staff_area_administrator", "service_administrator"],
+)
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
 def test_projectmembershipedit_success(
-    rf, staff_area_administrator, next_url, project_membership
+    request, user_fixture, rf, staff_area_administrator, next_url, project_membership
 ):
     project = ProjectFactory()
     user = UserFactory()
@@ -475,12 +491,10 @@ def test_projectmembershipedit_success(
     membership = project_membership(project=project, user=UserFactory())
 
     suffix = f"?next={next_url}" if next_url else ""
-    request = rf.post(f"/{suffix}", {"roles": [dotted_path(ProjectDeveloper)]})
-    request.user = staff_area_administrator
+    req = rf.post(f"/{suffix}", {"roles": [dotted_path(ProjectDeveloper)]})
+    req.user = request.getfixturevalue(user_fixture)
 
-    response = ProjectMembershipEdit.as_view()(
-        request, slug=project.slug, pk=membership.pk
-    )
+    response = ProjectMembershipEdit.as_view()(req, slug=project.slug, pk=membership.pk)
 
     assert response.status_code == 302
 
@@ -491,18 +505,22 @@ def test_projectmembershipedit_success(
     assert membership.roles == [ProjectDeveloper]
 
 
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["staff_area_administrator", "service_administrator"],
+)
 def test_projectmembershipedit_unknown_membership(
-    rf, staff_area_administrator, project_membership
+    rf, request, user_fixture, project_membership
 ):
     project = ProjectFactory()
 
     project_membership(project=project, user=UserFactory())
 
-    request = rf.get("/")
-    request.user = staff_area_administrator
+    req = rf.get("/")
+    req.user = request.getfixturevalue(user_fixture)
 
     with pytest.raises(Http404):
-        ProjectMembershipEdit.as_view()(request, slug=project.slug, pk="0")
+        ProjectMembershipEdit.as_view()(req, slug=project.slug, pk="0")
 
 
 def test_projectmembershipedit_unauthorized(rf):
@@ -513,9 +531,13 @@ def test_projectmembershipedit_unauthorized(rf):
         ProjectMembershipEdit.as_view()(request)
 
 
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["staff_area_administrator", "service_administrator"],
+)
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
 def test_projectmembershipremove_success(
-    rf, staff_area_administrator, next_url, project_membership
+    request, rf, user_fixture, next_url, project_membership
 ):
     project = ProjectFactory()
     user = UserFactory()
@@ -523,16 +545,16 @@ def test_projectmembershipremove_success(
     membership = project_membership(project=project, user=user)
 
     suffix = f"?next={next_url}" if next_url else ""
-    request = rf.post(f"/{suffix}")
-    request.user = staff_area_administrator
+    req = rf.post(f"/{suffix}")
+    req.user = request.getfixturevalue(user_fixture)
 
     # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
+    req.session = "session"
+    messages = FallbackStorage(req)
+    req._messages = messages
 
     response = ProjectMembershipRemove.as_view()(
-        request, slug=project.slug, pk=membership.pk
+        req, slug=project.slug, pk=membership.pk
     )
 
     assert response.status_code == 302
@@ -561,18 +583,22 @@ def test_projectmembershipremove_unauthorized(rf, project_membership):
         )
 
 
-def test_projectmembershipremove_unknown_membership(rf, staff_area_administrator):
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["staff_area_administrator", "service_administrator"],
+)
+def test_projectmembershipremove_unknown_membership(request, rf, user_fixture):
     project = ProjectFactory()
 
     assert project.memberships.count() == 0
 
-    request = rf.post("/")
-    request.user = staff_area_administrator
+    req = rf.post("/")
+    req.user = request.getfixturevalue(user_fixture)
 
     # set up messages framework
-    request.session = "session"
+    req.session = "session"
     messages = FallbackStorage(request)
-    request._messages = messages
+    req._messages = messages
 
     with pytest.raises(Http404):
-        ProjectMembershipRemove.as_view()(request, slug=project.slug, pk=0)
+        ProjectMembershipRemove.as_view()(req, slug=project.slug, pk=0)
