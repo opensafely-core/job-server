@@ -246,7 +246,6 @@ exclude-newer-package = {}
 
 [dependency-groups]
 dev = [
-    "coverage-enable-subprocess",
     "coverage[toml]",
     "django-debug-toolbar",
     "django-upgrade",
