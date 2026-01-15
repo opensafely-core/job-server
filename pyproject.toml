@@ -179,8 +179,15 @@ env = [
   "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL=test-channel",
 ]
 filterwarnings = [
+    # Turn warnings into errors.
     "error",
+    # See issue #5540 for the test fixes required to remove
+    # PytestUnraisableExceptionWarning from filtering.
     "ignore::pytest.PytestUnraisableExceptionWarning:",
+    # The FORMS_URLFIELD_ASSUME_HTTPS and associated warning
+    # can both be removed when we upgrade to Django >= 6.0.
+    # See the FORMS_URLFIELD_ASSUME_HTTPS setting in jobserver/settings.py
+    # for more information.
     "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.:django.utils.deprecation.RemovedInDjango60Warning:",
 ]
 markers = [
