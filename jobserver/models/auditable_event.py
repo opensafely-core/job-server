@@ -17,6 +17,10 @@ class AuditableEvent(models.Model):
             "project_member_updated_roles",
             "User's roles updated",
         )
+        USER_UPDATED_ROLES = (
+            "user_updated_roles",
+            "User's global roles updated",
+        )
 
     old = models.TextField()
     new = models.TextField()

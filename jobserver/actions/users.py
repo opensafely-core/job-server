@@ -12,6 +12,9 @@ from jobserver.emails import (
     send_token_login_used_email,
 )
 from jobserver.models import User
+from jobserver.models.auditable_event import AuditableEvent
+
+from ..authorization.utils import dotted_path
 
 
 WORDLIST = xkcd_password.generate_wordlist("eff-long")
@@ -95,6 +98,19 @@ def validate_login_token(username, token):
 
 @transaction.atomic()
 def update_roles(*, user, by, roles):
+    # Log the change.
+    AuditableEvent.objects.create(
+        type=AuditableEvent.Type.USER_UPDATED_ROLES,
+        old=",".join([dotted_path(r) for r in user.roles]),
+        target_model=user._meta.label,
+        target_field="roles",
+        target_id=user.pk,
+        target_user=user.username,
+        created_by=by.username,
+        new=",".join([dotted_path(r) for r in roles]),
+    )
+
+    # Make the change.
     user.roles = roles
     user.save(update_fields=["roles"])
 
