@@ -32,15 +32,33 @@ The code lives in `jobserver/jobs/yearly/dump_sanitised_db.py` alongside its all
 4. **Publish the dump**
    - Flush the temp file, `chmod 600`, and `shutil.copy2` it to `/storage/sanitised_jobserver.dump`. The temporary file is automatically deleted when the context manager exits.
 
+```mermaid
+flowchart TD
+    A[Dump Sanitised Database Job] --> B[Load DB settings + allow_list.json]
+    B --> C[Create temp file in /storage]
+    C --> D[Create temp_scrubbed_schema in DB]
+    D --> E{For each allow-listed table}
+    E --> F[Fetch column metadata from information_schema]
+    F --> G[CREATE TABLE temp_scrubbed_schema.table LIKE public.table]
+    G --> H[Insert rows: allowed columns verbatim, fake others]
+    H --> E
+    E --> I[pg_dump --schema=temp_scrubbed_schema -> temp file]
+    I --> J[Drop temp_scrubbed_schema]
+    J --> K[Rename temp file to sanitised_jobserver.dump]
+    K --> L[Developers download dump for local use]
+```
+
 ## Allow List
 
 `allow_list.json` is a manually curated mapping of tables to the columns we want to keep verbatim. Everything else gets faked. To build it we:
 
 1. Dumped the production schema (`schema.sql`) and annotated each table with comments about which columns might contain sensitive data.
-2. For each table, either marked it “looks good” (everything is safe) or listed the exact columns we wanted to retain. Any column omitted from the list is automatically replaced with fake values in the scratch schema.
+2. For each table, either marked it safe or listed the exact columns we wanted to retain. Any column omitted from the list is automatically replaced with fake values in the scratch schema.
 3. Stored the final allow list under `jobserver/jobs/yearly/allow_list.json`. The integration test `tests/integration/test_dump_sanitised_db.py` checks that every table/column in the allow list still exists in the current schema so we notice if migrations drift.
 
 When adding new columns/tables, update the allow list accordingly. If a column is sensitive but referenced by the UI, we keep it in the schema but set its values to fake data (so the schema stays intact).
+
+If you ever need to see the columns that are **not** allow‑listed, run `scripts/get_excluded_columns.py`. First generate a column list from your database and then run the script to produce `excluded_columns.txt` which highlights every table/column pair we currently fake. Refer to script's docstring for more details on how to run the script. This is a useful audit tool when reviewing allow‑list changes.
 
 ## Manually testing the script
 
