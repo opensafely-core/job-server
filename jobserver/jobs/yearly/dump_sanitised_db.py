@@ -244,6 +244,30 @@ class Job(YearlyJob):
                 )
                 cur.execute(insert_sql)
 
+                # Keep the sequence aligned with the data we copied; otherwise, when the sanitised dump
+                # is restored, the sequences stay at 1 and inserts hit duplicate-key errors.
+                # We only run setval when the table has an integer/serial `id` column.
+                id_meta = col_meta.get("id")
+                if (
+                    "id" in existing_cols
+                    and id_meta
+                    and any(
+                        token in id_meta["data_type"] for token in ("int", "serial")
+                    )
+                ):
+                    cur.execute(
+                        sql.SQL(
+                            """
+                            SELECT setval(
+                                pg_get_serial_sequence(%s, 'id'),
+                                COALESCE((SELECT MAX(id)::bigint FROM {table}), 1),
+                                true
+                            )
+                            """
+                        ).format(table=temp_table),
+                        (f"{TEMP_SCHEMA}.{table_name}",),
+                    )
+
     def _drop_temp_schema(self):
         """Drop the scratch schema if it exists."""
         with connection.cursor() as cur:
