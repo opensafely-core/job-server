@@ -289,7 +289,7 @@ def test_applicationdetail_with_unknown_user(rf, staff_area_administrator):
         ApplicationDetail.as_view()(request, pk_hash="0000")
 
 
-def test_applicationdetail_without_core_dev_role(rf):
+def test_applicationdetail_without_permission(rf):
     application = ApplicationFactory()
 
     request = rf.get("/")
@@ -476,7 +476,7 @@ def test_applicationedit_with_deleted_application(
     assert str(messages[0]) == msg
 
 
-def test_applicationedit_without_core_dev_role(rf):
+def test_applicationedit_without_permission(rf):
     application = ApplicationFactory()
 
     request = rf.get("/")
@@ -624,7 +624,7 @@ def test_applicationremove_unknown_application(rf, staff_area_administrator):
         ApplicationRemove.as_view()(request, pk_hash="")
 
 
-def test_applicationremove_without_core_dev_role(rf):
+def test_applicationremove_without_permission(rf):
     application = ApplicationFactory()
 
     request = rf.post("/")
@@ -671,7 +671,7 @@ def test_applicationrestore_unknown_application(rf, staff_area_administrator):
         ApplicationRestore.as_view()(request, pk_hash="")
 
 
-def test_applicationrestore_without_core_dev_role(rf):
+def test_applicationrestore_without_permission(rf):
     application = ApplicationFactory()
 
     request = rf.post("/")
