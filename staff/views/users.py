@@ -288,9 +288,9 @@ class UserRoleList(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        self.user.roles = form.cleaned_data["roles"]
-        self.user.save(update_fields=["roles"])
-
+        users.update_roles(
+            user=self.user, by=self.request.user, roles=form.cleaned_data["roles"]
+        )
         return redirect(self.user.get_staff_roles_url())
 
     def get_context_data(self, **kwargs):
