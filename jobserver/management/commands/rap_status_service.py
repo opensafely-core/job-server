@@ -28,10 +28,11 @@ class Command(BaseCommand):
         run_fn = options["run_fn"]
         while run_fn():
             try:
-                time.sleep(settings.RAP_API_POLL_INTERVAL)
                 active_job_requests_ids = get_active_job_request_identifiers()
                 logger.info("Active rap ids", rap_ids=active_job_requests_ids)
                 rap_status_update(active_job_requests_ids)
             except Exception as exc:
                 logger.error(exc)
                 sentry_sdk.capture_exception(exc)
+
+            time.sleep(settings.RAP_API_POLL_INTERVAL)
