@@ -50,7 +50,7 @@ def test_redirectdelete_with_unknown_redirect(rf, staff_area_administrator):
         RedirectDelete.as_view()(request, pk="0")
 
 
-def test_redirectdelete_without_core_dev_role(rf):
+def test_redirectdelete_without_permission(rf):
     redirect = RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.post("/")
@@ -80,7 +80,7 @@ def test_redirectedetail_with_unknown_redirect(rf, staff_area_administrator):
         RedirectDetail.as_view()(request, pk="0")
 
 
-def test_redirectedetail_without_core_dev_role(rf):
+def test_redirectedetail_without_permission(rf):
     redirect = RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.get("/")
@@ -219,7 +219,7 @@ def test_redirectlist_success(rf, staff_area_administrator):
     assert len(response.context_data["object_list"]) == 5
 
 
-def test_redirectlist_without_core_dev_role(rf):
+def test_redirectlist_without_permission(rf):
     RedirectFactory.create_batch(5, project=ProjectFactory())
 
     request = rf.get("/")

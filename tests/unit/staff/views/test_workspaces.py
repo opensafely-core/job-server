@@ -36,7 +36,7 @@ def test_workspacedetail_with_unknown_user(rf, staff_area_administrator):
         WorkspaceDetail.as_view()(request, slug="test")
 
 
-def test_workspacedetail_without_core_dev_role(rf):
+def test_workspacedetail_without_permission(rf):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")

@@ -11,7 +11,7 @@ from jobserver.authorization.permissions import Permission
 from ....factories import UserFactory
 
 
-def test_require_manage_backends_with_core_dev_role(rf, staff_area_administrator):
+def test_require_manage_backends_with_permission(rf, staff_area_administrator):
     request = rf.get("/")
     request.user = staff_area_administrator
 
@@ -24,7 +24,7 @@ def test_require_manage_backends_with_core_dev_role(rf, staff_area_administrator
     assert returned_request == request
 
 
-def test_require_manage_backends_without_core_dev_role(rf):
+def test_require_manage_backends_without_permission(rf):
     request = rf.get("/")
     request.user = UserFactory(roles=[])
 

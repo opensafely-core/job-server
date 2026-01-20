@@ -74,7 +74,7 @@ def test_researcheredit_unknown_researcher(rf, staff_area_administrator):
         ResearcherEdit.as_view()(request, pk_hash=application.pk_hash, pk=0)
 
 
-def test_researcheredit_without_core_dev_role(rf, staff_area_administrator):
+def test_researcheredit_without_permission(rf, staff_area_administrator):
     application = ApplicationFactory()
     researcher = ResearcherRegistrationFactory(application=application)
 

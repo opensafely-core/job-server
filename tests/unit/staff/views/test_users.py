@@ -224,7 +224,7 @@ def test_userdetail_with_unknown_user(rf, staff_area_administrator):
         UserDetail.as_view()(request, username="test")
 
 
-def test_userdetail_without_core_dev_role(rf):
+def test_userdetail_without_permission(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
@@ -299,7 +299,7 @@ def test_userdetailwithemail_with_unknown_user(rf, staff_area_administrator):
         UserDetailWithEmail.as_view()(request, username="test")
 
 
-def test_userdetailwithemail_without_core_dev_role(rf, staff_area_administrator):
+def test_userdetailwithemail_without_permission(rf, staff_area_administrator):
     request = rf.get("/")
     request.user = UserFactory()
 
@@ -432,7 +432,7 @@ def test_userdetailwithoauth_with_unknown_user(rf, staff_area_administrator):
         UserDetailWithOAuth.as_view()(request, username="test")
 
 
-def test_userdetailwithoauth_without_core_dev_role(rf):
+def test_userdetailwithoauth_without_permission(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
@@ -769,7 +769,7 @@ def test_userrolelist_with_unknown_user(rf, staff_area_administrator):
         UserRoleList.as_view()(request, username="")
 
 
-def test_userrolelist_without_core_dev_role(rf):
+def test_userrolelist_without_permission(rf):
     user = UserFactory()
 
     request = rf.get("/")
