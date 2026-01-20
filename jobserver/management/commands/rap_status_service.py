@@ -3,6 +3,7 @@
 import argparse
 import time
 
+import django.db
 import sentry_sdk
 import structlog
 from django.conf import settings
@@ -34,5 +35,7 @@ class Command(BaseCommand):
             except Exception as exc:
                 logger.error(exc)
                 sentry_sdk.capture_exception(exc)
+            finally:
+                django.db.close_old_connections()
 
             time.sleep(settings.RAP_API_POLL_INTERVAL)
