@@ -20,6 +20,7 @@ class Permission(StrEnum):
 
     ORG_CREATE = auto()
 
+    PROJECT_CREATE = auto()
     PROJECT_MANAGE = auto()
 
     RELEASE_FILE_DELETE = auto()
