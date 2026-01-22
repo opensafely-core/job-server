@@ -3,6 +3,7 @@
 import argparse
 import time
 
+import django.db
 import sentry_sdk
 import structlog
 from django.conf import settings
@@ -12,6 +13,17 @@ from jobserver.actions.rap import get_active_job_request_identifiers, rap_status
 
 
 logger = structlog.get_logger(__name__)
+
+
+def safe_close_old_db_connections():
+    """This uses Django's mechanism to close old database connections,
+    but avoids raising an exception,
+    which the original code does not guarantee."""
+    try:
+        django.db.close_old_connections()
+    except Exception as exc:
+        logger.error(exc)
+        sentry_sdk.capture_exception(exc)
 
 
 class Command(BaseCommand):
@@ -28,10 +40,13 @@ class Command(BaseCommand):
         run_fn = options["run_fn"]
         while run_fn():
             try:
-                time.sleep(settings.RAP_API_POLL_INTERVAL)
                 active_job_requests_ids = get_active_job_request_identifiers()
                 logger.info("Active rap ids", rap_ids=active_job_requests_ids)
                 rap_status_update(active_job_requests_ids)
             except Exception as exc:
                 logger.error(exc)
                 sentry_sdk.capture_exception(exc)
+            finally:
+                safe_close_old_db_connections()
+
+            time.sleep(settings.RAP_API_POLL_INTERVAL)

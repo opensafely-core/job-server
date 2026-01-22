@@ -2,6 +2,10 @@ from unittest.mock import Mock, patch
 
 from django.core.management import call_command
 
+from jobserver.management.commands.rap_status_service import (
+    safe_close_old_db_connections,
+)
+
 
 @patch(
     "jobserver.management.commands.rap_status_service.rap_status_update", autospec=True
@@ -48,3 +52,27 @@ def test_call_rap_status_service_command_error(
 
     assert "error" == log_output.entries[0]["log_level"]
     assert "bad ids" in str(log_output.entries[0]["event"])
+
+
+def test_safe_close_old_db_connections_handles_exceptions_on_failure(
+    mocker, log_output
+):
+    db_exception = Exception("failed to close old db connections")
+    mock_close_old_db_connections = mocker.patch(
+        "jobserver.management.commands.rap_status_service.django.db.close_old_connections",
+        side_effect=db_exception,
+        autospec=True,
+    )
+    mock_sentry_sdk_capture_exception = mocker.patch(
+        "jobserver.management.commands.rap_status_service.sentry_sdk.capture_exception",
+        autospec=True,
+    )
+
+    assert len(log_output.entries) == 0, log_output.entries
+
+    safe_close_old_db_connections()
+    mock_close_old_db_connections.assert_called_once()
+    mock_sentry_sdk_capture_exception.assert_called_once_with(db_exception)
+
+    assert len(log_output.entries) == 1, log_output.entries
+    assert db_exception is log_output.entries[0].get("event")
