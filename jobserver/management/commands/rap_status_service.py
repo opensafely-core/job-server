@@ -15,6 +15,17 @@ from jobserver.actions.rap import get_active_job_request_identifiers, rap_status
 logger = structlog.get_logger(__name__)
 
 
+def safe_close_old_db_connections():
+    """This uses Django's mechanism to close old database connections,
+    but avoids raising an exception,
+    which the original code does not guarantee."""
+    try:
+        django.db.close_old_connections()
+    except Exception as exc:
+        logger.error(exc)
+        sentry_sdk.capture_exception(exc)
+
+
 class Command(BaseCommand):
     """Management command to continually update the status of all active Jobs via the RAP API."""
 
@@ -36,6 +47,6 @@ class Command(BaseCommand):
                 logger.error(exc)
                 sentry_sdk.capture_exception(exc)
             finally:
-                django.db.close_old_connections()
+                safe_close_old_db_connections()
 
             time.sleep(settings.RAP_API_POLL_INTERVAL)
