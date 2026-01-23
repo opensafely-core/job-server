@@ -34,6 +34,7 @@ from .views.orgs import (
 from .views.projects import (
     ProjectAddMember,
     ProjectAuditLog,
+    ProjectCreate,
     ProjectDetail,
     ProjectEdit,
     ProjectLinkApplication,
@@ -135,6 +136,7 @@ org_urls = [
 ]
 project_urls = [
     path("", ProjectList.as_view(), name="project-list"),
+    path("create/", ProjectCreate.as_view(), name="project-create"),
     path("<slug>/", ProjectDetail.as_view(), name="project-detail"),
     path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/audit-log/", ProjectAuditLog.as_view(), name="project-audit-log"),

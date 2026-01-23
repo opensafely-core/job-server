@@ -4,6 +4,7 @@ from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import (
+    CreateView,
     DetailView,
     FormView,
     ListView,
@@ -270,3 +271,10 @@ class ProjectMembershipRemove(View):
         return redirect(
             get_next_url(self.request.GET, membership.project.get_staff_url())
         )
+
+
+@method_decorator(require_permission(Permission.PROJECT_CREATE), name="dispatch")
+class ProjectCreate(CreateView):
+    model = Project
+    fields = []
+    template_name = "staff/project/create.html"
