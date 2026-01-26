@@ -41,7 +41,9 @@ class ProjectDetail(View):
             request.user, Permission.WORKSPACE_CREATE, project=project
         )
 
-        is_member = project.members.filter(username=request.user.username).exists()
+        can_manage_project = has_permission(
+            request.user, Permission.PROJECT_MANAGE, project=project
+        )
 
         memberships = project.memberships.select_related("user").order_by(
             Lower("user__fullname"), "user__username"
@@ -85,8 +87,8 @@ class ProjectDetail(View):
 
         context = {
             "can_create_workspaces": can_create_workspaces,
+            "can_manage_project": can_manage_project,
             "first_job_ran_at": first_job_ran_at,
-            "is_member": is_member,
             "memberships": memberships,
             "outputs": self.get_outputs(workspaces),
             "project": project,
