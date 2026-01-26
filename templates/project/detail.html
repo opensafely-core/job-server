@@ -78,7 +78,7 @@
                   View logs
                   {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
                 {% /button %}
-                {% if is_member %}
+                {% if can_manage_project %}
                   {% #button class="shrink-0" href=project.get_edit_url type="link" variant="secondary" %}
                     Edit project
                     {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
