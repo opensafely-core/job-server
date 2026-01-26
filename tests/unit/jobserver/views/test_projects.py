@@ -219,6 +219,44 @@ def test_projectdetail_with_no_releases(rf):
     assert "Outputs" not in response.rendered_content
 
 
+def test_projectdetail_hides_edit_project_for_member_without_manage_permission(
+    rf, project_membership
+):
+    project = ProjectFactory(org=OrgFactory())
+    user = UserFactory()
+    project_membership(project=project, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, project_slug=project.slug
+    )
+
+    assert "Edit project" not in response.rendered_content
+
+
+def test_projectdetail_shows_edit_project_for_user_with_manage_permission(
+    rf, project_membership, role_factory
+):
+    project = ProjectFactory(org=OrgFactory())
+    user = UserFactory()
+    project_membership(
+        project=project,
+        user=user,
+        roles=[role_factory(permission=Permission.PROJECT_MANAGE)],
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, project_slug=project.slug
+    )
+
+    assert "Edit project" in response.rendered_content
+
+
 def test_projectdetail_unknown_project(rf):
     request = rf.get("/")
     request.user = UserFactory()
