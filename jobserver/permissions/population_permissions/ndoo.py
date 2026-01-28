@@ -7,7 +7,9 @@
 # Permission must be requested from the OS service team in order to change the file
 # TODO: Document the process required, when confirmed.
 #
-# TODO: When this file is linked to in the docs, add a similar comment to the one in t1oo.py
+# Note also that this file is linked to in the documentation. If you move or restructure
+# this file you should ensure the documentation is updated appropriately.
+# https://github.com/opensafely/documentation/blob/7f8d660480fdc5e798ebe6dff6f9ed9762431736/docs/national-data-opt-outs.md
 
 # See DPIA document for OpenSAFELY Data Analytics Service (non-COVID) linked here:
 # https://digital.nhs.uk/about-nhs-digital/corporate-information-and-documents/directions-and-data-provision-notices/data-provision-notices-dpns/opensafely-data-analytics-service
