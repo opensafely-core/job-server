@@ -17,7 +17,7 @@ from jobserver import html_utils
 from jobserver.actions import project_members as members
 from jobserver.actions import projects
 from jobserver.auditing.presenters.lookup import get_presenter
-from jobserver.authorization.decorators import require_permission
+from jobserver.authorization.decorators import has_permission, require_permission
 from jobserver.authorization.permissions import Permission
 from jobserver.authorization.utils import roles_for
 from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, User
@@ -187,6 +187,9 @@ class ProjectList(ListView):
         return super().get_context_data(**kwargs) | {
             "orgs": Org.objects.order_by(Lower("name")),
             "q": self.request.GET.get("q", ""),
+            "can_create_project": has_permission(
+                self.request.user, Permission.PROJECT_CREATE
+            ),
         }
 
     def get_queryset(self):

@@ -5,7 +5,12 @@ from django.http import Http404
 
 from applications.models import Application
 from jobserver.actions import project_members
-from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
+from jobserver.authorization.roles import (
+    ProjectCollaborator,
+    ProjectDeveloper,
+    ServiceAdministrator,
+    StaffAreaAdministrator,
+)
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
 from staff.views.projects import (
@@ -473,6 +478,26 @@ def test_projectlist_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         ProjectList.as_view()(request, project_slug=project.slug)
+
+
+def test_projectlist_create_project_button_authorised(rf):
+    request = rf.get("/")
+    request.user = UserFactory(roles=[StaffAreaAdministrator, ServiceAdministrator])
+
+    response = ProjectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.context_data["can_create_project"]
+
+
+def test_projectlist_create_project_button_unauthorised(rf, staff_area_administrator):
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = ProjectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert not response.context_data["can_create_project"]
 
 
 @pytest.mark.parametrize(

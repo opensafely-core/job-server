@@ -31,6 +31,7 @@ class ServiceAdministrator:
     ]
     permissions = [
         Permission.USER_EDIT_PROJECT_ROLES,
+        Permission.PROJECT_CREATE,
     ]
 
 
