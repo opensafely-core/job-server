@@ -71,6 +71,15 @@ def test_project_get_approved_url_without_number():
     assert project.get_approved_url() == "https://www.opensafely.org/approved-projects"
 
 
+def test_project_get_approved_url_with_char():
+    project = ProjectFactory(number="42")
+
+    assert (
+        project.get_approved_url()
+        == "https://www.opensafely.org/approved-projects#project-42"
+    )
+
+
 def test_project_get_edit_url():
     project = ProjectFactory()
 
@@ -150,8 +159,11 @@ def test_project_title():
     project = ProjectFactory(number=None)
     assert project.title == project.name
 
-    project = ProjectFactory(name="test", number=123)
-    assert project.title == "123 - test"
+    project = ProjectFactory(name="test1", number=123)
+    assert project.title == "123 - test1"
+
+    project = ProjectFactory(name="test2", number="124")
+    assert project.title == "124 - test2"
 
 
 def test_project_org():
@@ -160,3 +172,39 @@ def test_project_org():
     lead_org = OrgFactory()
     ProjectCollaborationFactory(org=lead_org, project=project, is_lead=True)
     assert project.org == lead_org
+
+
+def test_project_identifier():
+    project = ProjectFactory(number=None)
+    assert project.identifier is None
+
+    project = ProjectFactory(number="120  ")
+    assert project.identifier == "120"
+
+
+# this should fail right now as number is still IntegerField
+def test_project_identifier_rejects_alphanumeric_value():
+    with pytest.raises(ValueError):
+        ProjectFactory(number="POS-2025-2001")
+
+
+def test_project_has_identifier():
+    project = ProjectFactory(number=None)
+    assert not project.has_identifier()
+
+    project = ProjectFactory(number=120)
+    assert project.has_identifier()
+
+    project = ProjectFactory(number="121")
+    assert project.has_identifier()
+
+
+def test_project_display_identifier():
+    project = ProjectFactory(number=None)
+    assert project.display_identifier() == ""
+
+    project = ProjectFactory(number="120  ")
+    assert project.display_identifier() == "120"
+
+    project = ProjectFactory(number=121)
+    assert project.display_identifier() == "121"

@@ -118,8 +118,8 @@ class Project(models.Model):
     def get_approved_url(self):
         f = furl("https://www.opensafely.org/approved-projects")
 
-        if self.number:
-            f.fragment = f"project-{self.number}"
+        if self.identifier:
+            f.fragment = f"project-{self.identifier}"
 
         return f.url
 
@@ -164,11 +164,24 @@ class Project(models.Model):
 
     @property
     def title(self):
-        if self.number is None:
+        if not self.identifier:
             return self.name
 
-        return f"{self.number} - {self.name}"
+        return f"{self.identifier} - {self.name}"
 
     @functional.cached_property
     def org(self):
         return self.orgs.filter(collaborations__is_lead=True).first()
+
+    @property
+    def identifier(self):
+        if self.number in (None, ""):
+            return None
+
+        return str(self.number).strip()
+
+    def has_identifier(self):
+        return bool(self.identifier)
+
+    def display_identifier(self):
+        return self.identifier or ""
