@@ -16,6 +16,7 @@ from jobserver.utils import dotted_path, set_from_qs
 from staff.views.projects import (
     ProjectAddMember,
     ProjectAuditLog,
+    ProjectCreate,
     ProjectDetail,
     ProjectEdit,
     ProjectLinkApplication,
@@ -627,3 +628,20 @@ def test_projectmembershipremove_unknown_membership(request, rf, user_fixture):
 
     with pytest.raises(Http404):
         ProjectMembershipRemove.as_view()(req, slug=project.slug, pk=0)
+
+
+def test_projectcreate_authorised(rf):
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ServiceAdministrator, StaffAreaAdministrator])
+
+    response = ProjectCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_projectcreate_unauthorised(rf, staff_area_administrator):
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    with pytest.raises(PermissionDenied):
+        ProjectCreate.as_view()(request)
