@@ -15,7 +15,13 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% staff_hero title="Projects" %}
+  {% #staff_hero title="Projects" %}
+    {% if can_create_project %}
+      {% #button type="link" href="#" variant="primary" %}
+        Create a project
+      {% /button %}
+    {% endif %}
+  {% /staff_hero %}
 {% endblock hero %}
 
 {% block content %}
@@ -47,9 +53,7 @@
     <div class="flex flex-col gap-y-6 lg:col-span-2">
       {% #card container=True title="Search for a project" %}
         <form method="GET" class="flex flex-row gap-x-2 items-center">
-          {% if request.GET.q %}
-            {% var value=request.GET.q|stringformat:"s" %}
-          {% endif %}
+          {% var value=request.GET.q|default:""|stringformat:"s" %}
           {% form_input custom_field=True type="search" id="projectSearch" name="q" value=value label="Search for a project" label_class="sr-only" class="w-full" input_class="m-0!" placeholder="Search by project name" %}
           {% #button type="submit" variant="primary" class="shrink-0" %}Search{% /button %}
         </form>
