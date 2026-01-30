@@ -1,6 +1,5 @@
 from jobserver.authorization.roles import ServiceAdministrator, StaffAreaAdministrator
-
-from ...factories import UserFactory
+from tests.factories import UserFactory
 
 
 class TestProjectListCreateProjectButton:
@@ -16,7 +15,7 @@ class TestProjectListCreateProjectButton:
         response = client.get("/staff/projects/")
 
         assert response.status_code == 200
-        assert "Create a Project" in response.text
+        assert "Create a project" in response.text
 
     def test_create_project_button_not_in_rendered_template_for_unauthorised_user(
         self, client, staff_area_administrator
@@ -28,4 +27,4 @@ class TestProjectListCreateProjectButton:
         response = client.get("/staff/projects/")
 
         assert response.status_code == 200
-        assert "Create a Project" not in response.text
+        assert "Create a project" not in response.text
