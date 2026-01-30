@@ -1,0 +1,19 @@
+{% extends "staff/base.html" %}
+
+{% block metatitle %}Create a project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title="Create a project" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% staff_hero title="Create a project" %}
+{% endblock hero %}
+
+{% block content %}{% endblock content %}

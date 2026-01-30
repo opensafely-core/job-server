@@ -15,10 +15,10 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% url "staff:project-create" as staff_project_create_url %}
   {% #staff_hero title="Projects" %}
     {% if can_create_project %}
-      {% #button type="link" href="#" variant="primary" %}
+      {% url "staff:project-create" as staff_project_create_url %}
+      {% #button type="link" href=staff_project_create_url variant="primary" %}
         Create a project
       {% /button %}
     {% endif %}
