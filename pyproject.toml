@@ -64,7 +64,7 @@ dependencies = [
 
     # A specific version of the OpenSAFELY Pipeline for health data analysis.
     # Search 'pipeline' in jobserver/
-    "opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2025.03.06.161237.zip",
+    "opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.01.26.163426.zip",
 
     # OpenTelemetry exporter for sending traces/metrics via OTLP over HTTP.
     "opentelemetry-exporter-otlp-proto-http",
@@ -245,7 +245,7 @@ extend-ignore = [
 # See https://github.com/opensafely-core/repo-template/blob/main/DEVELOPERS.md for details.
 [tool.uv]
 required-version = ">=0.9"
-exclude-newer = "2026-01-18T00:00:00Z"
+exclude-newer = "2026-01-25T00:00:00Z"
 exclude-newer-package = {}
 
 [dependency-groups]
