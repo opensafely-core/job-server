@@ -185,3 +185,29 @@ class Project(models.Model):
 
     def display_identifier(self):
         return self.identifier or ""
+
+    @classmethod
+    def next_numeric_identifier(cls):
+        """
+        Return the next sequential project number, ignoring any alphanumeric
+        identifiers or blanks. Returns None if no numeric IDs exist.
+        """
+        project_numbers = []
+        for value in (
+            cls.objects.exclude(number__isnull=True)
+            .values_list("number", flat=True)
+            .iterator()
+        ):
+            if isinstance(value, int):
+                project_numbers.append(value)
+                continue
+
+            # handle string representations of integers
+            value_str = str(value).strip()
+            if value_str.isdigit():
+                project_numbers.append(int(value_str))
+
+        if not project_numbers:
+            return None
+
+        return max(project_numbers) + 1

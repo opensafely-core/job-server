@@ -208,3 +208,20 @@ def test_project_display_identifier():
 
     project = ProjectFactory(number=121)
     assert project.display_identifier() == "121"
+
+
+def test_next_numeric_identifier():
+    ProjectFactory(number=1)
+    ProjectFactory(number="2")
+
+    assert Project.next_numeric_identifier() == 3
+
+
+def test_next_numeric_identifier_handles_whitespace():
+    ProjectFactory(number="  789  ")
+    assert Project.next_numeric_identifier() == 790
+
+
+def test_next_numeric_identifier_returns_none_when_no_numeric_ids(db):
+    ProjectFactory(number=None)
+    assert Project.next_numeric_identifier() is None
