@@ -6,6 +6,8 @@ from django.utils import functional, timezone
 from django.utils.text import slugify
 from furl import furl
 
+from jobserver.project_validators import validate_project_identifier
+
 
 logger = structlog.get_logger(__name__)
 
@@ -49,7 +51,10 @@ class Project(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
-    number = models.IntegerField(null=True)
+    number = models.IntegerField(
+        null=True,
+        validators=[validate_project_identifier],
+    )
 
     copilot_support_ends_at = models.DateTimeField(null=True)
 
