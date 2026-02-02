@@ -35,6 +35,5 @@ def validate_project_identifier(value):
     if PROJECT_IDENTIFIER_PATTERN.match(normalized):
         return
 
-    raise ValidationError(
-        "Use either a numeric ID or the new POS-YYYY-#### identifier."
-    )
+    # TODO: update message when alphanumeric IDs are supported
+    raise ValidationError("Please use a numeric ID.")

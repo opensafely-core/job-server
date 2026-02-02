@@ -191,28 +191,42 @@ class Project(models.Model):
     def display_identifier(self):
         return self.identifier or ""
 
+    @staticmethod
+    def _coerce_numeric_identifiers(values):
+        """
+        Convert an iterable of raw identifier values into a list of integers.
+
+        Accepts ints (used as-is) and digit-only strings (trimmed and cast to int).
+        Any other values—POS-style identifiers, blank strings, None—are ignored.
+        """
+        numeric_values = []
+        for value in values:
+            if isinstance(value, int):
+                numeric_values.append(value)
+                continue
+
+            value_str = str(value).strip()
+            if value_str.isdigit():
+                numeric_values.append(int(value_str))
+
+        return numeric_values
+
     @classmethod
     def next_numeric_identifier(cls):
         """
-        Return the next sequential project number, ignoring any alphanumeric
-        identifiers or blanks. Returns None if no numeric IDs exist.
+        Return the next sequential project number.
+
+        Fetches all non-null identifiers from the database, coerces the numeric ones,
+        and returns max(value) + 1. Returns None if no numeric identifiers exist.
         """
-        project_numbers = []
-        for value in (
+        values = (
             cls.objects.exclude(number__isnull=True)
             .values_list("number", flat=True)
             .iterator()
-        ):
-            if isinstance(value, int):
-                project_numbers.append(value)
-                continue
+        )
 
-            # handle string representations of integers
-            value_str = str(value).strip()
-            if value_str.isdigit():
-                project_numbers.append(int(value_str))
-
-        if not project_numbers:
+        numeric_values = cls._coerce_numeric_identifiers(values)
+        if not numeric_values:
             return None
 
-        return max(project_numbers) + 1
+        return max(numeric_values) + 1

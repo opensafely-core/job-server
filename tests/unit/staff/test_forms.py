@@ -69,6 +69,37 @@ def test_applicationapproveform_with_duplicate_project_number():
     }
 
 
+def test_applicationapproveform_with_no_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert form.is_valid(), form.errors
+
+
+# This should fail because alphanumeric project numbers are not allowed yet
+def test_applicationapproveform_with_alphanumeric_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "POS-2001-0001",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {"project_number": ["Please enter a numeric ID."]}
+
+
 def test_applicationapproveform_with_duplicate_project_slug():
     org = OrgFactory()
     ProjectFactory(slug="test-1")

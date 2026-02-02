@@ -211,17 +211,31 @@ def test_project_display_identifier():
 
 
 def test_next_numeric_identifier():
-    ProjectFactory(number=1)
-    ProjectFactory(number="2")
+    ProjectFactory(number=100)
+    ProjectFactory(number=102)
 
-    assert Project.next_numeric_identifier() == 3
+    assert Project.next_numeric_identifier() == 103
+
+
+def test_next_numeric_identifier_handles_char():
+    ProjectFactory(number="101")
+
+    assert Project.next_numeric_identifier() == 102
 
 
 def test_next_numeric_identifier_handles_whitespace():
     ProjectFactory(number="  789  ")
+
     assert Project.next_numeric_identifier() == 790
 
 
-def test_next_numeric_identifier_returns_none_when_no_numeric_ids(db):
+def test_next_numeric_identifier_returns_none_when_no_numeric_ids():
     ProjectFactory(number=None)
+
     assert Project.next_numeric_identifier() is None
+
+
+def test_coerce_numeric_identifiers():
+    values = [42, "  43 ", "POS-2001-0001", "", None, "notanumber", 44]
+
+    assert Project._coerce_numeric_identifiers(values) == [42, 43, 44]
