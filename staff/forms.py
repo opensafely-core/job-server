@@ -7,6 +7,10 @@ from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
+from jobserver.project_validators import (
+    normalize_project_identifier,
+    validate_project_identifier,
+)
 
 
 def user_label_from_instance(obj):
@@ -42,7 +46,9 @@ class PickUsersMixin:
 
 class ApplicationApproveForm(forms.Form):
     project_name = forms.CharField(help_text="Update the study name if necessary")
-    project_number = forms.IntegerField()
+    project_number = forms.CharField(
+        required=False, validators=[validate_project_identifier]
+    )
 
     def __init__(self, orgs, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,11 +78,20 @@ class ApplicationApproveForm(forms.Form):
         return project_name
 
     def clean_project_number(self):
-        project_number = self.cleaned_data["project_number"]
+        value = self.cleaned_data["project_number"]
+        normalized_number = normalize_project_identifier(value)
 
+        if normalized_number is None:
+            return None
+
+        # Since number field is still Integer, POSS-YYYY-#### format is not allowed yet
+        if not normalized_number.isdigit():
+            raise forms.ValidationError("Please enter a numeric ID.")
+
+        project_number = int(normalized_number)
         if Project.objects.filter(number=project_number).exists():
             raise forms.ValidationError(
-                f'Project with number "{project_number}" already exists.'
+                f'Project with number "{normalized_number}" already exists.'
             )
 
         return project_number
