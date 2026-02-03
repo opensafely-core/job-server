@@ -6,6 +6,8 @@ from django.utils import functional, timezone
 from django.utils.text import slugify
 from furl import furl
 
+from jobserver.project_validators import validate_project_identifier
+
 
 logger = structlog.get_logger(__name__)
 
@@ -49,7 +51,10 @@ class Project(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
-    number = models.IntegerField(null=True)
+    number = models.IntegerField(
+        null=True,
+        validators=[validate_project_identifier],
+    )
 
     copilot_support_ends_at = models.DateTimeField(null=True)
 
@@ -118,8 +123,8 @@ class Project(models.Model):
     def get_approved_url(self):
         f = furl("https://www.opensafely.org/approved-projects")
 
-        if self.number:
-            f.fragment = f"project-{self.number}"
+        if self.identifier:
+            f.fragment = f"project-{self.identifier}"
 
         return f.url
 
@@ -164,11 +169,64 @@ class Project(models.Model):
 
     @property
     def title(self):
-        if self.number is None:
+        if not self.identifier:
             return self.name
 
-        return f"{self.number} - {self.name}"
+        return f"{self.identifier} - {self.name}"
 
     @functional.cached_property
     def org(self):
         return self.orgs.filter(collaborations__is_lead=True).first()
+
+    @property
+    def identifier(self):
+        if self.number in (None, ""):
+            return None
+
+        return str(self.number).strip()
+
+    def has_identifier(self):
+        return bool(self.identifier)
+
+    def display_identifier(self):
+        return self.identifier or ""
+
+    @staticmethod
+    def _coerce_numeric_identifiers(values):
+        """
+        Convert an iterable of raw identifier values into a list of integers.
+
+        Accepts ints (used as-is) and digit-only strings (trimmed and cast to int).
+        Any other values—POS-style identifiers, blank strings, None—are ignored.
+        """
+        numeric_values = []
+        for value in values:
+            if isinstance(value, int):
+                numeric_values.append(value)
+                continue
+
+            value_str = str(value).strip()
+            if value_str.isdigit():
+                numeric_values.append(int(value_str))
+
+        return numeric_values
+
+    @classmethod
+    def next_numeric_identifier(cls):
+        """
+        Return the next sequential project number.
+
+        Fetches all non-null identifiers from the database, coerces the numeric ones,
+        and returns max(value) + 1. Returns None if no numeric identifiers exist.
+        """
+        values = (
+            cls.objects.exclude(number__isnull=True)
+            .values_list("number", flat=True)
+            .iterator()
+        )
+
+        numeric_values = cls._coerce_numeric_identifiers(values)
+        if not numeric_values:
+            return None
+
+        return max(numeric_values) + 1
