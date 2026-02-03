@@ -5,7 +5,7 @@ from jobserver.models import Project, User
 from .base import LinkableObject, PresentableAuditableEvent
 
 
-def _project(*, pk, default="a Project"):
+def lookup_project(*, pk, default="a Project"):
     try:
         return Project.objects.get(pk=pk)
     except (Project.DoesNotExist, ValueError):
@@ -17,7 +17,7 @@ def _project(*, pk, default="a Project"):
         return default
 
 
-def _user(s):
+def lookup_user(s):
     try:
         return User.objects.get(username=s)
     except User.DoesNotExist:
@@ -27,11 +27,11 @@ def _user(s):
 def created(*, event):
     """Build a presentable event for project creation."""
     actor = LinkableObject.build(
-        obj=_user(event.created_by),
+        obj=lookup_user(event.created_by),
         link_func="get_staff_url",
     )
     project = LinkableObject.build(
-        obj=_project(pk=event.parent_id),
+        obj=lookup_project(pk=event.parent_id),
         link_func="get_staff_url",
     )
 
