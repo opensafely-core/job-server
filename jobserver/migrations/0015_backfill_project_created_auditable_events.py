@@ -26,8 +26,6 @@ def add_project_created_events(apps, schema_editor):
                 target_model=Project._meta.label,
                 target_id=target_id,
                 target_user=created_by,
-                parent_model=Project._meta.label,
-                parent_id=target_id,
                 created_at=project.created_at,
                 created_by=created_by,
             )
@@ -37,15 +35,11 @@ def add_project_created_events(apps, schema_editor):
         AuditableEvent.objects.bulk_create(events, batch_size=1000)
 
 
-def noop_reverse(apps, schema_editor):
-    return
-
-
 class Migration(migrations.Migration):
     dependencies = [
         ("jobserver", "0014_alter_user_backends_alter_user_orgs_and_more"),
     ]
 
     operations = [
-        migrations.RunPython(add_project_created_events, noop_reverse),
+        migrations.RunPython(add_project_created_events, migrations.RunPython.noop)
     ]
