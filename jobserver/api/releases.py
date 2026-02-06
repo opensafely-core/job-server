@@ -544,6 +544,12 @@ def build_level4_workspace(workspace, project):
         "project_details": {
             "name": project.name,
             "ongoing": project.status in ONGOING_PROJECT_STATUSES,
+            # If we have more than one org, always return the lead org first
+            "orgs": list(
+                project.orgs.order_by("-collaborations__is_lead").values_list(
+                    "name", flat=True
+                )
+            ),
         },
         "archived": workspace["is_archived"],
     }
