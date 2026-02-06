@@ -119,7 +119,10 @@ class ProjectEditForm(forms.ModelForm):
         self.fields["copilot"] = UserModelChoiceField(
             queryset=User.objects.all(), required=False
         )
-        self.fields["copilot_support_ends_at"].required = False
+        # add a guard to prevents KeyErrors when subclasses exclude this
+        # field e.g., ProjectCreateForm.
+        if "copilot_support_ends_at" in self.fields:
+            self.fields["copilot_support_ends_at"].required = False
 
     def clean_number(self):
         number = self.cleaned_data["number"]
@@ -142,6 +145,42 @@ class ProjectEditForm(forms.ModelForm):
             raise forms.ValidationError("Project number must be unique")
 
         return number
+
+
+class ProjectCreateForm(ProjectEditForm):
+    """Form to create a Project."""
+
+    class Meta:
+        exclude = [
+            "copilot_notes",
+            "copilot_support_ends_at",
+            "slug",
+            "status_description",
+            "updated_by",
+        ]
+
+        model = Project
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # We want to show the user pre-populated data for the specificed form fields
+        # but do not want to allow them to edit this data so we set
+        # `disabled=True`. We also set `required=False` for these
+        # fields, because when the inputs are disabled in the browser
+        # they are not submitted, and ModelForm validation will fail on
+        # POST.
+        fields_to_disable_and_unrequire = ["created_at", "created_by", "status"]
+        for fieldname in fields_to_disable_and_unrequire:
+            if fieldname in self.fields:
+                self.fields[fieldname].disabled = True
+                self.fields[fieldname].required = False
+
+        # ProjectEditForm sets `name` and `copilot` fields to required=False. We want the user to input data for these fields at project creation, so we reset the value to `True`.
+        if "number" in self.fields:
+            self.fields["number"].required = True
+        if "copilot" in self.fields:
+            self.fields["copilot"].required = True
 
 
 class ProjectLinkApplicationForm(forms.Form):
