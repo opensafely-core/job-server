@@ -39,6 +39,8 @@ from jobserver.utils import set_from_qs
 from tests.factories import (
     BackendFactory,
     BackendMembershipFactory,
+    OrgFactory,
+    ProjectCollaborationFactory,
     ProjectFactory,
     PublishRequestFactory,
     ReleaseFactory,
@@ -1583,6 +1585,7 @@ def test_level4tokenauthenticationapi_success(
     api_rf, project_membership, token_login_user, role_factory, project_status, ongoing
 ):
     # give user correct permissions on this project
+    # no orgs
     project1 = ProjectFactory(status=project_status)
     workspace1 = WorkspaceFactory(project=project1, is_archived=True)
     workspace2 = WorkspaceFactory(project=project1)
@@ -1596,6 +1599,19 @@ def test_level4tokenauthenticationapi_success(
     project2 = ProjectFactory()
     WorkspaceFactory(project=project2)
     project_membership(user=token_login_user, project=project2)
+
+    # a project with orgs
+    org1 = OrgFactory(name="Test org")
+    org2 = OrgFactory(name="Test lead org")
+    project3 = ProjectFactory(status=Project.Statuses.ONGOING)
+    ProjectCollaborationFactory(project=project3, org=org1)
+    ProjectCollaborationFactory(project=project3, org=org2, is_lead=True)
+    workspace4 = WorkspaceFactory(project=project3)
+    project_membership(
+        user=token_login_user,
+        project=project3,
+        roles=[role_factory(permission=Permission.UNRELEASED_OUTPUTS_VIEW)],
+    )
 
     token = generate_login_token(token_login_user)
     backend = token_login_user.backends.first()
@@ -1614,14 +1630,31 @@ def test_level4tokenauthenticationapi_success(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project_details": {"name": project1.name, "ongoing": ongoing},
+                "project_details": {
+                    "name": project1.name,
+                    "ongoing": ongoing,
+                    "orgs": [],
+                },
                 "archived": True,
             },
             workspace2.name: {
-                "project_details": {"name": project1.name, "ongoing": ongoing},
+                "project_details": {
+                    "name": project1.name,
+                    "ongoing": ongoing,
+                    "orgs": [],
+                },
                 "archived": False,
             },
-        },  # should not include workspace3
+            # should not include workspace3/project2
+            workspace4.name: {
+                "project_details": {
+                    "name": project3.name,
+                    "ongoing": True,
+                    "orgs": ["Test lead org", "Test org"],
+                },
+                "archived": False,
+            },
+        },
         "copiloted_workspaces": {},
         "output_checker": False,
     }
@@ -1634,7 +1667,7 @@ def test_level4tokenauthenticationapi_success_privileged(
     token_login_user.roles.append(OutputChecker)
     token_login_user.save()
 
-    project = ProjectFactory()
+    project = ProjectFactory(org=OrgFactory(name="Org"))
     project_membership(
         user=token_login_user,
         project=project,
@@ -1660,11 +1693,19 @@ def test_level4tokenauthenticationapi_success_privileged(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project_details": {"name": project.name, "ongoing": True},
+                "project_details": {
+                    "name": project.name,
+                    "ongoing": True,
+                    "orgs": ["Org"],
+                },
                 "archived": False,
             },
             workspace2.name: {
-                "project_details": {"name": project.name, "ongoing": True},
+                "project_details": {
+                    "name": project.name,
+                    "ongoing": True,
+                    "orgs": ["Org"],
+                },
                 "archived": False,
             },
         },  # should not include workspace3
@@ -1807,17 +1848,17 @@ def test_level4authorisationapi_success(
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
-                "project_details": {"name": project1.name, "ongoing": True},
+                "project_details": {"name": project1.name, "ongoing": True, "orgs": []},
                 "archived": False,
             },
             workspace2.name: {
-                "project_details": {"name": project1.name, "ongoing": True},
+                "project_details": {"name": project1.name, "ongoing": True, "orgs": []},
                 "archived": False,
             },
         },  # should not include workspace3
         "copiloted_workspaces": {
             workspace3.name: {
-                "project_details": {"name": project3.name, "ongoing": True},
+                "project_details": {"name": project3.name, "ongoing": True, "orgs": []},
                 "archived": False,
             },
         },
