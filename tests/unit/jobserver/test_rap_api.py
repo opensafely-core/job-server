@@ -415,15 +415,19 @@ class TestCreate:
         mock_api_call = patch_api_call(fake_json=fake_json)
 
         job_request, expected_request_body = job_request_for_create
-        # mock ndoo permission to ensure this job's project has permission
+        # mock ndoo and gp_activations permissions to ensure this job's project has permission
         # with no permission, the request body will send `"analysis_scop": {}`
         monkeypatch.setattr(
             "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
             [job_request.workspace.project.number],
         )
+        monkeypatch.setattr(
+            "jobserver.permissions.population_permissions.gp_activations.PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION",
+            [job_request.workspace.project.number],
+        )
         # update request body with expected analysis scope
         expected_request_body["analysis_scope"] = {
-            "population_permissions": ["include_ndoo"]
+            "population_permissions": ["include_ndoo", "include_gp_unactivated"]
         }
 
         result = create(job_request)
