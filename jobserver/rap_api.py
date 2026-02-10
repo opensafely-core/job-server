@@ -201,12 +201,15 @@ def create(job_request):
         RapAPIRequestError
         RapAPIResponseError
     """
-    if ndoo_permission := population_permissions.ndoo.analysis_scope_for_project(
-        job_request.workspace.project
-    ):
-        analysis_scope = {"population_permissions": [ndoo_permission]}
-    else:
-        analysis_scope = {}
+    analysis_scope = {}
+    for population_module in [
+        population_permissions.ndoo,
+        population_permissions.gp_activations,
+    ]:
+        if permission := population_module.analysis_scope_for_project(
+            job_request.workspace.project
+        ):
+            analysis_scope.setdefault("population_permissions", []).append(permission)
 
     request_body = {
         "rap_id": job_request.identifier,
