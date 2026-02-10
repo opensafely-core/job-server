@@ -246,7 +246,7 @@ extend-ignore = [
 [tool.uv]
 required-version = ">=0.9"
 exclude-newer = "2026-02-01T00:00:00Z"
-exclude-newer-package = {}
+exclude-newer-package = { django = "2026-04-04T00:00:00Z" }
 
 [dependency-groups]
 dev = [
