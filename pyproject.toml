@@ -245,8 +245,6 @@ extend-ignore = [
 # See https://github.com/opensafely-core/repo-template/blob/main/DEVELOPERS.md for details.
 [tool.uv]
 required-version = ">=0.9"
-exclude-newer = "2026-02-01T00:00:00Z"
-exclude-newer-package = { django = "2026-04-04T00:00:00Z" }
 
 [dependency-groups]
 dev = [
