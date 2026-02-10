@@ -48,8 +48,8 @@
     {% #card title="Project information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Project information" class="sr-only" %}
-        {% form_input custom_field=True id="id_project_id" name="number" field=form.number label="Project ID" hint_text="Project ID can be found in the All Projects spreadsheet." inputmode="numeric" %}
-        {% form_input custom_field=True id="id_project_title" name="name" field=form.name label="Project title" hint_text="This can be found in Section 7 of the NHSE OpenSAFELY Project Application form." %}
+        {% form_input field=form.number %}
+        {% form_input field=form.name %}
       {% /form_fieldset %}
     {% /card %}
 

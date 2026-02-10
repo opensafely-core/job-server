@@ -179,6 +179,15 @@ class ProjectCreateForm(ProjectEditForm):
         # ProjectEditForm sets `name` and `copilot` fields to required=False. We want the user to input data for these fields at project creation, so we reset the value to `True`.
         if "number" in self.fields:
             self.fields["number"].required = True
+            self.fields["number"].label = "Project ID"
+            self.fields[
+                "number"
+            ].help_text = "Project ID can be found in the All Projects spreadsheet."
+        if "name" in self.fields:
+            self.fields["name"].label = "Project title"
+            self.fields[
+                "name"
+            ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
         if "copilot" in self.fields:
             self.fields["copilot"].required = True
 
