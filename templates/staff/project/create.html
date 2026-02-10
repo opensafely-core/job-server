@@ -56,10 +56,10 @@
     {% #card title="Job Server information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Job Server information" class="sr-only" %}
-        {% form_select field=form.fields.orgs choices=form.fields.orgs.choices selected=form.orgs.value.0 id="id_orgs" name="orgs" label="Link project to an organisation" hint_text="This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form." hint_extra_class="max-w-full" %}
-        {% form_select field=form.status choices=form.fields.status.choices selected=form.status.value hint_text="This is automatically generated and cannot be changed until the project has been created." hint_extra_class="max-w-full" disabled=True %}
-        {% form_input custom_field=True id="id_created_at" name="created_at" value=form.created_at.value|date:"Y-m-d" errors=form.created_at.errors type="date" label="Project created at" hint_text="This is automatically set to today's date, and cannot be changed." disabled=True %}
-        {% form_input custom_field=True id="id_created_by" name="created_by" field=form.created_by value=user.get_full_name label="Project created by" hint_text="This is automatically set to the user completing the form, and cannot be changed." disabled=True %}
+        {% form_select field=form.orgs hint_extra_class="max-w-full" %}
+        {% form_select field=form.status hint_extra_class="max-w-full" %}
+        {% form_input field=form.created_at type="date" %}
+        {% form_input field=form.created_by %}
       {% /form_fieldset %}
     {% /card %}
 

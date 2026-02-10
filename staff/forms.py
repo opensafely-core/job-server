@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models.functions import Lower
+from django.utils import timezone
 from django.utils.text import slugify
 
 from applications.forms import YesNoField
@@ -147,8 +148,10 @@ class ProjectEditForm(forms.ModelForm):
         return number
 
 
-class ProjectCreateForm(ProjectEditForm):
+class ProjectCreateForm(forms.ModelForm):
     """Form to create a Project."""
+
+    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
 
     class Meta:
         exclude = [
@@ -162,34 +165,78 @@ class ProjectCreateForm(ProjectEditForm):
         model = Project
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
-        # We want to show the user pre-populated data for the specificed form fields
-        # but do not want to allow them to edit this data so we set
-        # `disabled=True`. We also set `required=False` for these
-        # fields, because when the inputs are disabled in the browser
-        # they are not submitted, and ModelForm validation will fail on
-        # POST.
-        fields_to_disable_and_unrequire = ["created_at", "created_by", "status"]
-        for fieldname in fields_to_disable_and_unrequire:
-            if fieldname in self.fields:
-                self.fields[fieldname].disabled = True
-                self.fields[fieldname].required = False
+        self.fields["copilot"] = UserModelChoiceField(
+            queryset=User.objects.all(), required=True
+        )
 
-        # ProjectEditForm sets `name` and `copilot` fields to required=False. We want the user to input data for these fields at project creation, so we reset the value to `True`.
-        if "number" in self.fields:
-            self.fields["number"].required = True
-            self.fields["number"].label = "Project ID"
-            self.fields[
-                "number"
-            ].help_text = "Project ID can be found in the All Projects spreadsheet."
-        if "name" in self.fields:
-            self.fields["name"].label = "Project title"
-            self.fields[
-                "name"
-            ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
-        if "copilot" in self.fields:
-            self.fields["copilot"].required = True
+        number_field = self.fields.get("number")
+        if number_field:
+            number_field.required = True
+            number_field.label = "Project ID"
+            number_field.help_text = (
+                "Project ID can be found in the All Projects spreadsheet."
+            )
+
+        name_field = self.fields.get("name")
+        if name_field:
+            name_field.label = "Project title"
+            name_field.help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
+
+        orgs_field = self.fields.get("orgs")
+        if orgs_field:
+            orgs_field.choices = [
+                ("", "Select an organisation"),
+                *list(orgs_field.choices),
+            ]
+            orgs_field.label = "Link project to an organisation"
+            orgs_field.help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
+
+        status_field = self.fields.get("status")
+        if status_field:
+            status_field.disabled = True
+            status_field.label = "Project status"
+            status_field.help_text = (
+                "All new projects are set to 'Ongoing' status by default"
+            )
+
+        created_at_field = self.fields.get("created_at")
+        if created_at_field:
+            created_at_field.disabled = True
+            created_at_field.required = True
+            created_at_field.label = "Project created at"
+            created_at_field.initial = (
+                timezone.now()
+                if isinstance(created_at_field, forms.DateTimeField)
+                else timezone.localdate()
+            )
+            created_at_field.help_text = (
+                "This is automatically set to today's date, and cannot be changed."
+            )
+
+        created_by_field = self.fields.get("created_by")
+        if created_by_field:
+            created_by_field.disabled = True
+            created_by_field.required = True
+            created_by_field.label = "Project created by"
+            if user is not None:
+                created_by_field.initial = user.fullname
+            created_by_field.help_text = "This is automatically set to the user completing the form, and cannot be changed."
+
+    def clean_number(self):
+        number = self.cleaned_data["number"]
+
+        if (
+            Project.objects.exclude(pk=self.instance.pk)
+            .exclude(number=None)
+            .filter(number=number)
+            .exists()
+        ):
+            raise forms.ValidationError("Project number must be unique")
+
+        return number
 
 
 class ProjectLinkApplicationForm(forms.Form):

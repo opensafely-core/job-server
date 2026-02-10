@@ -283,6 +283,11 @@ class ProjectCreate(CreateView):
     model = Project
     template_name = "staff/project/create.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     @transaction.atomic
     def form_valid(self, form):
         project = form.save(commit=False)
