@@ -75,41 +75,10 @@ upgrade-package package: && devenv
     uv lock --upgrade-package {{ package }}
 
 
-# Move the cutoff date in pyproject.toml to N days ago (default: 7) at midnight UTC
-bump-uv-cutoff days="7":
-    #!/usr/bin/env -S uvx --with tomlkit python3.13
-    # Note we specify the python version here and we don't care if it's different to
-    # the .python-version; we need 3.11+ for the datetime code used.
-
-    import datetime
-    import tomlkit
-
-    with open("pyproject.toml", "rb") as f:
-        content = tomlkit.load(f)
-
-    new_datetime = (
-        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=int("{{ days }}"))
-    ).replace(hour=0, minute=0, second=0, microsecond=0)
-    new_timestamp = new_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
-    if existing_timestamp := content["tool"]["uv"].get("exclude-newer"):
-        if new_datetime < datetime.datetime.fromisoformat(existing_timestamp):
-            print(
-                f"Existing cutoff {existing_timestamp} is more recent than {new_timestamp}, not updating."
-            )
-            exit(0)
-    content["tool"]["uv"]["exclude-newer"] = new_timestamp
-
-    with open("pyproject.toml", "w") as f:
-        tomlkit.dump(content, f)
-
-# This is the default input command to update-dependencies action
-# https://github.com/bennettoxford/update-dependencies-action
-
 # Upgrade all packages to the latest version per pyproject.toml, then
 # update the local venv. NOTE: This does not upgrade the opensafely-pipeline;
 # to upgrade, run the upgrade-pipeline recipe
-# Bump the timestamp cutoff to midnight UTC 7 days ago and upgrade all dependencies
-update-dependencies: bump-uv-cutoff && devenv
+update-dependencies: devenv
     uv lock --upgrade
 
 # upgrade our internal pipeline library
