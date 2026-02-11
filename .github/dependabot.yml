@@ -37,3 +37,6 @@ updates:
         dependency-type: "production"
       development-dependencies:
         dependency-type: "development"
+    ignore:
+      - dependency-name: "django"
+        versions: [">=6.0.0"]
