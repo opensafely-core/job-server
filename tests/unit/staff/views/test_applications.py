@@ -16,7 +16,13 @@ from staff.views.applications import (
     ApplicationRestore,
 )
 
-from ....factories import ApplicationFactory, OrgFactory, ProjectFactory, UserFactory
+from ....factories import (
+    ApplicationFactory,
+    OrgFactory,
+    ProjectFactory,
+    StudyInformationPageFactory,
+    UserFactory,
+)
 
 
 def test_applicationapprove_already_approved(
@@ -576,7 +582,7 @@ def test_applicationlist_success(rf, staff_area_administrator):
 def test_applicationlist_num_queries(
     rf, django_assert_num_queries, staff_area_administrator
 ):
-    ApplicationFactory.create_batch(5)
+    StudyInformationPageFactory.create_batch(5)
     request = rf.get("/")
     request.user = staff_area_administrator
 
@@ -584,7 +590,7 @@ def test_applicationlist_num_queries(
         response = ApplicationList.as_view()(request)
         assert response.status_code == 200
 
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(8):
         response.render()
 
 

@@ -181,6 +181,15 @@ class Application(models.Model):
         except ObjectDoesNotExist:
             return False
 
+    @property
+    def title(self):
+        study_name = None
+        try:
+            study_name = self.studyinformationpage.study_name
+        except ObjectDoesNotExist:
+            pass
+        return study_name or "Not specified"
+
 
 class AbstractPage(models.Model):
     application = models.OneToOneField("Application", on_delete=models.CASCADE)
