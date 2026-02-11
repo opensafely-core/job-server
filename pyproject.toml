@@ -22,7 +22,7 @@ dependencies = [
 
     # The main Django web framework for building applications.
     # Pin to 5.2.x until we are happy with 6.0 compatibility.
-    "django>=5.2,<6.0",
+    "django>=5.2,<7.0",
 
     # Email backend integration for Mailgun, used to send emails in Django. See settings.py.
     "django-anymail[mailgun]",
