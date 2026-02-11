@@ -6,12 +6,6 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
-[options]
-exclude-newer = "2026-02-01T00:00:00Z"
-
-[options.exclude-newer-package]
-django = "2026-04-04T00:00:00Z"
-
 [[package]]
 name = "argon2-cffi"
 version = "25.1.0"
