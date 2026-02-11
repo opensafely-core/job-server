@@ -3,7 +3,12 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from ...factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
+from ...factories import (
+    ApplicationFactory,
+    ResearcherRegistrationFactory,
+    StudyInformationPageFactory,
+    UserFactory,
+)
 
 
 def test_application_constraints_approved_at_and_approved_by_both_set():
@@ -128,6 +133,24 @@ def test_application_str():
     application = ApplicationFactory(created_by=user)
 
     assert str(application) == f"Application {application.pk_hash} by Ben Goldacre"
+
+
+def test_application_title_returns_study_name():
+    studyinformationpage = StudyInformationPageFactory(study_name="Test study")
+
+    assert studyinformationpage.application.title == "Test study"
+
+
+def test_application_title_has_blank_study_name():
+    studyinformationpage = StudyInformationPageFactory(study_name="")
+
+    assert studyinformationpage.application.title == "Not specified"
+
+
+def test_application_title_has_no_study_name():
+    application = ApplicationFactory()
+
+    assert application.title == "Not specified"
 
 
 def test_researcherregistration_get_absolute_url():
