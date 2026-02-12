@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 
@@ -41,5 +42,5 @@ class LinkableObject:
 
 @dataclass
 class PresentableAuditableEvent:
-    context: dict[str, str]
+    context: Mapping[str, object]
     template_name: str

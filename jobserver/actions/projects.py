@@ -1,6 +1,7 @@
 from django.db import transaction
+from django.utils import timezone
 
-from ..models import Project, ProjectCollaboration
+from ..models import AuditableEvent, Project, ProjectCollaboration
 
 
 @transaction.atomic()
@@ -11,6 +12,15 @@ def add(*, by, name, number, orgs, copilot=None):
         copilot=copilot,
         created_by=by,
         updated_by=by,
+    )
+
+    AuditableEvent.objects.create(
+        type=AuditableEvent.Type.PROJECT_CREATED,
+        target_model=Project._meta.label,
+        target_id=project.pk,
+        target_user=by.username,
+        created_by=by.username,
+        created_at=timezone.now(),
     )
 
     lead, *other = orgs
