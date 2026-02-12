@@ -17,7 +17,7 @@ class ExampleForm(forms.Form):
         initial="french",
     )
 
-    example_email = forms.EmailField()
+    example_email = forms.EmailField(help_text="Must be an opensafely.org account")
 
     example_textarea = forms.Textarea()
 
@@ -34,9 +34,7 @@ class ExampleForm(forms.Form):
     )
 
     def clean_example_email(self):
-        self.add_error(
-            "example_email", "This email is registered to a different account"
-        )
+        self.add_error("example_email", "This email is not @opensafely.org")
 
 
 def components(request):

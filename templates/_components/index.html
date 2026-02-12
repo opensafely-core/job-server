@@ -383,22 +383,29 @@
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete"><code>autocomplete</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input#autocorrect"><code>autocorrect</code></a></li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>custom_field</code>: [boolean] - set to true if field does not directly map to a Django Form field</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/disabled"><code>disabled</code></a></li>
         <li><code>errors</code>: [object] - object for Django to map over for individual errors</li>
         <li><code>field</code>: a Django form field
           <ul>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.auto_id"><code>auto_id</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.errors"><code>errors</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/fields#django.forms.Field.disabled"><code>field.disabled</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/fields#django.forms.Field.required"><code>field.required</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/fields#django.forms.Field.help_text"><code>help_text</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
           </ul>
         </li>
+        <li><code>hint_below</code>: [boolean] - render hint text below the input instead of above</li>
         <li><code>hint_text</code>: [string] - add a subtitle as hint text for the form input</li>
         <li><code>id</code>: [string] - set the HTML id for the input element</li>
         <li><code>input_class</code>: [string] - add HTML classes to the input tag</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode"><code>inputmode</code></a></li>
         <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><code>label_class</code>: [string] - add HTML classes to the label tag</li>
         <li><code>name</code>: [string] - set the HTML name for the input element</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder"><code>placeholder</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
@@ -407,13 +414,13 @@
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
         <div class="flex flex-col gap-y-4 items-start max-w-xl w-full mx-auto">
-          {% form_input type="email" label="Email address" required=True field=example_form.example_email hint_text="Must be an opensafely.org account" %}
-          {% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
-          {% form_input type="search" label="Search the site"%}
+          {% form_input field=example_form.example_email %}
+          {% form_input custom_field=True type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
+          {% form_input custom_field=True type="search" label="Search the site" placeholder="Search..." disabled=True %}
         </div>
-        <pre><code class="language-django">{% verbatim %}{% form_input type="email" label="Email address" required=True %}
-{% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
-{% form_input type="search" label="Search the site"%}{% endverbatim %}</code></pre>
+        <pre><code class="language-django">{% verbatim %}{% form_input field=example_form.example_email %}
+{% form_input custom_field=True type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
+{% form_input custom_field=True type="search" label="Search the site" placeholder="Search..." disabled=True %}{% endverbatim %}</code></pre>
       </div>
 
       <h3>Legend</h3>
