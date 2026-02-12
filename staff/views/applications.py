@@ -76,8 +76,6 @@ class ApplicationApprove(FormView):
         }
 
     def get_initial(self):
-        # TODO: Project identifier should not be auto filled in the form when
-        # service team starts setting projects manually.
         project_number = Project.next_project_identifier()
 
         # set the value of project_name from the study_name field in the
