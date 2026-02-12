@@ -2,6 +2,7 @@ from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ApplicationApproveForm,
+    ProjectCreateForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
     UserForm,
@@ -104,6 +105,46 @@ def test_applicationapproveform_with_empty_project_slug():
     assert form.errors == {
         "project_name": ["Please use at least one letter or number in the title"]
     }
+
+
+def test_projectcreateform_unbound():
+    """
+    Test unbound state for ProjectCreate form.
+
+    When the form is instantiated then:
+        * The form is unbound.
+        * name and number fields do not have initial values.
+    """
+
+    form = ProjectCreateForm()
+
+    assert not form.is_bound
+    assert form.fields["name"].initial is None
+    assert form.fields["number"].initial is None
+
+
+def test_projectcreateform_success():
+    """
+    Test is_valid() success for ProjectCreate form.
+
+    When the form is populated by the user and submitted then:
+        * The form is bound with copilot, orgs, name, and number data input by the user.
+        * Validation succeeds.
+    """
+    copilot = UserFactory()
+    org = OrgFactory()
+
+    data = {
+        "name": "test1",
+        "number": 1234567832,
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk),
+    }
+
+    form = ProjectCreateForm(data=data)
+
+    assert form.is_bound
+    assert form.is_valid(), form.errors
 
 
 def test_projecteditform_number_is_not_required():

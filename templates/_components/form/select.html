@@ -2,10 +2,12 @@
   {% var label_for=id %}
   {% var select_id=id %}
   {% var select_name=name %}
+  {% var hint_text=hint_text %}
 {% else %}
   {% var label_for=field.id_for_label %}
   {% var select_id=field.auto_id %}
   {% var select_name=field.html_name %}
+  {% var hint_text=field.help_text %}
 {% endif %}
 
 <div {% attrs class %}>
