@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 from csp.decorators import csp_exempt
-from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q
@@ -93,15 +92,14 @@ class WorkspaceCreate(CreateView):
             )
         except GitHubError:
             # gracefully handle not being able to access GitHub's API
-            msg = (
+            message = (
                 "An error occurred while retrieving the list of repositories from GitHub, "
                 "please reload the page to try again."
             )
-            messages.error(request, msg)
             return TemplateResponse(
                 request,
-                self.template_name,
-                context={"project": self.project},
+                "workspace/create_error.html",
+                context={"message": message, "project": self.project},
             )
 
         self.repos_with_branches = sorted(

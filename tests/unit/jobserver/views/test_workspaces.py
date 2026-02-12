@@ -3,7 +3,6 @@ from datetime import timedelta
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
@@ -172,29 +171,21 @@ def test_workspacecreate_without_github(rf, project_membership, user, role_facto
     request = rf.get("/")
     request.user = user
 
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
     response = WorkspaceCreate.as_view(get_github_api=FakeGitHubAPIWithErrors)(
         request, project_slug=project.slug
     )
 
     assert response.status_code == 200
+    assert response.template_name == "workspace/create_error.html"
 
     # check we skipped creating the form
     assert "form" not in response.context_data
-
-    # check we have a message for the user
-    messages = list(messages)
-    assert len(messages) == 1
 
     expected = (
         "An error occurred while retrieving the list of repositories from GitHub, "
         "please reload the page to try again."
     )
-    assert str(messages[0]) == expected
+    assert response.context_data["message"] == expected
 
 
 def test_workspacecreate_without_org(rf, project_membership, role_factory):
