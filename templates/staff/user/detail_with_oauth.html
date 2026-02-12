@@ -134,7 +134,7 @@
       {% #list_group %}
         {% for project in projects %}
           {% #list_group_item href=project.get_staff_url %}
-            {{ project.name }}
+            {{ project.title }}
           {% /list_group_item %}
         {% empty %}
           {% list_group_empty icon=True title="No projects" description="This user is not a member of any projects" %}
@@ -166,7 +166,7 @@
       {% #list_group %}
         {% for project in copiloted_projects %}
           {% #list_group_item href=project.get_staff_url %}
-            {{ project.name }}
+            {{ project.title }}
           {% /list_group_item %}
         {% empty %}
           {% list_group_empty icon=True title="No co-piloted projects" description="This user has not co-piloted any projects" %}
