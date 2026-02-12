@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import (
     CreateView,
@@ -25,6 +26,7 @@ from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, Us
 
 from ..forms import (
     ProjectAddMemberForm,
+    ProjectCreateForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
     ProjectMembershipForm,
@@ -275,6 +277,22 @@ class ProjectMembershipRemove(View):
 
 @method_decorator(require_permission(Permission.PROJECT_CREATE), name="dispatch")
 class ProjectCreate(CreateView):
+    """Create a new Project instance."""
+
+    form_class = ProjectCreateForm
     model = Project
-    fields = []
     template_name = "staff/project/create.html"
+
+    @transaction.atomic
+    def form_valid(self, form):
+        project = form.save(commit=False)
+
+        project.created_by = self.request.user
+        project.updated_by = self.request.user
+
+        if not project.created_at:
+            project.created_at = timezone.now()
+
+        project.save()
+
+        return redirect(project.get_staff_url())
