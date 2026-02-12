@@ -172,3 +172,21 @@ class Project(models.Model):
     @functional.cached_property
     def org(self):
         return self.orgs.filter(collaborations__is_lead=True).first()
+
+    @classmethod
+    def next_project_identifier(cls):
+        """
+        Return the next numeric project number, or 1 if no numeric values exist.
+        This handles both int values and digit-only strings so it remains valid
+        when number is migrated from IntegerField to CharField.
+        """
+        numeric_values = [
+            int(str(value).strip())
+            for value in cls.objects.values_list("number", flat=True)
+            if value is not None and str(value).strip().isdigit()
+        ]
+
+        if not numeric_values:
+            return 1
+
+        return max(numeric_values) + 1

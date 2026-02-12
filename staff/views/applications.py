@@ -2,7 +2,7 @@ import functools
 
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Max, Q, Value
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
@@ -76,9 +76,7 @@ class ApplicationApprove(FormView):
         }
 
     def get_initial(self):
-        project_number = Project.objects.filter(number__isnull=False).aggregate(
-            largest_number=Max("number") + Value(1)
-        )["largest_number"]
+        project_number = Project.next_project_identifier()
 
         # set the value of project_name from the study_name field in the
         # application form
