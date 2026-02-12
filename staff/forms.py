@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models.functions import Lower
+from django.utils import timezone
 from django.utils.text import slugify
 
 from applications.forms import YesNoField
@@ -92,6 +93,82 @@ class OrgAddMemberForm(PickUsersMixin, forms.Form):
 
 class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
+
+
+class ProjectCreateForm(forms.ModelForm):
+    """Form to create a Project."""
+
+    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
+
+    class Meta:
+        fields = [
+            "created_at",
+            "created_by",
+            "copilot",
+            "name",
+            "number",
+            "orgs",
+            "status",
+        ]
+        model = Project
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+        # Disable fields that we want to be read-only in the browser. We
+        # also set `required=False` for these fields, because when the
+        # inputs are disabled in the browser they are not submitted, and
+        # ModelForm validation will fail on POST.
+        readonly_fields = ["created_at", "created_by", "status"]
+        for fieldname in readonly_fields:
+            if fieldname in self.fields:
+                self.fields[fieldname].disabled = True
+                self.fields[fieldname].required = False
+
+        self.fields["copilot"].label = "Project Co-pilot"
+        self.fields[
+            "copilot"
+        ].help_text = (
+            "Ask the BI Co-pilot Lead to find out who is Co-piloting this new project."
+        )
+
+        self.fields["created_at"].label = "Project created at"
+        self.fields["created_at"].initial = timezone.now().date()
+        self.fields[
+            "created_at"
+        ].help_text = (
+            "This is automatically set to today's date, and cannot be changed."
+        )
+
+        self.fields["created_by"].label = "Project created by"
+        if user is not None:
+            # set initial to the instance so Django binds correctly
+            self.fields["created_by"].initial = user.fullname
+            self.fields[
+                "created_by"
+            ].help_text = "This is automatically set to the user completing the form, and cannot be changed."
+
+        self.fields["orgs"].label = "Link project to an organisation"
+        self.fields[
+            "orgs"
+        ].help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
+
+        self.fields["number"].label = "Project ID"
+        self.fields[
+            "number"
+        ].help_text = "Project ID can be found in the All Projects spreadsheet."
+
+        self.fields["name"].label = "Project title"
+        self.fields[
+            "name"
+        ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
+
+        self.fields["status"].label = "Project status"
+        self.fields["status"].initial = "Ongoing"
+        self.fields[
+            "status"
+        ].help_text = "This is automatically set to 'Ongoing' and cannot be changed until the project has been created."
 
 
 class ProjectEditForm(forms.ModelForm):

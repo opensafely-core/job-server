@@ -1,7 +1,10 @@
+from django.utils import timezone
+
 from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ApplicationApproveForm,
+    ProjectCreateForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
     UserForm,
@@ -104,6 +107,35 @@ def test_applicationapproveform_with_empty_project_slug():
     assert form.errors == {
         "project_name": ["Please use at least one letter or number in the title"]
     }
+
+
+def test_projectcreateform_unbound():
+    """
+    When the form is instantiated then:
+        * The form is unbound.
+        * The status field value is set to Ongoing.
+        * The created_at field value is set to today's date.
+        * The created_by field value is the current user.
+        * name and number fields do not have initial values.
+        * created_at, created_by and status should be disabled and not required
+    """
+    user = UserFactory()
+    todays_date = timezone.now().date()
+    readonly_fields = ["created_at", "created_by", "status"]
+
+    form = ProjectCreateForm(user=user)
+
+    assert not form.is_bound
+    assert form.fields["created_at"].initial == todays_date
+    assert form.fields["created_by"].initial == user.fullname
+    assert form.fields["name"].initial is None
+    assert form.fields["number"].initial is None
+    assert form.fields["status"].initial == "Ongoing"
+
+    for fieldname in readonly_fields:
+        assert fieldname in form.fields
+        assert form.fields[fieldname].disabled is True
+        assert form.fields[fieldname].required is False
 
 
 def test_projecteditform_number_is_not_required():
