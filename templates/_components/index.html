@@ -336,18 +336,22 @@
         <li><code>checked</code>: [boolean] - if true, checkbox is checked</li>
         <li><code>field</code>: a Django form field
           <ul>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
-            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.auto_id"><code>auto_id</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/fields#django.forms.Field.required"><code>field.required</code></a></li>
+            <li><a href="https://devdocs.io/django~5.2/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
           </ul>
         </li>
         <li><code>custom_field</code>: [boolean] - set to true if field does not directly map to a Django Form field</li>
         <li><code>id</code>: [string] - set the HTML id for the input element</li>
-        <li><code>label_class</code>: [string] - add HTML classes to the label tag</li>
+        <li><code>input_class</code>: [string] - add HTML classes to the input tag</li>
         <li><code>label</code>: [string] - set the label displayed to the user</li>
+        <li><code>label_class</code>: [string] - add HTML classes to the label tag</li>
         <li><code>name</code>: [string] - set the HTML name for the input element</li>
-        <li><code>span_class</code>: [string] - add HTML classes to the span tag wrapping the label</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+        <li><code>span_class</code>: [string] - add HTML classes to the span tag wrapping the label text</li>
         <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded-sm">
