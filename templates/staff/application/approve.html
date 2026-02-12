@@ -39,7 +39,7 @@
           {% var new_org_url=staff_org_create_url|add:"?next="|add:request.path %}
           {% link href=new_org_url text="add a new org" append_after="." hx-get=new_org_url hx-target="dialog#addNewOrg" hx-trigger="click" %}
         {% endfragment %}
-        {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" hint_text=select_hint_text %}
+        {% form_select field=form.org label="Select an org" hint_text=select_hint_text %}
 
         {% form_input field=form.project_name label="Set the project name" %}
         {% form_input field=form.project_number label="Set the project number" %}

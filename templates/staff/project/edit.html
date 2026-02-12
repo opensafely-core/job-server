@@ -58,7 +58,7 @@
     {% #card title="Organisations" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Organisations" class="sr-only" %}
-        {% form_select field=form.fields.orgs choices=form.fields.orgs.choices selected=form.orgs.value.0 id="id_orgs" name="orgs" label="Select an organisation" required %}
+        {% form_select field=form.orgs selected=form.orgs.value.0 label="Select an organisation" %}
       {% /form_fieldset %}
     {% /card %}
 
@@ -81,7 +81,7 @@
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Internal co-pilot details" class="sr-only" %}
 
-        {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value label="Select a co-pilot" %}
+        {% form_select field=form.copilot label="Select a co-pilot" %}
         {% form_input custom_field=True id="id_copilot_support_ends_at" name="copilot_support_ends_at" value=form.copilot_support_ends_at.value|date:"Y-m-d" errors=form.copilot_support_ends_at.errors type="date" label="Co-pilot support ends at" %}
         {% form_textarea field=form.copilot_notes label="Co-pilot notes" %}
       {% /form_fieldset %}
@@ -91,7 +91,7 @@
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Status" class="sr-only" %}
 
-        {% form_select field=form.status choices=form.fields.status.choices selected=form.status.value %}
+        {% form_select field=form.status %}
         {% form_textarea custom_field name="status_description" id="id_status_description" hint_text="You can format the status description text using Markdown" label="Status description" resize rows="12" value=form.status_description.value errors=form.status_description.errors %}
       {% /form_fieldset %}
     {% /card %}

@@ -94,7 +94,7 @@
       {% form_legend text="Editing site alert" %}
       {% form_textarea class="w-full max-w-[65ch]" field=form.title resize=True rows="2" %}
       {% form_textarea class="w-full max-w-[65ch]" field=form.message resize=True rows="8" %}
-      {% form_select field=form.fields.level choices=form.fields.level.choices selected=form.level.value id="id_level" name="level" class="self-start" hint_text=form.fields.level.help_text %}
+      {% form_select field=form.level class="self-start" %}
       {% #alert variant="warning" %}
         Saved changes will take effect immediately for all authenticated users.
       {% /alert %}

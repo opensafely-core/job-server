@@ -30,7 +30,7 @@
     {% endif %}
 
     {% #card title="Workspace info" container=True container_class="flex flex-col gap-y-6" %}
-      {% form_select field=form.fields.project choices=form.fields.project.choices selected=form.project.value id="id_project" name="project" label="Select a project" %}
+      {% form_select field=form.project label="Select a project" %}
 
       {% #form_fieldset class="w-full items-stretch" %}
         {% form_legend text="Is this workspace archived?" %}
