@@ -2,14 +2,12 @@
   {% var input_id=id %}
   {% var input_label=label %}
   {% var input_name=name %}
-  {% var input_required=required %}
   {% var input_value=value %}
   {% var label_for=id %}
 {% else %}
   {% var input_id=field.auto_id %}
   {% var input_label=field.label %}
   {% var input_name=field.html_name %}
-  {% var input_required=field.field.required %}
   {% var input_value=field.value %}
   {% var label_for=field.id_for_label %}
 {% endif %}
@@ -31,16 +29,9 @@
     id="{{ input_id }}"
     name="{{ input_name }}"
     type="checkbox"
-    {% if input_required %}required{% endif %}
     {% if input_value %}value="{{ input_value }}"{% endif %}
   >
   <span class="transition-colors leading-snug group-hover:text-oxford-600 {{ span_class }}">
     {{ input_label }}
-    {% if input_required %}
-      <span
-        aria-hidden="true"
-        class="text-bn-ribbon-700 font-bold"
-      >*</span>
-    {% endif %}
   </span>
 </label>
