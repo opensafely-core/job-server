@@ -113,7 +113,7 @@ def test_projectcreateform_unbound():
     """
     When the form is instantiated then:
         * The form is unbound.
-        * The status field value is set to Ongoing.
+        * The status field value is set to ongoing.
         * The created_at field value is set to today's date.
         * The created_by field value is the current user.
         * name and number fields do not have initial values.
@@ -127,10 +127,10 @@ def test_projectcreateform_unbound():
 
     assert not form.is_bound
     assert form.fields["created_at"].initial == todays_date
-    assert form.fields["created_by"].initial == user.fullname
+    assert (user.pk, user.fullname) in list(form.fields["created_by"].choices)
     assert form.fields["name"].initial is None
     assert form.fields["number"].initial is None
-    assert form.fields["status"].initial == "Ongoing"
+    assert form.fields["status"].initial == Project.Statuses.ONGOING
 
     for fieldname in readonly_fields:
         assert fieldname in form.fields

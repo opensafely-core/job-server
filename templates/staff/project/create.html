@@ -56,7 +56,7 @@
         {% form_select field=form.orgs choices=form.fields.orgs.choices hint_extra_class="max-w-full" %}
         {% form_select field=form.status choices=form.fields.status.choices hint_extra_class="max-w-full" %}
         {% form_input field=form.created_at type="date" %}
-        {% form_input field=form.created_by %}
+        {% form_select field=form.created_by choices=form.fields.created_by.choices hint_extra_class="max-w-full" %}
       {% /form_fieldset %}
     {% /card %}
 

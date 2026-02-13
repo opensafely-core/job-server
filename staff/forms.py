@@ -141,10 +141,16 @@ class ProjectCreateForm(forms.ModelForm):
             "This is automatically set to today's date, and cannot be changed."
         )
 
+        # created_by: the user field on the Project model is an FK which
+        # defaults to ModelChoiceField in Django. We use therefore use
+        # instance/PK to ensure the queryset contains the user so the
+        # select can render correctly, then display fullname in the form
         self.fields["created_by"].label = "Project created by"
         if user is not None:
-            # set initial to the instance so Django binds correctly
-            self.fields["created_by"].initial = user.fullname
+            # add a CharField for display-only; we set the authoratative value server-side with SetUserMixin
+            self.fields["created_by"].queryset = User.objects.filter(pk=user.pk)
+            self.fields["created_by"].label_from_instance = lambda user: user.fullname
+            self.fields["created_by"].empty_label = None
             self.fields[
                 "created_by"
             ].help_text = "This is automatically set to the user completing the form, and cannot be changed."
@@ -165,10 +171,32 @@ class ProjectCreateForm(forms.ModelForm):
         ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
 
         self.fields["status"].label = "Project status"
-        self.fields["status"].initial = "Ongoing"
+        self.fields["status"].initial = Project.Statuses.ONGOING
         self.fields[
             "status"
         ].help_text = "This is automatically set to 'Ongoing' and cannot be changed until the project has been created."
+
+    def clean_number(self):
+        number = self.cleaned_data["number"]
+
+        # We have a constraint ensuring Project.number is unique (ignoring
+        # nulls).  Unfortunately that fires when we save a model, giving us an
+        # IntegrityError.  We have to handle this in the view if we're using a
+        # plain Form, while a ModelForm will put the failure message in the form
+        # instance's non_field_errors unless we manually handle the failure and
+        # attach it to the number field on the form.
+        #
+        # Neither of these are ideal so we're also validating it here so that it
+        # gets attached to the number field on forms using this mixin.
+        if (
+            Project.objects.exclude(pk=self.instance.pk)
+            .exclude(number=None)
+            .filter(number=number)
+            .exists()
+        ):
+            raise forms.ValidationError("Project number must be unique")
+
+        return number
 
 
 class ProjectEditForm(forms.ModelForm):
