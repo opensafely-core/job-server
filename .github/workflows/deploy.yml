@@ -71,7 +71,7 @@ jobs:
         run: |
             ssh-agent -a "$SSH_AUTH_SOCK" > /dev/null
             ssh-add - <<< "${{ secrets.DOKKU4_DEPLOY_SSH_KEY }}"
-            SHA="$PUBLIC_IMAGE_NAME:latest"
+            SHA=$(docker inspect --format='{{join .RepoDigests "\n"}}' "$PUBLIC_IMAGE_NAME:latest" | grep "$PUBLIC_IMAGE_NAME")
             ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku4.ebmdatalab.net git:from-image job-server "$SHA"
 
       - name: Finalize Sentry release
