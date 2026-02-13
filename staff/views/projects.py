@@ -32,10 +32,11 @@ from ..forms import (
 )
 from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
+from .site_alerts import SetUserMixin
 
 
 @method_decorator(require_permission(Permission.PROJECT_CREATE), name="dispatch")
-class ProjectCreate(CreateView):
+class ProjectCreate(SetUserMixin, CreateView):
     """Create a new Project instance."""
 
     model = Project
