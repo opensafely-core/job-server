@@ -19,8 +19,19 @@
 
 {% block hero %}
   {% fragment as hero_text %}
-    <p>The audit log shows changes to project membership involving {{ user.fullname }} from <date>12th Feb 2024</date>. It includes project members added, removed and any change to roles.</p>
-    <p>It's only visible to staff members and is used for internal record keeping purposes only.</p>
+    <div class="prose prose-oxford prose-sm max-w-full">
+      <p>This audit log records:</p>
+      <ul>
+        <li>Changes to user global roles since <time datetime="2026-02-16">16 February 2026</time></li>
+        <li>Project membership changes since <time datetime="2024-02-16">16 February 2024</time>, including:
+          <ul>
+            <li>Addition or removal from a project</li>
+            <li>Role changes on projects</li>
+          </ul>
+        </li>
+      </ul>
+      <p>It is visible only to staff and used for internal record keeping.</p>
+    </div>
   {% endfragment %}
   {% staff_hero title="Audit log: "|add:user.fullname text=hero_text %}
 {% endblock hero %}
