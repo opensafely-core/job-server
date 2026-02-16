@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
 from django.utils import timezone
@@ -82,13 +82,26 @@ def test_user_validate_login_token_wrong(token_login_user):
         users.validate_login_token(token_login_user.username, "bad token")
 
 
-def test_update_roles():
+def test_update_roles(freezer):
     updator = UserFactory()
     user = UserFactory()
 
     assert user.roles == []
 
     users.update_roles(user=user, by=updator, roles=[ProjectDeveloper])
+
+    event = AuditableEvent.objects.get(target_user=user.username)
+    assert event.type == AuditableEvent.Type.USER_UPDATED_ROLES
+    assert event.target_model == "jobserver.User"
+    assert event.target_id == str(user.pk)
+    assert event.target_field == "roles"
+    assert event.parent_model == ""
+    assert event.parent_id == ""
+    assert event.created_by == updator.username
+    # Due to the freezer fixture, time has not moved on so can compare directly.
+    assert event.created_at == datetime.now().astimezone()
+    assert event.old == ""
+    assert event.new == f"{ProjectDeveloper.__module__}.ProjectDeveloper"
 
     user.refresh_from_db()
     assert user.roles == [ProjectDeveloper]
@@ -115,8 +128,9 @@ def test_clear_all_roles(project_membership):
     assert len(user.roles) == 0
     assert len(user.project_memberships.get().roles) == 0
 
-    # this is the "user's roles updated" event
-    assert AuditableEvent.objects.count() == 3
+    # these are the the "user's roles updated" event, one for the project roles
+    # and one for global roles
+    assert AuditableEvent.objects.count() == 4
 
     event = AuditableEvent.objects.last()
     assert event.type == AuditableEvent.Type.PROJECT_MEMBER_UPDATED_ROLES

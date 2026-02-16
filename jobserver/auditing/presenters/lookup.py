@@ -1,6 +1,6 @@
 from jobserver.models import AuditableEvent
 
-from . import project_members
+from . import project_members, users
 from .exceptions import UnknownPresenter
 
 
@@ -20,6 +20,7 @@ def get_presenter(event):
         AuditableEvent.Type.PROJECT_MEMBER_ADDED: project_members.added,
         AuditableEvent.Type.PROJECT_MEMBER_REMOVED: project_members.removed,
         AuditableEvent.Type.PROJECT_MEMBER_UPDATED_ROLES: project_members.updated_roles,
+        AuditableEvent.Type.USER_UPDATED_ROLES: users.updated_roles,
     }
 
     try:
