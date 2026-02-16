@@ -55,7 +55,7 @@
     <link rel="manifest" href="{% static "manifest.webmanifest" %}">
   </head>
 
-  <body class="preload flex flex-col min-h-screen text-slate bg-white {% if not in_production %}mt-9{% endif %}">
+  <body class="preload flex flex-col min-h-screen text-slate bg-white has-[dialog[open]]:overflow-hidden {% if not in_production %}mt-9{% endif %}">
     {% skip_link %}
     {% block ribbon %}
       {% include "_partials/dev-banner.html" %}
