@@ -98,6 +98,7 @@ def test_update_roles(freezer):
     assert event.parent_model == ""
     assert event.parent_id == ""
     assert event.created_by == updator.username
+    # Due to the freezer fixture, time has not moved on so can compare directly.
     assert event.created_at == datetime.now().astimezone()
     assert event.old == ""
     assert event.new == f"{ProjectDeveloper.__module__}.ProjectDeveloper"
