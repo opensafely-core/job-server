@@ -52,6 +52,6 @@
     "simple-datatables": "^10.2.0",
     "slugify": "^1.6.6",
     "tailwindcss": "^4.1.13",
-    "tom-select": "^2.4.5"
+    "tom-select": "^2.4.6"
   }
 }
