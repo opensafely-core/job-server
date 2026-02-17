@@ -22,6 +22,7 @@
 # 2026-02-09: This list consists of approved projects from #156 onwards, as of 2026-02-09 (#156-205). All of these projects are COVID projects, out of scope for GP activation filtering.
 ANALYSIS_SCOPE_KEY = "include_gp_unactivated"
 
+# need to change these project numbers to char. Changes need to be done if ig team only
 PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION = {
     # Projects identified by slug (no project number)
     "opensafely-internal",  # https://jobs.opensafely.org/opensafely-internal

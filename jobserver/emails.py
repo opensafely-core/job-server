@@ -72,6 +72,7 @@ def send_repo_signed_off_notification_to_researchers(repo):
 
 
 def send_repo_signed_off_notification_to_staff(repo):
+    # should work if number is char as converting to str
     numbers = [str(w.project.number) for w in repo.workspaces.all() if w.project.number]
     numbers = ",".join(numbers) if numbers else "X"
     subject = (

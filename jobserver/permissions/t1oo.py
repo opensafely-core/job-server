@@ -13,6 +13,8 @@
 
 # From Appendix 3 of DPIA document linked here:
 # https://digital.nhs.uk/about-nhs-digital/corporate-information-and-documents/directions-and-data-provision-notices/data-provision-notices-dpns/opensafely-covid-19-service-data-provision-notice
+
+# need to change these project numbers to char. Changes need to be done if ig team only
 PROJECTS_WITH_T1OO_PERMISSION = {
     2,  # https://jobs.opensafely.org/online-consultations/
     4,  # https://jobs.opensafely.org/tncc-vaccine-efficacy/

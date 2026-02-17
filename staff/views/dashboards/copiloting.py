@@ -148,6 +148,7 @@ class Copiloting(TemplateView):
             Note: we could handle all stats this way but at the time of writing
             the current annotations were performant.
             """
+            # order- project number
             for project in projects:
                 files_released_count = file_counts_by_project.get(project.pk, 0)
                 orgs = list(

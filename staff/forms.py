@@ -254,6 +254,7 @@ class WorkspaceEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # sorting change required
         self.fields["project"] = WorkspaceModelChoiceField(
             queryset=Project.objects.order_by("number", Lower("name")),
         )

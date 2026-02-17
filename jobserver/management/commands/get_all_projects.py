@@ -10,6 +10,7 @@ from jobserver.models import Job, Project
 class Command(BaseCommand):
     def handle(self, *args, **options):
         data = []
+        # ordering will be affected here
         for project in Project.objects.order_by("number", "name"):
             name = project.name
             number = project.number

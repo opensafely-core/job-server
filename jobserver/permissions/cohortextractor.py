@@ -17,6 +17,7 @@
 # Note that this is similar to, but not necessarily identical to, the list of projects
 # with permission to access T1OO data.
 
+# need to change these project numbers to char. Changes need to be done if ig team only
 PROJECTS_WITH_COHORT_EXTRACTOR_PERMISSION = {
     2,  # https://jobs.opensafely.org/online-consultations/
     4,  # https://jobs.opensafely.org/tncc-vaccine-efficacy/
