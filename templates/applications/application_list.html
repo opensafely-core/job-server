@@ -12,12 +12,7 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% #article_header title="Applications" text="Request access to the OpenSAFELY-EMIS/-TPP COVID-19 research platform" %}
-    {% url "applications:start" as applications_start_url %}
-    {% #button type="link" variant="primary" href=applications_start_url %}
-      Start a new application
-    {% /button %}
-  {% /article_header %}
+  {% #article_header title="Applications" text="We're no longer accepting applications via OpenSAFELY Jobs. Please contact us for more information about how to proceed with any in-progress applications."%}{% /article_header %}
 
   <div class="grid gap-y-8 mt-6">
     {% if applications or deleted_applications %}
