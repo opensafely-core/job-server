@@ -165,7 +165,9 @@ class UserDetailWithOAuth(UpdateView):
 
     def get_context_data(self, **kwargs):
         applications = self.object.applications.order_by("-created_at")
-        copiloted_projects = self.object.copiloted_projects.order_by(Lower("name"))
+        copiloted_projects = self.object.copiloted_projects.order_by(
+            "number", Lower("name")
+        )
         jobs = Job.objects.filter(job_request__created_by=self.object).order_by(
             "-created_at"
         )
