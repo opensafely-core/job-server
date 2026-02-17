@@ -119,7 +119,7 @@ def test_applicationapprove_post_success(
     request = rf.post("/", data)
     request.user = staff_area_administrator
 
-    with django_assert_num_queries(15):
+    with django_assert_num_queries(16):
         response = ApplicationApprove.as_view()(
             request, pk_hash=complete_application.pk_hash
         )

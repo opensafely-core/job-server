@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from ..models import Project, ProjectCollaboration
+from ..models import AuditableEvent, Project, ProjectCollaboration
 
 
 @transaction.atomic()
@@ -11,6 +11,17 @@ def add(*, by, name, number, orgs, copilot=None):
         copilot=copilot,
         created_by=by,
         updated_by=by,
+    )
+
+    AuditableEvent.objects.create(
+        type=AuditableEvent.Type.PROJECT_CREATED,
+        target_model=Project._meta.label,
+        target_id=project.pk,
+        target_user=by.username,
+        parent_model=Project._meta.label,
+        parent_id=project.pk,
+        created_by=by.username,
+        created_at=project.created_at,
     )
 
     lead, *other = orgs

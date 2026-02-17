@@ -2,6 +2,7 @@ from jobserver.actions import projects
 from jobserver.utils import set_from_qs
 from staff.forms import ProjectEditForm
 from tests.factories import (
+    AuditableEvent,
     OrgFactory,
     ProjectCollaborationFactory,
     ProjectFactory,
@@ -23,6 +24,8 @@ def test_add_project_with_copilot():
         copilot=copilot,
         by=actor,
     )
+
+    event = AuditableEvent.objects.get(type=AuditableEvent.Type.PROJECT_CREATED)
 
     assert project.name == "test"
     assert project.number == 31337
@@ -48,6 +51,13 @@ def test_add_project_with_copilot():
     assert collaboration2.updated_at
     assert collaboration2.updated_by == actor
 
+    assert event.target_model == project._meta.label
+    assert event.target_id == str(project.pk)
+    assert event.target_user == actor.username
+    assert event.parent_model == project._meta.label
+    assert event.parent_id == str(project.pk)
+    assert event.created_by == actor.username
+
 
 def test_add_project_without_copilot():
     org1 = OrgFactory()
@@ -56,6 +66,8 @@ def test_add_project_without_copilot():
     actor = UserFactory()
 
     project = projects.add(name="test", number=31337, orgs=[org1, org2], by=actor)
+
+    event = AuditableEvent.objects.get(type=AuditableEvent.Type.PROJECT_CREATED)
 
     assert project.name == "test"
     assert project.number == 31337
@@ -80,6 +92,13 @@ def test_add_project_without_copilot():
     assert collaboration2.created_by == actor
     assert collaboration2.updated_at
     assert collaboration2.updated_by == actor
+
+    assert event.target_model == project._meta.label
+    assert event.target_id == str(project.pk)
+    assert event.target_user == actor.username
+    assert event.parent_model == project._meta.label
+    assert event.parent_id == str(project.pk)
+    assert event.created_by == actor.username
 
 
 def test_edit():
