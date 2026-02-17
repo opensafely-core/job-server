@@ -1,0 +1,13 @@
+{% if event.actor.link %}
+  {% link href=event.actor.link text=event.actor %}
+{% else %}
+  {{ event.actor }}
+{% endif %}
+
+created project
+
+{% if event.project.link %}
+  {% link href=event.project.link text=event.project %}
+{% else %}
+  {{ event.project }}
+{% endif %}

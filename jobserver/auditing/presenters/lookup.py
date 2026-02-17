@@ -1,6 +1,6 @@
 from jobserver.models import AuditableEvent
 
-from . import project_members, users
+from . import project_members, projects, users
 from .exceptions import UnknownPresenter
 
 
@@ -17,6 +17,7 @@ def get_presenter(event):
     AuditableEvent, and arguably shouldn't.
     """
     func_lut = {
+        AuditableEvent.Type.PROJECT_CREATED: projects.created,
         AuditableEvent.Type.PROJECT_MEMBER_ADDED: project_members.added,
         AuditableEvent.Type.PROJECT_MEMBER_REMOVED: project_members.removed,
         AuditableEvent.Type.PROJECT_MEMBER_UPDATED_ROLES: project_members.updated_roles,
