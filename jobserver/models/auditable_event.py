@@ -11,6 +11,7 @@ class AuditableEvent(models.Model):
     """
 
     class Type(models.TextChoices):
+        PROJECT_CREATED = "project_created", "Project created"
         PROJECT_MEMBER_ADDED = "project_member_added", "User added"
         PROJECT_MEMBER_REMOVED = "project_member_removed", "User removed"
         PROJECT_MEMBER_UPDATED_ROLES = (
