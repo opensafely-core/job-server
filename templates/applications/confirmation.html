@@ -207,14 +207,8 @@
   <form method="POST" class="mt-6">
     {% csrf_token %}
 
-    {% if not is_valid or not can_be_submitted %}
-      {% #button variant="success" type="submit" disabled=True %}
-        Submit for approval
-      {% /button %}
-    {% else %}
-      {% #button variant="success" type="submit" %}
-        Submit for approval
-      {% /button %}
-    {% endif %}
+    {% #button tooltip="We're no longer accepting applications via OpenSAFELY Jobs. Please contact us for more information about how to proceed with this application" type="submit" disabled=True %}
+      Submit for approval
+    {% /button %}
   </form>
 {% endblock content %}
