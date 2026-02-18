@@ -1,0 +1,300 @@
+import json
+import os
+import pathlib
+import shutil
+import subprocess
+import sys
+import tempfile
+
+from django.conf import settings
+from django.db import connection
+from django_extensions.management.jobs import YearlyJob
+from psycopg import sql
+from sentry_sdk.crons.decorator import monitor
+
+from services.sentry import monitor_config
+
+
+# Temporary schema to hold safe copies
+TEMP_SCHEMA = "temp_scrubbed_schema"
+OUTPUT_PATH = pathlib.Path("/storage/sanitised_jobserver.dump")
+ALLOWLIST_PATH = pathlib.Path(__file__).with_name("allow_list.json")
+OUT_DIR = OUTPUT_PATH.parent
+
+
+class Job(YearlyJob):
+    """
+    Produces a sanitised jobserver dump for local development.
+    Tables/columns are controlled by allow_list.json and disallowed columns are replaced with fake values.
+    See dump_sanitised_db.md for more information about this script.
+    """
+
+    help = "Dump a safe copy of the DB with non-allowlisted columns replaced by fake values"
+
+    # Keeping this job unscheduled for now; once we're confident we can switch it
+    # to a DailyJob and update the monitor schedule.
+    @monitor(
+        monitor_slug="dump_sanitised_db", monitor_config=monitor_config("0 0 1 1 *")
+    )
+    def execute(self):
+        """Create a scrubbed copy of the production DB and dump it for dev use."""
+        db = settings.DATABASES["default"]
+        allowlist = self._load_allowlist(ALLOWLIST_PATH)
+        if not allowlist:
+            print(
+                "Unable to create a sanitised dump as allowlist is missing",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        if not OUT_DIR.is_dir():
+            print(f"Unknown output directory: {OUT_DIR}", file=sys.stderr)
+            sys.exit(1)
+
+        with tempfile.NamedTemporaryFile(
+            prefix="tmp-sanitised-jobserver-dump-", dir=str(OUT_DIR), delete=True
+        ) as tmp:
+            tmp_name = tmp.name
+
+            # Ensure any leftover scratch schema from previous failures is removed
+            self._drop_temp_schema()
+
+            try:
+                self._create_safe_schema_and_copy(allowlist)
+                self._run_pg_dump_for_schema(tmp_name, TEMP_SCHEMA, db)
+            finally:
+                self._drop_temp_schema()
+
+            tmp.flush()
+            os.chmod(tmp_name, 0o600)
+            shutil.copy2(tmp_name, OUTPUT_PATH)
+
+    def _load_allowlist(self, path: str | None) -> dict[str, list[str]]:
+        """Read allow_list.json and return a table -> allowed columns mapping."""
+        if not path:
+            return {}
+
+        try:
+            with open(path, encoding="utf-8") as file:
+                data = json.load(file)
+            allowlist_dict: dict[str, list[str]] = {}
+            for table_name, cols in data.items():
+                if isinstance(cols, list) and cols:
+                    allowlist_dict[str(table_name)] = [str(c) for c in cols]
+            return allowlist_dict
+        except FileNotFoundError:
+            print(
+                f"Allowlist file not found at {path}",
+                file=sys.stderr,
+            )
+            return {}
+        except Exception as exc:
+            print(f"Error loading allowlist file {path}: {exc}", file=sys.stderr)
+            return {}
+
+    def _fake_expression(self, table: str, col: str, meta: dict) -> str:
+        """Return SQL to generate a fake-but-valid value for the given column."""
+        dtype = (meta.get("data_type") or "").lower()
+
+        if "char" in dtype or "text" in dtype:
+            return f"'fake_{table}_{col}_' || ROW_NUMBER() OVER ()::text"
+
+        if "integer" in dtype or "bigint" in dtype or "smallint" in dtype:
+            return "ROW_NUMBER() OVER ()"
+
+        if "timestamp" in dtype or "date" in dtype:
+            return "now()"
+
+        raise ValueError(
+            f"Unsupported data type '{dtype}' for {table}.{col}; add handling or allowlist it"
+        )
+
+    def _valid_ident(self, x: str) -> bool:
+        """Reject identifiers containing characters that could lead to SQL injection."""
+        return bool(x) and (x.replace("_", "").isalnum()) and (not x[0].isdigit())
+
+    def _normalize_table_name(self, table: str) -> tuple[str, str]:
+        """Split dotted table names and default schema to public."""
+        if "." in table:
+            schema_name, table_name = table.split(".", 1)
+        else:
+            schema_name = "public"
+            table_name = table
+
+        if not self._valid_ident(table_name) or not self._valid_ident(schema_name):
+            raise ValueError(f"Invalid table name in allowlist: {table}")
+
+        return schema_name, table_name
+
+    def _get_column_metadata(
+        self, cur, schema_name: str, table_name: str
+    ) -> tuple[list[str], dict[str, dict[str, str]]]:
+        """Pull column order and metadata from information_schema for a table."""
+        cur.execute(
+            sql.SQL(
+                """
+                SELECT column_name, data_type
+                FROM information_schema.columns
+                WHERE table_schema = %s AND table_name = %s
+                ORDER BY ordinal_position;
+                """
+            ),
+            [schema_name, table_name],
+        )
+        rows = cur.fetchall()
+        if not rows:
+            return [], {}
+
+        existing_cols = [row[0] for row in rows]
+        col_meta = {row[0]: {"data_type": row[1]} for row in rows}
+        return existing_cols, col_meta
+
+    def _build_allowed_set(self, table: str, columns: list[str]) -> set[str]:
+        """Validate allow-listed column names before interpolating into SQL."""
+        allowed_set: set[str] = set()
+        for col in columns:
+            if not self._valid_ident(col):
+                raise ValueError(f"Invalid column name in allowlist for {table}: {col}")
+            allowed_set.add(col)
+        return allowed_set
+
+    def _create_safe_table(self, cur, src_table, dst_table) -> None:
+        """Create a destination table identical to the source."""
+        create_sql = sql.SQL(
+            "CREATE TABLE IF NOT EXISTS {dst} (LIKE {src} INCLUDING ALL);"
+        ).format(dst=dst_table, src=src_table)
+        try:
+            cur.execute(create_sql)
+        except Exception as exc:
+            raise RuntimeError(f"Failed to create table {dst_table}: {exc}")
+
+    def _build_select_expressions(
+        self,
+        table_name: str,
+        existing_cols: list[str],
+        allowed_set: set[str],
+        col_meta: dict[str, dict[str, str]],
+    ) -> tuple[list[str], str]:
+        """Produce SELECT expressions that copy allow-listed data and fake the rest."""
+        select_exprs: list[str] = []
+        missing_cols = allowed_set - set(existing_cols)
+        if missing_cols:
+            raise ValueError(
+                f"Allow list references missing columns for {table_name}: {sorted(missing_cols)}"
+            )
+        for col in existing_cols:
+            if col in allowed_set:
+                select_exprs.append(f'"{col}"')
+            else:
+                expr = self._fake_expression(table_name, col, col_meta[col])
+                select_exprs.append(f'{expr} AS "{col}"')
+        quoted_all_cols = ", ".join(f'"{c}"' for c in existing_cols)
+        return select_exprs, quoted_all_cols
+
+    def _create_safe_schema_and_copy(self, allowlist: dict[str, list[str]]):
+        """Populate the temporary schema with scrubbed data for each table."""
+        with connection.cursor() as cur:
+            cur.execute(
+                sql.SQL("DROP SCHEMA IF EXISTS {schema} CASCADE;").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                )
+            )
+            cur.execute(
+                sql.SQL("CREATE SCHEMA {schema};").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                )
+            )
+            cur.execute(
+                sql.SQL("COMMENT ON SCHEMA {schema} IS %s;").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                ),
+                (
+                    "Temporary scrubbed copy of jobserver; used by dump_sanitised_db and dropped after the job finishes.",
+                ),
+            )
+
+            for table, columns in allowlist.items():
+                if not columns:
+                    continue
+
+                schema_name, table_name = self._normalize_table_name(table)
+                existing_cols, col_meta = self._get_column_metadata(
+                    cur, schema_name, table_name
+                )
+                if not existing_cols:
+                    continue
+
+                allowed_set = self._build_allowed_set(table, columns)
+                original_table = sql.Identifier(schema_name, table_name)
+                temp_table = sql.Identifier(TEMP_SCHEMA, table_name)
+
+                self._create_safe_table(cur, original_table, temp_table)
+
+                select_exprs, quoted_all_cols = self._build_select_expressions(
+                    table_name, existing_cols, allowed_set, col_meta
+                )
+
+                insert_sql = sql.SQL(
+                    "INSERT INTO {dst} ({cols}) SELECT {select} FROM {src}"
+                ).format(
+                    dst=temp_table,
+                    cols=sql.SQL(quoted_all_cols),
+                    select=sql.SQL(", ".join(select_exprs)),
+                    src=original_table,
+                )
+                cur.execute(insert_sql)
+
+                # Keep the sequence aligned with the data we copied; otherwise, when the sanitised dump
+                # is restored, the sequences stay at 1 and inserts hit duplicate-key errors.
+                # We only run setval when the table has an integer/serial `id` column.
+                id_meta = col_meta.get("id")
+                if (
+                    "id" in existing_cols
+                    and id_meta
+                    and any(
+                        token in id_meta["data_type"] for token in ("int", "serial")
+                    )
+                ):
+                    cur.execute(
+                        sql.SQL(
+                            """
+                            SELECT setval(
+                                pg_get_serial_sequence(%s, 'id'),
+                                COALESCE((SELECT MAX(id)::bigint FROM {table}), 1),
+                                true
+                            )
+                            """
+                        ).format(table=temp_table),
+                        (f"{TEMP_SCHEMA}.{table_name}",),
+                    )
+
+    def _drop_temp_schema(self):
+        """Drop the scratch schema if it exists."""
+        with connection.cursor() as cur:
+            cur.execute(
+                sql.SQL("DROP SCHEMA IF EXISTS {schema} CASCADE;").format(
+                    schema=sql.Identifier(TEMP_SCHEMA)
+                )
+            )
+
+    def _run_pg_dump_for_schema(self, outfile: str, schema: str, db: dict):
+        """Use pg_dump to export only the sanitised schema to the temp file."""
+        conn_uri = f"postgresql://{db['USER']}@{db['HOST']}:{db['PORT']}/{db['NAME']}"
+        env = os.environ.copy()
+        if db.get("PASSWORD"):
+            env["PGPASSWORD"] = db["PASSWORD"]
+
+        cmd = [
+            "pg_dump",
+            "--format=c",
+            "--no-acl",
+            "--no-owner",
+            f"--file={outfile}",
+            f"--schema={schema}",
+            conn_uri,
+        ]
+        res = subprocess.run(cmd, env=env, capture_output=True, text=True)
+        if res.returncode != 0:
+            raise RuntimeError(
+                f"pg_dump failed: returncode={res.returncode}; stderr={res.stderr}"
+            )
