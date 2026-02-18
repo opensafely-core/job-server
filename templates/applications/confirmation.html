@@ -18,7 +18,11 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% article_header class="mb-6" title="Check your answers" text="Check the information you've provided before submitting, or make changes." %}
+  {% #article_header class="mb-6" title="Check your answers"  %}
+    {% #alert variant="danger" title="Submitting applications permanently disabled" class="mb-6" %}
+      <p>We're no longer accepting applications via OpenSAFELY Jobs. You should receive information via email by Friday 27th February on the new process and how to proceed with any in-progress applications. Please contact us if you have not received the information after that date at {% link href="mailto:team@opensafely.org" new_tab=True text="team@opensafely.org" append_after="." %} Information below retained for your reference.</p>
+    {% /alert %}
+  {% /article_header %}
 
   <div class="grid gap-y-6">
     {% for page in pages %}
@@ -204,11 +208,8 @@
     {% /card %}
   </div>
 
-  <form method="POST" class="mt-6">
-    {% csrf_token %}
+  {% #alert variant="danger" title="Submitting applications permanently disabled" class="mb-6" %}
+    <p>We're no longer accepting applications via OpenSAFELY Jobs. You should receive information via email by Friday 27th February on the new process and how to proceed with any in-progress applications. Please contact us if you have not received the information after that date at {% link href="mailto:team@opensafely.org" new_tab=True text="team@opensafely.org" append_after="." %}</p>
+  {% /alert %}
 
-    {% #button tooltip="We're no longer accepting applications via OpenSAFELY Jobs. Please contact us for more information about how to proceed with this application" type="submit" disabled=True %}
-      Submit for approval
-    {% /button %}
-  </form>
 {% endblock content %}
