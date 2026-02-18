@@ -12,7 +12,12 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% #article_header title="Applications" text="We're no longer accepting applications via OpenSAFELY Jobs. Please contact us for more information about how to proceed with any in-progress applications."%}{% /article_header %}
+
+  {% #article_header title="Applications" %}
+    {% #alert variant="danger" title="Submitting applications permanently disabled" class="mb-6" %}
+      <p>We're no longer accepting applications via OpenSAFELY Jobs. You should receive information via email by Friday 27th February on the new process and how to proceed with any in-progress applications. Please contact us if you have not received the information after that date at {% link href="mailto:team@opensafely.org" new_tab=True text="team@opensafely.org" append_after="." %}</p>
+    {% /alert %}
+  {% /article_header %}
 
   <div class="grid gap-y-8 mt-6">
     {% if applications or deleted_applications %}
