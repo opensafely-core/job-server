@@ -954,53 +954,6 @@ def test_jobrequestcreate_post_with_notifications_override(
     assert not job_request.jobs.exists()
 
 
-def test_jobrequestcreate_post_cohortextractor_without_permission(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
-):
-    backend = BackendFactory()
-    workspace = WorkspaceFactory(project=ProjectFactory(number=1))
-
-    BackendMembershipFactory(backend=backend, user=user)
-    project_membership(
-        project=workspace.project,
-        user=user,
-        roles=[role_factory(permission=Permission.JOB_RUN)],
-    )
-
-    dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
-    actions:
-      twiddle:
-        run: cohortextractor:latest
-        outputs:
-          moderately_sensitive:
-            cohort: path/to/output.csv
-    """
-    mocker.patch(
-        "jobserver.views.job_requests.get_project",
-        autospec=True,
-        return_value=dummy_yaml,
-    )
-    data = {
-        "backend": backend.slug,
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-    }
-    request = rf.post("/", data)
-    request.user = user
-
-    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert "cohort-extractor" in response.context_data["actions_error"]
-
-
 def test_jobrequestcreate_post_sqlrunner_without_permission(
     rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
 ):
@@ -1110,12 +1063,6 @@ def test_jobrequestcreate_post_with_codelists_error(
         "jobserver.views.job_requests.get_project",
         autospec=True,
         return_value=dummy_yaml,
-    )
-    # We need to check that cohortextractor jobs with out of date codelists are handled
-    # properly, so make sure this project has permission to run them
-    mocker.patch(
-        "jobserver.views.job_requests.check_cohortextractor_permission",
-        return_value=True,
     )
 
     data = {
