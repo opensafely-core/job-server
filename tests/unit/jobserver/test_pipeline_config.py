@@ -5,7 +5,7 @@ from furl import furl
 from pipeline.models import Pipeline
 
 from jobserver.pipeline_config import (
-    ActionPermissionError,
+    ActionConfigError,
     check_cohortextractor_usage,
     check_sqlrunner_permission,
     get_actions,
@@ -58,7 +58,7 @@ def test_check_cohortextractor_usage():
         }
     )
 
-    with pytest.raises(ActionPermissionError):
+    with pytest.raises(ActionConfigError):
         check_cohortextractor_usage(config)
 
 
@@ -96,7 +96,7 @@ def test_check_sqlrunner_permission():
     # The internal project has permission
     check_sqlrunner_permission(ProjectFactory(id=28), config)
 
-    with pytest.raises(ActionPermissionError):
+    with pytest.raises(ActionConfigError):
         # Project 1 doesn't have permission
         check_sqlrunner_permission(ProjectFactory(id=102, number=1), config)
 

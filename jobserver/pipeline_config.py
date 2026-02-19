@@ -7,15 +7,16 @@ from .opencodelists import _get_opencodelists_api
 from .permissions.sqlrunner import project_is_permitted_to_use_sqlrunner
 
 
-class ActionPermissionError(Exception):
-    """Raised when a job tries to run an action for which the project does not have
-    permission."""
+class ActionConfigError(Exception):
+    """
+    Raised when a pipeline action cannot be run due to policy or configuration.
+    """
 
 
 def check_cohortextractor_usage(config):
     run_commands = [v.run.raw for v in config.actions.values()]
     if any("cohortextractor" in command for command in run_commands):
-        raise ActionPermissionError("Cohort-extractor is no longer supported")
+        raise ActionConfigError("Cohort-extractor is no longer supported")
 
 
 def check_sqlrunner_permission(project, config):
@@ -25,7 +26,7 @@ def check_sqlrunner_permission(project, config):
         return
     if not project_is_permitted_to_use_sqlrunner(project):
         msg = "This project does not have permission to run SQL Runner jobs"
-        raise ActionPermissionError(msg)
+        raise ActionConfigError(msg)
 
 
 def get_actions(config):
