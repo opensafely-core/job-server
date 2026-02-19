@@ -221,27 +221,6 @@ def page(request, pk_hash, key):
     return TemplateResponse(request, "applications/page.html", ctx)
 
 
-def sign_in(request):
-    if not request.user.is_authenticated:
-        return TemplateResponse(request, "applications/sign_in.html")
-
-    return redirect("applications:terms")
-
-
-@login_required
-def terms(request):
-    if request.method == "GET":
-        return TemplateResponse(request, "applications/terms.html")
-
-    application = Application.objects.create(created_by=request.user)
-
-    notify_application(application, request.user, "New application started")
-
-    return redirect(
-        "applications:page", pk_hash=application.pk_hash, key=form_specs[0].key
-    )
-
-
 @method_decorator(login_required, name="dispatch")
 class Confirmation(View):
     def dispatch(self, request, *args, **kwargs):

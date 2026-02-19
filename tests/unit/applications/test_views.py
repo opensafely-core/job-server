@@ -18,8 +18,6 @@ from applications.views import (
     ResearcherEdit,
     get_next_url,
     page,
-    sign_in,
-    terms,
     validate_application_access,
 )
 from applications.wizard import Wizard
@@ -615,51 +613,6 @@ def test_approved_page_becomes_unapproved_on_edit(rf):
     assert response.status_code == 302
     ehr_page.page_instance.refresh_from_db()
     assert not ehr_page.page_instance.is_approved
-
-
-def test_sign_in_with_authenticated_user(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = sign_in(request)
-
-    assert response.status_code == 302
-    assert response.url == reverse("applications:terms")
-
-
-def test_sign_in_without_authenticated_user(rf):
-    request = rf.get("/")
-    request.user = AnonymousUser()
-
-    response = sign_in(request)
-
-    assert response.status_code == 200
-
-
-def test_terms_get_success(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = terms(request)
-
-    assert response.status_code == 200
-
-
-def test_terms_post_success(rf, slack_messages):
-    request = rf.post("/")
-    request.user = UserFactory()
-
-    assert Application.objects.count() == 0
-    response = terms(request)
-
-    assert response.status_code == 302
-
-    application = Application.objects.first()
-    expected_url = reverse(
-        "applications:page",
-        kwargs={"pk_hash": application.pk_hash, "key": "contact-details"},
-    )
-    assert response.url == expected_url
 
 
 def test_validate_application_access_error():

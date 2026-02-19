@@ -3,7 +3,6 @@ import inspect
 import pytest
 from django.contrib.auth.views import LogoutView
 from django.urls import resolve
-from django.views.generic import TemplateView
 from social_django.views import auth as social_django_auth_view
 
 from applications import views as applications
@@ -67,6 +66,32 @@ def test_url_redirects(client, url, redirect):
 
 
 @pytest.mark.parametrize(
+    "url,redirect",
+    [
+        ("/apply/", "https://www.opensafely.org/opensafely-is-open-for-submissions/"),
+        (
+            "/apply/sign-in",
+            "https://www.opensafely.org/opensafely-is-open-for-submissions/",
+        ),
+        (
+            "/apply/terms/",
+            "https://www.opensafely.org/opensafely-is-open-for-submissions/",
+        ),
+        (
+            "/apply/foo/bar/baz",
+            "https://www.opensafely.org/opensafely-is-open-for-submissions/",
+        ),
+    ],
+)
+def test_url_permanent_redirects(client, url, redirect):
+
+    response = client.get(url)
+
+    assert response.status_code == 301
+    assert response.url == redirect
+
+
+@pytest.mark.parametrize(
     "url,view",
     [
         ("/", index.Index),
@@ -84,9 +109,6 @@ def test_url_redirects(client, url, redirect):
         ("/api/v2/releases/file/42", ReleaseFileAPI),
         ("/api/v2/releases/authenticate", Level4TokenAuthenticationAPI),
         ("/api/v2/releases/authorise", Level4AuthorisationAPI),
-        ("/apply/", TemplateView),
-        ("/apply/sign-in", applications.sign_in),
-        ("/apply/terms/", applications.terms),
         ("/applications/", applications.ApplicationList),
         ("/applications/42/page/42/", applications.page),
         ("/applications/42/confirmation/", applications.Confirmation),

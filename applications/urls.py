@@ -1,5 +1,5 @@
 from django.urls import include, path
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 
 from .views import (
     ApplicationList,
@@ -11,8 +11,6 @@ from .views import (
     ResearcherDelete,
     ResearcherEdit,
     page,
-    sign_in,
-    terms,
 )
 
 
@@ -36,13 +34,24 @@ researcher_urls = [
     path("<int:researcher_pk>/edit/", ResearcherEdit.as_view(), name="researcher-edit"),
 ]
 urlpatterns = [
+    # The JobServer applications process is closed for new business, the
+    # ProjectCreate form in the staff area will allow creating new projects.
+    # Permanently redirect all /apply paths and subpaths to the new site. We
+    # may remove more of the applications app later but it remains visible.
     path(
         "apply/",
-        TemplateView.as_view(template_name="applications/apply.html"),
-        name="start",
+        RedirectView.as_view(
+            url="https://www.opensafely.org/opensafely-is-open-for-submissions/",
+            permanent=True,
+        ),
     ),
-    path("apply/sign-in", sign_in, name="sign-in"),
-    path("apply/terms/", terms, name="terms"),
+    path(
+        "apply/<path:subpath>",
+        RedirectView.as_view(
+            url="https://www.opensafely.org/opensafely-is-open-for-submissions/",
+            permanent=True,
+        ),
+    ),
     path("applications/", ApplicationList.as_view(), name="list"),
     path("applications/<str:pk_hash>/", PageRedirect.as_view(), name="detail"),
     path("applications/<str:pk_hash>/page/<str:key>/", page, name="page"),

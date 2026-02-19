@@ -1,8 +1,7 @@
 import factory
 import pytest
-from django.urls import reverse
 
-from ..factories import UserFactory
+from ..factories import ApplicationFactory, UserFactory
 
 
 def url_builder(application):
@@ -24,31 +23,12 @@ def url_builder(application):
 @pytest.mark.slow_test
 def test_successful_application(client, mailoutbox, slack_messages):
     user = UserFactory()
-
     client.force_login(user)
-
-    # start
-    response = client.get(reverse("applications:start"))
-    assert response.status_code == 200
-
-    # terms GET
-    response = client.get(reverse("applications:terms"))
-    assert response.status_code == 200
-
-    # terms POST to start the application
-    response = client.post(reverse("applications:terms"), follow=True)
-    assert response.status_code == 200
-    assert len(slack_messages) == 1
 
     # get the application and build the URL function to make our lives easier
     # as we go through each page
-    application = user.applications.order_by("-created_at").first()
+    application = ApplicationFactory(created_by=user)
     url = url_builder(application)
-
-    # check the redirect for POSTing to terms worked, needs to use the url()
-    # function we built above so can't be grouped with the rest of the page
-    # assertions
-    assert response.redirect_chain == [(url("contact-details"), 302)]
 
     # contact details
     data = {
@@ -351,8 +331,8 @@ def test_successful_application(client, mailoutbox, slack_messages):
         (f"/applications/{application.pk_hash}/confirmation/", 302)
     ]
 
-    # confirmation
-    assert len(slack_messages) == 1
+    # no application start confirmation anymore, new applications are disabled
+    assert len(slack_messages) == 0
     assert len(mailoutbox) == 0
 
     response = client.post(
@@ -361,5 +341,5 @@ def test_successful_application(client, mailoutbox, slack_messages):
     assert response.status_code == 200
     assert response.redirect_chain == [("/applications/", 302)]
 
-    assert len(slack_messages) == 2
+    assert len(slack_messages) == 1
     assert len(mailoutbox) == 1
