@@ -6,6 +6,7 @@ from pipeline.models import Pipeline
 
 from jobserver.pipeline_config import (
     ActionPermissionError,
+    check_cohortextractor_usage,
     check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
@@ -41,6 +42,41 @@ def link_func(path):
     f = furl("example.com")
     f.path /= path
     return f.url
+
+
+def test_check_cohortextractor_usage():
+    config = Pipeline.build(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": {
+                "generate_study_population": {
+                    "run": "cohortextractor:latest generate_cohort",
+                    "outputs": {"highly_sensitive": {"cohort": "some/path.csv"}},
+                },
+            },
+        }
+    )
+
+    with pytest.raises(ActionPermissionError):
+        check_cohortextractor_usage(config)
+
+
+def test_check_cohortextractor_usage_no_cohort_extractor_actions():
+    config = Pipeline.build(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": {
+                "generate_study_population": {
+                    "run": "ehrql:v1 generate-dataset --output some/path.csv",
+                    "outputs": {"highly_sensitive": {"dataset": "some/path.csv"}},
+                },
+            },
+        }
+    )
+
+    check_cohortextractor_usage(config)
 
 
 def test_check_sqlrunner_permission():
