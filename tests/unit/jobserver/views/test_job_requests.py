@@ -792,7 +792,7 @@ def test_jobrequestcreate_post_rapapierror(
 
 
 def test_jobrequestcreate_post_with_invalid_backend(
-    rf, mocker, monkeypatch, user, project_membership, role_factory
+    rf, mocker, user, project_membership, role_factory
 ):
     backend1 = BackendFactory()
     backend2 = BackendFactory()
@@ -836,7 +836,7 @@ def test_jobrequestcreate_post_with_invalid_backend(
 
 
 def test_jobrequestcreate_post_with_notifications_default(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+    rf, mocker, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
@@ -895,7 +895,7 @@ def test_jobrequestcreate_post_with_notifications_default(
 
 
 def test_jobrequestcreate_post_with_notifications_override(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+    rf, mocker, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
@@ -955,7 +955,7 @@ def test_jobrequestcreate_post_with_notifications_override(
 
 
 def test_jobrequestcreate_post_rejects_cohortextractor_usage(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+    rf, mocker, user, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(project=ProjectFactory(number=1))
@@ -1005,7 +1005,7 @@ def test_jobrequestcreate_post_rejects_cohortextractor_usage(
 
 
 def test_jobrequestcreate_post_sqlrunner_without_permission(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+    rf, mocker, user, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(project=ProjectFactory(number=1))
@@ -1066,7 +1066,6 @@ def test_jobrequestcreate_post_with_codelists_error(
     expected_status_code,
     rf,
     mocker,
-    monkeypatch,
     user,
     mock_codelists_error,
     project_membership,
