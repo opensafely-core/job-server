@@ -5,8 +5,8 @@ from furl import furl
 from pipeline.models import Pipeline
 
 from jobserver.pipeline_config import (
-    ActionPermissionError,
-    check_cohortextractor_permission,
+    ActionConfigError,
+    check_cohortextractor_usage,
     check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
@@ -26,7 +26,7 @@ dummy_project = {
     "expectations": {"population_size": 1000},
     "actions": {
         "generate_study_population": {
-            "run": "cohortextractor:latest generate_cohort --study-definition study_definition",
+            "run": "ehrql:v1 generate-dataset --output output/input.csv",
             "outputs": {"highly_sensitive": {"cohort": "output/input.csv"}},
         },
         "run_model": {
@@ -44,7 +44,7 @@ def link_func(path):
     return f.url
 
 
-def test_check_cohortextractor_permission():
+def test_check_cohortextractor_usage():
     config = Pipeline.build(
         **{
             "version": 3,
@@ -58,18 +58,11 @@ def test_check_cohortextractor_permission():
         }
     )
 
-    # The internal project has permission
-    check_cohortextractor_permission(ProjectFactory(id=28), config)
-
-    # Project 2 has permission
-    check_cohortextractor_permission(ProjectFactory(id=101, number=2), config)
-
-    with pytest.raises(ActionPermissionError):
-        # Project 1 doesn't have permission
-        check_cohortextractor_permission(ProjectFactory(id=102, number=1), config)
+    with pytest.raises(ActionConfigError):
+        check_cohortextractor_usage(config)
 
 
-def test_check_cohortextractor_permission_no_cohort_extractor_actions():
+def test_check_cohortextractor_usage_no_cohort_extractor_actions():
     config = Pipeline.build(
         **{
             "version": 3,
@@ -83,9 +76,7 @@ def test_check_cohortextractor_permission_no_cohort_extractor_actions():
         }
     )
 
-    # Project 1 doesn't have permission to run cohort-extractor, but there are no
-    # cohort-extractor actions in the pipeline, so no error will be raised
-    check_cohortextractor_permission(ProjectFactory(id=101, number=1), config)
+    check_cohortextractor_usage(config)
 
 
 def test_check_sqlrunner_permission():
@@ -105,7 +96,7 @@ def test_check_sqlrunner_permission():
     # The internal project has permission
     check_sqlrunner_permission(ProjectFactory(id=28), config)
 
-    with pytest.raises(ActionPermissionError):
+    with pytest.raises(ActionConfigError):
         # Project 1 doesn't have permission
         check_sqlrunner_permission(ProjectFactory(id=102, number=1), config)
 
@@ -390,8 +381,8 @@ def test_map_run_scripts_to_links():
       population_size: 100000
 
     actions:
-      generate_cohort:
-        run: cohortextractor:latest generate_cohort
+      generate_dataset:
+        run: ehrql:v1 generate-dataset --output output/input_af.csv
         outputs:
           highly_sensitive:
             cohort1: output/input_af.csv
@@ -407,7 +398,7 @@ def test_map_run_scripts_to_links():
     output = map_run_scripts_to_links(content, link_func)
 
     expected = {
-        "cohortextractor:latest generate_cohort": "cohortextractor:latest generate_cohort",
+        "ehrql:v1 generate-dataset --output output/input_af.csv": "ehrql:v1 generate-dataset --output output/input_af.csv",
         "stata-mp:latest analysis/flow_chart_af_population.do af_population_flowchart": 'stata-mp:latest <a href="example.com/analysis/flow_chart_af_population.do">analysis/flow_chart_af_population.do</a> af_population_flowchart',
     }
 
@@ -422,15 +413,15 @@ def test_render_definition():
       population_size: 100000
 
     actions:
-      generate_cohort:
-        run: cohortextractor:latest generate_cohort --study-definition study_definition
+      generate_dataset:
+        run: ehrql:v1 generate-dataset --output output/input.csv
         outputs:
           highly_sensitive:
             cohort: output/input.csv
 
       run_model:
         run: stata-mp:latest analysis/model.do
-        needs: [generate_cohortMAIN]
+        needs: [generate_datasetMAIN]
         outputs:
           moderately_sensitive:
             log: logs/model.log
@@ -449,15 +440,15 @@ def test_render_definition():
 <span class="w">      </span><span class="nt">population_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100000</span>
 
 <span class="w">    </span><span class="nt">actions</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">generate_cohort</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cohortextractor:latest generate_cohort --study-definition study_definition</span>
+<span class="w">      </span><span class="nt">generate_dataset</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ehrql:v1 generate-dataset --output output/input.csv</span>
 <span class="w">        </span><span class="nt">outputs</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">highly_sensitive</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">cohort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output/input.csv</span>
 
 <span class="w">      </span><span class="nt">run_model</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stata-mp:latest <a href="example.com/analysis/model.do">analysis/model.do</a></span>
-<span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">generate_cohortMAIN</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">generate_datasetMAIN</span><span class="p p-Indicator">]</span>
 <span class="w">        </span><span class="nt">outputs</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">moderately_sensitive</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs/model.log</span>
@@ -488,25 +479,15 @@ def test_render_definition():
             },
             ["generate_dataset"],
         ),
-        # cohort-extractor action
-        (
-            {
-                "generate_cohort": {
-                    "run": "cohortextractor:latest generate_cohort --study-definition some/path --output some/other/path.csv",
-                    "outputs": {"highly_sensitive": {"cohort": "some/other/path.csv"}},
-                }
-            },
-            ["generate_cohort"],
-        ),
         # multiple actions, some non-database ones
         (
             {
-                "generate_cohort": {
-                    "run": "cohortextractor:latest generate_cohort --study-definition some/path --output some/cohort/path.csv",
+                "generate_dataset_v1": {
+                    "run": "ehrql:v1 generate-dataset --dataset-definition some/path --output some/cohort/path.csv",
                     "outputs": {"highly_sensitive": {"cohort": "some/cohort/path.csv"}},
                 },
-                "generate_cohort_measures": {
-                    "run": "cohortextractor:latest generate_measures --study-definition some/path --output some/measures/path.csv",
+                "generate_measures": {
+                    "run": "ehrql:v1 generate-measures --measures-definition some/path --output some/measures/path.csv",
                     "outputs": {
                         "highly_sensitive": {"cohort": "some/measures/path.csv"}
                     },
@@ -530,13 +511,17 @@ def test_render_definition():
                     },
                 },
             },
-            ["generate_cohort", "generate_dataset", "generate_ehrql_measures"],
+            [
+                "generate_dataset_v1",
+                "generate_measures",
+                "generate_dataset",
+                "generate_ehrql_measures",
+            ],
         ),
-        # ehrql/cohort-extractor actions, but not
         (
             {
-                "generate_cohort": {
-                    "run": "cohortextractor:latest cohort_report",
+                "generate_dataset_report": {
+                    "run": "ehrql:v1 dump-dataset-sql --dataset-definition some/path --output some/path.csv",
                     "outputs": {"moderately_sensitive": {"cohort": "some/path.csv"}},
                 },
                 "generate_dataset": {

@@ -792,7 +792,7 @@ def test_jobrequestcreate_post_rapapierror(
 
 
 def test_jobrequestcreate_post_with_invalid_backend(
-    rf, mocker, monkeypatch, user, project_membership, role_factory
+    rf, mocker, user, project_membership, role_factory
 ):
     backend1 = BackendFactory()
     backend2 = BackendFactory()
@@ -836,7 +836,7 @@ def test_jobrequestcreate_post_with_invalid_backend(
 
 
 def test_jobrequestcreate_post_with_notifications_default(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+    rf, mocker, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
@@ -895,7 +895,7 @@ def test_jobrequestcreate_post_with_notifications_default(
 
 
 def test_jobrequestcreate_post_with_notifications_override(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+    rf, mocker, user, mock_codelists_ok, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
@@ -954,8 +954,8 @@ def test_jobrequestcreate_post_with_notifications_override(
     assert not job_request.jobs.exists()
 
 
-def test_jobrequestcreate_post_cohortextractor_without_permission(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+def test_jobrequestcreate_post_rejects_cohortextractor_usage(
+    rf, mocker, user, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(project=ProjectFactory(number=1))
@@ -998,11 +998,14 @@ def test_jobrequestcreate_post_cohortextractor_without_permission(
     )
 
     assert response.status_code == 200
-    assert "cohort-extractor" in response.context_data["actions_error"]
+    assert (
+        "Cohort-extractor is no longer supported"
+        in response.context_data["actions_error"]
+    )
 
 
 def test_jobrequestcreate_post_sqlrunner_without_permission(
-    rf, mocker, monkeypatch, user, mock_codelists_ok, project_membership, role_factory
+    rf, mocker, user, project_membership, role_factory
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(project=ProjectFactory(number=1))
@@ -1053,7 +1056,7 @@ def test_jobrequestcreate_post_sqlrunner_without_permission(
     "actions,expected_status_code",
     [
         (["generate_dataset"], 200),
-        (["generate_dataset", "generate_cohort"], 200),
+        (["generate_dataset", "generate_measures"], 200),
         (["generate_measures", "twiddle"], 200),
         (["twiddle"], 302),
     ],
@@ -1063,7 +1066,6 @@ def test_jobrequestcreate_post_with_codelists_error(
     expected_status_code,
     rf,
     mocker,
-    monkeypatch,
     user,
     mock_codelists_error,
     project_membership,
@@ -1089,11 +1091,6 @@ def test_jobrequestcreate_post_with_codelists_error(
         outputs:
           highly_sensitive:
             cohort: path/to/output.csv
-      generate_cohort:
-        run: cohortextractor:latest generate_cohort
-        outputs:
-          highly_sensitive:
-            cohort: path/to/output1.csv
       generate_measures:
         run: ehrql:v0 generate-measures --output path/to/output2.csv
         outputs:
@@ -1110,12 +1107,6 @@ def test_jobrequestcreate_post_with_codelists_error(
         "jobserver.views.job_requests.get_project",
         autospec=True,
         return_value=dummy_yaml,
-    )
-    # We need to check that cohortextractor jobs with out of date codelists are handled
-    # properly, so make sure this project has permission to run them
-    mocker.patch(
-        "jobserver.views.job_requests.check_cohortextractor_permission",
-        return_value=True,
     )
 
     data = {
