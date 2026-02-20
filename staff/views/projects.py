@@ -25,12 +25,33 @@ from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, Us
 
 from ..forms import (
     ProjectAddMemberForm,
+    ProjectCreateForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
     ProjectMembershipForm,
 )
 from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
+
+
+@method_decorator(require_permission(Permission.PROJECT_CREATE), name="dispatch")
+class ProjectCreate(CreateView):
+    """Create a new Project instance."""
+
+    model = Project
+    form_class = ProjectCreateForm
+    template_name = "staff/project/create.html"
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        project = projects.add(
+            by=self.request.user,
+            name=data["name"],
+            number=data["number"],
+            orgs=list(data.get("orgs", [])),
+            copilot=data.get("copilot"),
+        )
+        return redirect(project.get_staff_url())
 
 
 @method_decorator(
@@ -271,10 +292,3 @@ class ProjectMembershipRemove(View):
         return redirect(
             get_next_url(self.request.GET, membership.project.get_staff_url())
         )
-
-
-@method_decorator(require_permission(Permission.PROJECT_CREATE), name="dispatch")
-class ProjectCreate(CreateView):
-    model = Project
-    fields = []
-    template_name = "staff/project/create.html"

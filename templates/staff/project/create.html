@@ -1,5 +1,7 @@
 {% extends "staff/base.html" %}
 
+{% load django_vite %}
+
 {% block metatitle %}Create a project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -16,4 +18,75 @@
   {% staff_hero title="Create a project" %}
 {% endblock hero %}
 
-{% block content %}{% endblock content %}
+{% block content %}
+  <form method="POST" class="max-w-3xl flex flex-col gap-y-6">
+    {% csrf_token %}
+    {% if form.non_field_errors or form.errors %}
+      {% #alert variant="danger" %}
+        <ul>
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+          {% for field in form %}
+            {% if field.errors %}
+              <li>
+                <strong>{{ field.label }}:</strong>
+                <ul>
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% /alert %}
+    {% endif %}
+
+    {# show readonly metadata above the form #}
+    <section class="mb-6">
+      <h3 class="sr-only">Project data</h3>
+      <p class="text-md">
+        When created, this project will automatically be saved with the following data:
+      </p>
+      <p>
+        <strong>Created by:</strong>
+        {{ request.user.fullname }}
+        &nbsp;|&nbsp;
+        <strong>Created at:</strong>
+        {% now "d/m/Y" %}
+        &nbsp;|&nbsp;
+        <strong>Status:</strong>
+        Ongoing
+      </p>
+    </section>
+
+    {% #card title="Project information" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Project information" class="sr-only" %}
+        {% form_input field=form.number %}
+        {% form_input field=form.name %}
+      {% /form_fieldset %}
+    {% /card %}
+
+    {% #card title="Job Server information" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Job Server information" class="sr-only" %}
+        {% form_select field=form.orgs choices=form.fields.orgs.choices hint_extra_class="max-w-full" %}
+      {% /form_fieldset %}
+    {% /card %}
+
+    {% #card title="Co-pilot details" container=True %}
+      {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+        {% form_legend text="Co-pilot details" class="sr-only" %}
+        {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value %}
+      {% /form_fieldset %}
+    {% /card %}
+    {% #button variant="success" type="submit" class="self-start" %}
+      Save
+    {% /button %}
+  </form>
+{% endblock content %}
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}

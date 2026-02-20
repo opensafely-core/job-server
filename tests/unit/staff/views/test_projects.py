@@ -645,3 +645,43 @@ def test_projectcreate_unauthorised(rf, staff_area_administrator):
 
     with pytest.raises(PermissionDenied):
         ProjectCreate.as_view()(request)
+
+
+def test_projectcreate_post_success(rf):
+    """
+    Test a successful POST to the ProjectCreate form.
+
+    When the form is populated by the user and submitted then:
+        * The user is redirected
+        * The form is in the response context data
+        * A new project is saved to the db with:
+            * created_by and updated_by = current user.
+            * copilot, orgs, name, and number fields have the values from the form data.
+            * created_by, updated_by and status are populated by Project model default values
+    """
+    user = UserFactory(roles=[ServiceAdministrator])
+    copilot = UserFactory()
+    org = OrgFactory()
+
+    data = {
+        "name": "test1",
+        "number": 1234567832,
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk),
+    }
+
+    request = rf.post("/", data)
+    request.user = user
+
+    response = ProjectCreate.as_view()(request, data=data)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    new_project = Project.objects.first()
+
+    assert new_project.copilot == copilot
+    assert new_project.created_by == user
+    assert new_project.name == data["name"]
+    assert new_project.number == data["number"]
+    assert set_from_qs(new_project.orgs.all()) == {org.pk}
+    assert new_project.updated_by == user

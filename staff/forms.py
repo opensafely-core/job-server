@@ -94,6 +94,45 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 
+class ProjectCreateForm(forms.ModelForm):
+    """Form to create a Project."""
+
+    class Meta:
+        fields = [
+            "copilot",
+            "name",
+            "number",
+            "orgs",
+        ]
+        model = Project
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
+        self.fields["copilot"].label = "Project Co-pilot"
+        self.fields[
+            "copilot"
+        ].help_text = (
+            "Ask the BI Co-pilot Lead to find out who is Co-piloting this new project."
+        )
+
+        self.fields["orgs"].label = "Link project to an organisation"
+        self.fields[
+            "orgs"
+        ].help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
+
+        self.fields["number"].label = "Project ID"
+        self.fields[
+            "number"
+        ].help_text = "Project ID can be found in the All Projects spreadsheet."
+
+        self.fields["name"].label = "Project title"
+        self.fields[
+            "name"
+        ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
+
+
 class ProjectEditForm(forms.ModelForm):
     orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
 
