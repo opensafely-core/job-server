@@ -419,11 +419,11 @@ class TestCreate:
         # with no permission, the request body will send `"analysis_scop": {}`
         monkeypatch.setattr(
             "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
-            [job_request.workspace.project.number],
+            [str(job_request.workspace.project.number)],
         )
         monkeypatch.setattr(
             "jobserver.permissions.population_permissions.gp_activations.PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION",
-            [job_request.workspace.project.number],
+            [str(job_request.workspace.project.number)],
         )
         # update request body with expected analysis scope
         expected_request_body["analysis_scope"] = {
