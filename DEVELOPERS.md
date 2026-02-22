@@ -724,7 +724,7 @@ issues. (Current as of 2024-09.)
 ## Risky migrations
 
 Be cautious when making migrations where the old code is incompatible with the
-new database state. Unhandled exceptions can occur in some circustances under
+new database state. Unhandled exceptions can occur in some circumstances under
 our deployment strategy:
 
 - When deploying PRs that include migrations, the old container may briefly run
@@ -751,7 +751,7 @@ against the modified schema.
 
 - **Making a field non-nullable**
    - PR 1: migration to populate any current null values and code updates to ensure the field is always set.
-   - PR 2: migration and code changes to update field defintion `null=false`.
+   - PR 2: migration and code changes to update field definition `null=false`.
 
 - **Renaming a model or field**
    - PR 1: add the new model or field and replicate data.
