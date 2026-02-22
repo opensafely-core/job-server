@@ -267,7 +267,7 @@ def test_projectedit_post_success(rf, staff_area_administrator):
     assert response.url == project.get_staff_url()
     assert project.name == "New Name"
     assert project.slug == "new-name"
-    assert project.number == 456
+    assert project.number == "456"
     assert project.copilot == new_copilot
     assert set_from_qs(project.orgs.all()) == {new_org.pk}
     assert project.updated_by == staff_area_administrator
@@ -302,7 +302,7 @@ def test_projectedit_post_success_when_not_changing_slug(rf, staff_area_administ
     assert response.url == project.get_staff_url()
     assert project.name == "Test"
     assert project.slug == "test"
-    assert project.number == 456
+    assert project.number == "456"
     assert project.copilot == new_copilot
     assert project.redirects.count() == 0
 
@@ -665,7 +665,7 @@ def test_projectcreate_post_success(rf):
 
     data = {
         "name": "test1",
-        "number": 1234567832,
+        "number": "1234567832",
         "orgs": [str(org.pk)],
         "copilot": str(copilot.pk),
     }

@@ -107,6 +107,41 @@ def test_applicationapproveform_with_empty_project_slug():
     }
 
 
+def test_applicationapproveform_with_alphanumeric_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "POS-2025-2001",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert form.is_valid(), form.errors
+
+
+def test_applicationapproveform_with_invalid_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "POS-invalid-format",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_number": [
+            "Enter a numeric project number or one in the format POS-YYYY-NNNN."
+        ]
+    }
+
+
 def test_projectcreateform_unbound():
     """
     Test unbound state for ProjectCreate form.
@@ -204,6 +239,42 @@ def test_projecteditform_with_existing_number():
     form = ProjectEditForm(data=data, instance=project)
 
     assert form.is_valid(), form.errors
+
+
+def test_projecteditform_allows_changing_numeric_number_to_alphanumeric():
+    org = OrgFactory()
+    project = ProjectFactory(number=42, orgs=[org])
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": "POS-2025-2001",
+        "orgs": [str(org.pk)],
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+
+    assert form.is_valid(), form.errors
+    assert form.cleaned_data["number"] == "POS-2025-2001"
+
+
+def test_projecteditform_rejects_invalid_alphanumeric_number():
+    org = OrgFactory()
+    project = ProjectFactory(number=42, orgs=[org])
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": "POS-invalid-format",
+        "orgs": [str(org.pk)],
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "number": ["Enter a numeric project number or one in the format POS-YYYY-NNNN."]
+    }
 
 
 def test_projectlinkapplicationform_success():
