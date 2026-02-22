@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.db.models.functions import Lower
 from django.utils.text import slugify
@@ -7,6 +9,9 @@ from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
+
+
+PROJECT_IDENTIFIER_PATTERN = re.compile(r"^POS-\d{4}-\d{4,}$")
 
 
 def user_label_from_instance(obj):
@@ -42,7 +47,7 @@ class PickUsersMixin:
 
 class ApplicationApproveForm(forms.Form):
     project_name = forms.CharField(help_text="Update the study name if necessary")
-    project_number = forms.IntegerField()
+    project_number = forms.CharField()
 
     def __init__(self, orgs, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,7 +77,15 @@ class ApplicationApproveForm(forms.Form):
         return project_name
 
     def clean_project_number(self):
-        project_number = self.cleaned_data["project_number"]
+        project_number = self.cleaned_data["project_number"].strip().upper()
+
+        if not (
+            project_number.isdigit()
+            or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(project_number))
+        ):
+            raise forms.ValidationError(
+                "Enter a numeric project number or one in the format POS-YYYY-NNNN."
+            )
 
         if Project.objects.filter(number=project_number).exists():
             raise forms.ValidationError(
@@ -162,6 +175,16 @@ class ProjectEditForm(forms.ModelForm):
 
     def clean_number(self):
         number = self.cleaned_data["number"]
+
+        if number in (None, ""):
+            return number
+
+        number = str(number).strip().upper()
+
+        if not (number.isdigit() or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(number))):
+            raise forms.ValidationError(
+                "Enter a numeric project number or one in the format POS-YYYY-NNNN."
+            )
 
         # We have a constraint ensuring Project.number is unique (ignoring
         # nulls).  Unfortunately that fires when we save a model, giving us an
