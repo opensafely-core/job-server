@@ -205,6 +205,7 @@ class ApplicationList(ListView):
                 "created_by__username__icontains": q,
                 "researcher_registrations__name__icontains": q,
                 "researcher_registrations__github_username__icontains": q,
+                "studyinformationpage__study_name__icontains": q,
             }
 
             # Application identifiers are hashes of their PK
