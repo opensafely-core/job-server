@@ -42,10 +42,11 @@ Manually deploy from a locally built docker image in the same way that we do in 
 ```bash
 # build prod image, tag with a custom version and push
 local$ just docker/build prod
-local$ docker tag job-server ghcr.io/opensafely-core/job-server:job-server-manual-deploy
-local$ docker push ghcr.io/opensafely-core/job-server:job-server-manual-deploy
+local$ export IMAGE_REF=ghcr.io/opensafely-core/job-server:job-server-manual-deploy
+local$ docker tag job-server IMAGE_REF
+local$ docker push IMAGE_REF
 # Find the image name and sha
-local$ docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/opensafely-core/job-server:job-server-manual-deploy
+local$ docker inspect --format='{{join .RepoDigests "\n"}}' IMAGE_REF | grep -F 'ghcr.io/'
 ```
 
 Deploy:
