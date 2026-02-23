@@ -114,27 +114,22 @@
       {% endif %}
     {% /card %}
 
-    {% #card title="Applications" subtitle="Previously completed or in progress applications" %}
-      {% #list_group %}
-        {% for application in applications %}
-          {% #list_group_item href=application.get_absolute_url %}
-            Application {{ application.pk_hash }} started on {{ application.created_at|date:"d M Y" }}
-          {% /list_group_item %}
-        {% empty %}
-          {% list_group_empty icon=True title="No applications" description="You have not started an application" %}
-        {% endfor %}
-      {% /list_group %}
+    {% if counts.applications %}
+      {% #card title="Applications" subtitle="Previously completed or in progress applications" %}
+        {% #list_group %}
+          {% for application in applications %}
+            {% #list_group_item href=application.get_absolute_url %}
+              Application {{ application.pk_hash }} started on {{ application.created_at|date:"d M Y" }}
+            {% /list_group_item %}
+          {% endfor %}
+        {% /list_group %}
 
-      {% #card_footer no_container=True %}
-        {% if counts.applications > applications|length %}
+        {% #card_footer no_container=True %}
           {% url "applications:list" as applications_url %}
           {% link href=applications_url text="View all your applications →" %}
-        {% else %}
-          {% url "applications:start" as applications_start_url %}
-          {% link href=applications_start_url text="Start an application →" %}
-        {% endif %}
-      {% /card_footer %}
-    {% /card %}
+        {% /card_footer %}
+      {% /card %}
+    {% endif %}
   </div>
 {% endblock content %}
 
