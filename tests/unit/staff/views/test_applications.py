@@ -532,6 +532,23 @@ def test_applicationlist_search(rf, staff_area_administrator):
     }
 
 
+def test_applicationlist_search_by_study_title(rf, staff_area_administrator):
+    app1 = StudyInformationPageFactory(study_name="abc")
+    app2 = StudyInformationPageFactory(study_name="abcdef")
+    StudyInformationPageFactory(study_name="xyz")
+
+    request = rf.get("/?q=abc")
+    request.user = staff_area_administrator
+
+    response = ApplicationList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_list(response.context_data["application_list"]) == {
+        app1.application.pk,
+        app2.application.pk,
+    }
+
+
 def test_applicationlist_success(rf, staff_area_administrator):
     ApplicationFactory.create_batch(5)
 
