@@ -123,7 +123,7 @@ def notify_copilots_of_repo_sign_off(
     copilot = project.copilot
     if copilot:
         copilot_link = slack.link(copilot.get_staff_url(), copilot.fullname)
-    else:  # pragma: no cover
+    else:
         copilot_link = "none"
     message.append(f"Copilot: {copilot_link}")
 
