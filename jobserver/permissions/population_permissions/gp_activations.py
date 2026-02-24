@@ -81,7 +81,7 @@ PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION = {
 def project_has_permission(project):
     if not project.number:
         return project.slug in PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION
-    return str(project.number).strip() in PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION
+    return project.number in PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION
 
 
 def analysis_scope_for_project(project):

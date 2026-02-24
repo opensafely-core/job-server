@@ -116,4 +116,4 @@ PROJECTS_WITH_T1OO_PERMISSION = {
 def project_is_permitted_to_use_t1oo_data(project):
     if not project.number:
         return False
-    return str(project.number).strip() in PROJECTS_WITH_T1OO_PERMISSION
+    return project.number in PROJECTS_WITH_T1OO_PERMISSION
