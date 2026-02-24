@@ -787,7 +787,7 @@ def test_jobrequest_database_name_without_t1oo_permission(build_job_request):
 
 def test_jobrequest_database_name_with_t1oo_permission(build_job_request):
     # This is one of the project numbers hardcoded into `permissions/t1oo.py`
-    job_request = build_job_request(project_number=2)
+    job_request = build_job_request(project_number="2")
     assert job_request.database_name == "include_t1oo"
 
 
