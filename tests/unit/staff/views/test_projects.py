@@ -1,3 +1,5 @@
+from unittest.mock import Mock, patch
+
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
@@ -668,7 +670,7 @@ def test_projectmembershipremove_unknown_membership(request, rf, user_fixture):
 
 def test_projectcreate_authorised(rf):
     request = rf.get("/")
-    request.user = UserFactory(roles=[ServiceAdministrator, StaffAreaAdministrator])
+    request.user = UserFactory(roles=[ServiceAdministrator])
 
     response = ProjectCreate.as_view()(request)
 
@@ -683,19 +685,15 @@ def test_projectcreate_unauthorised(rf, staff_area_administrator):
         ProjectCreate.as_view()(request)
 
 
-@pytest.mark.django_db(transaction=True)
-def test_projectcreate_post_success(rf, slack_messages):
+@patch("staff.views.projects.projects.add")
+def test_projectcreate_post_success(mock_add, rf, slack_messages):
     """
-    Test a successful POST to the ProjectCreate form.
+    Test a successful POST to the ProjectCreate view.
 
-    When the form is populated by the user and submitted then:
-        * The user is redirected
+    When the form is populated with valid data and submitted then:
+        * The user is redirected to the ProjectCreated view
         * The form is in the response context data
-        * A new project is saved to the db with:
-            * created_by and updated_by = current user.
-            * copilot, orgs, name, and number fields have the values from the form data.
-            * created_by, updated_by and status are populated by Project model default values
-        * A Slack message is sent to the copilot support channel.
+        * mock_add is called once (mocking saving of new project instance to db).
     """
     user = UserFactory(roles=[ServiceAdministrator])
     copilot = UserFactory()
@@ -708,30 +706,28 @@ def test_projectcreate_post_success(rf, slack_messages):
         "copilot": str(copilot.pk),
     }
 
+    fake_project = Mock(slug="test-slug")
+    mock_add.return_value = fake_project
+
     request = rf.post("/", data)
     request.user = user
 
-    response = ProjectCreate.as_view()(request, data=data)
+    response = ProjectCreate.as_view()(request)
 
-    new_project = Project.objects.first()
+    mock_add.assert_called_once()
+    called_kwargs = mock_add.call_args.kwargs
 
-    assert response.status_code == 302, response.context_data["form"].errors
+    assert called_kwargs["by"] == user
+    assert called_kwargs["name"] == data["name"]
+    assert called_kwargs["number"] == data["number"]
+    assert called_kwargs["orgs"] == [org]
+    assert called_kwargs["copilot"] == copilot
+
+    assert response.status_code == 302
     assert response.url == reverse(
         "staff:project-created",
-        kwargs={"slug": new_project.slug},
+        kwargs={"slug": fake_project.slug},
     )
-
-    assert new_project.copilot == copilot
-    assert new_project.created_by == user
-    assert new_project.name == data["name"]
-    assert new_project.number == data["number"]
-    assert set_from_qs(new_project.orgs.all()) == {org.pk}
-    assert new_project.updated_by == user
-
-    # Then one Slack message gets sent. Don't test message details here.
-    assert len(slack_messages) == 1
-    message, channel = slack_messages[0]
-    assert channel == "co-pilot-support"
 
 
 def test_projectcreated_authorised(rf):
