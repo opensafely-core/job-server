@@ -137,7 +137,7 @@ def test_applicationapproveform_with_invalid_project_number():
     assert not form.is_valid()
     assert form.errors == {
         "project_number": [
-            "Enter a numeric project number or one in the format POS-YYYY-NNNN."
+            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
         ]
     }
 
@@ -273,7 +273,9 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
 
     assert not form.is_valid()
     assert form.errors == {
-        "number": ["Enter a numeric project number or one in the format POS-YYYY-NNNN."]
+        "number": [
+            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+        ]
     }
 
 
