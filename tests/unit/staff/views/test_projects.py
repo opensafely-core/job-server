@@ -325,6 +325,40 @@ def test_projectedit_post_unknown_project(rf, staff_area_administrator):
         ProjectEdit.as_view()(request, slug="")
 
 
+def test_projectedit_post_updates_number_from_numeric_to_alphanumeric(
+    rf, staff_area_administrator
+):
+    org = OrgFactory()
+    new_number = "POS-2025-2001"
+    project = ProjectFactory(
+        name="Test",
+        slug="test",
+        number=123,
+        orgs=[org],
+        status=Project.Statuses.COMPLETED_AWAITING,
+    )
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": new_number,
+        "copilot": "",
+        "copilot_support_ends_at": "",
+        "orgs": [str(org.pk)],
+        "status": project.status,
+        "status_description": "",
+    }
+    request = rf.post("/", data)
+    request.user = staff_area_administrator
+
+    response = ProjectEdit.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    project.refresh_from_db()
+    assert project.number == new_number
+
+
 def test_projectlinkapplication_get_empty_application_list(
     rf, staff_area_administrator
 ):

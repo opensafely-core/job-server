@@ -1,3 +1,5 @@
+import pytest
+
 from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
@@ -142,6 +144,22 @@ def test_applicationapproveform_with_invalid_project_number():
     }
 
 
+def test_applicationapproveform_normalises_leading_zero_numeric_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "00126",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert form.is_valid(), form.errors
+    assert form.cleaned_data["project_number"] == "126"
+
+
 def test_applicationapproveform_rejects_duplicate_number_after_normalisation():
     org = OrgFactory()
     ProjectFactory(number="126")
@@ -279,23 +297,6 @@ def test_projecteditform_with_existing_number():
     assert form.is_valid(), form.errors
 
 
-def test_projecteditform_allows_changing_numeric_number_to_alphanumeric():
-    org = OrgFactory()
-    project = ProjectFactory(number=42, orgs=[org])
-
-    data = {
-        "name": project.name,
-        "slug": project.slug,
-        "number": "POS-2025-2001",
-        "orgs": [str(org.pk)],
-        "status": project.status,
-    }
-    form = ProjectEditForm(data=data, instance=project)
-
-    assert form.is_valid(), form.errors
-    assert form.cleaned_data["number"] == "POS-2025-2001"
-
-
 def test_projecteditform_rejects_invalid_alphanumeric_number():
     org = OrgFactory()
     project = ProjectFactory(number=42, orgs=[org])
@@ -315,6 +316,35 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
             "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
         ]
     }
+
+
+@pytest.mark.parametrize(
+    "existing_number, new_number",
+    [
+        (None, "42"),
+        (None, "POS-2025-2001"),
+        ("42", None),
+        ("42", "POS-2025-2001"),
+        ("POS-2025-2001", None),
+        ("POS-2025-2001", "42"),
+    ],
+)
+def test_projecteditform_cleans_number_transitions(existing_number, new_number):
+    org = OrgFactory()
+    project = ProjectFactory(number=existing_number, orgs=[org])
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": new_number,
+        "orgs": [str(org.pk)],
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+    print("existing_number:", existing_number)
+    print("new_number:", new_number)
+    assert form.is_valid(), form.errors
+    assert form.cleaned_data["number"] == new_number
 
 
 def test_projectlinkapplicationform_success():
