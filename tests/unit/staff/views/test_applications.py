@@ -103,8 +103,13 @@ def test_applicationapprove_get_with_org_slug_and_unknown_org(
     assert response.context_data["form"]["org"].initial is None
 
 
+@pytest.mark.django_db(transaction=True)
 def test_applicationapprove_post_success(
-    rf, django_assert_num_queries, staff_area_administrator, complete_application
+    rf,
+    django_assert_num_queries,
+    slack_messages,
+    staff_area_administrator,
+    complete_application,
 ):
     assert complete_application.approved_at is None
     assert complete_application.approved_by is None
@@ -134,6 +139,11 @@ def test_applicationapprove_post_success(
     assert complete_application.project.created_by == staff_area_administrator
     assert complete_application.project.updated_by == staff_area_administrator
     assert complete_application.project.number == 42
+
+    # Then one Slack message gets sent. Don't test message details here.
+    assert len(slack_messages) == 1
+    message, channel = slack_messages[0]
+    assert channel == "co-pilot-support"
 
 
 def test_applicationapprove_with_deleted_application(

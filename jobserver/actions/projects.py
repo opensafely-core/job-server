@@ -1,4 +1,8 @@
+from functools import partial
+
 from django.db import transaction
+
+from jobserver.slacks import notify_copilots_project_added
 
 from ..models import AuditableEvent, Project, ProjectCollaboration
 
@@ -40,6 +44,10 @@ def add(*, by, name, number, orgs, copilot=None):
             created_by=by,
             updated_by=by,
         )
+
+    # Send a Slack notificaton if and only if the entire transaction (including
+    # any outer transaction) commits successfully - if the database actually updates.
+    transaction.on_commit(partial(notify_copilots_project_added, project))
 
     return project
 

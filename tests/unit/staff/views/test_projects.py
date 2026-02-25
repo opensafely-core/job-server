@@ -647,7 +647,8 @@ def test_projectcreate_unauthorised(rf, staff_area_administrator):
         ProjectCreate.as_view()(request)
 
 
-def test_projectcreate_post_success(rf):
+@pytest.mark.django_db(transaction=True)
+def test_projectcreate_post_success(rf, slack_messages):
     """
     Test a successful POST to the ProjectCreate form.
 
@@ -658,6 +659,7 @@ def test_projectcreate_post_success(rf):
             * created_by and updated_by = current user.
             * copilot, orgs, name, and number fields have the values from the form data.
             * created_by, updated_by and status are populated by Project model default values
+        * A Slack message is sent to the copilot support channel.
     """
     user = UserFactory(roles=[ServiceAdministrator])
     copilot = UserFactory()
@@ -685,3 +687,8 @@ def test_projectcreate_post_success(rf):
     assert new_project.number == data["number"]
     assert set_from_qs(new_project.orgs.all()) == {org.pk}
     assert new_project.updated_by == user
+
+    # Then one Slack message gets sent. Don't test message details here.
+    assert len(slack_messages) == 1
+    message, channel = slack_messages[0]
+    assert channel == "co-pilot-support"

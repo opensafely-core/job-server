@@ -1,8 +1,13 @@
+from unittest.mock import Mock
+
+import pytest
+from django.db import transaction
+
 from jobserver.actions import projects
+from jobserver.models import AuditableEvent, Project
 from jobserver.utils import set_from_qs
 from staff.forms import ProjectEditForm
 from tests.factories import (
-    AuditableEvent,
     OrgFactory,
     ProjectCollaborationFactory,
     ProjectFactory,
@@ -10,12 +15,19 @@ from tests.factories import (
 )
 
 
-def test_add_project_with_copilot():
+@pytest.mark.django_db(transaction=True)
+def test_add_project_with_copilot(monkeypatch):
     org1 = OrgFactory()
     org2 = OrgFactory()
 
     actor = UserFactory()
     copilot = UserFactory()
+
+    # Mock notifier to avoid testing details of how it works in this unit test.
+    mock_notify = Mock()
+    monkeypatch.setattr(
+        "jobserver.actions.projects.notify_copilots_project_added", mock_notify
+    )
 
     project = projects.add(
         name="test",
@@ -58,12 +70,21 @@ def test_add_project_with_copilot():
     assert event.parent_id == str(project.pk)
     assert event.created_by == actor.username
 
+    mock_notify.assert_called_once_with(project)
 
-def test_add_project_without_copilot():
+
+@pytest.mark.django_db(transaction=True)
+def test_add_project_without_copilot(monkeypatch):
     org1 = OrgFactory()
     org2 = OrgFactory()
 
     actor = UserFactory()
+
+    # Mock notifier to avoid testing details of how it works in this unit test.
+    mock_notify = Mock()
+    monkeypatch.setattr(
+        "jobserver.actions.projects.notify_copilots_project_added", mock_notify
+    )
 
     project = projects.add(name="test", number=31337, orgs=[org1, org2], by=actor)
 
@@ -99,6 +120,35 @@ def test_add_project_without_copilot():
     assert event.parent_model == project._meta.label
     assert event.parent_id == str(project.pk)
     assert event.created_by == actor.username
+
+    mock_notify.assert_called_once_with(project)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_add_project_transaction_rollback(monkeypatch):
+    """Test that if a database error rolls back the whole transaction, the
+    notify function is not called and no new database entries."""
+    org1 = OrgFactory()
+    org2 = OrgFactory()
+
+    actor = UserFactory()
+
+    mock_notify = Mock()
+    monkeypatch.setattr(
+        "jobserver.actions.projects.notify_copilots_project_added", mock_notify
+    )
+
+    # Force a rollback of the outer transaction after projects.add registers on_commit.
+    # This seems simpler than patching to force the action transaction to raise
+    # an error when rolling back.
+    with pytest.raises(RuntimeError):
+        with transaction.atomic():
+            projects.add(name="test", number=31337, orgs=[org1, org2], by=actor)
+            raise RuntimeError("force rollback")
+
+    assert not mock_notify.called
+    assert not AuditableEvent.objects.exists()
+    assert not Project.objects.exists()
 
 
 def test_edit():
