@@ -37,7 +37,7 @@ def post(text, channel):
 
 
 def link(url, text=None):
-    """Because no one can remember this shit."""
+    """Helper function for constructing a Slack link."""
     if url.startswith("/"):
         base_url = furl(settings.BASE_URL)
         base_url.path = url
