@@ -19,6 +19,14 @@ def user_label_from_instance(obj):
     return f"{full_name} ({obj.username})" if full_name else obj.username
 
 
+def normalise_project_number(number):
+    number = number.strip().upper()
+    if number.isdigit():
+        # remove leading zeros from numeric project numbers
+        number = str(int(number))
+    return number
+
+
 class UserModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return user_label_from_instance(obj)
@@ -77,7 +85,7 @@ class ApplicationApproveForm(forms.Form):
         return project_name
 
     def clean_project_number(self):
-        project_number = self.cleaned_data["project_number"].strip().upper()
+        project_number = normalise_project_number(self.cleaned_data["project_number"])
 
         if not (
             project_number.isdigit()
@@ -179,7 +187,7 @@ class ProjectEditForm(forms.ModelForm):
         if number in (None, ""):
             return number
 
-        number = str(number).strip().upper()
+        number = normalise_project_number(number)
 
         if not (number.isdigit() or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(number))):
             raise forms.ValidationError(

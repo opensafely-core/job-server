@@ -142,6 +142,25 @@ def test_applicationapproveform_with_invalid_project_number():
     }
 
 
+def test_applicationapproveform_rejects_duplicate_number_after_normalisation():
+    org = OrgFactory()
+    ProjectFactory(number="126")
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "00126",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_number": ['Project with number "126" already exists.']
+    }
+
+
 def test_projectcreateform_unbound():
     """
     Test unbound state for ProjectCreate form.
@@ -215,6 +234,25 @@ def test_projecteditform_with_duplicate_number():
         "name": project.name,
         "slug": project.slug,
         "number": other_project.number,
+        "orgs": [str(org.pk)],
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+
+    assert not form.is_valid()
+
+    assert form.errors == {"number": ["Project number must be unique"]}
+
+
+def test_projecteditform_rejects_duplicate_number_after_normalisation():
+    org = OrgFactory()
+    project = ProjectFactory(orgs=[org])
+    ProjectFactory(number="42")
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": "0042",
         "orgs": [str(org.pk)],
         "status": project.status,
     }
