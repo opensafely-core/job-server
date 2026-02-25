@@ -11,7 +11,7 @@ from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
 
 
-PROJECT_IDENTIFIER_PATTERN = re.compile(r"^POS-\d{4}-\d{4,}$")
+PROJECT_IDENTIFIER_PATTERN = re.compile(r"POS-20\d{2}-\d{4,}")
 
 
 def user_label_from_instance(obj):
@@ -84,7 +84,7 @@ class ApplicationApproveForm(forms.Form):
             or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(project_number))
         ):
             raise forms.ValidationError(
-                "Enter a numeric project number or one in the format POS-YYYY-NNNN."
+                "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
             )
 
         if Project.objects.filter(number=project_number).exists():
@@ -183,7 +183,7 @@ class ProjectEditForm(forms.ModelForm):
 
         if not (number.isdigit() or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(number))):
             raise forms.ValidationError(
-                "Enter a numeric project number or one in the format POS-YYYY-NNNN."
+                "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
             )
 
         # We have a constraint ensuring Project.number is unique (ignoring
