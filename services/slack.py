@@ -15,6 +15,10 @@ client = WebClient(token=slack_token)
 
 
 def post(text, channel):
+    # With the DEBUG setting set, this prints messages to the terminal running
+    # the application. To send real test notificatons to the Slack BennettTest
+    # workspace, see dotenv-sample for required settings and where to get them
+    # from.
     if settings.DEBUG:  # pragma: no cover
         print("")
         print(f"Channel: {channel}")
