@@ -151,6 +151,7 @@ class TestDbMaintenanceModeContextProcessor:
         )
 
         request = rf.get(request_url)
+        request.user = user
         request.resolver_match = resolve(request.path_info)
 
         with (
@@ -172,6 +173,7 @@ class TestDbMaintenanceModeContextProcessor:
         """Returns empty dict for non-banner-display URLs."""
 
         request = rf.get(reverse("job-list"))
+        request.user = UserFactory()
         request.resolver_match = resolve(request.path_info)
 
         with (
@@ -187,5 +189,6 @@ class TestDbMaintenanceModeContextProcessor:
     def test_attributes_not_added_for_no_resolver_match_url(self, rf):
         """Returns empty dict if request has no resolver_match attribute."""
         request = rf.get("/no-match-url/")
+        request.user = UserFactory()
         context = db_maintenance_mode(request)
         assert context == {}

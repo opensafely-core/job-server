@@ -88,7 +88,8 @@ def db_maintenance_mode(request):
     views."""
 
     if (
-        request.resolver_match
+        request.user.is_authenticated
+        and request.resolver_match
         and request.resolver_match.url_name in BANNER_DISPLAY_URL_NAMES
     ):
         maintenance_statuses = Backend.objects.get_db_maintenance_mode_statuses()
