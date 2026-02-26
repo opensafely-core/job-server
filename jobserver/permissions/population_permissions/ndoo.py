@@ -81,7 +81,7 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     205,  # https://jobs.opensafely.org/short-data-report-recording-of-medicines-prescribed-outside-primary-care-in-gp-ehr-data/
     206,  # https://jobs.opensafely.org/cardiovascular-outcomes-post-covid-19-and-the-potential-for-covid-19-vaccines-to-mitigate-them/
     207,  # https://jobs.opensafely.org/recording-of-additional-prescription-information-in-opensafely/
-    208,  # https://jobs.opensafely.org/staff/projects/diagnostics-demand-optimisation/
+    208,  #    https://jobs.opensafely.org/diagnostics-demand-optimisation/
     209,  # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
 }
 
