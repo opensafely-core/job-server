@@ -49,7 +49,7 @@ prodenv:
 
 # && dependencies are run after the recipe has run. Needs just>=0.9.9. # This is a killer feature over Makefiles.
 # Install dev requirements into venv.
-devenv: _dotenv && install-precommit
+devenv: _dotenv && install-precommit install-earlybird
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -68,6 +68,33 @@ install-precommit:
 
     BASE_DIR=$(git rev-parse --show-toplevel)
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
+
+
+# install go-earlybird into the project-local virtualenv bin directory
+install-earlybird:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    test -d "$VIRTUAL_ENV" || uv venv "$VIRTUAL_ENV"
+    mkdir -p "$BIN"
+
+    tmpdir="$(mktemp -d)"
+    cleanup() {
+      chmod -R u+w "$tmpdir" 2>/dev/null || true
+      rm -rf "$tmpdir"
+    }
+    trap cleanup EXIT
+
+    git clone --depth 1 https://github.com/americanexpress/earlybird "$tmpdir/earlybird"
+    cd "$tmpdir/earlybird"
+
+    GOMODCACHE="$tmpdir/gomodcache" GOCACHE="$tmpdir/gocache" go mod tidy
+    GOMODCACHE="$tmpdir/gomodcache" GOCACHE="$tmpdir/gocache" go build -o "$BIN/go-earlybird" .
+
+
+# verify go-earlybird can run from this project's local tool path
+check-earlybird:
+    PATH="$BIN:$PATH" go-earlybird --help
 
 
 # Upgrade a single package to the latest version per pyproject.toml
