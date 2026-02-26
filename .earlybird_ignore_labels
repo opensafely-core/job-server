@@ -1,0 +1,3 @@
+# Slash-separated labels mean "all these labels on the same rule code".
+# This suppresses the Germany Steuer-ID national-id matcher family.
+germany/steuer-id/nationalid

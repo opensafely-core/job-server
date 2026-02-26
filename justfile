@@ -97,6 +97,37 @@ check-earlybird:
     PATH="$BIN:$PATH" go-earlybird --help
 
 
+# generate an Earlybird-compatible ignore file from a .gitignore
+generate-earlybird-ignore src=".gitignore" dest=".ge_ignore":
+    $BIN/python scripts/gitignore_to_earlybird_ignore.py --input {{ src }} --output {{ dest }} --extra .ge_ignore.extra
+
+
+# generate a local Earlybird config containing only PII-category rules
+generate-earlybird-pii-config src="$HOME/.go-earlybird" dest=".earlybird-pii-config":
+    $BIN/python scripts/build_earlybird_pii_config.py --source {{ src }} --dest {{ dest }}
+
+
+# run Earlybird using the generated ignore file
+earlybird-check *args="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [[ ! -f .ge_ignore ]]; then
+      echo "Missing .ge_ignore. Run: just generate-earlybird-ignore" >&2
+      exit 1
+    fi
+
+    tmpconfig="$(mktemp -d)"
+    cleanup() {
+      chmod -R u+w "$tmpconfig" 2>/dev/null || true
+      rm -rf "$tmpconfig"
+    }
+    trap cleanup EXIT
+
+    $BIN/python scripts/build_earlybird_pii_config.py --source "$HOME/.go-earlybird" --dest "$tmpconfig"
+    PATH="$BIN:$PATH" go-earlybird --config "$tmpconfig" --ignorefile .ge_ignore {{ args }}
+
+
 # Upgrade a single package to the latest version per pyproject.toml
 upgrade-package package: && devenv
     uv lock --upgrade-package {{ package }}
