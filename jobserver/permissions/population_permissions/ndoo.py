@@ -22,6 +22,8 @@
 
 # 2025-12-05: This list consists of approved projects from #156 onwards, as of 2025-12-05 (#156-200). All of these projects are COVID projects, out of scope for NDOO.
 # 2026-01-13: Projects #201-205 added to the list; these projects have been confirmed as also approved under the COVID-19 Direction
+# 2026-02-24: Projects #206-209 added to the list; these projects have been confirmed as also approved under the COVID-19 Direction
+
 ANALYSIS_SCOPE_KEY = "include_ndoo"
 
 PROJECTS_WITH_NDOO_PERMISSION = {
@@ -77,6 +79,10 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     203,  # https://jobs.opensafely.org/migration-related-coding-in-english-primary-care-electronic-health-records/
     204,  # https://jobs.opensafely.org/the-effect-of-the-covid-19-pandemic-on-ae-attendances-for-cardiovascular-diseases/
     205,  # https://jobs.opensafely.org/short-data-report-recording-of-medicines-prescribed-outside-primary-care-in-gp-ehr-data/
+    206,  # https://jobs.opensafely.org/cardiovascular-outcomes-post-covid-19-and-the-potential-for-covid-19-vaccines-to-mitigate-them/
+    207,  # https://jobs.opensafely.org/recording-of-additional-prescription-information-in-opensafely/
+    208,  #    https://jobs.opensafely.org/diagnostics-demand-optimisation/
+    209,  # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
 }
 
 
