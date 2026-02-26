@@ -41,6 +41,8 @@
                 </div>
               </dl>
             {% /list_group_rich_item %}
+          {% empty %}
+            {% list_group_empty description="No site alerts active" %}
           {% endfor %}
         {% /list_group %}
       {% /card %}
