@@ -780,7 +780,6 @@ dependencies = [
     { name = "python-ulid" },
     { name = "requests" },
     { name = "sentry-sdk" },
-    { name = "setuptools" },
     { name = "slack-sdk" },
     { name = "slippers" },
     { name = "social-auth-app-django" },
@@ -809,6 +808,7 @@ dev = [
     { name = "pytest-xdist", extra = ["psutil"] },
     { name = "responses" },
     { name = "ruff" },
+    { name = "setuptools" },
 ]
 
 [package.metadata]
@@ -839,7 +839,6 @@ requires-dist = [
     { name = "python-ulid" },
     { name = "requests" },
     { name = "sentry-sdk" },
-    { name = "setuptools" },
     { name = "slack-sdk" },
     { name = "slippers" },
     { name = "social-auth-app-django" },
@@ -868,6 +867,7 @@ dev = [
     { name = "pytest-xdist", extras = ["psutil"] },
     { name = "responses" },
     { name = "ruff" },
+    { name = "setuptools" },
 ]
 
 [[package]]

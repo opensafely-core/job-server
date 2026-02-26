@@ -98,12 +98,6 @@ dependencies = [
     # Client for error reporting and performance monitoring with Sentry.
     "sentry-sdk",
 
-    # setuptools is not an explicit dependency,
-    # but is pulled in via ruamel (because of using opensafely-pipeline).
-    # This is an attempt to have Dependabot not fail on updating it,
-    # which could relate to https://github.com/dependabot/dependabot-core/issues/14118
-    "setuptools",
-
     # Slack SDK for building integrations with Slack (e.g., bots, notifications).
     "slack-sdk",
 
@@ -270,4 +264,9 @@ dev = [
     "pytest-xdist[psutil]",
     "responses",
     "ruff",
+    # setuptools is not an explicit dependency,
+    # but is pulled in via ruamel (because of using opensafely-pipeline).
+    # This is an attempt to have Dependabot not fail on updating it,
+    # which could relate to https://github.com/dependabot/dependabot-core/issues/14118
+    "setuptools",
 ]
