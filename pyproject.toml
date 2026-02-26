@@ -265,7 +265,7 @@ dev = [
     "responses",
     "ruff",
     # setuptools is not an explicit dependency,
-    # but is pulled in via ruamel (because of using opensafely-pipeline).
+    # but is pulled in via ruyaml (because of using opensafely-pipeline).
     # This is an attempt to have Dependabot not fail on updating it,
     # which could relate to https://github.com/dependabot/dependabot-core/issues/14118
     "setuptools",
