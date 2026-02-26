@@ -82,6 +82,31 @@ def notify_application(
     )
 
 
+def notify_copilots_project_added(
+    project, channel=settings.COPILOT_SUPPORT_SLACK_CHANNEL
+):
+    project_url = slack.link(project.get_staff_url(), project.title)
+    user_url = slack.link(
+        project.created_by.get_staff_url(), project.created_by.fullname
+    )
+    copilot_url = (
+        "Copilot: "
+        f"{slack.link(project.copilot.get_staff_url(), project.copilot.fullname)}."
+        if project.copilot
+        # Don't list copilot at all if not set, as it may be confusing to state
+        # Copilot: none as they may exist but be missing in the database.
+        else ""
+    )
+
+    message = (
+        f"The {project_url} project was created by {user_url}. Please "
+        "update the tracking board and contact users. "
+        f"{copilot_url}"
+    )
+
+    slack.post(message, channel)
+
+
 def notify_copilot_windows_closing(
     projects, channel=settings.COPILOT_SUPPORT_SLACK_CHANNEL
 ):

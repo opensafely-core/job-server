@@ -15,6 +15,10 @@ client = WebClient(token=slack_token)
 
 
 def post(text, channel):
+    # With the DEBUG setting set, this prints messages to the terminal running
+    # the application. To send real test notificatons to the Slack BennettTest
+    # workspace, see dotenv-sample for required settings and where to get them
+    # from.
     if settings.DEBUG:  # pragma: no cover
         print("")
         print(f"Channel: {channel}")
@@ -33,7 +37,7 @@ def post(text, channel):
 
 
 def link(url, text=None):
-    """Because no one can remember this shit."""
+    """Helper function for constructing a Slack link."""
     if url.startswith("/"):
         base_url = furl(settings.BASE_URL)
         base_url.path = url
