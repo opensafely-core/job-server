@@ -8,7 +8,7 @@ if ! command -v just >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! just earlybird-check --git-staged --fail-severity=high; then
+if ! just earlybird-check --git-staged --fail-severity=low; then
   echo "EarlyBird checks must pass before commit!" >&2
   exit 1
 fi

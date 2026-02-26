@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a local Earlybird config directory containing only PII rules."""
+"""Build a local Earlybird config directory for selected data-risk categories."""
 
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ import yaml
 
 CATEGORY_RE = re.compile(r"^Category:\s*['\"]?([^'\"]+)['\"]?\s*$", re.IGNORECASE)
 CODE_RE = re.compile(r"^-\s*Code:\s*(\d+)\s*$")
+INCLUDED_CATEGORIES = {"pii", "infrastructure"}
 
 
 def parse_ignore_label_specs(ignore_labels_file: Path) -> list[str]:
@@ -27,6 +28,36 @@ def parse_ignore_label_specs(ignore_labels_file: Path) -> list[str]:
         specs.append(line)
 
     return specs
+
+
+def parse_ignore_codes_file(ignore_codes_file: Path) -> set[int]:
+    if not ignore_codes_file.exists():
+        return set()
+
+    ignored_codes: set[int] = set()
+    for raw_line in ignore_codes_file.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        try:
+            ignored_codes.add(int(line))
+        except ValueError:
+            continue
+
+    return ignored_codes
+
+
+def copy_extra_falsepositives(
+    dest: Path,
+    extra_falsepositives_file: Path,
+) -> bool:
+    if not extra_falsepositives_file.exists():
+        return False
+
+    target = dest / "falsepositives" / "local-false-positives.yaml"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(extra_falsepositives_file, target)
+    return True
 
 
 def load_label_code_map(labels_dir: Path) -> dict[str, set[int]]:
@@ -132,20 +163,20 @@ def filter_rule_file(rule_file: Path, ignored_codes: set[int]) -> None:
     if current_block:
         blocks.append(current_block)
 
-    pii_blocks: list[list[str]] = []
+    filtered_blocks: list[list[str]] = []
     for block in blocks:
         category = extract_rule_category(block)
-        if category != "pii":
+        if category not in INCLUDED_CATEGORIES:
             continue
 
         code = extract_rule_code(block)
         if code is not None and code in ignored_codes:
             continue
 
-        pii_blocks.append(block)
+        filtered_blocks.append(block)
 
     output_lines = header + outside_block_lines
-    for block in pii_blocks:
+    for block in filtered_blocks:
         output_lines.extend(block)
 
     if output_lines and not output_lines[-1].endswith("\n"):
@@ -175,7 +206,7 @@ def build_pii_config(source: Path, dest: Path, ignore_specs: list[str]) -> set[i
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Create an Earlybird config dir with only Category: pii rules.",
+        description="Create an Earlybird config dir with pii/infrastructure rules.",
     )
     parser.add_argument(
         "--source",
@@ -201,13 +232,45 @@ def main() -> None:
         default=[],
         help="Label or slash-separated label group to suppress (can be repeated).",
     )
+    parser.add_argument(
+        "--ignore-codes-file",
+        default=".earlybird_ignore_codes",
+        type=Path,
+        help="Optional file containing rule codes to suppress (one code per line).",
+    )
+    parser.add_argument(
+        "--ignore-code",
+        action="append",
+        default=[],
+        type=int,
+        help="Rule code to suppress (can be repeated).",
+    )
+    parser.add_argument(
+        "--extra-falsepositives-file",
+        default=".earlybird_falsepositives.yaml",
+        type=Path,
+        help="Optional local false-positive rule file to merge into generated config.",
+    )
     args = parser.parse_args()
 
     ignore_specs = parse_ignore_label_specs(args.ignore_labels_file) + args.ignore_label
     ignored_codes = build_pii_config(args.source, args.dest, ignore_specs)
+    ignored_codes.update(parse_ignore_codes_file(args.ignore_codes_file))
+    ignored_codes.update(args.ignore_code)
+
+    if ignored_codes:
+        for rule_file in sorted((args.dest / "rules").glob("*.yaml")):
+            filter_rule_file(rule_file, ignored_codes)
+
+    merged_extra_fp = copy_extra_falsepositives(
+        args.dest, args.extra_falsepositives_file
+    )
+
     print(
-        f"Wrote PII-only Earlybird config to {args.dest}"
+        f"Wrote Earlybird config to {args.dest} "
+        f"(categories: {', '.join(sorted(INCLUDED_CATEGORIES))})"
         + (f" (ignored {len(ignored_codes)} code(s))" if ignored_codes else "")
+        + (" (merged local false positives)" if merged_extra_fp else "")
     )
 
 
