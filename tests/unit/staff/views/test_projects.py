@@ -537,6 +537,33 @@ def test_projectlist_create_project_button_unauthorised(rf, staff_area_administr
     assert not response.context_data["can_create_project"]
 
 
+def test_projectlist_orders_projects_by_identifier_type_and_value(
+    rf, staff_area_administrator
+):
+    first_project = ProjectFactory(name="First Project", number="POS-2024-2009")
+    second_project = ProjectFactory(name="Second Project", number="POS-2025-2001")
+    third_project = ProjectFactory(name="Third Project", number="POS-2025-2003")
+    fourth_project = ProjectFactory(name="Forth Project", number="42")
+    fifth_project = ProjectFactory(name="Fifth Project", number="7")
+    missing_number_a = ProjectFactory(name="Missing Number A", number="")
+    missing_number_b = ProjectFactory(name="Missing Number B", number=None)
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = ProjectList.as_view()(request)
+
+    assert [project.pk for project in response.context_data["project_list"]] == [
+        third_project.pk,
+        second_project.pk,
+        first_project.pk,
+        fourth_project.pk,
+        fifth_project.pk,
+        missing_number_a.pk,
+        missing_number_b.pk,
+    ]
+
+
 @pytest.mark.parametrize(
     "user_fixture",
     ["staff_area_administrator", "service_administrator"],
