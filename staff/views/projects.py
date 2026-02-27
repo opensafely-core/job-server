@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import (
     CreateView,
@@ -51,7 +52,15 @@ class ProjectCreate(CreateView):
             orgs=list(data.get("orgs", [])),
             copilot=data.get("copilot"),
         )
-        return redirect(project.get_staff_url())
+        return redirect(reverse("staff:project-created", kwargs={"slug": project.slug}))
+
+
+@method_decorator(require_permission(Permission.PROJECT_CREATE), name="dispatch")
+class ProjectCreated(DetailView):
+    """Display confirmation page following new Project creation."""
+
+    model = Project
+    template_name = "staff/project/created.html"
 
 
 @method_decorator(

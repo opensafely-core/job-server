@@ -2,6 +2,7 @@ import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.urls import reverse
 
 from applications.models import Application
 from jobserver.actions import project_members
@@ -17,6 +18,7 @@ from staff.views.projects import (
     ProjectAddMember,
     ProjectAuditLog,
     ProjectCreate,
+    ProjectCreated,
     ProjectDetail,
     ProjectEdit,
     ProjectLinkApplication,
@@ -711,9 +713,13 @@ def test_projectcreate_post_success(rf, slack_messages):
 
     response = ProjectCreate.as_view()(request, data=data)
 
-    assert response.status_code == 302, response.context_data["form"].errors
-
     new_project = Project.objects.first()
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == reverse(
+        "staff:project-created",
+        kwargs={"slug": new_project.slug},
+    )
 
     assert new_project.copilot == copilot
     assert new_project.created_by == user
@@ -726,3 +732,21 @@ def test_projectcreate_post_success(rf, slack_messages):
     assert len(slack_messages) == 1
     message, channel = slack_messages[0]
     assert channel == "co-pilot-support"
+
+
+def test_projectcreated_authorised(rf):
+    project = ProjectFactory()
+    request = rf.get(reverse("staff:project-created", kwargs={"slug": project.slug}))
+    request.user = UserFactory(roles=[ServiceAdministrator])
+
+    response = ProjectCreated.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+
+
+def test_projectcreated_unauthorised(rf, staff_area_administrator):
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    with pytest.raises(PermissionDenied):
+        ProjectCreated.as_view()(request)

@@ -1,0 +1,37 @@
+{% extends "staff/base.html" %}
+
+{% block metatitle %}Project created: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% url "staff:project-create" as staff_project_create_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title="Create a project" url=staff_project_create_url %}
+    {% breadcrumb title="Project created: "|add:project.name active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="Project created" %}
+    {{ project.number }}: {{ project.name }}
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  {% #card title="Next steps" container=True %}
+    <div class="prose prose-oxford mb-6">
+      <p>The project has been created and is now publicly visible.</p>
+      <ul>
+        <li><a href={{project.get_absolute_url}}>View project on Job Server</a></li>
+        <li><a href={{project.get_staff_url}}>View project in the Staff Area</a></li>
+      </ul>
+      <p>You can now add users to the project.</p>
+      <p>We sent a notification about the new project to the #co-pilot-support <a href="https://bennettoxford.slack.com/archives/C028EJH752A" target="_blank" class="whitespace-nowrap">#co-pilot-support</a> Slack channel so they can begin the project setup process.</p>
+    </div>
+    {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
+    {% #button type="link" href=staff_project_add_member_url variant="success" %}Add members to project &rarr;{% /button %}
+  {% /card %}
+{% endblock content %}
