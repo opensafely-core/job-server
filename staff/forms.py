@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.db.models.functions import Lower
 from django.utils.text import slugify
@@ -9,9 +11,20 @@ from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
 
 
+PROJECT_IDENTIFIER_PATTERN = re.compile(r"POS-20\d{2}-\d{4,}")
+
+
 def user_label_from_instance(obj):
     full_name = obj.get_full_name()
     return f"{full_name} ({obj.username})" if full_name else obj.username
+
+
+def normalise_project_number(number):
+    number = number.strip().upper()
+    if number.isdigit():
+        # remove leading zeros from numeric project numbers
+        number = str(int(number))
+    return number
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -42,7 +55,7 @@ class PickUsersMixin:
 
 class ApplicationApproveForm(forms.Form):
     project_name = forms.CharField(help_text="Update the study name if necessary")
-    project_number = forms.IntegerField()
+    project_number = forms.CharField()
 
     def __init__(self, orgs, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,7 +85,15 @@ class ApplicationApproveForm(forms.Form):
         return project_name
 
     def clean_project_number(self):
-        project_number = self.cleaned_data["project_number"]
+        project_number = normalise_project_number(self.cleaned_data["project_number"])
+
+        if not (
+            project_number.isdigit()
+            or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(project_number))
+        ):
+            raise forms.ValidationError(
+                "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+            )
 
         if Project.objects.filter(number=project_number).exists():
             raise forms.ValidationError(
@@ -162,6 +183,16 @@ class ProjectEditForm(forms.ModelForm):
 
     def clean_number(self):
         number = self.cleaned_data["number"]
+
+        if number in (None, ""):
+            return number
+
+        number = normalise_project_number(number)
+
+        if not (number.isdigit() or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(number))):
+            raise forms.ValidationError(
+                "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+            )
 
         # We have a constraint ensuring Project.number is unique (ignoring
         # nulls).  Unfortunately that fires when we save a model, giving us an

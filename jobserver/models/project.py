@@ -49,7 +49,7 @@ class Project(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
-    number = models.IntegerField(null=True)
+    number = models.CharField(max_length=20, null=True, blank=True)
 
     copilot_support_ends_at = models.DateTimeField(null=True)
 

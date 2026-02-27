@@ -267,7 +267,7 @@ def test_projectedit_post_success(rf, staff_area_administrator):
     assert response.url == project.get_staff_url()
     assert project.name == "New Name"
     assert project.slug == "new-name"
-    assert project.number == 456
+    assert project.number == "456"
     assert project.copilot == new_copilot
     assert set_from_qs(project.orgs.all()) == {new_org.pk}
     assert project.updated_by == staff_area_administrator
@@ -302,7 +302,7 @@ def test_projectedit_post_success_when_not_changing_slug(rf, staff_area_administ
     assert response.url == project.get_staff_url()
     assert project.name == "Test"
     assert project.slug == "test"
-    assert project.number == 456
+    assert project.number == "456"
     assert project.copilot == new_copilot
     assert project.redirects.count() == 0
 
@@ -323,6 +323,40 @@ def test_projectedit_post_unknown_project(rf, staff_area_administrator):
 
     with pytest.raises(Http404):
         ProjectEdit.as_view()(request, slug="")
+
+
+def test_projectedit_post_updates_number_from_numeric_to_alphanumeric(
+    rf, staff_area_administrator
+):
+    org = OrgFactory()
+    new_number = "POS-2025-2001"
+    project = ProjectFactory(
+        name="Test",
+        slug="test",
+        number=123,
+        orgs=[org],
+        status=Project.Statuses.COMPLETED_AWAITING,
+    )
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": new_number,
+        "copilot": "",
+        "copilot_support_ends_at": "",
+        "orgs": [str(org.pk)],
+        "status": project.status,
+        "status_description": "",
+    }
+    request = rf.post("/", data)
+    request.user = staff_area_administrator
+
+    response = ProjectEdit.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    project.refresh_from_db()
+    assert project.number == new_number
 
 
 def test_projectlinkapplication_get_empty_application_list(
@@ -667,7 +701,7 @@ def test_projectcreate_post_success(rf, slack_messages):
 
     data = {
         "name": "test1",
-        "number": 1234567832,
+        "number": "1234567832",
         "orgs": [str(org.pk)],
         "copilot": str(copilot.pk),
     }

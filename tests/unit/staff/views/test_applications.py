@@ -138,7 +138,7 @@ def test_applicationapprove_post_success(
     assert complete_application.project
     assert complete_application.project.created_by == staff_area_administrator
     assert complete_application.project.updated_by == staff_area_administrator
-    assert complete_application.project.number == 42
+    assert complete_application.project.number == "42"
 
     # Then one Slack message gets sent. Don't test message details here.
     assert len(slack_messages) == 1
@@ -205,6 +205,31 @@ def test_applicationapprove_without_study_information_page(
     assert len(messages) == 1
     msg = "The Study Information page must be filled in before an Application can be approved."
     assert str(messages[0]) == msg
+
+
+def test_applicationapprove_post_success_with_alphanumeric_project_number(
+    rf, staff_area_administrator, complete_application
+):
+    org = OrgFactory()
+
+    data = {
+        "project_name": complete_application.studyinformationpage.study_name,
+        "project_number": "POS-2025-2001",
+        "org": str(org.pk),
+    }
+    request = rf.post("/", data)
+    request.user = staff_area_administrator
+
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    complete_application.refresh_from_db()
+
+    assert complete_application.project
+    assert complete_application.project.number == "POS-2025-2001"
 
 
 def test_applicationdetail_success_with_complete_application(

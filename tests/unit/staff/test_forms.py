@@ -1,3 +1,5 @@
+import pytest
+
 from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
@@ -107,6 +109,76 @@ def test_applicationapproveform_with_empty_project_slug():
     }
 
 
+def test_applicationapproveform_with_alphanumeric_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "POS-2025-2001",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert form.is_valid(), form.errors
+
+
+def test_applicationapproveform_with_invalid_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "POS-invalid-format",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_number": [
+            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+        ]
+    }
+
+
+def test_applicationapproveform_normalises_leading_zero_numeric_project_number():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "00126",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert form.is_valid(), form.errors
+    assert form.cleaned_data["project_number"] == "126"
+
+
+def test_applicationapproveform_rejects_duplicate_number_after_normalisation():
+    org = OrgFactory()
+    ProjectFactory(number="126")
+
+    form = ApplicationApproveForm(
+        data={
+            "project_name": "test",
+            "project_number": "00126",
+            "org": str(org.pk),
+        },
+        orgs=[org],
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_number": ['Project with number "126" already exists.']
+    }
+
+
 def test_projectcreateform_unbound():
     """
     Test unbound state for ProjectCreate form.
@@ -190,6 +262,25 @@ def test_projecteditform_with_duplicate_number():
     assert form.errors == {"number": ["Project number must be unique"]}
 
 
+def test_projecteditform_rejects_duplicate_number_after_normalisation():
+    org = OrgFactory()
+    project = ProjectFactory(orgs=[org])
+    ProjectFactory(number="42")
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": "0042",
+        "orgs": [str(org.pk)],
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+
+    assert not form.is_valid()
+
+    assert form.errors == {"number": ["Project number must be unique"]}
+
+
 def test_projecteditform_with_existing_number():
     org = OrgFactory()
     project = ProjectFactory(number=42, orgs=[org])
@@ -204,6 +295,56 @@ def test_projecteditform_with_existing_number():
     form = ProjectEditForm(data=data, instance=project)
 
     assert form.is_valid(), form.errors
+
+
+def test_projecteditform_rejects_invalid_alphanumeric_number():
+    org = OrgFactory()
+    project = ProjectFactory(number=42, orgs=[org])
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": "POS-invalid-format",
+        "orgs": [str(org.pk)],
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "number": [
+            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+        ]
+    }
+
+
+@pytest.mark.parametrize(
+    "existing_number, new_number",
+    [
+        (None, "42"),
+        (None, "POS-2025-2001"),
+        ("42", None),
+        ("42", "POS-2025-2001"),
+        ("POS-2025-2001", None),
+        ("POS-2025-2001", "42"),
+    ],
+)
+def test_projecteditform_cleans_number_transitions(existing_number, new_number):
+    org = OrgFactory()
+    project = ProjectFactory(number=existing_number, orgs=[org])
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": new_number,
+        "orgs": [str(org.pk)],
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+    print("existing_number:", existing_number)
+    print("new_number:", new_number)
+    assert form.is_valid(), form.errors
+    assert form.cleaned_data["number"] == new_number
 
 
 def test_projectlinkapplicationform_success():
