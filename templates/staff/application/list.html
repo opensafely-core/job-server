@@ -102,13 +102,13 @@
         {% #list_group small=True %}
           {% if application_list %}
             {% for application in application_list %}
-              {% var title=application.pk_hash|add:" by "|add:application.created_by.fullname %}
+              {% var title=application.pk_hash|add:" "|add:application.title %}
               {% if not application.is_deleted %}
                 {% #list_group_rich_item type="Application" title=title url=application.get_staff_url status_text=application.status %}
                   <dl class="text-sm -mt-2">
                     <div class="flex flex-row gap-1">
-                      <dt class="font-semibold">Created:</dt>
-                      <dd>{{ application.created_at|date:"d F Y" }}</dd>
+                      <dt>Created</dt>
+                      <dd>{{ application.created_at|date:"d F Y"}} by {{ application.created_by.fullname }}</dd>
                     </div>
                   </dl>
                 {% /list_group_rich_item %}
@@ -116,7 +116,7 @@
                 {% #list_group_rich_item type="Deleted application" title=title class="cursor-not-allowed bg-bn-ribbon-100/25 opacity-80" status_text="deleted" %}
                   <dl class="text-sm -mt-2">
                     <div class="flex flex-row gap-1">
-                      <dt class="font-semibold">Deleted:</dt>
+                      <dt>Deleted</dt>
                       <dd>{{ application.deleted_at|date:"d F Y" }}</dd>
                     </div>
                     <div class="flex flex-row gap-1 mt-2">
