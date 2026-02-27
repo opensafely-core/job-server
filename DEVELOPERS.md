@@ -5,6 +5,9 @@
   - [Native](#native)
     - [Prerequisites](#prerequisites)
     - [`just` commands](#just-commands)
+    - [Go](#go)
+      - [Installing Go on macOS](#installing-go-on-macos)
+      - [Installing Go on Linux](#installing-go-on-linux)
     - [Postgres](#postgres)
       - [Installing on macOS](#installing-on-macos)
       - [Installing on Linux](#installing-on-linux)
@@ -64,12 +67,41 @@ _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/articl
 - **uv**
 - **Node.js v20.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
+- **Go**
 - **Postgres 17**
 
 #### `just` commands
 
 Each `just` command sets up a dev environment as part of running it.
 If you want to maintain your own virtualenv make sure you have activated it before running a `just` command and it will be used instead.
+`just devenv` also installs `go-earlybird`, which requires the `go` CLI on your path.
+
+
+#### Go
+
+`go-earlybird` is installed by `just devenv`, and requires the Go toolchain.
+
+##### Installing Go on macOS
+
+Install Go with Homebrew:
+
+```sh
+brew install go
+```
+
+##### Installing Go on Linux
+
+Install Go with your package manager of choice, for example:
+
+```sh
+sudo apt install golang-go
+```
+
+Verify the installation:
+
+```sh
+go version
+```
 
 
 #### Postgres

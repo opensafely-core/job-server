@@ -49,7 +49,7 @@ prodenv:
 
 # && dependencies are run after the recipe has run. Needs just>=0.9.9. # This is a killer feature over Makefiles.
 # Install dev requirements into venv.
-devenv: _dotenv && install-precommit
+devenv: _dotenv && install-precommit install-earlybird
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -68,6 +68,64 @@ install-precommit:
 
     BASE_DIR=$(git rev-parse --show-toplevel)
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
+
+
+# install go-earlybird into the project-local virtualenv bin directory
+install-earlybird:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    test -d "$VIRTUAL_ENV" || uv venv "$VIRTUAL_ENV"
+    mkdir -p "$BIN"
+
+    tmpdir="$(mktemp -d)"
+    cleanup() {
+      chmod -R u+w "$tmpdir" 2>/dev/null || true
+      rm -rf "$tmpdir"
+    }
+    trap cleanup EXIT
+
+    git clone --depth 1 https://github.com/americanexpress/earlybird "$tmpdir/earlybird"
+    cd "$tmpdir/earlybird"
+
+    GOMODCACHE="$tmpdir/gomodcache" GOCACHE="$tmpdir/gocache" go mod tidy
+    GOMODCACHE="$tmpdir/gomodcache" GOCACHE="$tmpdir/gocache" go build -o "$BIN/go-earlybird" .
+
+
+# verify go-earlybird can run from this project's local tool path
+check-earlybird:
+    PATH="$BIN:$PATH" go-earlybird --help
+
+
+# generate an Earlybird-compatible ignore file from a .gitignore
+generate-earlybird-ignore src=".gitignore" dest=".ge_ignore":
+    $BIN/python scripts/gitignore_to_earlybird_ignore.py --input {{ src }} --output {{ dest }} --extra .ge_ignore.extra
+
+
+# generate a local Earlybird config containing only PII-category rules
+generate-earlybird-pii-config src="$HOME/.go-earlybird" dest=".earlybird-pii-config":
+    $BIN/python scripts/build_earlybird_pii_config.py --source {{ src }} --dest {{ dest }}
+
+
+# run Earlybird using the generated ignore file
+earlybird-check *args="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [[ ! -f .ge_ignore ]]; then
+      echo "Missing .ge_ignore. Run: just generate-earlybird-ignore" >&2
+      exit 1
+    fi
+
+    tmpconfig="$(mktemp -d)"
+    cleanup() {
+      chmod -R u+w "$tmpconfig" 2>/dev/null || true
+      rm -rf "$tmpconfig"
+    }
+    trap cleanup EXIT
+
+    $BIN/python scripts/build_earlybird_pii_config.py --source "$HOME/.go-earlybird" --dest "$tmpconfig"
+    PATH="$BIN:$PATH" go-earlybird --config "$tmpconfig" --ignorefile .ge_ignore {{ args }}
 
 
 # Upgrade a single package to the latest version per pyproject.toml
