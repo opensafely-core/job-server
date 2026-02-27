@@ -378,3 +378,31 @@ def test_jobrequestlist_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         JobRequestList.as_view()(request)
+
+
+def test_jobrequestlist_projects_items_are_ordered_by_identifier(
+    rf, staff_area_administrator
+):
+    third_project = ProjectFactory(name="third_project", number="POS-2025-2003")
+    second_project = ProjectFactory(name="second_project", number="POS-2025-2001")
+    first_project = ProjectFactory(name="first_project", number="POS-2024-2009")
+    fifth_project = ProjectFactory(name="fifth_project", number="42")
+    fourth_project = ProjectFactory(name="fourth_project", number="7")
+    sixth_project = ProjectFactory(name="sixth_project", number=None)
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    project_items = response.context_data["projects"]["items"]
+
+    assert [project.pk for project in project_items] == [
+        third_project.pk,
+        second_project.pk,
+        first_project.pk,
+        fifth_project.pk,
+        fourth_project.pk,
+        sixth_project.pk,
+    ]
