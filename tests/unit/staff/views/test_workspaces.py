@@ -182,3 +182,24 @@ def test_workspacelist_success(rf, staff_area_administrator):
     response = WorkspaceList.as_view()(request)
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 5
+
+
+def test_workspacelist_projects_context_is_ordered_by_project_identifier_rules(
+    rf, staff_area_administrator
+):
+    alphanumeric_project = ProjectFactory(number="POS-2025-2003")
+    numeric_project = ProjectFactory(number="42")
+    missing_number_project = ProjectFactory(number=None)
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = WorkspaceList.as_view()(request)
+
+    assert response.status_code == 200
+    projects = list(response.context_data["projects"])
+    assert [project.pk for project in projects] == [
+        alphanumeric_project.pk,
+        numeric_project.pk,
+        missing_number_project.pk,
+    ]
