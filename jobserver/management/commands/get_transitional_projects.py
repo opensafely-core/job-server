@@ -33,12 +33,10 @@ class Command(BaseCommand):
         # value to a date so even though we're passing in a datetime the ORM
         # does the right thing for us and passes down just the date portion of
         # six_months_ago so we can get 6mo ago for all of the target day.
-        projects = (
+        projects = Project.apply_project_number_ordering(
             Project.objects.filter(
                 workspaces__job_requests__jobs__started_at__date__gte=six_months_ago
-            )
-            .distinct()
-            .order_by("number")
+            ).distinct()
         )
 
         data = []
@@ -52,7 +50,7 @@ class Command(BaseCommand):
                 .first()
                 .started_at.isoformat()
             )
-            org = project.org.name
+            org = project.org.name if project.org else ""
 
             if number:
                 url = f"https://www.opensafely.org/approved-projects#project-{number}"

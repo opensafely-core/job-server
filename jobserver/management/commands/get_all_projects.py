@@ -10,10 +10,10 @@ from jobserver.models import Job, Project
 class Command(BaseCommand):
     def handle(self, *args, **options):
         data = []
-        for project in Project.objects.order_by("number", "name"):
+        for project in Project.apply_project_number_ordering():
             name = project.name
             number = project.number
-            org = project.org.name
+            org = project.org.name if project.org else ""
 
             latest_job = (
                 Job.objects.filter(job_request__workspace__project=project)
