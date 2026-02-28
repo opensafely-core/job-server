@@ -68,7 +68,7 @@ class WorkspaceList(ListView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "orgs": Org.objects.order_by(Lower("name")),
-            "projects": Project.objects.order_by("number", Lower("name")),
+            "projects": Project.apply_project_number_ordering(),
             "q": self.request.GET.get("q", ""),
         }
 

@@ -123,14 +123,26 @@ class UserDetailWithEmail(UpdateView):
             }
             for m in self.object.org_memberships.order_by("org__name")
         ]
+        memberships = list(self.object.project_memberships.select_related("project"))
+        # apply_project_number_ordering works on Project querysets.
+        # Order those first, then map the ordered project ids back onto memberships.
+        ordered_project_ids = list(
+            Project.apply_project_number_ordering(
+                Project.objects.filter(pk__in=[m.project_id for m in memberships])
+            ).values_list("pk", flat=True)
+        )
+        project_order = {
+            project_id: index for index, project_id in enumerate(ordered_project_ids)
+        }
         projects = [
             {
                 "name": m.project.title,
                 "roles": sorted(r.display_name for r in m.roles),
                 "staff_url": m.project.get_staff_url(),
             }
-            for m in self.object.project_memberships.order_by(
-                "project__number", Lower("project__name")
+            for m in sorted(
+                memberships,
+                key=lambda m: project_order.get(m.project_id, len(project_order)),
             )
         ]
         return super().get_context_data(**kwargs) | {
@@ -165,14 +177,15 @@ class UserDetailWithOAuth(UpdateView):
 
     def get_context_data(self, **kwargs):
         applications = self.object.applications.order_by("-created_at")
-        copiloted_projects = self.object.copiloted_projects.order_by(
-            "number", Lower("name")
+        copiloted_projects = Project.apply_project_number_ordering(
+            self.object.copiloted_projects.all()
         )
+
         jobs = Job.objects.filter(job_request__created_by=self.object).order_by(
             "-created_at"
         )
         orgs = self.object.orgs.order_by(Lower("name"))
-        projects = self.object.projects.order_by("number", Lower("name"))
+        projects = Project.apply_project_number_ordering(self.object.projects.all())
 
         return super().get_context_data(**kwargs) | {
             "applications": applications,
@@ -296,9 +309,25 @@ class UserRoleList(FormView):
         return redirect(self.user.get_staff_roles_url())
 
     def get_context_data(self, **kwargs):
-        project_memberships_with_roles = self.user.project_memberships.exclude(
-            roles=[]
-        ).order_by("project__number", Lower("project__name"))
+        project_memberships_with_roles = list(
+            self.user.project_memberships.exclude(roles=[]).select_related("project")
+        )
+        # apply_project_number_ordering works on Project querysets; order those
+        # first, then map the ordered project ids back onto memberships.
+        ordered_project_ids = list(
+            Project.apply_project_number_ordering(
+                Project.objects.filter(
+                    pk__in=[m.project_id for m in project_memberships_with_roles]
+                )
+            ).values_list("pk", flat=True)
+        )
+        project_order = {
+            project_id: index for index, project_id in enumerate(ordered_project_ids)
+        }
+        project_memberships_with_roles = sorted(
+            project_memberships_with_roles,
+            key=lambda m: project_order.get(m.project_id, len(project_order)),
+        )
 
         return super().get_context_data(**kwargs) | {
             "projects": project_memberships_with_roles,
