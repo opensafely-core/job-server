@@ -307,6 +307,35 @@ def test_userdetailwithemail_without_permission(rf, staff_area_administrator):
         UserDetailWithEmail.as_view()(request, username="test")
 
 
+def test_userdetailwithemail_orders_projects_by_identifier_rules(
+    rf, staff_area_administrator, project_membership
+):
+    user = UserFactory()
+
+    alphanumeric_project = ProjectFactory(name="third_project", number="POS-2025-2003")
+    numeric_project = ProjectFactory(name="fourth_project", number="7")
+    missing_number_project = ProjectFactory(name="sixth_project", number=None)
+
+    for project in [
+        alphanumeric_project,
+        numeric_project,
+        missing_number_project,
+    ]:
+        project_membership(user=user, project=project, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = UserDetailWithEmail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert [p["staff_url"] for p in response.context_data["projects"]] == [
+        alphanumeric_project.get_staff_url(),
+        numeric_project.get_staff_url(),
+        missing_number_project.get_staff_url(),
+    ]
+
+
 def test_userdetailwithoauth_get_success(
     rf, staff_area_administrator, project_membership
 ):
@@ -438,6 +467,41 @@ def test_userdetailwithoauth_without_permission(rf):
 
     with pytest.raises(PermissionDenied):
         UserDetailWithOAuth.as_view()(request, username="test")
+
+
+def test_userdetailwithoauth_orders_projects_and_copiloted_projects_by_identifier_rules(
+    rf, staff_area_administrator, project_membership
+):
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+
+    alphanumeric_project = ProjectFactory(
+        name="alphanumeric_project", number="POS-2025-2001", copilot=user
+    )
+    numeric_project = ProjectFactory(name="numeric_project", number="42", copilot=user)
+    missing_number_project = ProjectFactory(
+        name="missing_number_project", number=None, copilot=user
+    )
+
+    for project in [alphanumeric_project, numeric_project, missing_number_project]:
+        project_membership(user=user, project=project, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = UserDetailWithOAuth.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert [p.pk for p in response.context_data["projects"]] == [
+        alphanumeric_project.pk,
+        numeric_project.pk,
+        missing_number_project.pk,
+    ]
+    assert [p.pk for p in response.context_data["copiloted_projects"]] == [
+        alphanumeric_project.pk,
+        numeric_project.pk,
+        missing_number_project.pk,
+    ]
 
 
 def test_userlist_filter_by_backend(rf, staff_area_administrator):
@@ -777,6 +841,33 @@ def test_userrolelist_without_permission(rf):
 
     with pytest.raises(PermissionDenied):
         UserRoleList.as_view()(request, username=user.username)
+
+
+def test_userrolelist_orders_project_memberships_by_identifier_rules(
+    rf, staff_area_administrator, project_membership
+):
+    user = UserFactory(roles=[ProjectCollaborator])
+
+    alphanumeric_project = ProjectFactory(
+        name="alphanumeric_project", number="POS-2025-2001"
+    )
+    numeric_project = ProjectFactory(name="numeric_project", number="42")
+    missing_number_project = ProjectFactory(name="missing_number_project", number=None)
+
+    for project in [alphanumeric_project, numeric_project, missing_number_project]:
+        project_membership(user=user, project=project, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = UserRoleList.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert [m.project_id for m in response.context_data["projects"]] == [
+        alphanumeric_project.pk,
+        numeric_project.pk,
+        missing_number_project.pk,
+    ]
 
 
 def test_usersetorgs_get_success(rf, staff_area_administrator):
