@@ -330,7 +330,7 @@ def job_request_for_create():
     # Ensure this job_request has a project with a number (by default it will be None)
     # so that it can be looked up in the project-specific permissions files that
     # determine the value of the analysis_scope request parameter
-    project = ProjectFactory(number=111)
+    project = ProjectFactory(number="111")
     workspace = WorkspaceFactory(project=project)
     job_request = JobRequestFactory(workspace=workspace)
 
@@ -371,7 +371,7 @@ class TestCreate:
         # this means the api will be called with `"analysis_scope": {}` in the request body
         monkeypatch.setattr(
             "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
-            [222, 333],
+            ["222", "333"],
         )
 
         result = create(job_request)
