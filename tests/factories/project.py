@@ -32,3 +32,40 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     org = factory.PostGeneration(_project_collaboration_factory)
     orgs = factory.PostGeneration(_project_collaboration_factory)
+
+
+class ProjectDataFactory(factory.Factory):
+    """
+    Generate a default data dict for post requests to the ProjectCreateForm.
+
+    By default:
+    - Returns a valid data dict:
+        data = {
+            "name": "test1",
+            "number": "1234567832",
+            "orgs": ["1"],
+            "copilot": "1",
+        }
+    - Will create an org & a user (copilot) instance in the db.
+      Use .build() in tests where you don't want this behaviour.
+    """
+
+    class Meta:
+        model = dict
+
+    name = factory.Sequence(lambda n: f"Test Project {n}")
+    number = factory.Sequence(lambda n: str(1000000 + n))
+
+    @factory.lazy_attribute
+    def orgs(self):
+        from tests.factories.org import OrgFactory
+
+        org = OrgFactory()
+        return [str(org.pk)]
+
+    @factory.lazy_attribute
+    def copilot(self):
+        from tests.factories.user import UserFactory
+
+        user = UserFactory()
+        return str(user.pk)
