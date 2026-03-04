@@ -123,27 +123,20 @@ class UserDetailWithEmail(UpdateView):
             }
             for m in self.object.org_memberships.order_by("org__name")
         ]
-        memberships = list(self.object.project_memberships.select_related("project"))
-        # apply_project_number_ordering works on Project querysets.
-        # Order those first, then map the ordered project ids back onto memberships.
-        ordered_project_ids = list(
-            Project.apply_project_number_ordering(
-                Project.objects.filter(pk__in=[m.project_id for m in memberships])
-            ).values_list("pk", flat=True)
+        memberships = self.object.project_memberships.select_related("project")
+
+        memberships = Project.apply_project_number_ordering(
+            memberships,
+            field_prefix="project__",
         )
-        project_order = {
-            project_id: index for index, project_id in enumerate(ordered_project_ids)
-        }
+
         projects = [
             {
                 "name": m.project.title,
                 "roles": sorted(r.display_name for r in m.roles),
                 "staff_url": m.project.get_staff_url(),
             }
-            for m in sorted(
-                memberships,
-                key=lambda m: project_order.get(m.project_id, len(project_order)),
-            )
+            for m in memberships
         ]
         return super().get_context_data(**kwargs) | {
             "orgs": orgs,
@@ -309,24 +302,9 @@ class UserRoleList(FormView):
         return redirect(self.user.get_staff_roles_url())
 
     def get_context_data(self, **kwargs):
-        project_memberships_with_roles = list(
-            self.user.project_memberships.exclude(roles=[]).select_related("project")
-        )
-        # apply_project_number_ordering works on Project querysets; order those
-        # first, then map the ordered project ids back onto memberships.
-        ordered_project_ids = list(
-            Project.apply_project_number_ordering(
-                Project.objects.filter(
-                    pk__in=[m.project_id for m in project_memberships_with_roles]
-                )
-            ).values_list("pk", flat=True)
-        )
-        project_order = {
-            project_id: index for index, project_id in enumerate(ordered_project_ids)
-        }
-        project_memberships_with_roles = sorted(
-            project_memberships_with_roles,
-            key=lambda m: project_order.get(m.project_id, len(project_order)),
+        project_memberships_with_roles = Project.apply_project_number_ordering(
+            self.user.project_memberships.exclude(roles=[]).select_related("project"),
+            field_prefix="project__",
         )
 
         return super().get_context_data(**kwargs) | {

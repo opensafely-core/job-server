@@ -195,12 +195,12 @@ class Project(models.Model):
         return max(numeric_values) + 1
 
     @classmethod
-    def apply_project_number_ordering(cls, queryset=None):
+    def apply_project_number_ordering(cls, queryset=None, field_prefix=""):
         """
         Return a queryset ordered by project number in custom order.
         Ordering rules:
         1. Alphanumeric identifiers (e.g. POS-2025-2001) first, newest first
-        by year segment, then sequence segment.
+           by year segment, then sequence segment.
         2. Numeric identifiers next, highest numeric value first.
         3. Missing identifiers (NULL/blank) last.
         4. Project name (case-insensitive) as a final tie-breaker.
@@ -209,10 +209,19 @@ class Project(models.Model):
 
         # Classify each project number into cases to allow ordering:
         # 0 = POS-style identifier, 1 = numeric identifier, 2 = missing/default.
+        number_field = f"{field_prefix}number"
+        name_field = f"{field_prefix}name"
+
         qs = qs.annotate(
             number_type=Case(
-                When(number__regex=ALPHANUMERIC_IDENTIFIER_REGEX, then=Value(0)),
-                When(number__regex=NUMERIC_IDENTIFIER_REGEX, then=Value(1)),
+                When(
+                    **{f"{number_field}__regex": ALPHANUMERIC_IDENTIFIER_REGEX},
+                    then=Value(0),
+                ),
+                When(
+                    **{f"{number_field}__regex": NUMERIC_IDENTIFIER_REGEX},
+                    then=Value(1),
+                ),
                 default=Value(2),
                 output_field=IntegerField(),
             )
@@ -223,8 +232,8 @@ class Project(models.Model):
         qs = qs.annotate(
             year=Case(
                 When(
-                    number__regex=ALPHANUMERIC_IDENTIFIER_REGEX,
-                    then=Cast(Substr("number", 5, 4), IntegerField()),
+                    **{f"{number_field}__regex": ALPHANUMERIC_IDENTIFIER_REGEX},
+                    then=Cast(Substr(number_field, 5, 4), IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
@@ -236,8 +245,8 @@ class Project(models.Model):
         qs = qs.annotate(
             sequence=Case(
                 When(
-                    number__regex=ALPHANUMERIC_IDENTIFIER_REGEX,
-                    then=Cast(Substr("number", 10), IntegerField()),
+                    **{f"{number_field}__regex": ALPHANUMERIC_IDENTIFIER_REGEX},
+                    then=Cast(Substr(number_field, 10), IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
@@ -249,8 +258,8 @@ class Project(models.Model):
         qs = qs.annotate(
             numeric_value=Case(
                 When(
-                    number__regex=NUMERIC_IDENTIFIER_REGEX,
-                    then=Cast("number", IntegerField()),
+                    **{f"{number_field}__regex": NUMERIC_IDENTIFIER_REGEX},
+                    then=Cast(number_field, IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
@@ -262,7 +271,7 @@ class Project(models.Model):
             "-year",
             "-sequence",
             "-numeric_value",
-            Lower("name"),
+            Lower(name_field),
         )
 
         return qs
