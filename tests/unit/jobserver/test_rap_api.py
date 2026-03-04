@@ -330,7 +330,7 @@ def job_request_for_create():
     # Ensure this job_request has a project with a number (by default it will be None)
     # so that it can be looked up in the project-specific permissions files that
     # determine the value of the analysis_scope request parameter
-    project = ProjectFactory(number=111)
+    project = ProjectFactory(number="111")
     workspace = WorkspaceFactory(project=project)
     job_request = JobRequestFactory(workspace=workspace)
 
@@ -371,7 +371,7 @@ class TestCreate:
         # this means the api will be called with `"analysis_scope": {}` in the request body
         monkeypatch.setattr(
             "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
-            [222, 333],
+            ["222", "333"],
         )
 
         result = create(job_request)
@@ -438,7 +438,39 @@ class TestCreate:
             expected_request_body,
         )
 
-    def test_population_permissions_with_slug(self, monkeypatch, patch_api_call):
+    def test_dataset_permissions(
+        self, monkeypatch, patch_api_call, job_request_for_create
+    ):
+        """Test api_call is called with expected parameters and its body
+        returned when it returns a 200."""
+        fake_json = {"some": "content"}
+        mock_api_call = patch_api_call(fake_json=fake_json)
+
+        job_request, expected_request_body = job_request_for_create
+        # mock dataset permissions to ensure this job's project has permission
+        monkeypatch.setattr(
+            "jobserver.permissions.dataset_permissions.datasets.PROJECTS_WITH_PERMISSION",
+            {
+                job_request.workspace.project.number: [
+                    "some_dataset",
+                    "some_other_dataset",
+                ]
+            },
+        )
+        # update request body with expected analysis scope
+        expected_request_body["analysis_scope"] = {
+            "dataset_permissions": ["some_dataset", "some_other_dataset"]
+        }
+
+        result = create(job_request)
+        assert result == fake_json
+        mock_api_call.assert_called_once_with(
+            requests.post,
+            "rap/create/",
+            expected_request_body,
+        )
+
+    def test_permissions_with_slug(self, monkeypatch, patch_api_call):
         """Test api_call is called with expected parameters and its body
         returned when it returns a 200."""
         fake_json = {"some": "content"}
@@ -466,7 +498,10 @@ class TestCreate:
             "orgs": list(
                 job_request.workspace.project.orgs.values_list("slug", flat=True)
             ),
-            "analysis_scope": {"population_permissions": ["include_ndoo"]},
+            "analysis_scope": {
+                "population_permissions": ["include_ndoo"],
+                "dataset_permissions": ["some_dataset", "some_other_dataset"],
+            },
         }
 
         # mock ndoo permission to ensure this job's project has permission
@@ -474,7 +509,16 @@ class TestCreate:
             "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
             [job_request.workspace.project.slug],
         )
-
+        # mock dataset permissions to ensure this job's project has permission
+        monkeypatch.setattr(
+            "jobserver.permissions.dataset_permissions.datasets.PROJECTS_WITH_PERMISSION",
+            {
+                job_request.workspace.project.slug: [
+                    "some_dataset",
+                    "some_other_dataset",
+                ]
+            },
+        )
         result = create(job_request)
         assert result == fake_json
         mock_api_call.assert_called_once_with(

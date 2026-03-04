@@ -22,7 +22,7 @@ import structlog
 from django.conf import settings
 from structlog.contextvars import bound_contextvars
 
-from jobserver.permissions import population_permissions
+from jobserver.permissions import dataset_permissions, population_permissions
 
 
 logger = structlog.get_logger(__name__)
@@ -210,6 +210,10 @@ def create(job_request):
             job_request.workspace.project
         ):
             analysis_scope.setdefault("population_permissions", []).append(permission)
+    if dataset_permission := dataset_permissions.datasets.analysis_scope_for_project(
+        job_request.workspace.project
+    ):
+        analysis_scope["dataset_permissions"] = dataset_permission
 
     request_body = {
         "rap_id": job_request.identifier,
