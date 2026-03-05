@@ -1,6 +1,6 @@
 {% extends "staff/base.html" %}
 
-{% load django_vite %}
+{% load static %}
 
 {% block metatitle %}Create a project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -98,7 +98,25 @@
       Save
     {% /button %}
   </form>
+
+  {% if can_create_org %}
+    <dialog class="max-w-lg w-full m-auto backdrop:bg-slate-900/25 backdrop:backdrop-blur-sm" id="addNewOrg"></dialog>
+  {% endif %}
 {% endblock content %}
+
 {% block extra_js %}
-  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
-{% endblock extra_js %}
+  <script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
+  <script nonce="{{ request.csp_nonce }}">
+    htmx.on("htmx:afterSwap", (e) => {
+      const modal = e.target;
+      modal.showModal();
+
+      const closeModalBtn = document.getElementById("closeModal");
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", () => {
+          closeModalBtn.closest("dialog").close();
+        });
+      }
+    });
+  </script>
+{% endblock %}
