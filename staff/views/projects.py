@@ -43,6 +43,24 @@ class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     template_name = "staff/project/create.html"
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "can_create_org": has_permission(
+                user=self.request.user, permission=Permission.ORG_CREATE
+            )
+        }
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if org_slug := self.request.GET.get("org-slug"):
+            try:
+                initial["orgs"] = [Org.objects.get(slug=org_slug).pk]
+            except Org.DoesNotExist:
+                pass
+
+        return initial
+
     def form_valid(self, form):
         data = form.cleaned_data
         project = projects.add(

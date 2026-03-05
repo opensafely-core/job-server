@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
@@ -119,6 +121,21 @@ def test_orgcreate_post_success(rf, staff_area_administrator):
     assert response.url == org.get_staff_url()
 
 
+def test_orgcreate_post_success_with_unsafe_next(rf, staff_area_administrator):
+    request = rf.post(
+        "/", {"name": "A New Org", "next": "https://example.com/evil-hacker-url"}
+    )
+    request.htmx = False
+    request.user = staff_area_administrator
+
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 302
+
+    org = Org.objects.first()
+    assert response.url == org.get_staff_url()
+
+
 def test_orgcreate_post_htmx_success_with_next(rf, staff_area_administrator):
     request = rf.post("/?next=/next/page/", {"name": "A New Org"})
     request.htmx = True
@@ -127,7 +144,9 @@ def test_orgcreate_post_htmx_success_with_next(rf, staff_area_administrator):
     response = OrgCreate.as_view()(request)
 
     assert response.status_code == 200
-    assert response.headers["HX-Redirect"] == "/next/page/?org-slug=a-new-org"
+    assert json.loads(response.headers["HX-Location"])["path"] == (
+        "/next/page/?org-slug=a-new-org"
+    )
 
 
 def test_orgcreate_post_htmx_success_without_next(rf, staff_area_administrator):
@@ -141,7 +160,7 @@ def test_orgcreate_post_htmx_success_without_next(rf, staff_area_administrator):
 
     org = Org.objects.first()
     expected = org.get_staff_url() + "?org-slug=a-new-org"
-    assert response.headers["HX-Redirect"] == expected
+    assert json.loads(response.headers["HX-Location"])["path"] == expected
 
 
 def test_orgdetail_get_success(rf, staff_area_administrator):
