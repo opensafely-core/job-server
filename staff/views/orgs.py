@@ -6,7 +6,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, FormView, ListView, UpdateView, View
-from django_htmx.http import HttpResponseClientRedirect
+from django_htmx.http import HttpResponseLocation
 from furl import furl
 
 from jobserver.authorization.decorators import require_permission
@@ -65,15 +65,15 @@ class OrgCreate(CreateView):
         else:
             success_url = org_detail
 
-        if not self.request.htmx:
-            return redirect(success_url)
+        if self.request.htmx:
+            url = get_redirect_url(
+                self.request.GET,
+                org_detail,
+                {"org-slug": org.slug},
+            )
+            return HttpResponseLocation(url)
 
-        url = get_redirect_url(
-            self.request.GET,
-            org_detail,
-            {"org-slug": org.slug},
-        )
-        return HttpResponseClientRedirect(url)
+        return redirect(success_url)
 
     def get_context_data(self, **kwargs):
         f = furl(reverse("staff:org-create"))
