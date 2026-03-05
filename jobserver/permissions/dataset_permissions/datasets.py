@@ -73,6 +73,8 @@ PROJECTS_WITH_PERMISSION = {
         "sgss_covid_all_tests",
         "occupation_on_covid_vaccine_record",
     ],
+    # https://jobs.opensafely.org/identify-risk-factors-associated-with-disparities-for-resistant-bloodstream-infections-before-during-and-after-the-global-covid-19-pandemic-a-national-case-control-and-cohort-study/
+    "198": ["sgss_covid_all_tests"],
     # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
     "209": ["sgss_covid_all_tests"],
 }
