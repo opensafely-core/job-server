@@ -119,6 +119,21 @@ def test_orgcreate_post_success(rf, staff_area_administrator):
     assert response.url == org.get_staff_url()
 
 
+def test_orgcreate_post_success_with_unsafe_next(rf, staff_area_administrator):
+    request = rf.post(
+        "/", {"name": "A New Org", "next": "https://example.com/evil-hacker-url"}
+    )
+    request.htmx = False
+    request.user = staff_area_administrator
+
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 302
+
+    org = Org.objects.first()
+    assert response.url == org.get_staff_url()
+
+
 def test_orgcreate_post_htmx_success_with_next(rf, staff_area_administrator):
     request = rf.post("/?next=/next/page/", {"name": "A New Org"})
     request.htmx = True

@@ -12,6 +12,7 @@ from furl import furl
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.permissions import Permission
 from jobserver.models import Org, OrgMembership, User
+from jobserver.utils import is_safe_path
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
 from ..htmx_tools import get_redirect_url
@@ -54,9 +55,13 @@ class OrgCreate(CreateView):
         org.save()
 
         org_detail = org.get_staff_url()
+        next_url = self.request.POST.get("next") or self.request.GET.get("next", "")
+        if not is_safe_path(next_url):
+            next_url = ""
+        success_url = next_url or org_detail
 
         if not self.request.htmx:
-            return redirect(org_detail)
+            return redirect(success_url)
 
         url = get_redirect_url(
             self.request.GET,
@@ -73,6 +78,7 @@ class OrgCreate(CreateView):
         f.args.update(self.request.GET)
 
         return super().get_context_data() | {
+            "next_url": self.request.GET.get("next", ""),
             "post_url": f.url,
         }
 
