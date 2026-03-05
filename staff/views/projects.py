@@ -50,6 +50,17 @@ class ProjectCreate(CreateView):
             )
         }
 
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if org_slug := self.request.GET.get("org-slug"):
+            try:
+                initial["orgs"] = [Org.objects.get(slug=org_slug).pk]
+            except Org.DoesNotExist:
+                pass
+
+        return initial
+
     def form_valid(self, form):
         data = form.cleaned_data
         project = projects.add(

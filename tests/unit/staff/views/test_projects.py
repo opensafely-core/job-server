@@ -677,6 +677,27 @@ def test_projectcreate_authorised(rf):
     assert response.status_code == 200
 
 
+def test_projectcreate_with_known_org_slug(rf):
+    org = OrgFactory()
+    request = rf.get(f"/?org-slug={str(org.slug)}")
+    request.user = UserFactory(roles=[ServiceAdministrator])
+
+    response = ProjectCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert "orgs" in response.context_data["form"].initial
+
+
+def test_projectcreate_with_unknown_org_slug(rf):
+    request = rf.get("/?org-slug=unknown-org")
+    request.user = UserFactory(roles=[ServiceAdministrator])
+
+    response = ProjectCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert "orgs" not in response.context_data["form"].initial
+
+
 def test_projectcreate_unauthorised(rf, staff_area_administrator):
     request = rf.get("/")
     request.user = staff_area_administrator

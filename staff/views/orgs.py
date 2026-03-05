@@ -58,7 +58,12 @@ class OrgCreate(CreateView):
         next_url = self.request.POST.get("next") or self.request.GET.get("next", "")
         if not is_safe_path(next_url):
             next_url = ""
-        success_url = next_url or org_detail
+        if next_url:
+            f = furl(next_url)
+            f.args["org-slug"] = org.slug
+            success_url = f.url
+        else:
+            success_url = org_detail
 
         if not self.request.htmx:
             return redirect(success_url)
