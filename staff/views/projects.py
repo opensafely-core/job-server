@@ -43,6 +43,13 @@ class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     template_name = "staff/project/create.html"
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "can_create_org": has_permission(
+                user=self.request.user, permission=Permission.ORG_CREATE
+            )
+        }
+
     def form_valid(self, form):
         data = form.cleaned_data
         project = projects.add(
