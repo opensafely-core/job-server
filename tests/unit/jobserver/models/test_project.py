@@ -59,16 +59,13 @@ def test_project_get_absolute_url():
 def test_project_get_approved_url_with_number():
     project = ProjectFactory(number=42)
 
-    assert (
-        project.get_approved_url()
-        == "https://www.opensafely.org/approved-projects#project-42"
-    )
+    assert str(project.get_approved_url()) == "https://www.opensafely.org/project/42/"
 
 
 def test_project_get_approved_url_without_number():
     project = ProjectFactory()
 
-    assert project.get_approved_url() == "https://www.opensafely.org/approved-projects"
+    assert project.get_approved_url() is False
 
 
 def test_project_get_edit_url():

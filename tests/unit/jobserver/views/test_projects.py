@@ -219,6 +219,34 @@ def test_projectdetail_with_no_releases(rf):
     assert "Outputs" not in response.rendered_content
 
 
+def test_projectdetail_shows_approved_project_purpose_button_when_number_set(rf):
+    project = ProjectFactory(org=OrgFactory(), number=42)
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, project_slug=project.slug
+    )
+
+    assert "View project purpose" in response.rendered_content
+    assert "https://www.opensafely.org/project/42/" in response.rendered_content
+
+
+def test_projectdetail_hides_approved_project_purpose_button_when_number_not_set(rf):
+    project = ProjectFactory(org=OrgFactory())
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, project_slug=project.slug
+    )
+
+    assert "View project purpose" not in response.rendered_content
+    assert "https://www.opensafely.org/project/" not in response.rendered_content
+
+
 def test_projectdetail_hides_edit_project_for_member_without_manage_permission(
     rf, project_membership
 ):

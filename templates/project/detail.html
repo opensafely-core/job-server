@@ -71,9 +71,11 @@
             {% endfragment %}
             {% #article_header title=project.name text=text %}
               <div class="flex flex-row flex-wrap items-start gap-2">
-                {% #button variant="secondary-outline" type="link" href=project.get_approved_url %}
-                  View project purpose
-                {% /button %}
+                {% if project.get_approved_url %}
+                  {% #button variant="secondary-outline" type="link" href=project.get_approved_url %}
+                    View project purpose
+                  {% /button %}
+                {% endif %}
                 {% #button href=project.get_logs_url type="link" variant="primary" %}
                   View logs
                   {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}

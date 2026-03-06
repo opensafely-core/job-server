@@ -116,12 +116,10 @@ class Project(models.Model):
         )
 
     def get_approved_url(self):
-        f = furl("https://www.opensafely.org/approved-projects")
-
         if self.number:
-            f.fragment = f"project-{self.number}"
+            return furl(f"https://www.opensafely.org/project/{self.number}/")
 
-        return f.url
+        return False
 
     def get_edit_url(self):
         return reverse(
