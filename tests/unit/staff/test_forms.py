@@ -219,6 +219,93 @@ def test_projectcreateform_success():
     assert form.is_valid(), form.errors
 
 
+def test_projectcreateform_with_duplicate_project_name():
+    org = OrgFactory()
+    copilot = UserFactory()
+    project = ProjectFactory()
+
+    data = {
+        "name": project.name,
+        "number": 1234567832,
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk),
+    }
+
+    form = ProjectCreateForm(data=data)
+
+    assert not form.is_valid()
+    assert form.errors == {"name": ["Project with this Name already exists."]}
+
+
+def test_projectcreateform_with_unknown_org():
+    org = OrgFactory()
+    copilot = UserFactory()
+
+    data = {
+        "name": "test1",
+        "number": 1234567832,
+        "orgs": [str(org.pk + 999)],
+        "copilot": str(copilot.pk),
+    }
+
+    form = ProjectCreateForm(data=data)
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "orgs": [
+            f"Select a valid choice. {data['orgs'][0]} is not one of the available choices."
+        ]
+    }
+
+
+def test_projectcreateform_with_unknown_copilot():
+    org = OrgFactory()
+    copilot = UserFactory()
+
+    data = {
+        "name": "test1",
+        "number": 1234567832,
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk + 999),
+    }
+
+    form = ProjectCreateForm(data=data)
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "copilot": [
+            "Select a valid choice. That choice is not one of the available choices."
+        ]
+    }
+
+
+@pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
+@pytest.mark.parametrize("missing_type", ["empty", "omitted"])
+def test_projectcreateform_without_required_data(field, missing_type):
+    org = OrgFactory()
+    copilot = UserFactory()
+
+    data = {
+        "name": "test1",
+        "number": 1234567832,
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk),
+    }
+
+    if missing_type == "empty":
+        if field == "orgs":
+            data[field] = []
+        else:
+            data[field] = ""
+    else:
+        data.pop(field, None)
+
+    form = ProjectCreateForm(data=data)
+
+    assert not form.is_valid()
+    assert form.errors == {field: ["This field is required."]}
+
+
 def test_projecteditform_number_is_not_required():
     """
     Ensure Project.number isn't required by ProjectEditForm

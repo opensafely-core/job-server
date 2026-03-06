@@ -730,6 +730,125 @@ def test_projectcreate_post_success(mock_add, rf, slack_messages):
     )
 
 
+@patch("staff.views.projects.projects.add")
+def test_projectcreate_post_duplicate_name(mock_add, rf):
+    """
+    Test an unsuccessful POST to the ProjectCreate view with a duplicate project name.
+
+    When a duplicate project name is submitted then:
+        * ProjectCreate view successfully re-renders
+        * The bound form and errors are in the response context data
+        * mock_add is not called (we should not save a new project instance to the db).
+    """
+    user = UserFactory(roles=[ServiceAdministrator])
+    copilot = UserFactory()
+    org = OrgFactory()
+    project = ProjectFactory(name="test1")
+
+    data = {
+        "name": project.name,
+        "number": "1234567832",
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk),
+    }
+
+    request = rf.post("/", data)
+    request.user = user
+
+    response = ProjectCreate.as_view()(request)
+
+    mock_add.assert_not_called()
+
+    assert response.status_code == 200
+    form = response.context_data["form"]
+    assert form.is_bound
+    assert "name" in form.errors
+
+
+@patch("staff.views.projects.projects.add")
+@pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
+@pytest.mark.parametrize("missing_data", ["empty", "omitted"])
+def test_projectcreate_post_with_missing_data(mock_add, rf, field, missing_data):
+    """
+    Test an unsuccessful POST to the ProjectCreate view with missing data.
+
+    When the form is submitted with missing data:
+        * ProjectCreate view successfully re-renders
+        * The bound form and errors are in the response context data
+        * mock_add is not called (we should not save a new project instance to the db).
+    """
+    user = UserFactory(roles=[ServiceAdministrator])
+    copilot = UserFactory()
+    org = OrgFactory()
+
+    data = {
+        "name": "test1",
+        "number": "1234567832",
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk),
+    }
+
+    if missing_data == "empty":
+        if field == "orgs":
+            data[field] = []
+        else:
+            data[field] = ""
+    else:
+        data.pop(field, None)
+
+    request = rf.post("/", data)
+    request.user = user
+
+    response = ProjectCreate.as_view()(request)
+
+    mock_add.assert_not_called()
+
+    assert response.status_code == 200
+    form = response.context_data["form"]
+    assert form.is_bound
+    assert field in form.errors
+
+
+@patch("staff.views.projects.projects.add")
+@pytest.mark.parametrize("field", ["orgs", "copilot"])
+def test_projectcreate_post_with_unknown_pks(mock_add, rf, field):
+    """
+    Test an unsuccessful POST to the ProjectCreate view with missing data.
+
+    When the form is submitted with an unknown pk for an org or copilot:
+        * ProjectCreate view successfully re-renders
+        * The bound form and errors are in the response context data
+        * mock_add is not called (we should not save a new project instance to the db).
+    """
+    user = UserFactory(roles=[ServiceAdministrator])
+    copilot = UserFactory()
+    org = OrgFactory()
+
+    data = {
+        "name": "test1",
+        "number": "1234567832",
+        "orgs": [str(org.pk)],
+        "copilot": str(copilot.pk),
+    }
+
+    if field == "orgs":
+        data["orgs"] = [str(org.pk + 999)]
+    else:
+        data["copilot"] = str(copilot.pk + 999)
+
+    request = rf.post("/", data)
+    request.user = user
+
+    response = ProjectCreate.as_view()(request)
+
+    mock_add.assert_not_called()
+
+    assert response.status_code == 200
+    form = response.context_data["form"]
+    assert form.is_bound
+    assert field in form.errors
+
+
 def test_projectcreated_authorised(rf):
     project = ProjectFactory()
     request = rf.get(reverse("staff:project-created", kwargs={"slug": project.slug}))
