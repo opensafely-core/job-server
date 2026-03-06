@@ -1,6 +1,7 @@
 import structlog
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
+from django.db.models.functions import Cast, Lower, Substr
 from django.urls import reverse
 from django.utils import functional, timezone
 from django.utils.text import slugify
@@ -8,6 +9,8 @@ from furl import furl
 
 
 logger = structlog.get_logger(__name__)
+ALPHANUMERIC_IDENTIFIER_REGEX = r"^POS-20\d{2}-\d{4,}$"
+NUMERIC_IDENTIFIER_REGEX = r"^\d+$"
 
 
 class Project(models.Model):
@@ -190,3 +193,76 @@ class Project(models.Model):
             return 1
 
         return max(numeric_values) + 1
+
+    @classmethod
+    def apply_project_number_ordering(cls, queryset=None):
+        """
+        Return a queryset ordered by project number in custom order.
+        Ordering rules:
+        1. Alphanumeric identifiers (e.g. POS-2025-2001) first, newest first
+        by year segment, then sequence segment.
+        2. Numeric identifiers next, highest numeric value first.
+        3. Missing identifiers (NULL/blank) last.
+        4. Project name (case-insensitive) as a final tie-breaker.
+        """
+        qs = cls.objects.all() if queryset is None else queryset
+
+        # Classify each project number into cases to allow ordering:
+        # 0 = POS-style identifier, 1 = numeric identifier, 2 = missing/default.
+        qs = qs.annotate(
+            number_type=Case(
+                When(number__regex=ALPHANUMERIC_IDENTIFIER_REGEX, then=Value(0)),
+                When(number__regex=NUMERIC_IDENTIFIER_REGEX, then=Value(1)),
+                default=Value(2),
+                output_field=IntegerField(),
+            )
+        )
+
+        # For alphanumeric identifiers(e.g.POS-2025-2001), extract the year segment(2025)
+        # and cast it to integer so we can sort by year numerically.
+        qs = qs.annotate(
+            year=Case(
+                When(
+                    number__regex=ALPHANUMERIC_IDENTIFIER_REGEX,
+                    then=Cast(Substr("number", 5, 4), IntegerField()),
+                ),
+                default=Value(None, output_field=IntegerField()),
+                output_field=IntegerField(),
+            )
+        )
+
+        # For alphanumeric identifiers(e.g.POS-2025-2001), extract the sequence segment(2001)
+        #  and cast it to integer so we can sort by sequence numerically.
+        qs = qs.annotate(
+            sequence=Case(
+                When(
+                    number__regex=ALPHANUMERIC_IDENTIFIER_REGEX,
+                    then=Cast(Substr("number", 10), IntegerField()),
+                ),
+                default=Value(None, output_field=IntegerField()),
+                output_field=IntegerField(),
+            )
+        )
+
+        # For numeric identifiers(e.g "123"), cast the number to integer so we can sort
+        # numerically instead of lexically.
+        qs = qs.annotate(
+            numeric_value=Case(
+                When(
+                    number__regex=NUMERIC_IDENTIFIER_REGEX,
+                    then=Cast("number", IntegerField()),
+                ),
+                default=Value(None, output_field=IntegerField()),
+                output_field=IntegerField(),
+            )
+        )
+
+        qs = qs.order_by(
+            "number_type",
+            "-year",
+            "-sequence",
+            "-numeric_value",
+            Lower("name"),
+        )
+
+        return qs

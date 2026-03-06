@@ -15,7 +15,7 @@ from staff.views.orgs import (
     org_add_github_org,
 )
 
-from ....factories import OrgFactory, OrgMembershipFactory, UserFactory
+from ....factories import OrgFactory, OrgMembershipFactory, ProjectFactory, UserFactory
 
 
 def test_orgaddgithuborg_get_success(rf, staff_area_administrator):
@@ -202,6 +202,45 @@ def test_orgdetail_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         OrgDetail.as_view()(request, slug=org.slug)
+
+
+def test_orgdetail_projects_are_ordered_by_project_identifier(
+    rf, staff_area_administrator
+):
+    org = OrgFactory()
+
+    third_project = ProjectFactory(
+        name="third_project", number="POS-2025-2003", orgs=[org]
+    )
+    second_project = ProjectFactory(
+        name="second_project", number="POS-2025-2001", orgs=[org]
+    )
+    first_project = ProjectFactory(
+        name="first_project", number="POS-2024-2009", orgs=[org]
+    )
+    fifth_project = ProjectFactory(name="fifth_project", number="42", orgs=[org])
+    fourth_project = ProjectFactory(name="fourth_project", number="7", orgs=[org])
+    sixth_project = ProjectFactory(name="sixth_project", number=None, orgs=[org])
+
+    # project in another org should never appear
+    ProjectFactory(
+        name="other_org_project", number="POS-2026-2001", orgs=[OrgFactory()]
+    )
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = OrgDetail.as_view()(request, slug=org.slug)
+
+    projects = list(response.context_data["projects"])
+    assert [p.pk for p in projects] == [
+        third_project.pk,
+        second_project.pk,
+        first_project.pk,
+        fifth_project.pk,
+        fourth_project.pk,
+        sixth_project.pk,
+    ]
 
 
 def test_orgedit_get_success(rf, staff_area_administrator):

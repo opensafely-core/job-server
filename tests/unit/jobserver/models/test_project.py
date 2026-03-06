@@ -174,3 +174,65 @@ def test_next_project_identifier_returns_one_when_no_numeric_ids_exist():
     ProjectFactory(number=None)
 
     assert Project.next_project_identifier() == 1
+
+
+@pytest.mark.parametrize(
+    "rows,expected",
+    [
+        (
+            [
+                {"name": "first_project", "number": "POS-2024-2009"},
+                {"name": "second_project", "number": "POS-2025-2001"},
+                {"name": "third_project", "number": "POS-2025-2003"},
+                {"name": "fourth_project", "number": "7"},
+                {"name": "fifth_project", "number": "42"},
+                {"name": "sixth_project", "number": None},
+            ],
+            [
+                "third_project",
+                "second_project",
+                "first_project",
+                "fifth_project",
+                "fourth_project",
+                "sixth_project",
+            ],
+        ),
+        (
+            [
+                {"name": "first_project", "number": "2"},
+                {"name": "second_project", "number": "10"},
+                {"name": "third_project", "number": "100"},
+            ],
+            ["third_project", "second_project", "first_project"],
+        ),
+        (
+            [
+                {"name": "second_project", "number": None},
+                {"name": "first_project", "number": None},
+            ],
+            ["first_project", "second_project"],
+        ),
+    ],
+)
+def test_apply_project_number_ordering(rows, expected):
+    for row in rows:
+        ProjectFactory(**row)
+
+    ordered_projects = list(
+        Project.apply_project_number_ordering().values_list("name", flat=True)
+    )
+
+    assert ordered_projects == expected
+
+
+def test_apply_project_number_ordering_accepts_queryset():
+    first_project = ProjectFactory(name="first_project", number="POS-2025-2001")
+    second_project = ProjectFactory(name="second_project", number="7")
+    ProjectFactory(name="third_project", number="POS-2026-2001")
+    queryset = Project.objects.filter(pk__in=[first_project.pk, second_project.pk])
+
+    ordered_projects = list(
+        Project.apply_project_number_ordering(queryset).values_list("name", flat=True)
+    )
+
+    assert ordered_projects == ["first_project", "second_project"]
