@@ -178,7 +178,9 @@ class ProjectEdit(UpdateView):
         return redirect(new.get_staff_url())
 
 
-@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
+@method_decorator(
+    require_permission(Permission.PROJECT_LINK_TO_APPLICATION), name="dispatch"
+)
 class ProjectLinkApplication(UpdateView):
     form_class = ProjectLinkApplicationForm
     model = Project
