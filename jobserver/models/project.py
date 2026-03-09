@@ -194,7 +194,7 @@ class Project(models.Model):
         return max(numeric_values) + 1
 
     @classmethod
-    def apply_project_number_ordering(cls, queryset=None):
+    def apply_project_number_ordering(cls, queryset=None, field_prefix=""):
         """
         Return a queryset ordered by project number in custom order.
         Ordering rules:
@@ -205,13 +205,21 @@ class Project(models.Model):
         4. Project name (case-insensitive) as a final tie-breaker, alphabetical order.
         """
         qs = cls.objects.all() if queryset is None else queryset
+        number_field = f"{field_prefix}number"
+        name_field = f"{field_prefix}name"
 
         # Classify each project number into cases to allow ordering:
         # 0 = POS-style identifier, 1 = numeric identifier, 2 = missing/default.
         qs = qs.annotate(
             number_type=Case(
-                When(number__startswith="POS-", then=Value(0)),
-                When(number__regex=NUMERIC_IDENTIFIER_REGEX, then=Value(1)),
+                When(
+                    **{f"{number_field}__startswith": "POS-"},
+                    then=Value(0),
+                ),
+                When(
+                    **{f"{number_field}__regex": NUMERIC_IDENTIFIER_REGEX},
+                    then=Value(1),
+                ),
                 default=Value(2),
                 output_field=IntegerField(),
             )
@@ -222,8 +230,8 @@ class Project(models.Model):
         qs = qs.annotate(
             year=Case(
                 When(
-                    number__startswith="POS-",
-                    then=Cast(Substr("number", 5, 4), IntegerField()),
+                    **{f"{number_field}__startswith": "POS-"},
+                    then=Cast(Substr(number_field, 5, 4), IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
@@ -235,8 +243,8 @@ class Project(models.Model):
         qs = qs.annotate(
             sequence=Case(
                 When(
-                    number__startswith="POS-",
-                    then=Cast(Substr("number", 10), IntegerField()),
+                    **{f"{number_field}__startswith": "POS-"},
+                    then=Cast(Substr(number_field, 10), IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
@@ -248,8 +256,8 @@ class Project(models.Model):
         qs = qs.annotate(
             numeric_value=Case(
                 When(
-                    number__regex=NUMERIC_IDENTIFIER_REGEX,
-                    then=Cast("number", IntegerField()),
+                    **{f"{number_field}__regex": NUMERIC_IDENTIFIER_REGEX},
+                    then=Cast(number_field, IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
@@ -261,7 +269,7 @@ class Project(models.Model):
             "-year",
             "-sequence",
             "-numeric_value",
-            Lower("name"),
+            Lower(name_field),
         )
 
         return qs
