@@ -9,8 +9,7 @@ from furl import furl
 
 
 logger = structlog.get_logger(__name__)
-ALPHANUMERIC_IDENTIFIER_REGEX = r"^POS-20\d{2}-\d{4,}$"
-NUMERIC_IDENTIFIER_REGEX = r"^\d+$"
+NUMERIC_IDENTIFIER_REGEX = r"^[0-9]+$"
 
 
 class Project(models.Model):
@@ -203,7 +202,7 @@ class Project(models.Model):
         by year segment, then sequence segment.
         2. Numeric identifiers next, highest numeric value first.
         3. Missing identifiers (NULL/blank) last.
-        4. Project name (case-insensitive) as a final tie-breaker.
+        4. Project name (case-insensitive) as a final tie-breaker, alphabetical order.
         """
         qs = cls.objects.all() if queryset is None else queryset
 
@@ -211,7 +210,7 @@ class Project(models.Model):
         # 0 = POS-style identifier, 1 = numeric identifier, 2 = missing/default.
         qs = qs.annotate(
             number_type=Case(
-                When(number__regex=ALPHANUMERIC_IDENTIFIER_REGEX, then=Value(0)),
+                When(number__startswith="POS-", then=Value(0)),
                 When(number__regex=NUMERIC_IDENTIFIER_REGEX, then=Value(1)),
                 default=Value(2),
                 output_field=IntegerField(),
@@ -223,7 +222,7 @@ class Project(models.Model):
         qs = qs.annotate(
             year=Case(
                 When(
-                    number__regex=ALPHANUMERIC_IDENTIFIER_REGEX,
+                    number__startswith="POS-",
                     then=Cast(Substr("number", 5, 4), IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
@@ -236,7 +235,7 @@ class Project(models.Model):
         qs = qs.annotate(
             sequence=Case(
                 When(
-                    number__regex=ALPHANUMERIC_IDENTIFIER_REGEX,
+                    number__startswith="POS-",
                     then=Cast(Substr("number", 10), IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
