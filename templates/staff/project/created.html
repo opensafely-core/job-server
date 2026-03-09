@@ -29,7 +29,7 @@
         <li><a href={{project.get_staff_url}}>View project in the Staff Area</a></li>
       </ul>
       <p>You can now add users to the project.</p>
-      <p>We sent a notification about the new project to the #co-pilot-support <a href="https://bennettoxford.slack.com/archives/C028EJH752A" target="_blank" class="whitespace-nowrap">#co-pilot-support</a> Slack channel so they can begin the project setup process.</p>
+      <p>We sent a notification about the new project to the <a href="https://bennettoxford.slack.com/archives/C028EJH752A" target="_blank" class="whitespace-nowrap">#co-pilot-support</a> Slack channel so they can begin the project setup process.</p>
     </div>
     {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
     {% #button type="link" href=staff_project_add_member_url variant="success" %}Add members to project &rarr;{% /button %}
