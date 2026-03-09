@@ -119,11 +119,23 @@ class TestProjectCreation:
 class TestProjectDetail:
     """Tests of the project detail view."""
 
-    def test_projectdetail_authorized(self, client):
+    @pytest.mark.parametrize(
+        "user_is_service_administrator",
+        [True, False],
+    )
+    def test_projectdetail_authorized(self, client, user_is_service_administrator):
         """
         Test that a user with permission can access the ProjectDetail view.
+
+        Parametrised to test that the Link Application content is only shown
+        to ServiceAdministrators.
         """
-        user = UserFactory(roles=[StaffAreaAdministrator])
+        roles = (
+            [StaffAreaAdministrator, ServiceAdministrator]
+            if user_is_service_administrator
+            else [StaffAreaAdministrator]
+        )
+        user = UserFactory(roles=roles)
         project = ProjectFactory()
 
         client.force_login(user)
@@ -133,7 +145,12 @@ class TestProjectDetail:
         )
         assert response.status_code == 200
         # This class exists only to help automated testing that the content is as expected.
-        assert "project-information-card" in response.text
+        assert "test-project-information-card" in response.text
+        # This class exists only to help automated testing that the content is as expected.
+        # It should only be appear if the user is a ServiceAdministrator.
+        assert (
+            "test-link-application" in response.text
+        ) == user_is_service_administrator
 
     def test_projectdetail_unauthorized(self, client):
         """

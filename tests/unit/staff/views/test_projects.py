@@ -204,11 +204,20 @@ def test_projectauditlog_unknown_project(rf, staff_area_administrator):
         ProjectAuditLog.as_view()(request, slug="")
 
 
-def test_projectdetail_success(rf, staff_area_administrator):
+@pytest.mark.parametrize(
+    "user_is_service_administrator",
+    [True, False],
+)
+def test_projectdetail_success(rf, user_is_service_administrator):
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = staff_area_administrator
+    roles = (
+        [StaffAreaAdministrator, ServiceAdministrator]
+        if user_is_service_administrator
+        else [StaffAreaAdministrator]
+    )
+    request.user = UserFactory(roles=roles)
 
     response = ProjectDetail.as_view()(request, slug=project.slug)
 
@@ -217,6 +226,11 @@ def test_projectdetail_success(rf, staff_area_administrator):
     expected = set_from_qs(project.workspaces.all())
     output = set_from_qs(response.context_data["workspaces"])
     assert output == expected
+
+    assert (
+        response.context_data["user_can_link_applications"]
+        == user_is_service_administrator
+    )
 
 
 def test_projectedit_get_success(rf, staff_area_administrator):

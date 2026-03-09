@@ -22,6 +22,7 @@ class Permission(StrEnum):
 
     PROJECT_CREATE = auto()
     PROJECT_MANAGE = auto()
+    PROJECT_LINK_TO_APPLICATION = auto()
 
     RELEASE_FILE_DELETE = auto()
     RELEASE_FILE_UPLOAD = auto()

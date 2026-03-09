@@ -40,7 +40,7 @@
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="flex flex-col gap-4 lg:col-span-2">
       {# The class on the following line exists only to help automated testing that the content is as expected. #}
-      {% #card title="Project information" class="project-information-card" %}
+      {% #card title="Project information" class="test-project-information-card" %}
         {% #description_list %}
           {% #description_item title="Created by" %}
             {% link href=project.created_by.get_staff_url text=project.created_by.fullname %}
@@ -56,8 +56,16 @@
             {% if application %}
               {% link href=application.get_staff_url text=application.pk_hash|add:" by "|add:application.created_by.fullname %}
             {% else %}
-              {% url "staff:project-link-application" slug=project.slug as staff_link_application_url %}
-              {% link href=staff_link_application_url text="Find and Link" %}
+              {% if user_can_link_applications %}
+                {% url "staff:project-link-application" slug=project.slug as staff_link_application_url %}
+                {# The class on the following line exists only to help automated testing that the content is as expected. #}
+                {% link href=staff_link_application_url text="Find and Link" class="test-link-application" %}
+              {% endif %}
+              <p class="text-md">
+                This is only relevant to projects that have an application
+                managed in Job Server. This does not include applications with
+                identifiers AOS-20XX-XXXX.
+              </p>
             {% endif %}
           {% /description_item %}
 

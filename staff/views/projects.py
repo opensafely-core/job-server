@@ -158,6 +158,9 @@ class ProjectDetail(DetailView):
             "status_description_html": html_utils.clean_html(
                 markdown(self.object.status_description)
             ),
+            "user_can_link_applications": has_permission(
+                self.request.user, Permission.PROJECT_LINK_TO_APPLICATION
+            ),
             "workspaces": self.object.workspaces.order_by("name"),
         }
 
