@@ -39,8 +39,8 @@
 {% block content %}
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="flex flex-col gap-4 lg:col-span-2">
-
-      {% #card title="Project information" %}
+      {# The class on the following line exists only to help automated testing that the content is as expected. #}
+      {% #card title="Project information" class="project-information-card" %}
         {% #description_list %}
           {% #description_item title="Created by" %}
             {% link href=project.created_by.get_staff_url text=project.created_by.fullname %}

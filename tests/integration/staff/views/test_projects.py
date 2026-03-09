@@ -114,3 +114,35 @@ class TestProjectCreation:
         assert len(slack_messages) == 1
         message, channel = slack_messages[0]
         assert channel == "co-pilot-support"
+
+
+class TestProjectDetail:
+    """Tests of the project detail view."""
+
+    def test_projectdetail_authorized(self, client):
+        """
+        Test that a user with permission can access the ProjectDetail view.
+        """
+        user = UserFactory(roles=[StaffAreaAdministrator])
+        project = ProjectFactory()
+
+        client.force_login(user)
+
+        response = client.get(
+            reverse("staff:project-detail", kwargs={"slug": project.slug})
+        )
+        assert response.status_code == 200
+        # This class exists only to help automated testing that the content is as expected.
+        assert "project-information-card" in response.text
+
+    def test_projectdetail_unauthorized(self, client):
+        """
+        Test that a user without permission cannot access the ProjectDetail view.
+        """
+        project = ProjectFactory()
+
+        response = client.get(
+            reverse("staff:project-detail", kwargs={"slug": project.slug})
+        )
+
+        assert response.status_code == 403
