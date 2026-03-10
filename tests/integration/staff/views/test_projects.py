@@ -51,6 +51,30 @@ class TestProjectCreation:
         assert response.status_code == 200
         assert not response.context_data["form"].is_bound
 
+    def test_projectcreate_selects_org_from_url_when_multiple_orgs_exist(self, client):
+        user = UserFactory(roles=[ServiceAdministrator])
+        bennett_org = OrgFactory(slug="bennett-institute")
+        oxford_org = OrgFactory(slug="university-of-oxford")
+        phc_org = OrgFactory(slug="phc-university-of-oxford")
+
+        client.force_login(user)
+
+        response = client.get(
+            f"{reverse('staff:project-create')}?org-slug={bennett_org.slug}"
+        )
+
+        assert response.status_code == 200
+
+        selected_values = [
+            str(option.data["value"])
+            for option in response.context_data["form"]["orgs"].subwidgets
+            if option.data.get("selected", False)
+        ]
+
+        assert selected_values == [str(bennett_org.pk)]
+        assert str(oxford_org.pk) not in selected_values
+        assert str(phc_org.pk) not in selected_values
+
     def test_projectcreated_authorized(self, client):
         """
         Test that a user with permission can access the ProjectCreated view.

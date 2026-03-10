@@ -1,6 +1,6 @@
 {% extends "staff/base.html" %}
 
-{% load django_vite %}
+{% load static %}
 
 {% block metatitle %}Create a project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -72,7 +72,19 @@
     {% #card title="Job Server information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Job Server information" class="sr-only" %}
-        {% form_select field=form.orgs choices=form.fields.orgs.choices hint_extra_class="max-w-full" %}
+
+        {% fragment as select_hint_text %}
+          <p>{{ form.orgs.help_text }}</p>
+          {% if can_create_org %}
+            <p class="-mt-3">
+              If the org doesn't exist, you can
+              {% url "staff:org-create" as staff_org_create_url %}
+              {% var new_org_url=staff_org_create_url|add:"?next="|add:request.path %}
+              {% link href=new_org_url text="add a new org" append_after="." hx-get=new_org_url hx-target="dialog#addNewOrg" hx-trigger="click" %}
+            </p>
+          {% endif %}
+        {% endfragment %}
+        {% form_select field=form.orgs choices=form.fields.orgs.choices selected=form.orgs.value|default_if_none:''|first hint_text=select_hint_text hint_extra_class="max-w-full" %}
       {% /form_fieldset %}
     {% /card %}
 
@@ -86,7 +98,25 @@
       Save
     {% /button %}
   </form>
+
+  {% if can_create_org %}
+    <dialog class="max-w-lg w-full m-auto backdrop:bg-slate-900/25 backdrop:backdrop-blur-sm" id="addNewOrg"></dialog>
+  {% endif %}
 {% endblock content %}
+
 {% block extra_js %}
-  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
-{% endblock extra_js %}
+  <script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
+  <script nonce="{{ request.csp_nonce }}">
+    htmx.on("htmx:afterSwap", (e) => {
+      const modal = e.target;
+      modal.showModal();
+
+      const closeModalBtn = document.getElementById("closeModal");
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", () => {
+          closeModalBtn.closest("dialog").close();
+        });
+      }
+    });
+  </script>
+{% endblock %}

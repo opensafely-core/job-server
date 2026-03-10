@@ -6,12 +6,13 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, FormView, ListView, UpdateView, View
-from django_htmx.http import HttpResponseClientRedirect
+from django_htmx.http import HttpResponseLocation
 from furl import furl
 
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.permissions import Permission
 from jobserver.models import Org, OrgMembership, User
+from jobserver.utils import is_safe_path
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
 from ..htmx_tools import get_redirect_url
@@ -54,16 +55,25 @@ class OrgCreate(CreateView):
         org.save()
 
         org_detail = org.get_staff_url()
+        next_url = self.request.POST.get("next") or self.request.GET.get("next", "")
+        if not is_safe_path(next_url):
+            next_url = ""
+        if next_url:
+            f = furl(next_url)
+            f.args["org-slug"] = org.slug
+            success_url = f.url
+        else:
+            success_url = org_detail
 
-        if not self.request.htmx:
-            return redirect(org_detail)
+        if self.request.htmx:
+            url = get_redirect_url(
+                self.request.GET,
+                org_detail,
+                {"org-slug": org.slug},
+            )
+            return HttpResponseLocation(url)
 
-        url = get_redirect_url(
-            self.request.GET,
-            org_detail,
-            {"org-slug": org.slug},
-        )
-        return HttpResponseClientRedirect(url)
+        return redirect(success_url)
 
     def get_context_data(self, **kwargs):
         f = furl(reverse("staff:org-create"))
@@ -73,6 +83,7 @@ class OrgCreate(CreateView):
         f.args.update(self.request.GET)
 
         return super().get_context_data() | {
+            "next_url": self.request.GET.get("next", ""),
             "post_url": f.url,
         }
 
