@@ -308,19 +308,16 @@ def test_userdetailwithemail_without_permission(rf, staff_area_administrator):
 
 
 def test_userdetailwithemail_orders_projects_by_identifier_rules(
-    rf, staff_area_administrator, project_membership
+    rf, staff_area_administrator, project_membership, project_ordering_rows
 ):
     user = UserFactory()
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number)
+        for row in project_rows
+    }
 
-    alphanumeric_project = ProjectFactory(name="third_project", number="POS-2025-2003")
-    numeric_project = ProjectFactory(name="fourth_project", number="7")
-    missing_number_project = ProjectFactory(name="sixth_project", number=None)
-
-    for project in [
-        alphanumeric_project,
-        numeric_project,
-        missing_number_project,
-    ]:
+    for project in created_projects.values():
         project_membership(user=user, project=project, roles=[ProjectDeveloper])
 
     request = rf.get("/")
@@ -330,9 +327,7 @@ def test_userdetailwithemail_orders_projects_by_identifier_rules(
 
     assert response.status_code == 200
     assert [p["staff_url"] for p in response.context_data["projects"]] == [
-        alphanumeric_project.get_staff_url(),
-        numeric_project.get_staff_url(),
-        missing_number_project.get_staff_url(),
+        created_projects[name].get_staff_url() for name in expected_order
     ]
 
 
@@ -470,20 +465,17 @@ def test_userdetailwithoauth_without_permission(rf):
 
 
 def test_userdetailwithoauth_orders_projects_and_copiloted_projects_by_identifier_rules(
-    rf, staff_area_administrator, project_membership
+    rf, staff_area_administrator, project_membership, project_ordering_rows
 ):
     user = UserFactory()
     UserSocialAuthFactory(user=user)
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number, copilot=user)
+        for row in project_rows
+    }
 
-    alphanumeric_project = ProjectFactory(
-        name="alphanumeric_project", number="POS-2025-2001", copilot=user
-    )
-    numeric_project = ProjectFactory(name="numeric_project", number="42", copilot=user)
-    missing_number_project = ProjectFactory(
-        name="missing_number_project", number=None, copilot=user
-    )
-
-    for project in [alphanumeric_project, numeric_project, missing_number_project]:
+    for project in created_projects.values():
         project_membership(user=user, project=project, roles=[ProjectDeveloper])
 
     request = rf.get("/")
@@ -493,14 +485,10 @@ def test_userdetailwithoauth_orders_projects_and_copiloted_projects_by_identifie
 
     assert response.status_code == 200
     assert [p.pk for p in response.context_data["projects"]] == [
-        alphanumeric_project.pk,
-        numeric_project.pk,
-        missing_number_project.pk,
+        created_projects[name].pk for name in expected_order
     ]
     assert [p.pk for p in response.context_data["copiloted_projects"]] == [
-        alphanumeric_project.pk,
-        numeric_project.pk,
-        missing_number_project.pk,
+        created_projects[name].pk for name in expected_order
     ]
 
 
@@ -844,17 +832,16 @@ def test_userrolelist_without_permission(rf):
 
 
 def test_userrolelist_orders_project_memberships_by_identifier_rules(
-    rf, staff_area_administrator, project_membership
+    rf, staff_area_administrator, project_membership, project_ordering_rows
 ):
     user = UserFactory(roles=[ProjectCollaborator])
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number)
+        for row in project_rows
+    }
 
-    alphanumeric_project = ProjectFactory(
-        name="alphanumeric_project", number="POS-2025-2001"
-    )
-    numeric_project = ProjectFactory(name="numeric_project", number="42")
-    missing_number_project = ProjectFactory(name="missing_number_project", number=None)
-
-    for project in [alphanumeric_project, numeric_project, missing_number_project]:
+    for project in created_projects.values():
         project_membership(user=user, project=project, roles=[ProjectDeveloper])
 
     request = rf.get("/")
@@ -864,9 +851,7 @@ def test_userrolelist_orders_project_memberships_by_identifier_rules(
 
     assert response.status_code == 200
     assert [m.project_id for m in response.context_data["projects"]] == [
-        alphanumeric_project.pk,
-        numeric_project.pk,
-        missing_number_project.pk,
+        created_projects[name].pk for name in expected_order
     ]
 
 

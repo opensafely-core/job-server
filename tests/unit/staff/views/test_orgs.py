@@ -224,24 +224,14 @@ def test_orgdetail_unauthorized(rf):
 
 
 def test_orgdetail_projects_are_ordered_by_project_identifier(
-    rf, staff_area_administrator
+    rf, staff_area_administrator, project_ordering_rows
 ):
     org = OrgFactory()
-
-    third_project = ProjectFactory(
-        name="third_project", number="POS-2025-2003", orgs=[org]
-    )
-    second_project = ProjectFactory(
-        name="second_project", number="POS-2025-2001", orgs=[org]
-    )
-    first_project = ProjectFactory(
-        name="first_project", number="POS-2024-2009", orgs=[org]
-    )
-    fifth_project = ProjectFactory(name="fifth_project", number="42", orgs=[org])
-    fourth_project = ProjectFactory(name="fourth_project", number="7", orgs=[org])
-    sixth_project = ProjectFactory(name="sixth_project", number=None, orgs=[org])
-
-    # project in another org should never appear
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number, orgs=[org])
+        for row in project_rows
+    }
     ProjectFactory(
         name="other_org_project", number="POS-2026-2001", orgs=[OrgFactory()]
     )
@@ -253,12 +243,7 @@ def test_orgdetail_projects_are_ordered_by_project_identifier(
 
     projects = list(response.context_data["projects"])
     assert [p.pk for p in projects] == [
-        third_project.pk,
-        second_project.pk,
-        first_project.pk,
-        fifth_project.pk,
-        fourth_project.pk,
-        sixth_project.pk,
+        created_projects[name].pk for name in expected_order
     ]
 
 

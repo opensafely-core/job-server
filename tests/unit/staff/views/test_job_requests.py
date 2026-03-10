@@ -381,14 +381,13 @@ def test_jobrequestlist_unauthorized(rf):
 
 
 def test_jobrequestlist_projects_items_are_ordered_by_identifier(
-    rf, staff_area_administrator
+    rf, staff_area_administrator, project_ordering_rows
 ):
-    third_project = ProjectFactory(name="third_project", number="POS-2025-2003")
-    second_project = ProjectFactory(name="second_project", number="POS-2025-2001")
-    first_project = ProjectFactory(name="first_project", number="POS-2024-2009")
-    fifth_project = ProjectFactory(name="fifth_project", number="42")
-    fourth_project = ProjectFactory(name="fourth_project", number="7")
-    sixth_project = ProjectFactory(name="sixth_project", number=None)
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number)
+        for row in project_rows
+    }
 
     request = rf.get("/")
     request.user = staff_area_administrator
@@ -399,10 +398,5 @@ def test_jobrequestlist_projects_items_are_ordered_by_identifier(
     project_items = response.context_data["projects"]["items"]
 
     assert [project.pk for project in project_items] == [
-        third_project.pk,
-        second_project.pk,
-        first_project.pk,
-        fifth_project.pk,
-        fourth_project.pk,
-        sixth_project.pk,
+        created_projects[name].pk for name in expected_order
     ]

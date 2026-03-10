@@ -212,6 +212,20 @@ def test_next_project_identifier_returns_one_when_no_numeric_ids_exist():
             ],
             ["first_project", "second_project"],
         ),
+        (
+            [
+                {"name": "first_project", "number": "POS-2023-2009"},
+                {"name": "second_project", "number": "POS-2024-2009"},
+            ],
+            ["second_project", "first_project"],
+        ),
+        (
+            [
+                {"name": "Beta Project", "number": ""},
+                {"name": "alpha project", "number": None},
+            ],
+            ["alpha project", "Beta Project"],
+        ),
     ],
 )
 def test_apply_project_number_ordering(rows, expected):
@@ -236,3 +250,28 @@ def test_apply_project_number_ordering_accepts_queryset():
     )
 
     assert ordered_projects == ["first_project", "second_project"]
+
+
+def test_apply_project_number_ordering_accepts_field_prefix(
+    project_membership, project_ordering_rows
+):
+    user = UserFactory()
+    project_rows, expected_order = project_ordering_rows
+
+    projects = [
+        ProjectFactory(name=row.name, number=row.number) for row in project_rows
+    ]
+
+    for project in projects:
+        project_membership(user=user, project=project)
+
+    memberships = user.project_memberships.select_related("project")
+
+    ordered_projects = list(
+        Project.apply_project_number_ordering(
+            queryset=memberships,
+            field_prefix="project__",
+        ).values_list("project__name", flat=True)
+    )
+
+    assert ordered_projects == expected_order

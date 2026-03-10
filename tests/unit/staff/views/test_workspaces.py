@@ -185,11 +185,13 @@ def test_workspacelist_success(rf, staff_area_administrator):
 
 
 def test_workspacelist_projects_context_is_ordered_by_project_identifier_rules(
-    rf, staff_area_administrator
+    rf, staff_area_administrator, project_ordering_rows
 ):
-    alphanumeric_project = ProjectFactory(number="POS-2025-2003")
-    numeric_project = ProjectFactory(number="42")
-    missing_number_project = ProjectFactory(number=None)
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number)
+        for row in project_rows
+    }
 
     request = rf.get("/")
     request.user = staff_area_administrator
@@ -199,7 +201,5 @@ def test_workspacelist_projects_context_is_ordered_by_project_identifier_rules(
     assert response.status_code == 200
     projects = list(response.context_data["projects"])
     assert [project.pk for project in projects] == [
-        alphanumeric_project.pk,
-        numeric_project.pk,
-        missing_number_project.pk,
+        created_projects[name].pk for name in expected_order
     ]
