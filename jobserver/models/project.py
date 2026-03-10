@@ -10,6 +10,20 @@ from furl import furl
 
 logger = structlog.get_logger(__name__)
 
+# Patterns for regex matching for different possible kinds of Project.number.
+
+# String for projects with an application managed in Job Server.
+# String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
+# and back. Using \d instead would match several other characters.
+DIGITS_PATTERN = r"[1-9][0-9]*"
+# String for projects with an application managed outside of Job Server.
+# Like POS-2025-2001. 'POS-' followed by a string of digits representing the
+# year, '-', followed by a string of digits, usually starting with 2001. Year
+# part must start '20'. Third part has no leading zero.
+POS_FORMAT_PATTERN = r"POS-20[0-9]{2}-[1-9][0-9]{3}"
+# Both formats combined and with ^$ anchors.
+NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
+
 
 class ProjectQuerySet(models.QuerySet):
     def order_by_project_identifier(self):
@@ -132,6 +146,12 @@ class Project(models.Model):
             models.CheckConstraint(
                 condition=~Q(slug=""),
                 name="slug_is_not_empty",
+            ),
+            models.CheckConstraint(
+                name="number_valid_format",
+                condition=(
+                    Q(number__isnull=True) | Q(number__regex=NUMBER_PATTERN_FULLMATCH)
+                ),
             ),
         ]
 
