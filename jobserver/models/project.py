@@ -1,3 +1,5 @@
+import re
+
 import structlog
 from django.db import models
 from django.db.models import Case, CharField, F, IntegerField, Q, Value, When
@@ -12,17 +14,21 @@ logger = structlog.get_logger(__name__)
 
 # Patterns for regex matching for different possible kinds of Project.number.
 
-# String for projects with an application managed in Job Server.
+# Pattern for projects with an application managed in Job Server.
 # String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
 # and back. Using \d instead would match several other characters.
 DIGITS_PATTERN = r"[1-9][0-9]*"
-# String for projects with an application managed outside of Job Server.
+# Pattern for projects with an application managed outside of Job Server.
 # Like POS-2025-2001. 'POS-' followed by a string of digits representing the
 # year, '-', followed by a string of digits, usually starting with 2001. Year
 # part must start '20'. Third part has no leading zero.
 POS_FORMAT_PATTERN = r"POS-20[0-9]{2}-[1-9][0-9]{3}"
-# Both formats combined and with ^$ anchors.
+# Pattern for either format. This covers all valid values.
+NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
+# Either format, wrapping each with ^$ anchors to require full match.
 NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
+
+NUMBER_REGEX = re.compile(NUMBER_PATTERN)
 
 
 class ProjectQuerySet(models.QuerySet):
