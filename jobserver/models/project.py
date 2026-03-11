@@ -25,10 +25,9 @@ DIGITS_PATTERN = r"[1-9][0-9]*"
 POS_FORMAT_PATTERN = r"POS-20[0-9]{2}-[1-9][0-9]{3}"
 # Pattern for either format. This covers all valid values.
 NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
+NUMBER_REGEX = re.compile(NUMBER_PATTERN)
 # Either format, wrapping each with ^$ anchors to require full match.
 NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
-
-NUMBER_REGEX = re.compile(NUMBER_PATTERN)
 
 
 class ProjectQuerySet(models.QuerySet):
@@ -234,13 +233,11 @@ class Project(models.Model):
     def next_project_identifier(cls):
         """
         Return the next numeric project number, or 1 if no numeric values exist.
-        This handles both int values and digit-only strings so it remains valid
-        when number is migrated from IntegerField to CharField.
         """
         numeric_values = [
-            int(str(value).strip())
-            for value in cls.objects.values_list("number", flat=True)
-            if value is not None and str(value).strip().isdigit()
+            int(number)
+            for number in cls.objects.values_list("number", flat=True)
+            if number is not None and number.isdigit()
         ]
 
         if not numeric_values:
