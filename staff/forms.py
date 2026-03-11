@@ -1,5 +1,3 @@
-import re
-
 from django import forms
 from django.db.models.functions import Lower
 from django.utils.text import slugify
@@ -9,22 +7,12 @@ from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
-
-
-PROJECT_IDENTIFIER_PATTERN = re.compile(r"POS-20\d{2}-\d{4,}")
+from jobserver.models.project import NUMBER_REGEX
 
 
 def user_label_from_instance(obj):
     full_name = obj.get_full_name()
     return f"{full_name} ({obj.username})" if full_name else obj.username
-
-
-def normalise_project_number(number):
-    number = number.strip().upper()
-    if number.isdigit():
-        # remove leading zeros from numeric project numbers
-        number = str(int(number))
-    return number
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -85,12 +73,8 @@ class ApplicationApproveForm(forms.Form):
         return project_name
 
     def clean_project_number(self):
-        project_number = normalise_project_number(self.cleaned_data["project_number"])
-
-        if not (
-            project_number.isdigit()
-            or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(project_number))
-        ):
+        project_number = self.cleaned_data["project_number"]
+        if not NUMBER_REGEX.fullmatch(project_number):
             raise forms.ValidationError(
                 "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
             )
@@ -187,9 +171,7 @@ class ProjectEditForm(forms.ModelForm):
         if number in (None, ""):
             return number
 
-        number = normalise_project_number(number)
-
-        if not (number.isdigit() or bool(PROJECT_IDENTIFIER_PATTERN.fullmatch(number))):
+        if not NUMBER_REGEX.fullmatch(number):
             raise forms.ValidationError(
                 "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
             )
