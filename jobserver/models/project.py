@@ -73,8 +73,8 @@ class Project(models.Model):
         through="ProjectCollaboration",
     )
 
-    name = models.TextField(unique=True)
-    slug = models.SlugField(max_length=255, unique=True)
+    name = models.TextField(unique=True, verbose_name="Project title")
+    slug = models.SlugField(max_length=255, unique=True, verbose_name="URL slug")
     number = models.CharField(
         max_length=20,
         null=True,
