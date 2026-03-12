@@ -59,6 +59,11 @@ PROJECTS_WITH_PERMISSION = {
         "sgss_covid_all_tests",
         "occupation_on_covid_vaccine_record",
     ],
+    # https://jobs.opensafely.org/echo-evaluation-of-covid-19-vaccine-histories-using-opensafely/
+    "174": [
+        "sgss_covid_all_tests",
+        "occupation_on_covid_vaccine_record",
+    ],
     # https://jobs.opensafely.org/implications-of-metformin-for-long-covid/
     "175": [
         "appointments",
