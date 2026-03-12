@@ -176,6 +176,9 @@ class ProjectDetail(DetailView):
             "status_description_html": html_utils.clean_html(
                 markdown(self.object.status_description)
             ),
+            "user_can_link_applications": has_permission(
+                self.request.user, Permission.PROJECT_LINK_TO_APPLICATION
+            ),
             "workspaces": self.object.workspaces.order_by("name"),
         }
 
@@ -193,7 +196,9 @@ class ProjectEdit(UpdateView):
         return redirect(new.get_staff_url())
 
 
-@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
+@method_decorator(
+    require_permission(Permission.PROJECT_LINK_TO_APPLICATION), name="dispatch"
+)
 class ProjectLinkApplication(UpdateView):
     form_class = ProjectLinkApplicationForm
     model = Project

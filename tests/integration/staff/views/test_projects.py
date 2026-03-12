@@ -138,3 +138,52 @@ class TestProjectCreation:
         assert len(slack_messages) == 1
         message, channel = slack_messages[0]
         assert channel == "co-pilot-support"
+
+
+class TestProjectDetail:
+    """Tests of the project detail view."""
+
+    @pytest.mark.parametrize(
+        "user_is_service_administrator",
+        [True, False],
+    )
+    def test_projectdetail_authorized(self, client, user_is_service_administrator):
+        """
+        Test that a user with permission can access the ProjectDetail view.
+
+        Parametrised to test that the Link Application content is only shown
+        to ServiceAdministrators.
+        """
+        roles = (
+            [StaffAreaAdministrator, ServiceAdministrator]
+            if user_is_service_administrator
+            else [StaffAreaAdministrator]
+        )
+        user = UserFactory(roles=roles)
+        project = ProjectFactory()
+
+        client.force_login(user)
+
+        response = client.get(
+            reverse("staff:project-detail", kwargs={"slug": project.slug})
+        )
+        assert response.status_code == 200
+        # This class exists only to help automated testing that the content is as expected.
+        assert "test-project-information-card" in response.text
+        # This class exists only to help automated testing that the content is as expected.
+        # It should only be appear if the user is a ServiceAdministrator.
+        assert (
+            "test-link-application" in response.text
+        ) == user_is_service_administrator
+
+    def test_projectdetail_unauthorized(self, client):
+        """
+        Test that a user without permission cannot access the ProjectDetail view.
+        """
+        project = ProjectFactory()
+
+        response = client.get(
+            reverse("staff:project-detail", kwargs={"slug": project.slug})
+        )
+
+        assert response.status_code == 403
