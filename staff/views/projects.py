@@ -228,7 +228,7 @@ class ProjectLinkApplication(UpdateView):
 
 @method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
 class ProjectList(ListView):
-    queryset = Project.apply_project_number_ordering()
+    queryset = Project.objects.all().order_by_project_identifier()
     paginate_by = 25
     template_name = "staff/project/list.html"
 

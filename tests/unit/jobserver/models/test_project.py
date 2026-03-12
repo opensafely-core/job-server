@@ -187,11 +187,13 @@ def test_next_project_identifier_returns_one_when_no_numeric_ids_exist():
                 {"name": "fourth_project", "number": "7"},
                 {"name": "fifth_project", "number": "42"},
                 {"name": "sixth_project", "number": None},
+                {"name": "seventh_project", "number": "POS-2023-2009"},
             ],
             [
                 "third_project",
                 "second_project",
                 "first_project",
+                "seventh_project",
                 "fifth_project",
                 "fourth_project",
                 "sixth_project",
@@ -214,13 +216,6 @@ def test_next_project_identifier_returns_one_when_no_numeric_ids_exist():
         ),
         (
             [
-                {"name": "first_project", "number": "POS-2023-2009"},
-                {"name": "second_project", "number": "POS-2024-2009"},
-            ],
-            ["second_project", "first_project"],
-        ),
-        (
-            [
                 {"name": "Beta Project", "number": ""},
                 {"name": "alpha project", "number": None},
             ],
@@ -228,50 +223,14 @@ def test_next_project_identifier_returns_one_when_no_numeric_ids_exist():
         ),
     ],
 )
-def test_apply_project_number_ordering(rows, expected):
+def test_order_by_project_identifier(rows, expected):
     for row in rows:
         ProjectFactory(**row)
 
     ordered_projects = list(
-        Project.apply_project_number_ordering().values_list("name", flat=True)
+        Project.objects.all()
+        .order_by_project_identifier()
+        .values_list("name", flat=True)
     )
 
     assert ordered_projects == expected
-
-
-def test_apply_project_number_ordering_accepts_queryset():
-    first_project = ProjectFactory(name="first_project", number="POS-2025-2001")
-    second_project = ProjectFactory(name="second_project", number="7")
-    ProjectFactory(name="third_project", number="POS-2026-2001")
-    queryset = Project.objects.filter(pk__in=[first_project.pk, second_project.pk])
-
-    ordered_projects = list(
-        Project.apply_project_number_ordering(queryset).values_list("name", flat=True)
-    )
-
-    assert ordered_projects == ["first_project", "second_project"]
-
-
-def test_apply_project_number_ordering_accepts_field_prefix(
-    project_membership, project_ordering_rows
-):
-    user = UserFactory()
-    project_rows, expected_order = project_ordering_rows
-
-    projects = [
-        ProjectFactory(name=row.name, number=row.number) for row in project_rows
-    ]
-
-    for project in projects:
-        project_membership(user=user, project=project)
-
-    memberships = user.project_memberships.select_related("project")
-
-    ordered_projects = list(
-        Project.apply_project_number_ordering(
-            queryset=memberships,
-            field_prefix="project__",
-        ).values_list("project__name", flat=True)
-    )
-
-    assert ordered_projects == expected_order

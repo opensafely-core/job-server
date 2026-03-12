@@ -1,7 +1,7 @@
 import structlog
 from django.db import models
-from django.db.models import Case, IntegerField, Q, Value, When
-from django.db.models.functions import Cast, Lower, Substr
+from django.db.models import Case, CharField, F, IntegerField, Q, Value, When
+from django.db.models.functions import Cast, Lower
 from django.urls import reverse
 from django.utils import functional, timezone
 from django.utils.text import slugify
@@ -9,7 +9,34 @@ from furl import furl
 
 
 logger = structlog.get_logger(__name__)
-NUMERIC_IDENTIFIER_REGEX = r"^[0-9]+$"
+
+
+class ProjectQuerySet(models.QuerySet):
+    def order_by_project_identifier(self):
+        """
+        Return projects ordered by project identifier.
+        Ordering rules:
+        1. POS-format identifiers sort first, in reverse lexical order.
+        2. Numeric identifiers sort next, by numeric value descending.
+        3. Blank or null identifiers sort last.
+        4. Project name is used as a case-insensitive tie-breaker.
+        """
+        return self.annotate(
+            pos_format_lex=Case(
+                When(number__startswith="POS-", then=F("number")),
+                default=Value("", output_field=CharField()),
+                output_field=CharField(),
+            ),
+            numeric_value=Case(
+                When(number__regex=r"^[0-9]+$", then=Cast("number", IntegerField())),
+                default=Value(None, output_field=IntegerField()),
+                output_field=IntegerField(),
+            ),
+        ).order_by(
+            "-pos_format_lex",
+            F("numeric_value").desc(nulls_last=True),
+            Lower("name"),
+        )
 
 
 class Project(models.Model):
@@ -73,6 +100,8 @@ class Project(models.Model):
         on_delete=models.PROTECT,
         related_name="projects_updated",
     )
+
+    objects = ProjectQuerySet.as_manager()
 
     class Meta:
         constraints = [
@@ -192,84 +221,3 @@ class Project(models.Model):
             return 1
 
         return max(numeric_values) + 1
-
-    @classmethod
-    def apply_project_number_ordering(cls, queryset=None, field_prefix=""):
-        """
-        Return a queryset ordered by project number in custom order.
-        Ordering rules:
-        1. Alphanumeric identifiers (e.g. POS-2025-2001) first, newest first
-        by year segment, then sequence segment.
-        2. Numeric identifiers next, highest numeric value first.
-        3. Missing identifiers (NULL/blank) last.
-        4. Project name (case-insensitive) as a final tie-breaker, alphabetical order.
-        """
-        qs = cls.objects.all() if queryset is None else queryset
-        number_field = f"{field_prefix}number"
-        name_field = f"{field_prefix}name"
-
-        # Classify each project number into cases to allow ordering:
-        # 0 = POS-style identifier, 1 = numeric identifier, 2 = missing/default.
-        qs = qs.annotate(
-            number_type=Case(
-                When(
-                    **{f"{number_field}__startswith": "POS-"},
-                    then=Value(0),
-                ),
-                When(
-                    **{f"{number_field}__regex": NUMERIC_IDENTIFIER_REGEX},
-                    then=Value(1),
-                ),
-                default=Value(2),
-                output_field=IntegerField(),
-            )
-        )
-
-        # For alphanumeric identifiers(e.g.POS-2025-2001), extract the year segment(2025)
-        # and cast it to integer so we can sort by year numerically.
-        qs = qs.annotate(
-            year=Case(
-                When(
-                    **{f"{number_field}__startswith": "POS-"},
-                    then=Cast(Substr(number_field, 5, 4), IntegerField()),
-                ),
-                default=Value(None, output_field=IntegerField()),
-                output_field=IntegerField(),
-            )
-        )
-
-        # For alphanumeric identifiers(e.g.POS-2025-2001), extract the sequence segment(2001)
-        #  and cast it to integer so we can sort by sequence numerically.
-        qs = qs.annotate(
-            sequence=Case(
-                When(
-                    **{f"{number_field}__startswith": "POS-"},
-                    then=Cast(Substr(number_field, 10), IntegerField()),
-                ),
-                default=Value(None, output_field=IntegerField()),
-                output_field=IntegerField(),
-            )
-        )
-
-        # For numeric identifiers(e.g "123"), cast the number to integer so we can sort
-        # numerically instead of lexically.
-        qs = qs.annotate(
-            numeric_value=Case(
-                When(
-                    **{f"{number_field}__regex": NUMERIC_IDENTIFIER_REGEX},
-                    then=Cast(number_field, IntegerField()),
-                ),
-                default=Value(None, output_field=IntegerField()),
-                output_field=IntegerField(),
-            )
-        )
-
-        qs = qs.order_by(
-            "number_type",
-            "-year",
-            "-sequence",
-            "-numeric_value",
-            Lower(name_field),
-        )
-
-        return qs

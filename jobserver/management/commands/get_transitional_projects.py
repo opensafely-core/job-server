@@ -33,10 +33,12 @@ class Command(BaseCommand):
         # value to a date so even though we're passing in a datetime the ORM
         # does the right thing for us and passes down just the date portion of
         # six_months_ago so we can get 6mo ago for all of the target day.
-        projects = Project.apply_project_number_ordering(
+        projects = (
             Project.objects.filter(
                 workspaces__job_requests__jobs__started_at__date__gte=six_months_ago
-            ).distinct()
+            )
+            .distinct()
+            .order_by_project_identifier()
         )
 
         data = []

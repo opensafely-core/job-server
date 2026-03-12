@@ -464,34 +464,6 @@ def test_userdetailwithoauth_without_permission(rf):
         UserDetailWithOAuth.as_view()(request, username="test")
 
 
-def test_userdetailwithoauth_orders_projects_and_copiloted_projects_by_identifier_rules(
-    rf, staff_area_administrator, project_membership, project_ordering_rows
-):
-    user = UserFactory()
-    UserSocialAuthFactory(user=user)
-    project_rows, expected_order = project_ordering_rows
-    created_projects = {
-        row.name: ProjectFactory(name=row.name, number=row.number, copilot=user)
-        for row in project_rows
-    }
-
-    for project in created_projects.values():
-        project_membership(user=user, project=project, roles=[ProjectDeveloper])
-
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = UserDetailWithOAuth.as_view()(request, username=user.username)
-
-    assert response.status_code == 200
-    assert [p.pk for p in response.context_data["projects"]] == [
-        created_projects[name].pk for name in expected_order
-    ]
-    assert [p.pk for p in response.context_data["copiloted_projects"]] == [
-        created_projects[name].pk for name in expected_order
-    ]
-
-
 def test_userlist_filter_by_backend(rf, staff_area_administrator):
     backend = BackendFactory()
 

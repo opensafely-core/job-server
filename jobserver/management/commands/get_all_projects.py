@@ -10,7 +10,7 @@ from jobserver.models import Job, Project
 class Command(BaseCommand):
     def handle(self, *args, **options):
         data = []
-        for project in Project.apply_project_number_ordering():
+        for project in Project.objects.all().order_by_project_identifier():
             name = project.name
             number = project.number
             org = project.org.name if project.org else ""

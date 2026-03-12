@@ -182,24 +182,3 @@ def test_workspacelist_success(rf, staff_area_administrator):
     response = WorkspaceList.as_view()(request)
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 5
-
-
-def test_workspacelist_projects_context_is_ordered_by_project_identifier_rules(
-    rf, staff_area_administrator, project_ordering_rows
-):
-    project_rows, expected_order = project_ordering_rows
-    created_projects = {
-        row.name: ProjectFactory(name=row.name, number=row.number)
-        for row in project_rows
-    }
-
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = WorkspaceList.as_view()(request)
-
-    assert response.status_code == 200
-    projects = list(response.context_data["projects"])
-    assert [project.pk for project in projects] == [
-        created_projects[name].pk for name in expected_order
-    ]

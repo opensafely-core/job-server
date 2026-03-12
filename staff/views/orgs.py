@@ -10,7 +10,7 @@ from furl import furl
 
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.permissions import Permission
-from jobserver.models import Org, OrgMembership, Project, User
+from jobserver.models import Org, OrgMembership, User
 from jobserver.utils import is_safe_path
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
@@ -120,9 +120,7 @@ class OrgDetail(FormView):
             "github_orgs": sorted(self.object.github_orgs),
             "members": self.object.members.all(),
             "org": self.object,
-            "projects": Project.apply_project_number_ordering(
-                self.object.projects.all()
-            ),
+            "projects": self.object.projects.all().order_by_project_identifier(),
             "redirects": self.object.redirects.order_by("-created_at"),
         }
 

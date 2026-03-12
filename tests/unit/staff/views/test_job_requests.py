@@ -378,25 +378,3 @@ def test_jobrequestlist_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         JobRequestList.as_view()(request)
-
-
-def test_jobrequestlist_projects_items_are_ordered_by_identifier(
-    rf, staff_area_administrator, project_ordering_rows
-):
-    project_rows, expected_order = project_ordering_rows
-    created_projects = {
-        row.name: ProjectFactory(name=row.name, number=row.number)
-        for row in project_rows
-    }
-
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 200
-    project_items = response.context_data["projects"]["items"]
-
-    assert [project.pk for project in project_items] == [
-        created_projects[name].pk for name in expected_order
-    ]

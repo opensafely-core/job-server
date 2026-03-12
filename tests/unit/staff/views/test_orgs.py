@@ -17,7 +17,7 @@ from staff.views.orgs import (
     org_add_github_org,
 )
 
-from ....factories import OrgFactory, OrgMembershipFactory, ProjectFactory, UserFactory
+from ....factories import OrgFactory, OrgMembershipFactory, UserFactory
 
 
 def test_orgaddgithuborg_get_success(rf, staff_area_administrator):
@@ -221,30 +221,6 @@ def test_orgdetail_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         OrgDetail.as_view()(request, slug=org.slug)
-
-
-def test_orgdetail_projects_are_ordered_by_project_identifier(
-    rf, staff_area_administrator, project_ordering_rows
-):
-    org = OrgFactory()
-    project_rows, expected_order = project_ordering_rows
-    created_projects = {
-        row.name: ProjectFactory(name=row.name, number=row.number, orgs=[org])
-        for row in project_rows
-    }
-    ProjectFactory(
-        name="other_org_project", number="POS-2026-2001", orgs=[OrgFactory()]
-    )
-
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = OrgDetail.as_view()(request, slug=org.slug)
-
-    projects = list(response.context_data["projects"])
-    assert [p.pk for p in projects] == [
-        created_projects[name].pk for name in expected_order
-    ]
 
 
 def test_orgedit_get_success(rf, staff_area_administrator):

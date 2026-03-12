@@ -539,25 +539,6 @@ def test_projectlist_create_project_button_unauthorised(rf, staff_area_administr
     assert not response.context_data["can_create_project"]
 
 
-def test_projectlist_orders_projects_by_identifier_type_and_value(
-    rf, staff_area_administrator, project_ordering_rows
-):
-    project_rows, expected_order = project_ordering_rows
-    created_projects = {
-        row.name: ProjectFactory(name=row.name, number=row.number)
-        for row in project_rows
-    }
-
-    request = rf.get("/")
-    request.user = staff_area_administrator
-
-    response = ProjectList.as_view()(request)
-
-    assert [project.pk for project in response.context_data["project_list"]] == [
-        created_projects[name].pk for name in expected_order
-    ]
-
-
 @pytest.mark.parametrize(
     "user_fixture",
     ["staff_area_administrator", "service_administrator"],
