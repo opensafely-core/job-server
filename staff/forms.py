@@ -176,11 +176,6 @@ class ProjectEditForm(forms.ModelForm):
         if number in (None, ""):
             return number
 
-        if not NUMBER_REGEX.fullmatch(number):
-            raise forms.ValidationError(
-                "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
-            )
-
         # We have a constraint ensuring Project.number is unique (ignoring
         # nulls).  Unfortunately that fires when we save a model, giving us an
         # IntegrityError.  We have to handle this in the view if we're using a

@@ -264,7 +264,7 @@ def test_projecteditform_rejects_leading_zero_numeric_project_number():
     assert not form.is_valid()
     assert form.errors == {
         "number": [
-            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
         ]
     }
 
@@ -301,7 +301,7 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
     assert not form.is_valid()
     assert form.errors == {
         "number": [
-            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
         ]
     }
 

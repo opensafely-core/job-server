@@ -1,6 +1,7 @@
 import re
 
 import structlog
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Case, CharField, F, IntegerField, Q, Value, When
 from django.db.models.functions import Cast, Lower
@@ -12,7 +13,8 @@ from furl import furl
 
 logger = structlog.get_logger(__name__)
 
-# Patterns for regex matching for different possible kinds of Project.number.
+# Patterns, compiled regex, and validators for regex matching for different
+# possible kinds of Project.number.
 
 # Pattern for projects with an application managed in Job Server.
 # String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
@@ -28,6 +30,11 @@ NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
 NUMBER_REGEX = re.compile(NUMBER_PATTERN)
 # Either format, wrapping each with ^$ anchors to require full match.
 NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
+NUMBER_REGEX_FULLMATCH = re.compile(NUMBER_PATTERN_FULLMATCH)
+NUMBER_REGEX_VALIDATOR = RegexValidator(
+    NUMBER_REGEX_FULLMATCH,
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001).",
+)
 
 
 class ProjectQuerySet(models.QuerySet):
@@ -97,7 +104,13 @@ class Project(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
-    number = models.CharField(max_length=20, null=True, blank=True)
+    number = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        validators=[NUMBER_REGEX_VALIDATOR],
+        verbose_name="Project ID",
+    )
 
     copilot_support_ends_at = models.DateTimeField(null=True)
 
