@@ -64,7 +64,7 @@ dependencies = [
 
     # A specific version of the OpenSAFELY Pipeline for health data analysis.
     # Search 'pipeline' in jobserver/
-    "opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.01.26.163426.zip",
+    "opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.03.12.140752.zip",
 
     # OpenTelemetry exporter for sending traces/metrics via OTLP over HTTP.
     "opentelemetry-exporter-otlp-proto-http",
@@ -189,6 +189,9 @@ filterwarnings = [
     # See the FORMS_URLFIELD_ASSUME_HTTPS setting in jobserver/settings.py
     # for more information.
     "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.:django.utils.deprecation.RemovedInDjango60Warning:",
+    # Ignore project.yaml end-user warnings from the opensafely-pipeline library
+    "ignore:ProjectWarning:UserWarning:pipeline.*:",
+    "ignore:ProjectWarning:UserWarning:tests.*:",
 ]
 markers = [
   "slow_test: mark test as being slow running",

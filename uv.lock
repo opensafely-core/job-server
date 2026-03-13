@@ -828,7 +828,7 @@ requires-dist = [
     { name = "gunicorn" },
     { name = "markdown" },
     { name = "nh3" },
-    { name = "opensafely-pipeline", url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.01.26.163426.zip" },
+    { name = "opensafely-pipeline", url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.03.12.140752.zip" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "opentelemetry-instrumentation-django" },
     { name = "opentelemetry-instrumentation-psycopg2" },
@@ -933,12 +933,12 @@ wheels = [
 
 [[package]]
 name = "opensafely-pipeline"
-version = "2026.1.26.163426"
-source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.01.26.163426.zip" }
+version = "2026.3.12.140752"
+source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.03.12.140752.zip" }
 dependencies = [
     { name = "ruyaml" },
 ]
-sdist = { hash = "sha256:6414e6890ac9e982b03bade3daca8290221382dc57319f6448a1ea6bf1889a1a" }
+sdist = { hash = "sha256:e6e45b5b17f884af263a4c01ead72347d0e63899a0eb1811d7c3d0d5e802401b" }
 
 [package.metadata]
 requires-dist = [
