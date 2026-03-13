@@ -1,10 +1,7 @@
-from unittest.mock import Mock, patch
-
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.urls import reverse
 
 from applications.models import Application
 from jobserver.actions import project_members
@@ -668,36 +665,9 @@ def test_projectmembershipremove_unknown_membership(request, rf, user_fixture):
         ProjectMembershipRemove.as_view()(req, slug=project.slug, pk=0)
 
 
-def test_projectcreate_authorised(rf):
-    request = rf.get("/")
-    request.user = UserFactory(roles=[ServiceAdministrator])
-
-    response = ProjectCreate.as_view()(request)
-
-    assert response.status_code == 200
-
-
-def test_projectcreate_with_known_org_slug(rf):
-    org = OrgFactory()
-    request = rf.get(f"/?org-slug={str(org.slug)}")
-    request.user = UserFactory(roles=[ServiceAdministrator])
-
-    response = ProjectCreate.as_view()(request)
-
-    assert response.status_code == 200
-    assert "orgs" in response.context_data["form"].initial
-
-
-def test_projectcreate_with_unknown_org_slug(rf):
-    request = rf.get("/?org-slug=unknown-org")
-    request.user = UserFactory(roles=[ServiceAdministrator])
-
-    response = ProjectCreate.as_view()(request)
-
-    assert response.status_code == 200
-    assert "orgs" not in response.context_data["form"].initial
-
-
+# The amount of custom code in the ProjectCreate and ProjectCreated
+# views is minimal. The rest of the behaviour in the project creation
+# workflow is covered by integration tests and form unit tests.
 def test_projectcreate_unauthorised(rf, staff_area_administrator):
     request = rf.get("/")
     request.user = staff_area_administrator
@@ -706,64 +676,21 @@ def test_projectcreate_unauthorised(rf, staff_area_administrator):
         ProjectCreate.as_view()(request)
 
 
-@patch("staff.views.projects.projects.add")
-def test_projectcreate_post_success(mock_add, rf, slack_messages):
-    """
-    Test a successful POST to the ProjectCreate view.
-
-    When the form is populated with valid data and submitted then:
-        * The user is redirected to the ProjectCreated view
-        * The form is in the response context data
-        * mock_add is called once (mocking saving of new project instance to db).
-    """
-    user = UserFactory(roles=[ServiceAdministrator])
-    copilot = UserFactory()
-    org = OrgFactory()
-
-    data = {
-        "name": "test1",
-        "number": "1234567832",
-        "orgs": [str(org.pk)],
-        "copilot": str(copilot.pk),
-    }
-
-    fake_project = Mock(slug="test-slug")
-    mock_add.return_value = fake_project
-
-    request = rf.post("/", data)
-    request.user = user
-
-    response = ProjectCreate.as_view()(request)
-
-    mock_add.assert_called_once()
-    called_kwargs = mock_add.call_args.kwargs
-
-    assert called_kwargs["by"] == user
-    assert called_kwargs["name"] == data["name"]
-    assert called_kwargs["number"] == data["number"]
-    assert called_kwargs["orgs"] == [org]
-    assert called_kwargs["copilot"] == copilot
-
-    assert response.status_code == 302
-    assert response.url == reverse(
-        "staff:project-created",
-        kwargs={"slug": fake_project.slug},
-    )
-
-
-def test_projectcreated_authorised(rf):
-    project = ProjectFactory()
-    request = rf.get(reverse("staff:project-created", kwargs={"slug": project.slug}))
-    request.user = UserFactory(roles=[ServiceAdministrator])
-
-    response = ProjectCreated.as_view()(request, slug=project.slug)
-
-    assert response.status_code == 200
-
-
 def test_projectcreated_unauthorised(rf, staff_area_administrator):
     request = rf.get("/")
     request.user = staff_area_administrator
 
     with pytest.raises(PermissionDenied):
         ProjectCreated.as_view()(request)
+
+
+def test_get_initial_with_nonexistent_org(rf, service_administrator):
+    request = rf.get("/staff/projects/create/?org-slug=nonexistent-org")
+    request.user = service_administrator
+
+    view = ProjectCreate()
+    view.request = request
+
+    initial = view.get_initial()
+
+    assert "orgs" not in initial or initial.get("orgs") in ([], None)

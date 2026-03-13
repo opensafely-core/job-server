@@ -14,6 +14,7 @@ from ...factories import (
     ApplicationFactory,
     BackendFactory,
     OrgFactory,
+    ProjectDataFactory,
     ProjectFactory,
     UserFactory,
 )
@@ -203,20 +204,69 @@ def test_projectcreateform_success():
         * The form is bound with copilot, orgs, name, and number data input by the user.
         * Validation succeeds.
     """
-    copilot = UserFactory()
-    org = OrgFactory()
-
-    data = {
-        "name": "test1",
-        "number": 1234567832,
-        "orgs": [str(org.pk)],
-        "copilot": str(copilot.pk),
-    }
+    data = ProjectDataFactory()
 
     form = ProjectCreateForm(data=data)
 
     assert form.is_bound
     assert form.is_valid(), form.errors
+
+
+@pytest.mark.parametrize(
+    "invalid_data_type,data,field",
+    [
+        ("duplicate_name", {}, "name"),
+        ("unknown_org", {"orgs": ["99999"]}, "orgs"),
+        ("unknown_copilot", {"copilot": "99999"}, "copilot"),
+    ],
+)
+def test_projectcreateform_invalid_data(invalid_data_type, data, field):
+    """
+    Test invalid data submission to ProjectCreateForm
+
+    Parametrised invalid data: duplicate project name, an unknown organisation, and an unknown copilot user.
+
+    When invalid data are submitted:
+    - is_valid() fails
+    - we get a form error for the expected field
+    """
+
+    existing_project = ProjectFactory()
+
+    invalid_data = ProjectDataFactory(**data)
+
+    if invalid_data_type == "duplicate_name":
+        invalid_data["name"] = existing_project.name
+
+    form = ProjectCreateForm(data=invalid_data)
+    assert not form.is_valid()
+    assert field in form.errors
+
+
+@pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
+@pytest.mark.parametrize("missing_type", ["empty", "omitted"])
+def test_projectcreateform_without_required_data(field, missing_type):
+    """
+    Test submission of empty and omitted values for each required field in the ProjectCreateForm.
+
+    When empty or omitted values are submitted:
+    - is_valid() fails
+    - we get a form error for the expected field
+    """
+    data = ProjectDataFactory.build()
+
+    if missing_type == "empty":
+        if field == "orgs":
+            data[field] = []
+        else:
+            data[field] = ""
+    else:
+        data.pop(field, None)
+
+    form = ProjectCreateForm(data=data)
+
+    assert not form.is_valid()
+    assert form.errors == {field: ["This field is required."]}
 
 
 def test_projecteditform_number_is_not_required():
