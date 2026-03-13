@@ -145,25 +145,8 @@ def test_applicationapproveform_with_invalid_project_number():
     }
 
 
-def test_applicationapproveform_normalises_leading_zero_numeric_project_number():
+def test_applicationapproveform_rejects_leading_zero_numeric_project_number():
     org = OrgFactory()
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "test",
-            "project_number": "00126",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert form.is_valid(), form.errors
-    assert form.cleaned_data["project_number"] == "126"
-
-
-def test_applicationapproveform_rejects_duplicate_number_after_normalisation():
-    org = OrgFactory()
-    ProjectFactory(number="126")
 
     form = ApplicationApproveForm(
         data={
@@ -176,7 +159,9 @@ def test_applicationapproveform_rejects_duplicate_number_after_normalisation():
 
     assert not form.is_valid()
     assert form.errors == {
-        "project_number": ['Project with number "126" already exists.']
+        "project_number": [
+            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+        ]
     }
 
 
@@ -263,10 +248,9 @@ def test_projecteditform_with_duplicate_number():
     assert form.errors == {"number": ["Project number must be unique"]}
 
 
-def test_projecteditform_rejects_duplicate_number_after_normalisation():
+def test_projecteditform_rejects_leading_zero_numeric_project_number():
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
-    ProjectFactory(number="42")
 
     data = {
         "name": project.name,
@@ -278,8 +262,11 @@ def test_projecteditform_rejects_duplicate_number_after_normalisation():
     form = ProjectEditForm(data=data, instance=project)
 
     assert not form.is_valid()
-
-    assert form.errors == {"number": ["Project number must be unique"]}
+    assert form.errors == {
+        "number": [
+            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
+        ]
+    }
 
 
 def test_projecteditform_with_existing_number():
@@ -314,7 +301,7 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
     assert not form.is_valid()
     assert form.errors == {
         "number": [
-            "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
         ]
     }
 
