@@ -307,6 +307,30 @@ def test_userdetailwithemail_without_permission(rf, staff_area_administrator):
         UserDetailWithEmail.as_view()(request, username="test")
 
 
+def test_userdetailwithemail_orders_projects_by_identifier_rules(
+    rf, staff_area_administrator, project_membership, project_ordering_rows
+):
+    user = UserFactory()
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number)
+        for row in project_rows
+    }
+
+    for project in created_projects.values():
+        project_membership(user=user, project=project, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = UserDetailWithEmail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert [p["staff_url"] for p in response.context_data["projects"]] == [
+        created_projects[name].get_staff_url() for name in expected_order
+    ]
+
+
 def test_userdetailwithoauth_get_success(
     rf, staff_area_administrator, project_membership
 ):
@@ -777,6 +801,30 @@ def test_userrolelist_without_permission(rf):
 
     with pytest.raises(PermissionDenied):
         UserRoleList.as_view()(request, username=user.username)
+
+
+def test_userrolelist_orders_project_memberships_by_identifier_rules(
+    rf, staff_area_administrator, project_membership, project_ordering_rows
+):
+    user = UserFactory(roles=[ProjectCollaborator])
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number)
+        for row in project_rows
+    }
+
+    for project in created_projects.values():
+        project_membership(user=user, project=project, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = staff_area_administrator
+
+    response = UserRoleList.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert [m.project_id for m in response.context_data["projects"]] == [
+        created_projects[name].pk for name in expected_order
+    ]
 
 
 def test_usersetorgs_get_success(rf, staff_area_administrator):

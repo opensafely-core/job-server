@@ -516,3 +516,36 @@ def clear_cache():
     """Fixture to clear cache after test runs to prevent cache pollution."""
     yield
     cache.clear()
+
+
+@dataclass(frozen=True)
+class ProjectOrderingRow:
+    """Project test data used to verify shared project ordering behaviour."""
+
+    name: str
+    number: str | None
+
+
+@pytest.fixture
+def project_ordering_rows():
+    rows = [
+        ProjectOrderingRow("First Project", "POS-2024-2009"),
+        ProjectOrderingRow("Second Project", "POS-2025-2001"),
+        ProjectOrderingRow("Third Project", "POS-2025-2003"),
+        ProjectOrderingRow("Fourth Project", "7"),
+        ProjectOrderingRow("Fifth Project", "42"),
+        ProjectOrderingRow("Missing Number A", ""),
+        ProjectOrderingRow("Missing Number B", None),
+    ]
+
+    expected_order = [
+        "Third Project",
+        "Second Project",
+        "First Project",
+        "Fifth Project",
+        "Fourth Project",
+        "Missing Number A",
+        "Missing Number B",
+    ]
+
+    return rows, expected_order

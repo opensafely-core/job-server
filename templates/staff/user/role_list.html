@@ -81,7 +81,7 @@
       {% #list_group %}
         {% for membership in projects %}
           {% #list_group_item href=membership.get_staff_edit_url|add:"?next="|add:request.path %}
-            {{ membership.project.name }}
+            {{ membership.project.title }}
             {% for role in membership.roles %}
               <span class="block text-sm text-slate-700">
                 {{ role.display_name }}

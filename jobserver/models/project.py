@@ -1,6 +1,7 @@
 import structlog
 from django.db import models
-from django.db.models import Q
+from django.db.models import Case, CharField, F, IntegerField, Q, Value, When
+from django.db.models.functions import Cast, Lower
 from django.urls import reverse
 from django.utils import functional, timezone
 from django.utils.text import slugify
@@ -8,6 +9,34 @@ from furl import furl
 
 
 logger = structlog.get_logger(__name__)
+
+
+class ProjectQuerySet(models.QuerySet):
+    def order_by_project_identifier(self):
+        """
+        Return projects ordered by project identifier.
+        Ordering rules:
+        1. POS-format identifiers sort first, in reverse lexical order.
+        2. Numeric identifiers sort next, by numeric value descending.
+        3. Blank or null identifiers sort last.
+        4. Project name is used as a case-insensitive tie-breaker.
+        """
+        return self.annotate(
+            pos_format_lex=Case(
+                When(number__startswith="POS-", then=F("number")),
+                default=Value("", output_field=CharField()),
+                output_field=CharField(),
+            ),
+            numeric_value=Case(
+                When(number__regex=r"^[0-9]+$", then=Cast("number", IntegerField())),
+                default=Value(None, output_field=IntegerField()),
+                output_field=IntegerField(),
+            ),
+        ).order_by(
+            "-pos_format_lex",
+            F("numeric_value").desc(nulls_last=True),
+            Lower("name"),
+        )
 
 
 class Project(models.Model):
@@ -71,6 +100,8 @@ class Project(models.Model):
         on_delete=models.PROTECT,
         related_name="projects_updated",
     )
+
+    objects = ProjectQuerySet.as_manager()
 
     class Meta:
         constraints = [

@@ -1,7 +1,7 @@
 import structlog
 from django.core.exceptions import FieldError
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q, Sum
+from django.db.models import Exists, OuterRef, Prefetch, Q, Sum
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -24,6 +24,7 @@ from jobserver.models import (
     Project,
     User,
 )
+from jobserver.models.project_membership import ProjectMembership
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserForm, UserOrgsForm
@@ -125,14 +126,23 @@ class UserDetailWithEmail(UpdateView):
         ]
         projects = [
             {
-                "name": m.project.title,
-                "roles": sorted(r.display_name for r in m.roles),
-                "staff_url": m.project.get_staff_url(),
+                "name": project.title,
+                "roles": sorted(
+                    role.display_name for role in project.user_memberships[0].roles
+                ),
+                "staff_url": project.get_staff_url(),
             }
-            for m in self.object.project_memberships.order_by(
-                "project__number", Lower("project__name")
+            for project in Project.objects.filter(memberships__user=self.object)
+            .order_by_project_identifier()
+            .prefetch_related(
+                Prefetch(
+                    "memberships",
+                    queryset=ProjectMembership.objects.filter(user=self.object),
+                    to_attr="user_memberships",
+                )
             )
         ]
+
         return super().get_context_data(**kwargs) | {
             "orgs": orgs,
             "projects": projects,
@@ -165,14 +175,15 @@ class UserDetailWithOAuth(UpdateView):
 
     def get_context_data(self, **kwargs):
         applications = self.object.applications.order_by("-created_at")
-        copiloted_projects = self.object.copiloted_projects.order_by(
-            "number", Lower("name")
+        copiloted_projects = (
+            self.object.copiloted_projects.all().order_by_project_identifier()
         )
+
         jobs = Job.objects.filter(job_request__created_by=self.object).order_by(
             "-created_at"
         )
         orgs = self.object.orgs.order_by(Lower("name"))
-        projects = self.object.projects.order_by("number", Lower("name"))
+        projects = self.object.projects.all().order_by_project_identifier()
 
         return super().get_context_data(**kwargs) | {
             "applications": applications,
@@ -296,12 +307,29 @@ class UserRoleList(FormView):
         return redirect(self.user.get_staff_roles_url())
 
     def get_context_data(self, **kwargs):
-        project_memberships_with_roles = self.user.project_memberships.exclude(
-            roles=[]
-        ).order_by("project__number", Lower("project__name"))
+        project_memberships_with_roles = list(
+            self.user.project_memberships.exclude(roles=[]).select_related("project")
+        )
+
+        # Build a lookup dictionary keyed by project_id.
+        memberships_by_project_id = {
+            membership.project_id: membership
+            for membership in project_memberships_with_roles
+        }
+
+        # Order the projects by their identifier
+        ordered_projects = (
+            Project.objects.filter(pk__in=memberships_by_project_id.keys())
+            .all()
+            .order_by_project_identifier()
+        )
+
+        ordered_project_memberships = [
+            memberships_by_project_id[project.pk] for project in ordered_projects
+        ]
 
         return super().get_context_data(**kwargs) | {
-            "projects": project_memberships_with_roles,
+            "projects": ordered_project_memberships,
             "user": self.user,
         }
 

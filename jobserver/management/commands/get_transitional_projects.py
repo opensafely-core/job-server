@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 workspaces__job_requests__jobs__started_at__date__gte=six_months_ago
             )
             .distinct()
-            .order_by("number")
+            .order_by_project_identifier()
         )
 
         data = []
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 .first()
                 .started_at.isoformat()
             )
-            org = project.org.name
+            org = project.org.name if project.org else ""
 
             if number:
                 url = f"https://www.opensafely.org/approved-projects#project-{number}"

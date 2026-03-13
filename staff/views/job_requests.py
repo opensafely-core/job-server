@@ -52,7 +52,7 @@ class JobRequestList(ListView):
 
         projects = {
             "is_active": "project" in self.request.GET,
-            "items": list(Project.objects.order_by("number", Lower("name"))),
+            "items": list(Project.objects.all().order_by_project_identifier()),
             "selected": self.request.GET.get("project"),
         }
 

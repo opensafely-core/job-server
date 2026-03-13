@@ -8,6 +8,7 @@ from staff.forms import (
     ProjectEditForm,
     ProjectLinkApplicationForm,
     UserForm,
+    WorkspaceEditForm,
 )
 
 from ...factories import (
@@ -432,3 +433,21 @@ def test_userform_with_unknown_backend():
             "Select a valid choice. unknown is not one of the available choices."
         ]
     }
+
+
+def test_workspaceeditform_projects_are_ordered_by_project_number(
+    project_ordering_rows,
+):
+    project_rows, expected_order = project_ordering_rows
+    created_projects = {
+        row.name: ProjectFactory(name=row.name, number=row.number)
+        for row in project_rows
+    }
+
+    form = WorkspaceEditForm()
+
+    ordered_project_ids = list(
+        form.fields["project"].queryset.values_list("pk", flat=True)
+    )
+
+    assert ordered_project_ids == [created_projects[name].pk for name in expected_order]

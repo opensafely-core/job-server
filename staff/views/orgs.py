@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -121,7 +120,7 @@ class OrgDetail(FormView):
             "github_orgs": sorted(self.object.github_orgs),
             "members": self.object.members.all(),
             "org": self.object,
-            "projects": self.object.projects.order_by("number", Lower("name")),
+            "projects": self.object.projects.all().order_by_project_identifier(),
             "redirects": self.object.redirects.order_by("-created_at"),
         }
 
