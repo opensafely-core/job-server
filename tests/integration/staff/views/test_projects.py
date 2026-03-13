@@ -54,8 +54,8 @@ class TestProjectCreation:
     def test_projectcreate_selects_org_from_url_when_multiple_orgs_exist(self, client):
         user = UserFactory(roles=[ServiceAdministrator])
         bennett_org = OrgFactory(slug="bennett-institute")
-        oxford_org = OrgFactory(slug="university-of-oxford")
-        phc_org = OrgFactory(slug="phc-university-of-oxford")
+        OrgFactory(slug="university-of-oxford")
+        OrgFactory(slug="phc-university-of-oxford")
 
         client.force_login(user)
 
@@ -64,16 +64,8 @@ class TestProjectCreation:
         )
 
         assert response.status_code == 200
-
-        selected_values = [
-            str(option.data["value"])
-            for option in response.context_data["form"]["orgs"].subwidgets
-            if option.data.get("selected", False)
-        ]
-
-        assert selected_values == [str(bennett_org.pk)]
-        assert str(oxford_org.pk) not in selected_values
-        assert str(phc_org.pk) not in selected_values
+        selected_orgs = response.context_data["form"]["orgs"].value()
+        assert selected_orgs == [bennett_org.pk]
 
     def test_projectcreated_authorized(self, client):
         """

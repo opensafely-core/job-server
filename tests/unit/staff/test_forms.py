@@ -210,7 +210,7 @@ def test_projectcreateform_success():
     data = {
         "name": "test1",
         "number": 1234567832,
-        "orgs": [str(org.pk)],
+        "orgs": str(org.pk),
         "copilot": str(copilot.pk),
     }
 
