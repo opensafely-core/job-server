@@ -14,9 +14,9 @@
 # Historically (prior to Non-COVID opening), most table permissions were governed by IG, and can be found in the project spreadsheet:
 # https://docs.google.com/spreadsheets/d/1odgWEwFrkmCr3-7leE2amwVA3b55UCOzbXQOiNgyb1w/edit
 #
-# However, appointments and wl_* (waiting_list) table permissions are restricted for non_IG reasons, in that
+# However, appointments and wl_* (waiting_list) table permissions are restricted for non-IG reasons, in that
 # their data need handling with due attention. Appointments is access managed by Alex, and
-# waiting_list table access is TBC.
+# waiting_list table access is TBC. If they have approved access to those datasets, that permission can be added to that project in this file without requesting permission from the OS service team.
 
 
 PROJECTS_WITH_PERMISSION = {
