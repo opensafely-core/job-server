@@ -126,11 +126,15 @@ class ProjectCreateForm(forms.ModelForm):
             "orgs",
         ]
         model = Project
+        field_classes = {
+            # orgs is a ManyToManyField, but we only want to allow one to be selected.
+            # Override the default field ModelForm gives (ModelMultipleChoiceField).
+            "orgs": forms.models.ModelChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["copilot"].label = "Project Co-pilot"
         self.fields[
             "copilot"
@@ -138,6 +142,7 @@ class ProjectCreateForm(forms.ModelForm):
             "Ask the BI Co-pilot Lead to find out who is Co-piloting this new project."
         )
 
+        self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["orgs"].label = "Link project to an organisation"
         self.fields[
             "orgs"

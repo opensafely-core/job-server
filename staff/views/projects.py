@@ -67,7 +67,7 @@ class ProjectCreate(CreateView):
             by=self.request.user,
             name=data["name"],
             number=data["number"],
-            orgs=list(data.get("orgs", [])),
+            orgs=[data["orgs"]],
             copilot=data.get("copilot"),
         )
         return redirect(reverse("staff:project-created", kwargs={"slug": project.slug}))
