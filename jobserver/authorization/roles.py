@@ -6,7 +6,9 @@ class StaffAreaAdministrator:
     description = """Access the Staff Area.
     View and edit applications, backends, organisations, project, repos, users, and workspaces.
     View dashboards.
-    See Staff Area Administrator Log for the list of individuals who are approved for this role."""
+    Tech team members must be listed as a Platform Developer in the Developer
+    Permissions Log to have this role.
+    Others must be on the the Staff Area Administrator Log."""
     models = [
         "jobserver.models.user.User",
     ]
@@ -23,6 +25,7 @@ class StaffAreaAdministrator:
 class TechSupport:
     display_name = "Tech Support"
     description = """Access pages required for the Tech team to provide technical suppport.
+    One must be listed as a Platform Developer in the Developer Permissions Log to have this role.
     Tech supporters also require the Staff Area Administrator role.
     Assign users to projects and project roles."""
     models = [
