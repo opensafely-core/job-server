@@ -2,21 +2,27 @@
 #   IMPORTANT NOTE  *
 # *******************
 #
-# This file lists project numbers for projects permitted to access restricted (non-core) datasets.
+# This file lists project numbers for projects permitted to access restricted
+# (non-core) datasets.
 #
-# Permission must be requested from the OS service team in order to change the file
-# TODO: Document the process required, when confirmed.
+# Permission must be requested from the OS service team in order to change the
+# file TODO: Document the process required, when confirmed.
 #
-# Note also that this file is linked to in the documentation. If you move or restructure
-# this file you should ensure the documentation is updated appropriately.
+# Note also that this file is linked to in the documentation. If you move or
+# restructure this file you should ensure the documentation is updated
+# appropriately.
 # https://github.com/opensafely/documentation/blob/b070dd45d109314fa1bf119237937b9cadfc79df/docs/data-sources/index.md
 #
-# Historically (prior to Non-COVID opening), most table permissions were governed by IG, and can be found in the project spreadsheet:
+# Historically (prior to Non-COVID opening), most table permissions were
+# governed by IG, and can be found in the project spreadsheet:
 # https://docs.google.com/spreadsheets/d/1odgWEwFrkmCr3-7leE2amwVA3b55UCOzbXQOiNgyb1w/edit
 #
-# However, appointments and wl_* (waiting_list) table permissions are restricted for non_IG reasons, in that
-# their data need handling with due attention. Appointments is access managed by Alex, and
-# waiting_list table access is TBC.
+# However, appointments and wl_* (waiting_list) table permissions are
+# restricted for non-IG reasons, in that their data need handling with due
+# attention. Appointments is access managed by Alex, and waiting_list table
+# access is TBC. If they have approved access to those datasets, that
+# permission can be added to that project in this file without requesting
+# permission from the OS service team.
 
 
 PROJECTS_WITH_PERMISSION = {
@@ -80,6 +86,8 @@ PROJECTS_WITH_PERMISSION = {
     ],
     # https://jobs.opensafely.org/identify-risk-factors-associated-with-disparities-for-resistant-bloodstream-infections-before-during-and-after-the-global-covid-19-pandemic-a-national-case-control-and-cohort-study/
     "198": ["sgss_covid_all_tests"],
+    # https://jobs.opensafely.org/a-longitudinal-evaluation-of-pharmacy-consultation-services-including-the-pharmacy-first-programme-on-healthcare-utilisation-over-the-period-2017-2026/
+    "202": ["appointments"],
     # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
     "209": ["sgss_covid_all_tests"],
 }
