@@ -204,11 +204,20 @@ def test_projectauditlog_unknown_project(rf, staff_area_administrator):
         ProjectAuditLog.as_view()(request, slug="")
 
 
-def test_projectdetail_success(rf, staff_area_administrator):
+@pytest.mark.parametrize(
+    "user_is_service_administrator",
+    [True, False],
+)
+def test_projectdetail_success(rf, user_is_service_administrator):
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = staff_area_administrator
+    roles = (
+        [StaffAreaAdministrator, ServiceAdministrator]
+        if user_is_service_administrator
+        else [StaffAreaAdministrator]
+    )
+    request.user = UserFactory(roles=roles)
 
     response = ProjectDetail.as_view()(request, slug=project.slug)
 
@@ -217,6 +226,11 @@ def test_projectdetail_success(rf, staff_area_administrator):
     expected = set_from_qs(project.workspaces.all())
     output = set_from_qs(response.context_data["workspaces"])
     assert output == expected
+
+    assert (
+        response.context_data["user_can_link_applications"]
+        == user_is_service_administrator
+    )
 
 
 def test_projectedit_get_success(rf, staff_area_administrator):
@@ -363,16 +377,14 @@ def test_projectedit_post_updates_number_from_numeric_to_alphanumeric(
     assert project.number == new_number
 
 
-def test_projectlinkapplication_get_empty_application_list(
-    rf, staff_area_administrator
-):
+def test_projectlinkapplication_get_empty_application_list(rf, service_administrator):
     ApplicationFactory(status=Application.Statuses.ONGOING)
     ApplicationFactory(status=Application.Statuses.REJECTED)
 
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = staff_area_administrator
+    request.user = service_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -381,7 +393,7 @@ def test_projectlinkapplication_get_empty_application_list(
     assert not response.context_data["applications"]
 
 
-def test_projectlinkapplication_get_success(rf, staff_area_administrator):
+def test_projectlinkapplication_get_success(rf, service_administrator):
     approved_fully = ApplicationFactory(
         project=None,
         status=Application.Statuses.APPROVED_FULLY,
@@ -406,7 +418,7 @@ def test_projectlinkapplication_get_success(rf, staff_area_administrator):
     project = ProjectFactory()
 
     request = rf.get("/")
-    request.user = staff_area_administrator
+    request.user = service_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -418,7 +430,7 @@ def test_projectlinkapplication_get_success(rf, staff_area_administrator):
     assert set(applications) == {approved_fully, approved_subject_to, completed}
 
 
-def test_projectlinkapplication_post_success(rf, staff_area_administrator):
+def test_projectlinkapplication_post_success(rf, service_administrator):
     application = ApplicationFactory(
         project=None,
         status=Application.Statuses.COMPLETED,
@@ -426,7 +438,7 @@ def test_projectlinkapplication_post_success(rf, staff_area_administrator):
     project = ProjectFactory()
 
     request = rf.post("/", {"application": application.pk})
-    request.user = staff_area_administrator
+    request.user = service_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -437,11 +449,11 @@ def test_projectlinkapplication_post_success(rf, staff_area_administrator):
     assert application.project == project
 
 
-def test_projectlinkapplication_post_unknown_application(rf, staff_area_administrator):
+def test_projectlinkapplication_post_unknown_application(rf, service_administrator):
     project = ProjectFactory()
 
     request = rf.post("/", {"application": "0"})
-    request.user = staff_area_administrator
+    request.user = service_administrator
 
     response = ProjectLinkApplication.as_view()(request, slug=project.slug)
 
@@ -461,9 +473,9 @@ def test_projectlinkapplication_unauthorized(rf):
         ProjectLinkApplication.as_view()(request, slug=project.slug)
 
 
-def test_projectlinkapplication_unknown_project(rf, staff_area_administrator):
+def test_projectlinkapplication_unknown_project(rf, service_administrator):
     request = rf.get("/")
-    request.user = staff_area_administrator
+    request.user = service_administrator
 
     with pytest.raises(Http404):
         ProjectLinkApplication.as_view()(request, slug="")

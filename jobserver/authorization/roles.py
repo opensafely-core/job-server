@@ -25,6 +25,7 @@ class ServiceAdministrator:
     description = """DO NOT ASSIGN IN PRODUCTION.
     Access the Create Project page.
     Create projects.
+    Link projects to Job Server applications.
     Assign users to projects and project roles."""
     models = [
         "jobserver.models.user.User",
@@ -32,6 +33,7 @@ class ServiceAdministrator:
     permissions = [
         Permission.USER_EDIT_PROJECT_ROLES,
         Permission.PROJECT_CREATE,
+        Permission.PROJECT_LINK_TO_APPLICATION,
     ]
 
 
