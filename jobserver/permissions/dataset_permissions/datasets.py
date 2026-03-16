@@ -80,6 +80,8 @@ PROJECTS_WITH_PERMISSION = {
     ],
     # https://jobs.opensafely.org/identify-risk-factors-associated-with-disparities-for-resistant-bloodstream-infections-before-during-and-after-the-global-covid-19-pandemic-a-national-case-control-and-cohort-study/
     "198": ["sgss_covid_all_tests"],
+    # https://jobs.opensafely.org/a-longitudinal-evaluation-of-pharmacy-consultation-services-including-the-pharmacy-first-programme-on-healthcare-utilisation-over-the-period-2017-2026/
+    "202": ["appointments"],
     # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
     "209": ["sgss_covid_all_tests"],
 }
