@@ -534,8 +534,8 @@ def project_ordering_rows():
         ProjectOrderingRow("Third Project", "POS-2025-2003"),
         ProjectOrderingRow("Fourth Project", "7"),
         ProjectOrderingRow("Fifth Project", "42"),
-        ProjectOrderingRow("Missing Number A", ""),
         ProjectOrderingRow("Missing Number B", None),
+        ProjectOrderingRow("Missing Number A", None),
     ]
 
     expected_order = [

@@ -1,4 +1,7 @@
+import re
+
 import structlog
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Case, CharField, F, IntegerField, Q, Value, When
 from django.db.models.functions import Cast, Lower
@@ -9,6 +12,28 @@ from furl import furl
 
 
 logger = structlog.get_logger(__name__)
+
+# Patterns, compiled regex, and validators for regex matching for different
+# possible kinds of Project.number.
+
+# Pattern for projects with an application managed in Job Server.
+# String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
+# and back. Using \d instead would match several other characters.
+DIGITS_PATTERN = r"[1-9][0-9]*"
+# Pattern for projects with an application managed outside of Job Server.
+# Like POS-2025-2001. 'POS-' followed by a string of digits representing the
+# year, '-', followed by a string of digits, usually starting with 2001. Year
+# part must start '20'. Third part has no leading zero.
+POS_FORMAT_PATTERN = r"POS-20[0-9]{2}-[1-9][0-9]{3}"
+# Pattern for either format. This covers all valid values.
+NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
+NUMBER_REGEX = re.compile(NUMBER_PATTERN)
+# Either format, wrapping each with ^$ anchors to require full match.
+NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
+NUMBER_REGEX_VALIDATOR = RegexValidator(
+    re.compile(NUMBER_PATTERN_FULLMATCH),
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001).",
+)
 
 
 class ProjectQuerySet(models.QuerySet):
@@ -76,9 +101,15 @@ class Project(models.Model):
         through="ProjectCollaboration",
     )
 
-    name = models.TextField(unique=True)
-    slug = models.SlugField(max_length=255, unique=True)
-    number = models.CharField(max_length=20, null=True, blank=True)
+    name = models.TextField(unique=True, verbose_name="Project title")
+    slug = models.SlugField(max_length=255, unique=True, verbose_name="URL slug")
+    number = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        validators=[NUMBER_REGEX_VALIDATOR],
+        verbose_name="Project ID",
+    )
 
     copilot_support_ends_at = models.DateTimeField(null=True)
 
@@ -132,6 +163,12 @@ class Project(models.Model):
             models.CheckConstraint(
                 condition=~Q(slug=""),
                 name="slug_is_not_empty",
+            ),
+            models.CheckConstraint(
+                name="number_valid_format",
+                condition=(
+                    Q(number__isnull=True) | Q(number__regex=NUMBER_PATTERN_FULLMATCH)
+                ),
             ),
         ]
 
@@ -208,13 +245,11 @@ class Project(models.Model):
     def next_project_identifier(cls):
         """
         Return the next numeric project number, or 1 if no numeric values exist.
-        This handles both int values and digit-only strings so it remains valid
-        when number is migrated from IntegerField to CharField.
         """
         numeric_values = [
-            int(str(value).strip())
-            for value in cls.objects.values_list("number", flat=True)
-            if value is not None and str(value).strip().isdigit()
+            int(number)
+            for number in cls.objects.values_list("number", flat=True)
+            if number is not None and number.isdigit()
         ]
 
         if not numeric_values:
