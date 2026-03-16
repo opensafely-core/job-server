@@ -20,6 +20,19 @@ class StaffAreaAdministrator:
     ]
 
 
+class TechSupport:
+    display_name = "Tech Support"
+    description = """Access pages required for the Tech team to provide technical suppport.
+    Tech supporters also require the Staff Area Administrator role.
+    Assign users to projects and project roles."""
+    models = [
+        "jobserver.models.user.User",
+    ]
+    permissions = [
+        Permission.USER_EDIT_PROJECT_ROLES,
+    ]
+
+
 class ServiceAdministrator:
     display_name = "Service Administrator"
     description = """DO NOT ASSIGN IN PRODUCTION.
