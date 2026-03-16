@@ -30,9 +30,8 @@ NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
 NUMBER_REGEX = re.compile(NUMBER_PATTERN)
 # Either format, wrapping each with ^$ anchors to require full match.
 NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
-NUMBER_REGEX_FULLMATCH = re.compile(NUMBER_PATTERN_FULLMATCH)
 NUMBER_REGEX_VALIDATOR = RegexValidator(
-    NUMBER_REGEX_FULLMATCH,
+    re.compile(NUMBER_PATTERN_FULLMATCH),
     "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001).",
 )
 
