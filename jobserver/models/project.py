@@ -53,7 +53,10 @@ class ProjectQuerySet(models.QuerySet):
                 output_field=CharField(),
             ),
             numeric_value=Case(
-                When(number__regex=r"^[0-9]+$", then=Cast("number", IntegerField())),
+                When(
+                    number__regex=rf"^{DIGITS_PATTERN}$",
+                    then=Cast("number", IntegerField()),
+                ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
             ),
