@@ -76,7 +76,7 @@ class ApplicationApproveForm(forms.Form):
         project_number = self.cleaned_data["project_number"]
         if not NUMBER_REGEX.fullmatch(project_number):
             raise forms.ValidationError(
-                "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+                "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
             )
 
         if Project.objects.filter(number=project_number).exists():
