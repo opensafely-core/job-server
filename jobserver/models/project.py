@@ -237,8 +237,10 @@ class Project(models.Model):
 
     @functional.cached_property
     def org(self):
-        lead_org = self.orgs.filter(collaborations__is_lead=True).first()
-        return lead_org or self.orgs.first()
+        collaboration = (
+            self.collaborations.select_related("org").order_by("-is_lead", "pk").first()
+        )
+        return collaboration.org if collaboration else None
 
     @classmethod
     def next_project_identifier(cls):
