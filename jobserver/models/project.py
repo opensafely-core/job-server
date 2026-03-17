@@ -109,6 +109,7 @@ class Project(models.Model):
         blank=True,
         validators=[NUMBER_REGEX_VALIDATOR],
         verbose_name="Project ID",
+        help_text="Project ID can be found in the All Projects spreadsheet.",
     )
 
     copilot_support_ends_at = models.DateTimeField(null=True)
