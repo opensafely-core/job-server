@@ -131,13 +131,10 @@ class ProjectCreateForm(forms.ModelForm):
         self.fields[
             "orgs"
         ].help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
-
-        self.fields["number"].label = "Project ID"
         self.fields[
             "number"
         ].help_text = "Project ID can be found in the All Projects spreadsheet."
 
-        self.fields["name"].label = "Project title"
         self.fields[
             "name"
         ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."

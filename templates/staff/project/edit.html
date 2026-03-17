@@ -46,12 +46,12 @@
       {% /alert %}
     {% endif %}
 
-    {% #card title="Project info" container=True %}
+    {% #card title="Project information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-        {% form_legend text="Project info" class="sr-only" %}
-        {% form_input field=form.name label="Project name" required %}
-        {% form_input field=form.slug label="URL slug" required %}
-        {% form_input field=form.number label="Project number" inputmode="numeric" %}
+        {% form_legend text="Project information" class="sr-only" %}
+        {% form_input field=form.name required %}
+        {% form_input field=form.slug required %}
+        {% form_input field=form.number inputmode="numeric" %}
       {% /form_fieldset %}
     {% /card %}
 
