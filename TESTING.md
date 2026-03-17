@@ -16,7 +16,7 @@ Tests live in the `tests` directory split into the three types of layers of test
 Test functions are named `test_nameofthing_part_that_you_are_testing`, so the function `frob_the_wizzle` being tested without the correct permissions should have the test `test_frobthewizzle_with_no_permission`.
 This might not be the best naming scheme but we want to be consistent above all else to aid in test discoverability for developers.
 
-We aim to use the [Arrange/Assert/Act Pattern](https://java-design-patterns.com/patterns/arrange-act-assert/) for organising code within a test.
+We aim to use the [Arrange/Act/Assert Pattern](https://java-design-patterns.com/patterns/arrange-act-assert/) for organising code within a test.
 
 Docstrings and comments explaining why a test works the way it does are highly recommended, eg why did you set it up this way? Why are you testing this exit condition? etc.
 
