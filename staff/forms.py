@@ -132,10 +132,6 @@ class ProjectCreateForm(forms.ModelForm):
             "orgs"
         ].help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
 
-        self.fields[
-            "name"
-        ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
-
 
 class ProjectEditForm(forms.ModelForm):
     orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
