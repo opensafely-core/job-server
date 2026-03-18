@@ -104,6 +104,8 @@ class Project(models.Model):
         "Org",
         related_name="projects",
         through="ProjectCollaboration",
+        verbose_name="Link project to an organisation",
+        help_text="This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form.",
     )
 
     name = models.TextField(
