@@ -6,7 +6,7 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
+from jobserver.models import Backend, Org, Project, SiteAlert, Workspace
 from jobserver.models.project import NUMBER_REGEX
 
 
@@ -114,17 +114,11 @@ class ProjectCreateForm(forms.ModelForm):
             # orgs is a ManyToManyField, but we only want to allow one to be selected.
             # Override the default field ModelForm gives (ModelMultipleChoiceField).
             "orgs": forms.models.ModelChoiceField,
+            "copilot": UserModelChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.fields["copilot"].label = "Project Co-pilot"
-        self.fields[
-            "copilot"
-        ].help_text = (
-            "Ask the BI Co-pilot Lead to find out who is Co-piloting this new project."
-        )
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["orgs"].label = "Link project to an organisation"
@@ -148,17 +142,16 @@ class ProjectEditForm(forms.ModelForm):
             "status",
             "status_description",
         ]
+        field_classes = {
+            "copilot": UserModelChoiceField,
+        }
         model = Project
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["number"].required = False
-
-        self.fields["copilot"] = UserModelChoiceField(
-            queryset=User.objects.all(), required=False
-        )
-        self.fields["copilot_support_ends_at"].required = False
+        self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
+        self.fields["copilot"].required = False
 
     def clean_number(self):
         number = self.cleaned_data["number"]
