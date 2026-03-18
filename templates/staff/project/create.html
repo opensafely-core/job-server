@@ -84,7 +84,7 @@
             </p>
           {% endif %}
         {% endfragment %}
-        {% form_select field=form.orgs choices=form.fields.orgs.choices selected=form.orgs.value|default_if_none:''|first hint_text=select_hint_text hint_extra_class="max-w-full" %}
+        {% form_select field=form.orgs choices=form.fields.orgs.choices selected=form.orgs.value|default_if_none:'' hint_text=select_hint_text hint_extra_class="max-w-full" %}
       {% /form_fieldset %}
     {% /card %}
 
