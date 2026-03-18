@@ -742,9 +742,9 @@ def test_workspaceeventlog_search_by_id(rf, project_membership):
     JobFactory(job_request=JobRequestFactory())
 
     job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
-    JobFactory(job_request=job_request2, id=99)
+    job = JobFactory(job_request=job_request2)
 
-    request = rf.get("/?q=99")
+    request = rf.get(f"/?q={job.id}")
     request.user = user
 
     response = WorkspaceEventLog.as_view()(
