@@ -55,7 +55,7 @@ class ProjectCreate(CreateView):
 
         if org_slug := self.request.GET.get("org-slug"):
             try:
-                initial["orgs"] = [Org.objects.get(slug=org_slug).pk]
+                initial["orgs"] = Org.objects.get(slug=org_slug)
             except Org.DoesNotExist:
                 pass
 

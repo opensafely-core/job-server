@@ -65,7 +65,7 @@ class TestProjectCreation:
 
         assert response.status_code == 200
         selected_orgs = response.context_data["form"]["orgs"].value()
-        assert selected_orgs == [bennett_org.pk]
+        assert selected_orgs == bennett_org.pk
 
     @pytest.mark.django_db(transaction=True)
     def test_projectcreate_post_success(
