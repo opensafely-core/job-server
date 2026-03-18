@@ -27,11 +27,13 @@ class TechSupport:
     description = """Access pages required for the Tech team to provide technical suppport.
     One must be listed as a Platform Developer in the Developer Permissions Log to have this role.
     Tech supporters also require the Staff Area Administrator role.
-    Assign users to projects and project roles."""
+    Assign users to projects and project roles.
+    View outputs that have been released to Job Server."""
     models = [
         "jobserver.models.user.User",
     ]
     permissions = [
+        Permission.RELEASE_FILE_VIEW,
         Permission.USER_EDIT_PROJECT_ROLES,
     ]
 
