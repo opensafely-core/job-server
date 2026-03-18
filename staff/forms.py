@@ -115,14 +115,14 @@ class ProjectCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
-        self.fields["orgs"].label = "Link project to an organisation"
-        self.fields[
-            "orgs"
-        ].help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
 
 
 class ProjectEditForm(forms.ModelForm):
-    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
+    orgs = forms.ModelMultipleChoiceField(
+        queryset=Org.objects.order_by(Lower("name")),
+        label=Project._meta.get_field("orgs").verbose_name,
+        help_text=Project._meta.get_field("orgs").help_text,
+    )
 
     class Meta:
         fields = [
