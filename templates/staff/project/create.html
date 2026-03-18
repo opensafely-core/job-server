@@ -79,8 +79,7 @@
             <p class="-mt-3">
               If the org doesn't exist, you can
               {% url "staff:org-create" as staff_org_create_url %}
-              {% var new_org_url=staff_org_create_url|add:"?next="|add:request.path %}
-              {% link href=new_org_url text="add a new org" append_after="." hx-get=new_org_url hx-target="dialog#addNewOrg" hx-trigger="click" %}
+              {% link href=staff_org_create_url|add:"?next="|add:request.path text="add a new org" append_after="." %}
             </p>
           {% endif %}
         {% endfragment %}
@@ -99,24 +98,4 @@
     {% /button %}
   </form>
 
-  {% if can_create_org %}
-    <dialog class="max-w-lg w-full m-auto backdrop:bg-slate-900/25 backdrop:backdrop-blur-sm" id="addNewOrg"></dialog>
-  {% endif %}
 {% endblock content %}
-
-{% block extra_js %}
-  <script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
-  <script nonce="{{ request.csp_nonce }}">
-    htmx.on("htmx:afterSwap", (e) => {
-      const modal = e.target;
-      modal.showModal();
-
-      const closeModalBtn = document.getElementById("closeModal");
-      if (closeModalBtn) {
-        closeModalBtn.addEventListener("click", () => {
-          closeModalBtn.closest("dialog").close();
-        });
-      }
-    });
-  </script>
-{% endblock %}
