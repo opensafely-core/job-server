@@ -96,6 +96,8 @@ class Project(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         related_name="copiloted_projects",
+        verbose_name="Project Co-pilot",
+        help_text="Ask the BI Co-pilot Lead to find out who is Co-piloting this new project.",
     )
 
     orgs = models.ManyToManyField(
