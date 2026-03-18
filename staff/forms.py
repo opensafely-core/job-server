@@ -6,18 +6,13 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
+from jobserver.models import Backend, Org, Project, SiteAlert, Workspace
 from jobserver.models.project import NUMBER_REGEX
 
 
 def user_label_from_instance(obj):
     full_name = obj.get_full_name()
     return f"{full_name} ({obj.username})" if full_name else obj.username
-
-
-class UserModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return user_label_from_instance(obj)
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
@@ -119,13 +114,6 @@ class ProjectCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["copilot"].label = "Project Co-pilot"
-        self.fields[
-            "copilot"
-        ].help_text = (
-            "Ask the BI Co-pilot Lead to find out who is Co-piloting this new project."
-        )
-
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["orgs"].label = "Link project to an organisation"
         self.fields[
@@ -154,10 +142,7 @@ class ProjectEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["number"].required = False
-
-        self.fields["copilot"] = UserModelChoiceField(
-            queryset=User.objects.all(), required=False
-        )
+        self.fields["copilot"].required = False
         self.fields["copilot_support_ends_at"].required = False
 
     def clean_number(self):
