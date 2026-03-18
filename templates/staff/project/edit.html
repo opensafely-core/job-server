@@ -55,10 +55,10 @@
       {% /form_fieldset %}
     {% /card %}
 
-    {% #card title="Organisations" container=True %}
+    {% #card title="Job Server information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-        {% form_legend text="Organisations" class="sr-only" %}
-        {% form_select field=form.fields.orgs choices=form.fields.orgs.choices selected=form.orgs.value.0 id="id_orgs" name="orgs" label="Select an organisation" required %}
+        {% form_legend text="Job Server information" class="sr-only" %}
+        {% form_select field=form.fields.orgs choices=form.fields.orgs.choices selected=form.orgs.value.0 id="id_orgs" name="orgs" hint_extra_class="max-w-full" required %}
       {% /form_fieldset %}
     {% /card %}
 

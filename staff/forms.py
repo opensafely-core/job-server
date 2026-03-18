@@ -121,15 +121,9 @@ class ProjectCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
-        self.fields["orgs"].label = "Link project to an organisation"
-        self.fields[
-            "orgs"
-        ].help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
 
 
 class ProjectEditForm(forms.ModelForm):
-    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
-
     class Meta:
         fields = [
             "copilot",
@@ -152,6 +146,7 @@ class ProjectEditForm(forms.ModelForm):
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["copilot"].required = False
+        self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
 
     def clean_number(self):
         number = self.cleaned_data["number"]
