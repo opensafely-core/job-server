@@ -123,7 +123,7 @@ class Project(models.Model):
         help_text="Project ID can be found in the All Projects spreadsheet.",
     )
 
-    copilot_support_ends_at = models.DateTimeField(null=True)
+    copilot_support_ends_at = models.DateTimeField(null=True, blank=True)
 
     status = models.TextField(choices=Statuses.choices, default=Statuses.ONGOING)
     status_description = models.TextField(default="", blank=True)
