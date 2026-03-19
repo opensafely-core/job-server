@@ -26,7 +26,9 @@ ANALYSIS_SCOPE_KEY = "include_gp_unactivated"
 
 PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION = {
     # Projects identified by slug (no project number)
-    "opensafely-internal",  # https://jobs.opensafely.org/opensafely-internal
+    # TODO: 2026-03-18: permission for the opensafely-internal project is temporarily removed for
+    # testing purposes and will be reinstated later
+    # "opensafely-internal",  # https://jobs.opensafely.org/opensafely-internal
     "156",  # https://jobs.opensafely.org/investigating-events-following-sars-cov-2-infection-project-continuation-of-approved-project-no-12/
     "157",  # https://jobs.opensafely.org/investigating-the-effectiveness-of-the-covid-19-vaccination-programme-in-the-uk-project-continuation-of-approved-project-no-22/
     "158",  # https://jobs.opensafely.org/the-effect-of-covid-19-on-pancreatic-cancer-diagnosis-and-care-project-continuation-of-approved-project-no-27/
