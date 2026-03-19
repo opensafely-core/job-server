@@ -141,9 +141,7 @@ class ProjectEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["number"].required = False
         self.fields["copilot"].required = False
-        self.fields["copilot_support_ends_at"].required = False
 
     def clean_number(self):
         number = self.cleaned_data["number"]
