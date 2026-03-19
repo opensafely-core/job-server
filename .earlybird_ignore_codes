@@ -1,0 +1,5 @@
+# Rule codes to suppress from the generated Earlybird config.
+# 3019 = Potential URL in file
+# 3015 = Potential IPv4 Address in file
+3019
+3015
