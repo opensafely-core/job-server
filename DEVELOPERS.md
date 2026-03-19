@@ -35,6 +35,7 @@
     - [Both set or null](#both-set-or-null)
     - [updated\_at and updated\_by](#updated_at-and-updated_by)
 - [Actions](#actions)
+- [Permissions](#permissions)
 - [Auditing events](#auditing-events)
   - [Presenters](#presenters)
 - [Interfaces](#interfaces)
@@ -543,6 +544,23 @@ complex cross-model interactions or significant side effects.
 
 This is currently a convention, not an enforced rule. It may not be
 consistently applied.
+
+## Permissions
+
+The [jobserver.permissions](jobserver/permissions/) package is, by convention,
+the home for code that controls project access to restricted data sources or
+features.
+
+Care is needed when editing these files:
+
+* some of the modules are owned by IG (see [`CODEOWNERS`](.github/CODEOWNERS))
+* there are current existing conventions
+  * project permissions are usually defined by an iterable of strings
+    as a module-level value, along with a function that checks a value
+    for membership
+  * the name of that module-level value is typically `PROJECTS_WITH…PERMISSION`
+  * there are unit tests of those permissions values that validate the project
+    identifiers; if you create a new variable, add it to those tests
 
 ## Auditing events
 
