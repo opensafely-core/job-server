@@ -81,6 +81,8 @@ def test_project_constraints_number_valid(number):
         pytest.param("one", id="word"),
         pytest.param("abc", id="letters"),
         pytest.param("project number", id="phrase"),
+        pytest.param("bad-project-id", id="three-words-with-dashes"),
+        pytest.param("!", id="punctuation-mark"),
         # POS-Format Identifiers
         # Format errors - wrong structure
         pytest.param("PO-2026-2001", id="first-part-too-short"),
@@ -89,9 +91,11 @@ def test_project_constraints_number_valid(number):
         pytest.param("POS-20260-2000", id="second-part-too-long"),
         pytest.param("POS-2026-200", id="third-part-too-short"),
         pytest.param("POS-2026-20000", id="third-part-too-long"),
+        pytest.param("POS-", id="missing-second-and-third-parts"),
         pytest.param("POS-9001", id="missing-third-part"),
         pytest.param("POS-2001-", id="empty-third-part"),
         pytest.param("POS-2026-2000-2001", id="four-parts"),
+        pytest.param("pos-2026-2001", id="lowercase"),
         # Format errors - wrong delimiter
         pytest.param("POS_2026-2001", id="underscore-first"),
         pytest.param("POS-2026_2001", id="underscore-second"),
