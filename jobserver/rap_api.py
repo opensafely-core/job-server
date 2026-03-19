@@ -7,6 +7,13 @@ Reference for how the server defines the API endpoints:
 https://controller.opensafely.org/controller/v1/docs/
 https://github.com/opensafely-core/job-runner/tree/main/controller/webapp/api_spec
 
+WARNING: this whole module is part of inter-component communication with the
+RAP controller, which depends on each of the values sent. This module can be
+updated and changed, but the data syntax sent must match what the API expects,
+and any other semantic dependencies in that codebase.
+If you think the API should change, you probably need to discuss that with our
+team, then the team responsible for the RAP API.
+
 The functions corresponding to each endpoint should not leak HTTP-layer
 information or the implementation detail that we use the requests library. So
 they should return subclasses of RapAPIError for relevant status codes or other
@@ -227,6 +234,12 @@ def create(job_request):
         "codelists_ok": job_request.codelists_ok,
         "force_run_dependencies": job_request.force_run_dependencies,
         "created_by": job_request.created_by.username,
+        # Note that the RAP controller hardcodes specific project slugs for
+        # special permissions treatment. So even though the API accepts
+        # arbitrary opaque strings, there is a specific dependency on it being
+        # the slug, and the Job Server production data. See:
+        # https://github.com/opensafely-core/job-runner/pull/1376
+        # https://github.com/opensafely-core/job-runner/blob/main/controller/config.py
         "project": job_request.workspace.project.slug,
         "orgs": list(job_request.workspace.project.orgs.values_list("slug", flat=True)),
         "analysis_scope": analysis_scope,
