@@ -4,6 +4,8 @@ import sys
 
 import pytest
 
+from tests.factories import UserFactory
+
 
 @pytest.fixture(scope="session", autouse=True)
 def set_env():
@@ -33,3 +35,38 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "functional" in item.keywords:
             item.add_marker(pytest.mark.allow_hosts(["127.0.0.1", "::1"]))
+
+
+@pytest.fixture
+def login_context_for_user(browser, client, live_server):
+    """
+    Factory fixture that returns a function to create a logged-in
+    Playwright browser context for a user with optional roles.
+
+    Use as follows:
+    context, user = login_context_for_user([ServiceAdministrator])
+    context, user = login_context_for_user()
+    """
+
+    def _login_context_for_user(roles=None):
+        if roles:
+            user = UserFactory(roles=roles)
+        else:
+            user = UserFactory()
+
+        client.force_login(user)
+
+        context = browser.new_context(locale="en-GB")
+        context.add_cookies(
+            [
+                {
+                    "name": "sessionid",
+                    "value": client.cookies["sessionid"].value,
+                    "url": live_server.url,
+                }
+            ]
+        )
+
+        return context, user
+
+    return _login_context_for_user
