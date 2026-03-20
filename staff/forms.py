@@ -6,18 +6,13 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
+from jobserver.models import Backend, Org, Project, SiteAlert, Workspace
 from jobserver.models.project import NUMBER_REGEX
 
 
 def user_label_from_instance(obj):
     full_name = obj.get_full_name()
     return f"{full_name} ({obj.username})" if full_name else obj.username
-
-
-class UserModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return user_label_from_instance(obj)
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
@@ -76,7 +71,7 @@ class ApplicationApproveForm(forms.Form):
         project_number = self.cleaned_data["project_number"]
         if not NUMBER_REGEX.fullmatch(project_number):
             raise forms.ValidationError(
-                "Enter a numeric project number or one in the format POS-20YY-NNNN (for example, POS-2025-2001)."
+                "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
             )
 
         if Project.objects.filter(number=project_number).exists():
@@ -119,33 +114,10 @@ class ProjectCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["copilot"].label = "Project Co-pilot"
-        self.fields[
-            "copilot"
-        ].help_text = (
-            "Ask the BI Co-pilot Lead to find out who is Co-piloting this new project."
-        )
-
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
-        self.fields["orgs"].label = "Link project to an organisation"
-        self.fields[
-            "orgs"
-        ].help_text = "This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form."
-
-        self.fields["number"].label = "Project ID"
-        self.fields[
-            "number"
-        ].help_text = "Project ID can be found in the All Projects spreadsheet."
-
-        self.fields["name"].label = "Project title"
-        self.fields[
-            "name"
-        ].help_text = "This can be found in Section 7 of the NHSE OpenSAFELY Project Application form."
 
 
 class ProjectEditForm(forms.ModelForm):
-    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
-
     class Meta:
         fields = [
             "copilot",
@@ -163,12 +135,8 @@ class ProjectEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["number"].required = False
-
-        self.fields["copilot"] = UserModelChoiceField(
-            queryset=User.objects.all(), required=False
-        )
-        self.fields["copilot_support_ends_at"].required = False
+        self.fields["copilot"].required = False
+        self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
 
     def clean_number(self):
         number = self.cleaned_data["number"]
