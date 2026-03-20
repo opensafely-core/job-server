@@ -118,12 +118,6 @@ class ProjectCreateForm(forms.ModelForm):
 
 
 class ProjectEditForm(forms.ModelForm):
-    orgs = forms.ModelMultipleChoiceField(
-        queryset=Org.objects.order_by(Lower("name")),
-        label=Project._meta.get_field("orgs").verbose_name,
-        help_text=Project._meta.get_field("orgs").help_text,
-    )
-
     class Meta:
         fields = [
             "copilot",
@@ -142,6 +136,7 @@ class ProjectEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["copilot"].required = False
+        self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
 
     def clean_number(self):
         number = self.cleaned_data["number"]
