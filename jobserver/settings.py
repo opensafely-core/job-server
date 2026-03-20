@@ -19,8 +19,13 @@ from csp.constants import NONCE, NONE, SELF, UNSAFE_INLINE
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 
+from jobserver import patch_slippers
 from services.logging import logging_config_dict
 from services.sentry import initialise_sentry
+
+
+# Hotfix for HTML escaping issue in `slippers` library
+patch_slippers.apply_patch()
 
 
 _missing_env_var_hint = """\
