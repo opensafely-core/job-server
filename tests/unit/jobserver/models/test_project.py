@@ -246,6 +246,16 @@ def test_project_org():
     assert project.org == lead_org
 
 
+def test_project_org_returns_first_org_when_no_lead():
+    project = ProjectFactory()
+    first_org = OrgFactory()
+    second_org = OrgFactory()
+    ProjectCollaborationFactory(org=first_org, project=project, is_lead=False)
+    ProjectCollaborationFactory(org=second_org, project=project, is_lead=False)
+
+    assert project.org == first_org
+
+
 def test_next_project_identifier():
     ProjectFactory(number="100")
     ProjectFactory(number="102")
