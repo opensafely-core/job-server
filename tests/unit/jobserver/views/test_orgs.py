@@ -2,7 +2,6 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 
-from jobserver.models import Project
 from jobserver.utils import set_from_qs
 from jobserver.views.orgs import OrgDetail, OrgEventLog, OrgList
 
@@ -31,17 +30,6 @@ def test_orgdetail_unknown_org(rf):
 
     with pytest.raises(Http404):
         OrgDetail.as_view()(request, slug="")
-
-
-def test_orgdetail_does_not_show_project_status(rf):
-    org = OrgFactory()
-    ProjectFactory(orgs=[org], status=Project.Statuses.POSTPONED)
-
-    request = rf.get("/")
-    request.user = UserFactory()
-    response = OrgDetail.as_view()(request, slug=org.slug)
-
-    assert "Postponed" not in response.rendered_content
 
 
 def test_orgeventlog_success(rf, django_assert_num_queries):

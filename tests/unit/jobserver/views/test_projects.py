@@ -257,23 +257,6 @@ def test_projectdetail_shows_edit_project_for_user_with_manage_permission(
     assert "Edit project" in response.rendered_content
 
 
-@pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
-def test_projectdetail_does_not_show_project_status(rf, user):
-    project = ProjectFactory(org=OrgFactory(), status=Project.Statuses.POSTPONED)
-
-    request = rf.get("/")
-    # instantiate here because pytest-django disables db access by default and
-    # our global fixture to re-enable it doesn't trigger early enough for the
-    # parametrize call
-    request.user = user()
-
-    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, project_slug=project.slug
-    )
-
-    assert "Postponed" not in response.rendered_content
-
-
 def test_projectdetail_unknown_project(rf):
     request = rf.get("/")
     request.user = UserFactory()

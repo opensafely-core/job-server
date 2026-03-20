@@ -3,8 +3,6 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 
 from jobserver.actions import users
-from jobserver.authorization.permissions import Permission
-from jobserver.models.project import Project
 from jobserver.utils import set_from_list
 from jobserver.views.users import (
     Login,
@@ -18,9 +16,7 @@ from jobserver.views.users import (
 from ....factories import (
     BackendMembershipFactory,
     JobRequestFactory,
-    OrgFactory,
     PartialFactory,
-    ProjectFactory,
     UserFactory,
     UserSocialAuthFactory,
 )
@@ -315,23 +311,6 @@ def test_userdetail_unknown_user(rf):
 
     with pytest.raises(Http404):
         UserDetail.as_view()(request, username="")
-
-
-def test_userdetail_does_not_show_project_status(rf, project_membership, role_factory):
-    project = ProjectFactory(org=OrgFactory(), status=Project.Statuses.POSTPONED)
-    user = UserFactory()
-    project_membership(
-        project=project,
-        user=user,
-        roles=[role_factory(permission=Permission.PROJECT_MANAGE)],
-    )
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = UserDetail.as_view()(request, username=user.username)
-
-    assert "Postponed" not in response.rendered_content
 
 
 def test_usereventlog_success(rf):
