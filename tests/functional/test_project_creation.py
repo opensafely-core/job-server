@@ -1,6 +1,7 @@
 from datetime import date
 
 import pytest
+from django.utils.text import slugify
 from playwright.sync_api import expect
 
 from jobserver.authorization.roles import (
@@ -13,7 +14,9 @@ from tests.factories import CreateProjectFormDataFactory
 pytestmark = pytest.mark.functional
 
 
-def test_can_create_a_project(login_context_for_user, page, live_server):
+def test_can_create_a_project(
+    login_context_for_user, page, live_server, slack_messages
+):
     """
     Test that a user with permission can successfully create a new project.
 
@@ -37,7 +40,7 @@ def test_can_create_a_project(login_context_for_user, page, live_server):
 
     page = browser_context.new_page()
 
-    # create the form data before we load the page, so the org and
+    # Create the form data before we load the page, so the org and
     # copilot exist when Django renders the form later int he test
     form_data = CreateProjectFormDataFactory()
 
@@ -53,7 +56,6 @@ def test_can_create_a_project(login_context_for_user, page, live_server):
 
     # See correct meta data for new project in text above the form
     # (status is always set to Ongoing so we don't check this)
-    # Created by: < user >  |  Created at: <today's date>
     metadata = page.locator("section").filter(
         has_text="When created, this project will automatically be saved with the following data:"
     )
@@ -68,10 +70,10 @@ def test_can_create_a_project(login_context_for_user, page, live_server):
     org_select = form.get_by_label("Link project to an organisation")
     copilot_select = form.get_by_label("Project Co-pilot")
 
-    expect(number_input).to_contain_text("")
-    expect(name_input).to_contain_text("")
+    expect(number_input).to_have_text("")
+    expect(name_input).to_have_text("")
     expect(form.get_by_role("link", name="add a new org")).to_be_visible()
-    expect(org_select).to_contain_text("")
+    expect(org_select.locator("option:checked")).to_have_text("---------")
     expect(copilot_select.locator("option:checked")).to_have_text("---------")
 
     # Insert valid data into form and submit
@@ -80,3 +82,19 @@ def test_can_create_a_project(login_context_for_user, page, live_server):
     org_select.select_option(value=form_data["orgs"])
     copilot_select.select_option(value=form_data["copilot"])
     form.get_by_role("button", name="Save").click()
+
+    # Successful redirect to the Project Created page
+    expect(page).to_have_url(
+        f"{live_server.url}/staff/projects/{slugify(form_data['name'])}/created/"
+    )
+
+    # Check Project Created page displays the new project name and number,
+    # the links to the new project, and a button to add project members
+    expect(page.get_by_role("heading", name="Project created", level=1)).to_be_visible()
+    expect(page.get_by_role("link", name="View project on Job Server")).to_be_visible()
+    expect(
+        page.get_by_role("link", name="View project in the Staff Area")
+    ).to_be_visible()
+    expect(page.get_by_role("link", name="Add members to project →")).to_be_visible()
+
+    # Go to Audit Log and view entry for the new project
