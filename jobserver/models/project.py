@@ -174,6 +174,7 @@ class Project(models.Model):
                 fields=["number"],
                 name="unique_number_ignore_null",
                 condition=Q(number__isnull=False),
+                violation_error_message="Project with this Project ID already exists.",
             ),
             models.CheckConstraint(
                 condition=~Q(slug=""),
