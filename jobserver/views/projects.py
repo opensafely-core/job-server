@@ -8,11 +8,9 @@ from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import ListView, UpdateView, View
-from markdown import markdown
 from opentelemetry import context as otel_context
 from opentelemetry import trace
 
-from jobserver import html_utils
 from jobserver.utils import set_from_qs
 
 from ..authorization import has_permission
@@ -33,9 +31,6 @@ class ProjectDetail(View):
 
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
-        project.status_description = html_utils.clean_html(
-            markdown(project.status_description)
-        )
 
         can_create_workspaces = has_permission(
             request.user, Permission.WORKSPACE_CREATE, project=project
@@ -95,7 +90,6 @@ class ProjectDetail(View):
             "private_repos": private_repos,
             "public_repos": public_repos,
             "project_org_in_user_orgs": project_org_in_user_orgs,
-            "status": self.get_status(project),
             "workspaces": workspaces,
         }
 
@@ -130,25 +124,6 @@ class ProjectDetail(View):
             .select_related("workspace", "workspace__project")
             .order_by("-publish_requests__decision_at")
         )
-
-    def get_status(self, project):
-        # break up the choice label into a title and optional sub title
-        title, _, sub_title = project.get_status_display().partition(" - ")
-
-        variants_lut = {
-            "completed-and-awaiting": "success",
-            "completed-and-linked": "success",
-            "ongoing": "info",
-            "ongoing-and-linked": "info",
-            "postponed": "danger",
-            "retired": "warning",
-        }
-
-        return {
-            "title": title,
-            "sub_title": sub_title,
-            "variant": variants_lut[project.status],
-        }
 
     def iter_repos(self, repos, ctx):
         def get_repo(repo, ctx):
