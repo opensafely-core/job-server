@@ -74,6 +74,9 @@ class Project(models.Model):
     """
 
     class Statuses(models.TextChoices):
+        # Project statuses should not be shown on public-facing pages,
+        # as they can be misleading.
+
         ONGOING = "ongoing", "Ongoing"
         POSTPONED = "postponed", "Postponed"
         RETIRED = "retired", "Retired"
