@@ -99,7 +99,23 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 
-class ProjectCreateForm(forms.ModelForm):
+class UniqueProjectNumberMixin:
+    """Mixin to validate Project.number uniqueness in the form, not the model."""
+
+    def clean_number(self):
+        # The model uniqueness constraint triggers when the form is saved but
+        # the resulting error is not attached to the form field. Raise a
+        # ValidationError here instead, attaching it and improving the UI.
+        number = self.cleaned_data["number"]
+        if number in (None, ""):
+            return number
+
+        if Project.objects.exclude(pk=self.instance.pk).filter(number=number).exists():
+            raise forms.ValidationError("Project with this Project ID already exists.")
+        return number
+
+
+class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
     """Form to create a Project."""
 
     class Meta:
@@ -123,7 +139,7 @@ class ProjectCreateForm(forms.ModelForm):
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
 
 
-class ProjectEditForm(forms.ModelForm):
+class ProjectEditForm(forms.ModelForm, UniqueProjectNumberMixin):
     class Meta:
         fields = [
             "copilot",
@@ -146,18 +162,6 @@ class ProjectEditForm(forms.ModelForm):
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["copilot"].required = False
-
-    def clean_number(self):
-        # The model uniqueness constraint triggers when the form is saved but
-        # the resulting error is not attached to the form field. Raise a
-        # ValidationError here instead, attaching it and improving the UI.
-        number = self.cleaned_data["number"]
-        if number in (None, ""):
-            return number
-
-        if Project.objects.exclude(pk=self.instance.pk).filter(number=number).exists():
-            raise forms.ValidationError("Project with this Project ID already exists.")
-        return number
 
 
 class ProjectLinkApplicationForm(forms.Form):
