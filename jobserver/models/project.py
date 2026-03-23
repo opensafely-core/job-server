@@ -53,7 +53,10 @@ class ProjectQuerySet(models.QuerySet):
                 output_field=CharField(),
             ),
             numeric_value=Case(
-                When(number__regex=r"^[0-9]+$", then=Cast("number", IntegerField())),
+                When(
+                    number__regex=rf"^{DIGITS_PATTERN}$",
+                    then=Cast("number", IntegerField()),
+                ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
             ),
@@ -96,15 +99,23 @@ class Project(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         related_name="copiloted_projects",
+        verbose_name="Project Co-pilot",
+        help_text="Ask the BI Co-pilot Lead to find out who is Co-piloting this new project.",
     )
 
     orgs = models.ManyToManyField(
         "Org",
         related_name="projects",
         through="ProjectCollaboration",
+        verbose_name="Link project to an organisation",
+        help_text="This is the sponsoring organisation, found in Section 9 of the NHSE OpenSAFELY Project Application form.",
     )
 
-    name = models.TextField(unique=True, verbose_name="Project title")
+    name = models.TextField(
+        unique=True,
+        verbose_name="Project title",
+        help_text="This can be found in Section 7 of the NHSE OpenSAFELY Project Application form.",
+    )
     slug = models.SlugField(max_length=255, unique=True, verbose_name="URL slug")
     number = models.CharField(
         max_length=20,
@@ -112,9 +123,10 @@ class Project(models.Model):
         blank=True,
         validators=[NUMBER_REGEX_VALIDATOR],
         verbose_name="Project ID",
+        help_text="Project ID can be found in the All Projects spreadsheet.",
     )
 
-    copilot_support_ends_at = models.DateTimeField(null=True)
+    copilot_support_ends_at = models.DateTimeField(null=True, blank=True)
 
     status = models.TextField(choices=Statuses.choices, default=Statuses.ONGOING)
     status_description = models.TextField(default="", blank=True)
