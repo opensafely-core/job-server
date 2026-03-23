@@ -65,7 +65,7 @@
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Project information" class="sr-only" %}
         {% form_input field=form.number %}
-        {% form_input field=form.name %}
+        {% form_input field=form.name required %}
       {% /form_fieldset %}
     {% /card %}
 
@@ -83,14 +83,14 @@
             </p>
           {% endif %}
         {% endfragment %}
-        {% form_select field=form.orgs choices=form.fields.orgs.choices selected=form.orgs.value|default_if_none:'' hint_text=select_hint_text hint_extra_class="max-w-full" %}
+        {% form_select field=form.orgs choices=form.fields.orgs.choices selected=form.orgs.value|default_if_none:'' hint_text=select_hint_text hint_extra_class="max-w-full" required %}
       {% /form_fieldset %}
     {% /card %}
 
     {% #card title="Co-pilot details" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Co-pilot details" class="sr-only" %}
-        {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value %}
+        {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value required %}
       {% /form_fieldset %}
     {% /card %}
     {% #button variant="success" type="submit" class="self-start" %}
