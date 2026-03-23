@@ -231,9 +231,9 @@ def test_projectdetail_success(rf, user_is_service_administrator):
 
 
 def test_projectedit_get_success(rf, staff_area_administrator):
-    project = ProjectFactory(
-        orgs=[OrgFactory()], copilot=UserFactory(fullname="Ben Goldacre")
-    )
+    project = ProjectFactory(orgs=[OrgFactory()])
+
+    UserFactory(username="beng", fullname="Ben Goldacre")
 
     request = rf.get("/")
     request.user = staff_area_administrator
@@ -241,7 +241,7 @@ def test_projectedit_get_success(rf, staff_area_administrator):
     response = ProjectEdit.as_view()(request, slug=project.slug)
 
     assert response.status_code == 200
-    assert "Ben Goldacre" in response.rendered_content
+    assert "Ben Goldacre (beng)" in response.rendered_content
 
 
 def test_projectedit_get_unauthorized(rf):
