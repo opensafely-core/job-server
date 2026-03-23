@@ -74,9 +74,7 @@ class Project(models.Model):
     """
 
     class Statuses(models.TextChoices):
-        # These should only be visible in the staff area, and to logged-in users
-        # on their Yours page (so a user can only see the status of projects
-        # of which they are members). Project statuses should not be shown publicly,
+        # Project statuses should not be shown on public-facing pages,
         # as they can be misleading.
 
         ONGOING = "ongoing", "Ongoing"
