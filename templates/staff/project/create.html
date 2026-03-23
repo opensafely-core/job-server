@@ -64,7 +64,7 @@
     {% #card title="Project information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Project information" class="sr-only" %}
-        {% form_input field=form.number %}
+        {% form_input field=form.number pattern=number_field_regex %}
         {% form_input field=form.name required %}
       {% /form_fieldset %}
     {% /card %}

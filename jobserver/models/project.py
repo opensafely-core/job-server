@@ -30,9 +30,11 @@ NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
 NUMBER_REGEX = re.compile(NUMBER_PATTERN)
 # Either format, wrapping each with ^$ anchors to require full match.
 NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
+NUMBER_REGEX_DESCRIPTION = (
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
+)
 NUMBER_REGEX_VALIDATOR = RegexValidator(
-    re.compile(NUMBER_PATTERN_FULLMATCH),
-    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001).",
+    re.compile(NUMBER_PATTERN_FULLMATCH), NUMBER_REGEX_DESCRIPTION
 )
 
 
@@ -123,7 +125,10 @@ class Project(models.Model):
         blank=True,
         validators=[NUMBER_REGEX_VALIDATOR],
         verbose_name="Project ID",
-        help_text="Project ID can be found in the All Projects spreadsheet.",
+        help_text=(
+            "Project ID can be found in the All Projects spreadsheet. "
+            + NUMBER_REGEX_DESCRIPTION
+        ),
     )
 
     copilot_support_ends_at = models.DateTimeField(null=True, blank=True)
