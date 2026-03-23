@@ -67,6 +67,13 @@ def test_project_constraints_number_valid(number):
     [
         # Null is allowed, the empty string is not
         pytest.param("", id="empty-string"),
+        # Problematic characters
+        pytest.param(" ", id="space-character"),
+        pytest.param("   ", id="three-space-characters"),
+        pytest.param(" " * 1000, id="thousand-space-characters"),
+        pytest.param("\n", id="new-line"),
+        pytest.param("!@#^%$&*;,.'`|~", id="punctuation"),
+        pytest.param("\u2728 hello \U0001f338 world \U0001f40d", id="unicode"),
         # Integer identifiers
         # Leading zeroes
         pytest.param("0", id="single-0"),
