@@ -163,7 +163,7 @@ class ProjectEditForm(forms.ModelForm):
         # Neither of these are ideal so we're also validating it here so that it
         # gets attached to the number field on forms using this mixin.
         if Project.objects.exclude(pk=self.instance.pk).filter(number=number).exists():
-            raise forms.ValidationError("Project number must be unique")
+            raise forms.ValidationError("Project with this Project ID already exists.")
 
         return number
 
