@@ -1,13 +1,13 @@
 from datetime import date
 
 import pytest
-from django.utils.text import slugify
 from playwright.sync_api import expect
 
 from jobserver.authorization.roles import (
     ServiceAdministrator,
     StaffAreaAdministrator,
 )
+from jobserver.models import Project
 from tests.factories import CreateProjectFormDataFactory
 
 
@@ -83,9 +83,11 @@ def test_can_create_a_project(
     copilot_select.select_option(value=form_data["copilot"])
     form.get_by_role("button", name="Save").click()
 
+    new_project = Project.objects.first()
+
     # Successful redirect to the Project Created page
     expect(page).to_have_url(
-        f"{live_server.url}/staff/projects/{slugify(form_data['name'])}/created/"
+        f"{live_server.url}/staff/projects/{new_project.slug}/created/"
     )
 
     # Check Project Created page displays the new project name and number,
@@ -98,3 +100,7 @@ def test_can_create_a_project(
     expect(page.get_by_role("link", name="Add members to project →")).to_be_visible()
 
     # Go to Audit Log and view entry for the new project
+    page.goto(f"{live_server.url}/staff/projects/{new_project.slug}/audit-log/")
+    expect(page.get_by_role("heading", name="Audit log", level=1)).to_have_text(
+        f"Audit log: {new_project.title}"
+    )
