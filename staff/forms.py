@@ -148,23 +148,15 @@ class ProjectEditForm(forms.ModelForm):
         self.fields["copilot"].required = False
 
     def clean_number(self):
+        # The model uniqueness constraint triggers when the form is saved but
+        # the resulting error is not attached to the form field. Raise a
+        # ValidationError here instead, attaching it and improving the UI.
         number = self.cleaned_data["number"]
-
         if number in (None, ""):
             return number
 
-        # We have a constraint ensuring Project.number is unique (ignoring
-        # nulls).  Unfortunately that fires when we save a model, giving us an
-        # IntegrityError.  We have to handle this in the view if we're using a
-        # plain Form, while a ModelForm will put the failure message in the form
-        # instance's non_field_errors unless we manually handle the failure and
-        # attach it to the number field on the form.
-        #
-        # Neither of these are ideal so we're also validating it here so that it
-        # gets attached to the number field on forms using this mixin.
         if Project.objects.exclude(pk=self.instance.pk).filter(number=number).exists():
             raise forms.ValidationError("Project with this Project ID already exists.")
-
         return number
 
 
