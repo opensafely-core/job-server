@@ -10,6 +10,7 @@ from jobserver.authorization.roles import (
     ProjectDeveloper,
     ServiceAdministrator,
     StaffAreaAdministrator,
+    TechSupport,
 )
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
@@ -528,9 +529,13 @@ def test_projectlist_unauthorized(rf):
         ProjectList.as_view()(request, project_slug=project.slug)
 
 
-def test_projectlist_create_project_button_authorised(rf):
+@pytest.mark.parametrize(
+    "additional_role",
+    [ServiceAdministrator, TechSupport],
+)
+def test_projectlist_create_project_button_authorised(rf, additional_role):
     request = rf.get("/")
-    request.user = UserFactory(roles=[StaffAreaAdministrator, ServiceAdministrator])
+    request.user = UserFactory(roles=[StaffAreaAdministrator, additional_role])
 
     response = ProjectList.as_view()(request)
 
@@ -688,12 +693,16 @@ def test_projectcreate_unauthorised(rf, staff_area_administrator):
         ProjectCreate.as_view()(request)
 
 
-def test_projectcreate_get_initial_with_nonexistent_org(rf, service_administrator):
-    request = rf.get("/staff/projects/create/?org-slug=nonexistent-org")
-    request.user = service_administrator
+@pytest.mark.parametrize(
+    "user_fixture",
+    ["service_administrator", "tech_support"],
+)
+def test_projectcreate_get_initial_with_nonexistent_org(request, rf, user_fixture):
+    req = rf.get("/staff/projects/create/?org-slug=nonexistent-org")
+    req.user = request.getfixturevalue(user_fixture)
 
     view = ProjectCreate()
-    view.request = request
+    view.request = req
 
     initial = view.get_initial()
 

@@ -23,7 +23,11 @@ import jobserver.authorization.roles
 import services.slack
 from applications.form_specs import form_specs
 from jobserver.actions import project_members
-from jobserver.authorization.roles import ServiceAdministrator, StaffAreaAdministrator
+from jobserver.authorization.roles import (
+    ServiceAdministrator,
+    StaffAreaAdministrator,
+    TechSupport,
+)
 from jobserver.models import SiteAlert
 from services.logging import base_processors
 from services.tracing import add_exporter, get_provider
@@ -75,6 +79,11 @@ def staff_area_administrator():
 @pytest.fixture
 def service_administrator():
     return UserFactory(roles=[ServiceAdministrator])
+
+
+@pytest.fixture
+def tech_support():
+    return UserFactory(roles=[TechSupport])
 
 
 @pytest.fixture(name="log_output")
