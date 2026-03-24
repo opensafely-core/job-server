@@ -99,7 +99,23 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 
-class ProjectCreateForm(forms.ModelForm):
+class UniqueProjectNumberMixin:
+    """Mixin to validate Project.number uniqueness in the form, not the model."""
+
+    def clean_number(self):
+        # The model uniqueness constraint triggers when the form is saved but
+        # the resulting error is not attached to the form field. Raise a
+        # ValidationError here instead, attaching it and improving the UI.
+        number = self.cleaned_data["number"]
+        if number in (None, ""):
+            return number
+
+        if Project.objects.exclude(pk=self.instance.pk).filter(number=number).exists():
+            raise forms.ValidationError("Project with this Project ID already exists.")
+        return number
+
+
+class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
     """Form to create a Project."""
 
     class Meta:
@@ -123,7 +139,7 @@ class ProjectCreateForm(forms.ModelForm):
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
 
 
-class ProjectEditForm(forms.ModelForm):
+class ProjectEditForm(forms.ModelForm, UniqueProjectNumberMixin):
     class Meta:
         fields = [
             "copilot",
@@ -146,31 +162,6 @@ class ProjectEditForm(forms.ModelForm):
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["copilot"].required = False
-
-    def clean_number(self):
-        number = self.cleaned_data["number"]
-
-        if number in (None, ""):
-            return number
-
-        # We have a constraint ensuring Project.number is unique (ignoring
-        # nulls).  Unfortunately that fires when we save a model, giving us an
-        # IntegrityError.  We have to handle this in the view if we're using a
-        # plain Form, while a ModelForm will put the failure message in the form
-        # instance's non_field_errors unless we manually handle the failure and
-        # attach it to the number field on the form.
-        #
-        # Neither of these are ideal so we're also validating it here so that it
-        # gets attached to the number field on forms using this mixin.
-        if (
-            Project.objects.exclude(pk=self.instance.pk)
-            .exclude(number=None)
-            .filter(number=number)
-            .exists()
-        ):
-            raise forms.ValidationError("Project number must be unique")
-
-        return number
 
 
 class ProjectLinkApplicationForm(forms.Form):

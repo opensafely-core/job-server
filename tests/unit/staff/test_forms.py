@@ -295,7 +295,7 @@ def test_projecteditform_with_duplicate_number():
 
     assert not form.is_valid()
 
-    assert form.errors == {"number": ["Project number must be unique"]}
+    assert form.errors == {"number": ["Project with this Project ID already exists."]}
 
 
 def test_projecteditform_rejects_leading_zero_numeric_project_number():
