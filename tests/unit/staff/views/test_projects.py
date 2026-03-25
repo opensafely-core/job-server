@@ -554,7 +554,7 @@ def test_projectlist_create_project_button_unauthorised(rf, staff_area_administr
 )
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
 def test_projectmembershipedit_success(
-    request, user_fixture, rf, staff_area_administrator, next_url, project_membership
+    request, user_fixture, rf, next_url, project_membership
 ):
     project = ProjectFactory()
     user = UserFactory()
