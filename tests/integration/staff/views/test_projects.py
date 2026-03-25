@@ -1,7 +1,11 @@
 import pytest
 from django.urls import reverse
 
-from jobserver.authorization.roles import ServiceAdministrator, StaffAreaAdministrator
+from jobserver.authorization.roles import (
+    ServiceAdministrator,
+    StaffAreaAdministrator,
+    TechSupport,
+)
 from jobserver.models import AuditableEvent, Project
 from jobserver.utils import set_from_qs
 from tests.factories import (
@@ -15,10 +19,14 @@ from tests.factories import (
 class TestProjectListCreateProjectButton:
     """Tests of the Create a Project button on the Staff Area Projects page."""
 
+    @pytest.mark.parametrize(
+        "additional_role",
+        [ServiceAdministrator, TechSupport],
+    )
     def test_create_project_button_in_rendered_template_for_authorised_user(
-        self, client
+        self, client, additional_role
     ):
-        user = UserFactory(roles=[StaffAreaAdministrator, ServiceAdministrator])
+        user = UserFactory(roles=[StaffAreaAdministrator, additional_role])
 
         client.force_login(user)
 
@@ -51,8 +59,14 @@ class TestProjectCreation:
         response = client.post(reverse("staff:project-create"))
         assert response.status_code == 403
 
-    def test_projectcreate_selects_org_from_url_when_multiple_orgs_exist(self, client):
-        user = UserFactory(roles=[ServiceAdministrator])
+    @pytest.mark.parametrize(
+        "role",
+        [ServiceAdministrator, TechSupport],
+    )
+    def test_projectcreate_selects_org_from_url_when_multiple_orgs_exist(
+        self, client, role
+    ):
+        user = UserFactory(roles=[role])
         bennett_org = OrgFactory(slug="bennett-institute")
         OrgFactory(slug="university-of-oxford")
         OrgFactory(slug="phc-university-of-oxford")
@@ -67,9 +81,13 @@ class TestProjectCreation:
         selected_orgs = response.context_data["form"]["orgs"].value()
         assert selected_orgs == bennett_org.pk
 
+    @pytest.mark.parametrize(
+        "role_fixture_name",
+        ["service_administrator", "tech_support"],
+    )
     @pytest.mark.django_db(transaction=True)
     def test_projectcreate_post_success(
-        self, client, slack_messages, service_administrator
+        self, client, request, slack_messages, role_fixture_name
     ):
         """
         Test a successful POST to the ProjectCreate view.
@@ -84,7 +102,8 @@ class TestProjectCreation:
             * An AuditableEvent is created for the new project instance.
             * A Slack message is sent to the copilot support channel.
         """
-        user = service_administrator
+        role_fixture = request.getfixturevalue(role_fixture_name)
+        user = role_fixture
         data = CreateProjectFormDataFactory()
 
         client.force_login(user)
@@ -110,12 +129,16 @@ class TestProjectCreation:
         message, channel = slack_messages[0]
         assert channel == "co-pilot-support"
 
+    @pytest.mark.parametrize(
+        "role_fixture_name",
+        ["service_administrator", "tech_support"],
+    )
     # parametrisation covers both empty and omitted values for each
     # required field when POSTing to the ProjectCreateForm.
     @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
     @pytest.mark.parametrize("missing_data", ["empty", "omitted"])
     def test_projectcreate_post_with_missing_data(
-        self, client, slack_messages, service_administrator, field, missing_data
+        self, client, request, slack_messages, role_fixture_name, field, missing_data
     ):
         """
         Test an unsuccessful POST to the ProjectCreate view with missing data.
@@ -127,7 +150,8 @@ class TestProjectCreation:
             * A new AuditableEvent is not created
             * A Slack message is not sent to the copilot support channel.
         """
-        user = service_administrator
+        role_fixture = request.getfixturevalue(role_fixture_name)
+        user = role_fixture
         projects_count = Project.objects.count()
         aes_count = AuditableEvent.objects.count()
 
