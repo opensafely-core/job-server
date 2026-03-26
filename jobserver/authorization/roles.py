@@ -42,7 +42,8 @@ class TechSupport:
 
 class ServiceAdministrator:
     display_name = "Service Administrator"
-    description = """DO NOT ASSIGN IN PRODUCTION.
+    description = """Member of the NHSE OpenSAFELY Service Team.
+    Service Administrators also require the Staff Area Administrator role.
     Access the Create Project page.
     Create projects.
     Link projects to Job Server applications.
