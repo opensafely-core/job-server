@@ -47,12 +47,14 @@ class ServiceAdministrator:
     Access the Create Project page.
     Create projects.
     Link projects to Job Server applications.
-    Assign users to projects and project roles."""
+    Assign users to projects and project roles.
+    Create organisations."""
     models = [
         "jobserver.models.user.User",
     ]
     permissions = [
         Permission.USER_EDIT_PROJECT_ROLES,
+        Permission.ORG_CREATE,
         Permission.PROJECT_CREATE,
         Permission.PROJECT_LINK_TO_APPLICATION,
     ]
