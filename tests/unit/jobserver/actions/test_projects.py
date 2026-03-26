@@ -184,6 +184,4 @@ def test_edit():
     assert new.slug == "new"
     assert set_from_qs(new.orgs) == {org2.pk, org3.pk}
     assert ProjectCollaboration.objects.count() == 2
-    # This following assert ought to be True -- we should set one of the new
-    # orgs to is_lead. Right now the action does not.
-    # assert ProjectCollaboration.objects.get (project =project, org=org2).is_lead
+    assert ProjectCollaboration.objects.get(project=project, org=org2).is_lead

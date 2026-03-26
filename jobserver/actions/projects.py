@@ -59,9 +59,15 @@ def edit(*, old, form, by):
     new.updated_by = by
     new.save()
 
+    orgs = form.cleaned_data["orgs"]
     new.orgs.set(
-        form.cleaned_data["orgs"], through_defaults={"created_by": by, "updated_by": by}
+        orgs,
+        through_defaults={"created_by": by, "updated_by": by},
     )
+    # Set first org in form to lead. We expect at least one, and this seems
+    # like a reasonable pick. For now, the forms happen to only allow one form
+    # to be selected, but the model allows 0 or 1 leads.
+    ProjectCollaboration.objects.filter(project=new, org=orgs[0]).update(is_lead=True)
 
     # check changed_data here instead of comparing self.object.project to
     # new.project because self.object is mutated when ModelForm._post_clean
