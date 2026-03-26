@@ -4,7 +4,7 @@ import pytest
 from django.db import transaction
 
 from jobserver.actions import projects
-from jobserver.models import AuditableEvent, Project
+from jobserver.models import AuditableEvent, Project, ProjectCollaboration
 from jobserver.utils import set_from_qs
 from staff.forms import ProjectEditForm
 from tests.factories import (
@@ -17,8 +17,8 @@ from tests.factories import (
 
 @pytest.mark.django_db(transaction=True)
 def test_add_project_with_copilot(monkeypatch):
+    org0 = OrgFactory()
     org1 = OrgFactory()
-    org2 = OrgFactory()
 
     actor = UserFactory()
     copilot = UserFactory()
@@ -32,7 +32,7 @@ def test_add_project_with_copilot(monkeypatch):
     project = projects.add(
         name="test",
         number=31337,
-        orgs=[org1, org2],
+        orgs=[org0, org1],
         copilot=copilot,
         by=actor,
     )
@@ -49,14 +49,14 @@ def test_add_project_with_copilot(monkeypatch):
 
     collaboration1, collaboration2 = project.collaborations.all()
 
-    assert collaboration1.org == org1
+    assert collaboration1.org == org0
     assert collaboration1.is_lead
     assert collaboration1.created_at
     assert collaboration1.created_by == actor
     assert collaboration1.updated_at
     assert collaboration1.updated_by == actor
 
-    assert collaboration2.org == org2
+    assert collaboration2.org == org1
     assert not collaboration2.is_lead
     assert collaboration2.created_at
     assert collaboration2.created_by == actor
@@ -75,8 +75,8 @@ def test_add_project_with_copilot(monkeypatch):
 
 @pytest.mark.django_db(transaction=True)
 def test_add_project_without_copilot(monkeypatch):
+    org0 = OrgFactory()
     org1 = OrgFactory()
-    org2 = OrgFactory()
 
     actor = UserFactory()
 
@@ -86,7 +86,7 @@ def test_add_project_without_copilot(monkeypatch):
         "jobserver.actions.projects.notify_copilots_project_added", mock_notify
     )
 
-    project = projects.add(name="test", number=31337, orgs=[org1, org2], by=actor)
+    project = projects.add(name="test", number=31337, orgs=[org0, org1], by=actor)
 
     event = AuditableEvent.objects.get(type=AuditableEvent.Type.PROJECT_CREATED)
 
@@ -100,14 +100,14 @@ def test_add_project_without_copilot(monkeypatch):
 
     collaboration1, collaboration2 = project.collaborations.all()
 
-    assert collaboration1.org == org1
+    assert collaboration1.org == org0
     assert collaboration1.is_lead
     assert collaboration1.created_at
     assert collaboration1.created_by == actor
     assert collaboration1.updated_at
     assert collaboration1.updated_by == actor
 
-    assert collaboration2.org == org2
+    assert collaboration2.org == org1
     assert not collaboration2.is_lead
     assert collaboration2.created_at
     assert collaboration2.created_by == actor
@@ -128,8 +128,8 @@ def test_add_project_without_copilot(monkeypatch):
 def test_add_project_transaction_rollback(monkeypatch):
     """Test that if a database error rolls back the whole transaction, the
     notify function is not called and no new database entries."""
+    org0 = OrgFactory()
     org1 = OrgFactory()
-    org2 = OrgFactory()
 
     actor = UserFactory()
 
@@ -143,7 +143,7 @@ def test_add_project_transaction_rollback(monkeypatch):
     # an error when rolling back.
     with pytest.raises(RuntimeError):
         with transaction.atomic():
-            projects.add(name="test", number=31337, orgs=[org1, org2], by=actor)
+            projects.add(name="test", number=31337, orgs=[org0, org1], by=actor)
             raise RuntimeError("force rollback")
 
     assert not mock_notify.called
@@ -151,14 +151,23 @@ def test_add_project_transaction_rollback(monkeypatch):
     assert not Project.objects.exists()
 
 
-def test_edit():
-    org1 = OrgFactory()
-    org2 = OrgFactory()
-    org3 = OrgFactory()
+def assert_only_lead_org(project, org):
+    lead_orgs = ProjectCollaboration.objects.filter(project=project, is_lead=True)
+    assert {collaboration.org for collaboration in lead_orgs} == {org}
+
+
+def test_edit_disjoint_orgs():
+    """Test when completely different orgs are passed in.
+
+    Before, org0 is lead. org1 and org2 are passed in.
+    After, org0 is not related, and org1 is lead."""
+    org0, org1, org2 = OrgFactory.create_batch(3)
 
     project = ProjectFactory(slug="old")
-    ProjectCollaborationFactory(project=project, org=org1, is_lead=True)
-    ProjectCollaborationFactory(project=project, org=org2)
+    ProjectCollaborationFactory(project=project, org=org0, is_lead=True)
+    ProjectCollaborationFactory(project=project, org=org1)
+    assert project.org == org0  # cached so cannot test later
+    assert_only_lead_org(project, org0)
 
     actor = UserFactory()
 
@@ -171,7 +180,6 @@ def test_edit():
             "orgs": [
                 org1.pk,
                 org2.pk,
-                org3.pk,
             ],
         },
     )
@@ -180,4 +188,44 @@ def test_edit():
     new = projects.edit(old=project, form=form, by=actor)
 
     assert new.slug == "new"
-    assert set_from_qs(new.orgs) == {org1.pk, org2.pk, org3.pk}
+    assert set_from_qs(new.orgs) == {org1.pk, org2.pk}
+    assert ProjectCollaboration.objects.count() == 2
+    assert_only_lead_org(project, org1)
+
+
+def test_edit_existing_org():
+    """Test when an existing org is passed in along with a new one.
+
+    Before, org0 is lead. org1 and org0 are passed in, in that order.
+    After, both are related; org0 is still lead; and org1 is not lead."""
+    org0 = OrgFactory()
+    org1 = OrgFactory()
+
+    project = ProjectFactory(slug="old")
+    ProjectCollaborationFactory(project=project, org=org0, is_lead=True)
+    ProjectCollaborationFactory(project=project, org=org1)
+    assert project.org == org0  # cached so cannot test later
+    assert_only_lead_org(project, org0)
+
+    actor = UserFactory()
+
+    form = ProjectEditForm(
+        instance=project,
+        data={
+            "name": project.name,
+            "slug": "new",
+            "status": project.status,
+            "orgs": [
+                org1.pk,
+                org0.pk,
+            ],
+        },
+    )
+    assert form.is_valid(), form.errors
+
+    new = projects.edit(old=project, form=form, by=actor)
+
+    assert new.slug == "new"
+    assert set_from_qs(new.orgs) == {org0.pk, org1.pk}
+    assert ProjectCollaboration.objects.count() == 2
+    assert_only_lead_org(project, org0)
