@@ -4,7 +4,7 @@ from .permissions import Permission
 class StaffAreaAdministrator:
     display_name = "Staff Area Administrator"
     description = """Access the Staff Area.
-    View and edit applications, backends, organisations, project, repos, users, and workspaces.
+    View and edit applications, backends, organisations, repos, users, and workspaces.
     View dashboards.
     Tech team members must be listed as a Platform Developer in the Developer
     Permissions Log to have this role.
@@ -18,7 +18,6 @@ class StaffAreaAdministrator:
         Permission.ORG_CREATE,
         Permission.USER_MANAGE,
         Permission.STAFF_AREA_ACCESS,
-        Permission.USER_EDIT_PROJECT_ROLES,
     ]
 
 
@@ -42,16 +41,19 @@ class TechSupport:
 
 class ServiceAdministrator:
     display_name = "Service Administrator"
-    description = """DO NOT ASSIGN IN PRODUCTION.
+    description = """Access page required for administrating projects.
+    Service Administrators also require the Staff Area Administrator role.
     Access the Create Project page.
     Create projects.
     Link projects to Job Server applications.
-    Assign users to projects and project roles."""
+    Assign users to projects and project roles.
+    Create organisations."""
     models = [
         "jobserver.models.user.User",
     ]
     permissions = [
         Permission.USER_EDIT_PROJECT_ROLES,
+        Permission.ORG_CREATE,
         Permission.PROJECT_CREATE,
         Permission.PROJECT_LINK_TO_APPLICATION,
     ]
