@@ -151,21 +151,23 @@ def test_add_project_transaction_rollback(monkeypatch):
     assert not Project.objects.exists()
 
 
+def assert_only_lead_org(project, org):
+    lead_orgs = ProjectCollaboration.objects.filter(project=project, is_lead=True)
+    assert {collaboration.org for collaboration in lead_orgs} == {org}
+
+
 def test_edit_disjoint_orgs():
     """Test when completely different orgs are passed in.
 
     Before, org1 is lead. org2 and org3 are passed in.
     After, org1 is not related, and org2 is lead."""
-    org1 = OrgFactory()
-    org2 = OrgFactory()
-    org3 = OrgFactory()
+    org1, org2, org3 = OrgFactory.create_batch(3)
 
     project = ProjectFactory(slug="old")
     ProjectCollaborationFactory(project=project, org=org1, is_lead=True)
     ProjectCollaborationFactory(project=project, org=org2)
-    assert project.org == org1
-    assert ProjectCollaboration.objects.get(project=project, org=org1).is_lead
-    assert not ProjectCollaboration.objects.get(project=project, org=org2).is_lead
+    assert project.org == org1  # cached so cannot test later
+    assert_only_lead_org(project, org1)
 
     actor = UserFactory()
 
@@ -188,9 +190,7 @@ def test_edit_disjoint_orgs():
     assert new.slug == "new"
     assert set_from_qs(new.orgs) == {org2.pk, org3.pk}
     assert ProjectCollaboration.objects.count() == 2
-    assert not ProjectCollaboration.objects.filter(project=project, org=org1)
-    assert ProjectCollaboration.objects.get(project=project, org=org2).is_lead
-    assert not ProjectCollaboration.objects.get(project=project, org=org3).is_lead
+    assert_only_lead_org(project, org2)
 
 
 def test_edit_existing_org():
@@ -204,9 +204,8 @@ def test_edit_existing_org():
     project = ProjectFactory(slug="old")
     ProjectCollaborationFactory(project=project, org=org1, is_lead=True)
     ProjectCollaborationFactory(project=project, org=org2)
-    assert project.org == org1
-    assert ProjectCollaboration.objects.get(project=project, org=org1).is_lead
-    assert not ProjectCollaboration.objects.get(project=project, org=org2).is_lead
+    assert project.org == org1  # cached so cannot test later
+    assert_only_lead_org(project, org1)
 
     actor = UserFactory()
 
@@ -229,5 +228,4 @@ def test_edit_existing_org():
     assert new.slug == "new"
     assert set_from_qs(new.orgs) == {org1.pk, org2.pk}
     assert ProjectCollaboration.objects.count() == 2
-    assert ProjectCollaboration.objects.get(project=project, org=org1).is_lead
-    assert not ProjectCollaboration.objects.get(project=project, org=org2).is_lead
+    assert_only_lead_org(project, org1)
