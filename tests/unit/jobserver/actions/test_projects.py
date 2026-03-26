@@ -197,7 +197,7 @@ def test_edit_existing_org():
     """Test when an existing org is passed in along with a new one.
 
     Before, org1 is lead. org2 and org1 are passed in, in that order.
-    After, both are related; org1 is not lead; and org2 is lead."""
+    After, both are related; org1 is still lead; and org2 is not lead."""
     org1 = OrgFactory()
     org2 = OrgFactory()
 
@@ -229,5 +229,5 @@ def test_edit_existing_org():
     assert new.slug == "new"
     assert set_from_qs(new.orgs) == {org1.pk, org2.pk}
     assert ProjectCollaboration.objects.count() == 2
-    assert not ProjectCollaboration.objects.get(project=project, org=org1).is_lead
-    assert ProjectCollaboration.objects.get(project=project, org=org2).is_lead
+    assert ProjectCollaboration.objects.get(project=project, org=org1).is_lead
+    assert not ProjectCollaboration.objects.get(project=project, org=org2).is_lead
