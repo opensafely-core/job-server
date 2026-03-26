@@ -23,6 +23,7 @@ from jobserver.authorization.decorators import has_permission, require_permissio
 from jobserver.authorization.permissions import Permission
 from jobserver.authorization.utils import roles_for
 from jobserver.models import AuditableEvent, Org, Project, ProjectMembership, User
+from jobserver.models.project import NUMBER_PATTERN
 
 from ..forms import (
     ProjectAddMemberForm,
@@ -47,7 +48,8 @@ class ProjectCreate(CreateView):
         return super().get_context_data(**kwargs) | {
             "can_create_org": has_permission(
                 user=self.request.user, permission=Permission.ORG_CREATE
-            )
+            ),
+            "number_field_regex": NUMBER_PATTERN,
         }
 
     def get_initial(self):
