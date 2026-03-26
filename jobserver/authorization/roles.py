@@ -42,7 +42,8 @@ class TechSupport:
 
 class ServiceAdministrator:
     display_name = "Service Administrator"
-    description = """DO NOT ASSIGN IN PRODUCTION.
+    description = """Access page required for administrating projects.
+    Service Administrators also require the Staff Area Administrator role.
     Access the Create Project page.
     Create projects.
     Link projects to Job Server applications.
