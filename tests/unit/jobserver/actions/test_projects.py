@@ -4,7 +4,7 @@ import pytest
 from django.db import transaction
 
 from jobserver.actions import projects
-from jobserver.models import AuditableEvent, Project
+from jobserver.models import AuditableEvent, Project, ProjectCollaboration
 from jobserver.utils import set_from_qs
 from staff.forms import ProjectEditForm
 from tests.factories import (
@@ -159,6 +159,9 @@ def test_edit():
     project = ProjectFactory(slug="old")
     ProjectCollaborationFactory(project=project, org=org1, is_lead=True)
     ProjectCollaborationFactory(project=project, org=org2)
+    assert project.org == org1
+    assert ProjectCollaboration.objects.get(project=project, org=org1).is_lead
+    assert not ProjectCollaboration.objects.get(project=project, org=org2).is_lead
 
     actor = UserFactory()
 
@@ -169,7 +172,6 @@ def test_edit():
             "slug": "new",
             "status": project.status,
             "orgs": [
-                org1.pk,
                 org2.pk,
                 org3.pk,
             ],
@@ -180,4 +182,8 @@ def test_edit():
     new = projects.edit(old=project, form=form, by=actor)
 
     assert new.slug == "new"
-    assert set_from_qs(new.orgs) == {org1.pk, org2.pk, org3.pk}
+    assert set_from_qs(new.orgs) == {org2.pk, org3.pk}
+    assert ProjectCollaboration.objects.count() == 2
+    # This following assert ought to be True -- we should set one of the new
+    # orgs to is_lead. Right now the action does not.
+    # assert ProjectCollaboration.objects.get (project =project, org=org2).is_lead
