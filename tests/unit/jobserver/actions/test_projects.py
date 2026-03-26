@@ -151,7 +151,11 @@ def test_add_project_transaction_rollback(monkeypatch):
     assert not Project.objects.exists()
 
 
-def test_edit():
+def test_edit_disjoint_orgs():
+    """Test when completely different orgs are passed in.
+
+    Before, org1 is lead. org2 and org3 are passed in.
+    After, org1 is not related, and org2 is lead."""
     org1 = OrgFactory()
     org2 = OrgFactory()
     org3 = OrgFactory()
@@ -184,4 +188,46 @@ def test_edit():
     assert new.slug == "new"
     assert set_from_qs(new.orgs) == {org2.pk, org3.pk}
     assert ProjectCollaboration.objects.count() == 2
+    assert not ProjectCollaboration.objects.filter(project=project, org=org1)
+    assert ProjectCollaboration.objects.get(project=project, org=org2).is_lead
+    assert not ProjectCollaboration.objects.get(project=project, org=org3).is_lead
+
+
+def test_edit_existing_org():
+    """Test when an existing org is passed in along with a new one.
+
+    Before, org1 is lead. org2 and org1 are passed in, in that order.
+    After, both are related; org1 is not lead; and org2 is lead."""
+    org1 = OrgFactory()
+    org2 = OrgFactory()
+
+    project = ProjectFactory(slug="old")
+    ProjectCollaborationFactory(project=project, org=org1, is_lead=True)
+    ProjectCollaborationFactory(project=project, org=org2)
+    assert project.org == org1
+    assert ProjectCollaboration.objects.get(project=project, org=org1).is_lead
+    assert not ProjectCollaboration.objects.get(project=project, org=org2).is_lead
+
+    actor = UserFactory()
+
+    form = ProjectEditForm(
+        instance=project,
+        data={
+            "name": project.name,
+            "slug": "new",
+            "status": project.status,
+            "orgs": [
+                org2.pk,
+                org1.pk,
+            ],
+        },
+    )
+    assert form.is_valid(), form.errors
+
+    new = projects.edit(old=project, form=form, by=actor)
+
+    assert new.slug == "new"
+    assert set_from_qs(new.orgs) == {org1.pk, org2.pk}
+    assert ProjectCollaboration.objects.count() == 2
+    assert not ProjectCollaboration.objects.get(project=project, org=org1).is_lead
     assert ProjectCollaboration.objects.get(project=project, org=org2).is_lead
