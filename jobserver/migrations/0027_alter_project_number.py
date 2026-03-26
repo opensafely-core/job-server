@@ -8,7 +8,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("jobserver", "0025_alter_project_copilot_support_ends_at"),
+        ("jobserver", "0026_alter_project_unique_number_ignore_null"),
     ]
 
     operations = [
