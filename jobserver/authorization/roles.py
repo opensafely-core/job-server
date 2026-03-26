@@ -4,7 +4,7 @@ from .permissions import Permission
 class StaffAreaAdministrator:
     display_name = "Staff Area Administrator"
     description = """Access the Staff Area.
-    View and edit applications, backends, organisations, project, repos, users, and workspaces.
+    View and edit applications, backends, organisations, repos, users, and workspaces.
     View dashboards.
     Tech team members must be listed as a Platform Developer in the Developer
     Permissions Log to have this role.
@@ -18,7 +18,6 @@ class StaffAreaAdministrator:
         Permission.ORG_CREATE,
         Permission.USER_MANAGE,
         Permission.STAFF_AREA_ACCESS,
-        Permission.USER_EDIT_PROJECT_ROLES,
     ]
 
 
