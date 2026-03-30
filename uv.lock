@@ -1726,7 +1726,7 @@ wheels = [
 
 [[package]]
 name = "slippers"
-version = "0.6.2"
+version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
@@ -1734,9 +1734,9 @@ dependencies = [
     { name = "typeguard" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a7/c6/6af4500f31e53e9f782d264cb715f1a8cc9ac4248fba9fe2fe172822ea79/slippers-0.6.2.tar.gz", hash = "sha256:4cb555b8822ba0d404e5405723f5d723994022c29046008ee917081031bc0cf1", size = 59499, upload-time = "2023-08-01T05:04:18.964Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/3c/979ab01ee6515fb3d6f10cfc10ef2e6219817828b972c54d49f6ddd9ddd2/slippers-0.6.3.tar.gz", hash = "sha256:8602f462da79b707d25ec050fb51b6cbe5fb225b3c7faf40d1f02876d970e9f0", size = 59793, upload-time = "2026-03-30T04:51:59.436Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/8c/1fe2803870861f9a7f0cf502e4d1361dbb3685997118f4f76fd83ec9272f/slippers-0.6.2-py3-none-any.whl", hash = "sha256:739e05f85354becbf0a65daab831eea62557d89e7512042209ab629af4378bca", size = 61359, upload-time = "2023-08-01T05:04:17.378Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/b9/76c4b0535d26089d0d01f5c9cb3529b121babd1abf605e6c7e12acedb09b/slippers-0.6.3-py3-none-any.whl", hash = "sha256:cddd92cb998fb48472f863a811566f5a187b392f65ae4b0df81008b56dff214c", size = 62528, upload-time = "2026-03-30T04:51:58.227Z" },
 ]
 
 [[package]]
