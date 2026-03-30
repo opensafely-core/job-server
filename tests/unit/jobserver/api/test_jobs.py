@@ -890,7 +890,6 @@ def test_userapidetail_success(api_rf, project_membership):
         "backend_manage",
         "org_create",
         "staff_area_access",
-        "user_edit_project_roles",
         "user_manage",
     ]
 

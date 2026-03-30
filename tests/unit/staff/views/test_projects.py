@@ -37,7 +37,7 @@ from ....factories import (
 
 @pytest.mark.parametrize(
     "user_fixture",
-    ["staff_area_administrator", "service_administrator"],
+    ["tech_support", "service_administrator"],
 )
 def test_projectaddmember_get_success(request, rf, user_fixture):
     project = ProjectFactory()
@@ -55,7 +55,7 @@ def test_projectaddmember_get_success(request, rf, user_fixture):
 
 @pytest.mark.parametrize(
     "user_fixture",
-    ["staff_area_administrator", "service_administrator"],
+    ["tech_support", "service_administrator"],
 )
 def test_projectaddmember_post_success(request, rf, user_fixture):
     project = ProjectFactory()
@@ -89,7 +89,7 @@ def test_projectaddmember_unauthorized(rf):
 
 @pytest.mark.parametrize(
     "user_fixture",
-    ["staff_area_administrator", "service_administrator"],
+    ["tech_support", "service_administrator"],
 )
 def test_projectaddmember_unknown_project(request, rf, user_fixture):
     req = rf.post("/")
@@ -555,7 +555,7 @@ def test_projectlist_create_project_button_unauthorised(rf, staff_area_administr
 
 @pytest.mark.parametrize(
     "user_fixture",
-    ["staff_area_administrator", "service_administrator"],
+    ["tech_support", "service_administrator"],
 )
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
 def test_projectmembershipedit_success(
@@ -585,7 +585,7 @@ def test_projectmembershipedit_success(
 
 @pytest.mark.parametrize(
     "user_fixture",
-    ["staff_area_administrator", "service_administrator"],
+    ["tech_support", "service_administrator"],
 )
 def test_projectmembershipedit_unknown_membership(
     rf, request, user_fixture, project_membership
@@ -611,7 +611,7 @@ def test_projectmembershipedit_unauthorized(rf):
 
 @pytest.mark.parametrize(
     "user_fixture",
-    ["staff_area_administrator", "service_administrator"],
+    ["tech_support", "service_administrator"],
 )
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
 def test_projectmembershipremove_success(
@@ -663,7 +663,7 @@ def test_projectmembershipremove_unauthorized(rf, project_membership):
 
 @pytest.mark.parametrize(
     "user_fixture",
-    ["staff_area_administrator", "service_administrator"],
+    ["tech_support", "service_administrator"],
 )
 def test_projectmembershipremove_unknown_membership(request, rf, user_fixture):
     project = ProjectFactory()
