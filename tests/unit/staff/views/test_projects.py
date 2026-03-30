@@ -231,6 +231,31 @@ def test_projectdetail_success(rf, user_is_service_administrator):
     )
 
 
+@pytest.mark.parametrize(
+    ("roles", "user_can_link_applications", "user_can_edit_members"),
+    [
+        ([StaffAreaAdministrator], False, False),
+        ([StaffAreaAdministrator, ServiceAdministrator], True, True),
+        ([StaffAreaAdministrator, TechSupport], False, True),
+    ],
+)
+def test_projectdetail_sets_permission_flags_for_roles(
+    rf, roles, user_can_link_applications, user_can_edit_members
+):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=roles)
+
+    response = ProjectDetail.as_view()(request, slug=project.slug)
+
+    assert (
+        response.context_data["user_can_link_applications"]
+        == user_can_link_applications
+    )
+    assert response.context_data["user_can_edit_members"] == user_can_edit_members
+
+
 def test_projectedit_get_success(rf, staff_area_administrator):
     project = ProjectFactory(orgs=[OrgFactory()])
 
@@ -373,6 +398,36 @@ def test_projectedit_post_updates_number_from_numeric_to_alphanumeric(
 
     project.refresh_from_db()
     assert project.number == new_number
+
+
+@pytest.mark.parametrize(
+    ("roles", "can_link", "expected_text"),
+    [
+        (
+            [StaffAreaAdministrator],
+            False,
+            "Applications can only be linked by users with permission to link applications.",
+        ),
+        (
+            [StaffAreaAdministrator, ServiceAdministrator],
+            True,
+            'If you are looking to link to an application created on this site use "Find and Link"',
+        ),
+    ],
+)
+def test_projectedit_application_guidance_depends_on_link_permission(
+    rf, roles, can_link, expected_text
+):
+    project = ProjectFactory(orgs=[OrgFactory()])
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=roles)
+
+    response = ProjectEdit.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_link_applications"] == can_link
+    assert expected_text in response.rendered_content
 
 
 def test_projectlinkapplication_get_empty_application_list(rf, service_administrator):
@@ -715,3 +770,20 @@ def test_projectcreated_unauthorised(rf, staff_area_administrator):
 
     with pytest.raises(PermissionDenied):
         ProjectCreated.as_view()(request)
+
+
+@pytest.mark.parametrize(
+    ("role", "expected"),
+    [
+        ("service_administrator", True),
+        ("tech_support", False),
+    ],
+)
+def test_projectcreate_can_create_org_flag(request, rf, role, expected):
+    req = rf.get("/")
+    req.user = request.getfixturevalue(role)
+
+    response = ProjectCreate.as_view()(req)
+
+    assert response.status_code == 200
+    assert response.context_data["can_create_org"] is expected

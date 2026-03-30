@@ -22,10 +22,12 @@
       {% #button type="link" href=project.get_staff_edit_url variant="danger" %}
         Edit
       {% /button %}
-      {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
-      {% #button type="link" href=staff_project_add_member_url variant="secondary" %}
-        Add Members
-      {% /button %}
+      {% if user_can_edit_members %}
+        {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
+        {% #button type="link" href=staff_project_add_member_url variant="secondary" %}
+          Add Members
+        {% /button %}
+      {% endif %}
       {% #button type="link" href=project.get_staff_audit_url variant="secondary" %}
         Audit log
       {% /button %}
