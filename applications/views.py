@@ -124,9 +124,8 @@ class ResearcherCreate(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        researcher = form.save(commit=False)
-        researcher.application = self.application
-        researcher.save()
+        form.instance.application = self.application
+        super().form_valid(form)
 
         return redirect(get_next_url(self.request.GET))
 
