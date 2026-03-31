@@ -50,7 +50,9 @@ def _validate_slug(project_name: str):
         raise forms.ValidationError(validate_slug.message)
 
     if Project.objects.filter(slug=slug).exists():
-        raise forms.ValidationError(f'Project with the slug "{slug}" already exists')
+        raise forms.ValidationError(
+            f'Project with the URL slug "{slug}" generated from this project title already exists'
+        )
 
 
 class ApplicationApproveForm(forms.Form):
