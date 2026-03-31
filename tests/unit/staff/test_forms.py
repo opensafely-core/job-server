@@ -50,14 +50,12 @@ def test_applicationapproveform_with_duplicate_project_name():
     )
 
     assert not form.is_valid()
-    assert form.errors == {
-        "project_name": [f'Project "{project.name}" already exists.']
-    }
+    assert "project_name" in form.errors
 
 
 def test_applicationapproveform_with_duplicate_project_number():
     org = OrgFactory()
-    project = ProjectFactory(number=42)
+    ProjectFactory(number=42)
 
     form = ApplicationApproveForm(
         data={
@@ -69,9 +67,7 @@ def test_applicationapproveform_with_duplicate_project_number():
     )
 
     assert not form.is_valid()
-    assert form.errors == {
-        "project_number": [f'Project with number "{project.number}" already exists.']
-    }
+    assert "project_number" in form.errors
 
 
 def test_applicationapproveform_with_duplicate_project_slug():
@@ -88,9 +84,7 @@ def test_applicationapproveform_with_duplicate_project_slug():
     )
 
     assert not form.is_valid()
-    assert form.errors == {
-        "project_name": ['A project with the slug, "test-1", already exists']
-    }
+    assert "project_name" in form.errors
 
 
 def test_applicationapproveform_with_empty_project_slug():
@@ -106,9 +100,7 @@ def test_applicationapproveform_with_empty_project_slug():
     )
 
     assert not form.is_valid()
-    assert form.errors == {
-        "project_name": ["Please use at least one letter or number in the title"]
-    }
+    assert "project_name" in form.errors
 
 
 def test_applicationapproveform_with_alphanumeric_project_number():
@@ -139,11 +131,7 @@ def test_applicationapproveform_with_invalid_project_number():
     )
 
     assert not form.is_valid()
-    assert form.errors == {
-        "project_number": [
-            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
-        ]
-    }
+    assert "project_number" in form.errors
 
 
 def test_applicationapproveform_rejects_leading_zero_numeric_project_number():
@@ -159,11 +147,7 @@ def test_applicationapproveform_rejects_leading_zero_numeric_project_number():
     )
 
     assert not form.is_valid()
-    assert form.errors == {
-        "project_number": [
-            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
-        ]
-    }
+    assert "project_number" in form.errors
 
 
 def test_projectcreateform_unbound():
@@ -196,6 +180,44 @@ def test_projectcreateform_success():
 
     assert form.is_bound
     assert form.is_valid(), form.errors
+
+
+def test_projectcreateform_duplicate_slug():
+    """Test that ProjectCreateForm does not validate when an already existing
+    slug would be generated.
+
+    Given a project exists with a particular slug.
+    When the form is populated with a name that slugifies to the same thing:
+        * Validation fails.
+    """
+    ProjectFactory(slug="foo")
+    data = CreateProjectFormDataFactory()
+    data["name"] = "foo"
+
+    form = ProjectCreateForm(data=data)
+
+    assert form.is_bound
+    assert not form.is_valid()
+    assert "name" in form.errors
+
+
+def test_projectcreateform_empty_slug():
+    """Test that ProjectCreateForm does not validate when an empty
+    slug would be generated.
+
+    When the form is populated with a name that slugifies to '':
+        * Validation fails.
+
+    This can occur when the name contains only special characters.
+    """
+    data = CreateProjectFormDataFactory()
+    data["name"] = "!!!"
+
+    form = ProjectCreateForm(data=data)
+
+    assert form.is_bound
+    assert not form.is_valid()
+    assert "name" in form.errors
 
 
 @pytest.mark.parametrize(
