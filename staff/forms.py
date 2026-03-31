@@ -1,5 +1,4 @@
 from django import forms
-from django.core.validators import validate_slug
 from django.db.models.functions import Lower
 from django.utils.text import slugify
 
@@ -47,7 +46,8 @@ def _validate_slug(project_name: str):
     already exist."""
     slug = slugify(project_name)
     if not slug:
-        raise forms.ValidationError(validate_slug.message)
+        message = "Please enter at least one letter or number. "
+        raise forms.ValidationError(message)
 
     if Project.objects.filter(slug=slug).exists():
         raise forms.ValidationError(
