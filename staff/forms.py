@@ -41,6 +41,19 @@ class PickUsersMixin:
         self.fields["users"] = UserModelMultipleChoiceField(queryset=users)
 
 
+def _validate_slug(project_name: str):
+    """Validate that a project name slugifies to non-empty, and does not
+    already exist."""
+    slug = slugify(project_name)
+    if not slug:
+        raise forms.ValidationError(
+            "Please use at least one letter or number in the title"
+        )
+
+    if Project.objects.filter(slug=slug).exists():
+        raise forms.ValidationError(f'A project with the slug "{slug}" already exists')
+
+
 class ApplicationApproveForm(forms.Form):
     project_name = forms.CharField(help_text="Update the study name if necessary")
     project_number = forms.CharField()
@@ -59,16 +72,7 @@ class ApplicationApproveForm(forms.Form):
         if Project.objects.filter(name=project_name).exists():
             raise forms.ValidationError(f'Project "{project_name}" already exists.')
 
-        slug = slugify(project_name)
-        if not slug:
-            raise forms.ValidationError(
-                "Please use at least one letter or number in the title"
-            )
-
-        if Project.objects.filter(slug=slug).exists():
-            raise forms.ValidationError(
-                f'A project with the slug, "{slug}", already exists'
-            )
+        _validate_slug(project_name)
 
         return project_name
 
@@ -137,6 +141,10 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
         super().__init__(*args, **kwargs)
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
+
+    def clean_name(self):
+        _validate_slug(self.cleaned_data["name"])
+        return self.cleaned_data["name"]
 
 
 class ProjectEditForm(forms.ModelForm, UniqueProjectNumberMixin):
