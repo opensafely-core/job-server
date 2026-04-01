@@ -60,14 +60,10 @@ class TestProjectCreation:
         response = client.post(reverse("staff:project-create"))
         assert response.status_code == 403
 
-    @pytest.mark.parametrize(
-        "role",
-        [ServiceAdministrator, TechSupport],
-    )
     def test_projectcreate_selects_org_from_url_when_multiple_orgs_exist(
-        self, client, role
+        self, client, user_with_fake_role_factory
     ):
-        user = UserFactory(roles=[role])
+        user = user_with_fake_role_factory(permission=Permission.PROJECT_CREATE)
         bennett_org = OrgFactory(slug="bennett-institute")
         OrgFactory(slug="university-of-oxford")
         OrgFactory(slug="phc-university-of-oxford")
@@ -125,16 +121,18 @@ class TestProjectCreation:
         message, channel = slack_messages[0]
         assert channel == "co-pilot-support"
 
-    @pytest.mark.parametrize(
-        "role_fixture_name",
-        ["service_administrator", "tech_support"],
-    )
     # parametrisation covers both empty and omitted values for each
     # required field when POSTing to the ProjectCreateForm.
     @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
     @pytest.mark.parametrize("missing_data", ["empty", "omitted"])
     def test_projectcreate_post_with_missing_data(
-        self, client, request, slack_messages, role_fixture_name, field, missing_data
+        self,
+        client,
+        request,
+        user_with_fake_role_factory,
+        slack_messages,
+        field,
+        missing_data,
     ):
         """
         Test an unsuccessful POST to the ProjectCreate view with missing data.
@@ -146,8 +144,7 @@ class TestProjectCreation:
             * A new AuditableEvent is not created
             * A Slack message is not sent to the copilot support channel.
         """
-        role_fixture = request.getfixturevalue(role_fixture_name)
-        user = role_fixture
+        user = user_with_fake_role_factory(permission=Permission.PROJECT_CREATE)
         projects_count = Project.objects.count()
         aes_count = AuditableEvent.objects.count()
 
@@ -191,10 +188,10 @@ class TestProjectDetail:
     """Tests of the project detail view."""
 
     @pytest.mark.parametrize(
-        "user_is_service_administrator",
+        "user_has_create_project",
         [True, False],
     )
-    def test_projectdetail_authorized(self, client, user_is_service_administrator):
+    def test_projectdetail_authorized(self, client, user_has_create_project):
         """
         Test that a user with permission can access the ProjectDetail view.
 
@@ -203,7 +200,7 @@ class TestProjectDetail:
         """
         roles = (
             [StaffAreaAdministrator, ServiceAdministrator]
-            if user_is_service_administrator
+            if user_has_create_project
             else [StaffAreaAdministrator]
         )
         user = UserFactory(roles=roles)
@@ -218,10 +215,8 @@ class TestProjectDetail:
         # This class exists only to help automated testing that the content is as expected.
         assert "test-project-information-card" in response.text
         # This class exists only to help automated testing that the content is as expected.
-        # It should only be appear if the user is a ServiceAdministrator.
-        assert (
-            "test-link-application" in response.text
-        ) == user_is_service_administrator
+        # It should only be appear if the user can create projects.
+        assert ("test-link-application" in response.text) == user_has_create_project
 
     def test_projectdetail_unauthorized(self, client):
         """
