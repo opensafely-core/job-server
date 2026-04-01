@@ -404,7 +404,11 @@ def role_factory():
         # them using their dotted path. To accommodate the check and the import, we move
         # this role class into place with __module__ and setattr.
 
-        name = f"Role_{permission}"
+        # Allow either single permission or iterable argument
+        if isinstance(permission, str):
+            permission = [permission]
+
+        name = f"Role_{'_'.join(permission)}"
         assert name.isidentifier(), f"{name} is not a valid Python identifier"
 
         Role = getattr(jobserver.authorization.roles, name, None)
@@ -415,7 +419,7 @@ def role_factory():
                 {
                     "__module__": jobserver.authorization.roles.__name__,
                     "models": [],
-                    "permissions": [permission],
+                    "permissions": list(permission),
                 },
             )
             setattr(jobserver.authorization.roles, name, Role)
@@ -433,7 +437,10 @@ def user_with_fake_role_factory(role_factory):
     """A fixture for dynamically creating a role with a given permission."""
 
     def _role_factory(*, permission):
-        return UserFactory(roles=[role_factory(permission=permission)])
+        # Allow either single permission or iterable argument
+        if isinstance(permission, str):
+            permission = [permission]
+        return UserFactory(roles=[role_factory(permission=list(permission))])
 
     return _role_factory
 
