@@ -347,6 +347,7 @@ CONTENT_SECURITY_POLICY = {
         "default-src": [NONE],
         "object-src": [NONE],
         "base-uri": [NONE],
+        "frame-ancestors": [SELF],
         "font-src": FONT_SRC,
         "img-src": [
             SELF,
