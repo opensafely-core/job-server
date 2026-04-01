@@ -1,6 +1,8 @@
 import pytest
+from django.conf import settings
 from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse
+from furl import furl
 from social_core.backends.github import GithubOAuth2
 from social_django.models import DjangoStorage
 from social_django.strategy import DjangoStrategy
@@ -90,12 +92,13 @@ def test_pipeline_with_new_user(slack_messages, strategy):
     assert "sekret" not in social.extra_data.values()
     assert "token_type" not in social.extra_data
 
-    url = f"http://localhost:8000{user.get_staff_url()}"
+    url = furl(settings.BASE_URL)
+    url.path = user.get_staff_url()
 
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
     assert channel == "job-server-registrations"
-    assert text == f"New user ({user.username}) registered: <{url}>"
+    assert text == f"New user ({user.username}) registered: <{url.url}>"
 
 
 def test_pipeline_without_name(rf, slack_messages):

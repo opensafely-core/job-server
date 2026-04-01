@@ -1,3 +1,4 @@
+from html import escape
 from unittest.mock import patch
 
 import pytest
@@ -1310,7 +1311,7 @@ def test_jobrequestdetail_with_permission_staff_area_administrator(rf, freezer):
         identifier=job_request.identifier
     ).first()
     url = honeycomb.jobrequest_link(prefetched_job_request)
-    assert url in response.rendered_content
+    assert escape(url) in response.rendered_content
 
 
 def test_jobrequestdetail_with_permission_nonempty_definition(

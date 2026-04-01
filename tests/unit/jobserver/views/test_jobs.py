@@ -1,3 +1,4 @@
+from html import escape
 from unittest.mock import patch
 
 import pytest
@@ -222,11 +223,11 @@ def test_jobdetail_with_staff_area_administrator(rf, freezer):
         identifier=job_request.identifier
     ).first()
     url = honeycomb.jobrequest_link(prefetched_job_request)
-    assert url in response.rendered_content
+    assert escape(url) in response.rendered_content
     assert job_request.identifier in response.rendered_content
 
-    assert honeycomb.metrics_link(job) in response.rendered_content
-    assert honeycomb.status_link(job) in response.rendered_content
+    assert escape(honeycomb.metrics_link(job)) in response.rendered_content
+    assert escape(honeycomb.status_link(job)) in response.rendered_content
 
 
 def test_jobdetail_with_staff_area_administrator_with_completed_at(rf, freezer):
@@ -262,7 +263,7 @@ def test_jobdetail_with_staff_area_administrator_with_completed_at(rf, freezer):
         identifier=job_request.identifier
     ).first()
     url = honeycomb.jobrequest_link(prefetched_job_request)
-    assert url in response.rendered_content
+    assert escape(url) in response.rendered_content
     assert job_request.identifier in response.rendered_content
 
 
