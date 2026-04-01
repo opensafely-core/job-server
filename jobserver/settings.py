@@ -345,6 +345,8 @@ CONTENT_SECURITY_POLICY = {
         "report-uri": os.environ.get("CSP_REPORT_URI", default=""),
         "connect-src": CONNECT_SRC,
         "default-src": [NONE],
+        "object-src": [NONE],
+        "base-uri": [NONE],
         "font-src": FONT_SRC,
         "img-src": [
             SELF,
