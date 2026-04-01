@@ -2,32 +2,24 @@ import pytest
 from django.urls import reverse
 
 from jobserver.authorization.permissions import Permission
-from jobserver.authorization.roles import (
-    ServiceAdministrator,
-    StaffAreaAdministrator,
-    TechSupport,
-)
 from jobserver.models import AuditableEvent, Project
 from jobserver.utils import set_from_qs
 from tests.factories import (
     CreateProjectFormDataFactory,
     OrgFactory,
     ProjectFactory,
-    UserFactory,
 )
 
 
 class TestProjectListCreateProjectButton:
     """Tests of the Create a Project button on the Staff Area Projects page."""
 
-    @pytest.mark.parametrize(
-        "additional_role",
-        [ServiceAdministrator, TechSupport],
-    )
     def test_create_project_button_in_rendered_template_for_authorised_user(
-        self, client, additional_role
+        self, client, user_with_fake_role_factory
     ):
-        user = UserFactory(roles=[StaffAreaAdministrator, additional_role])
+        user = user_with_fake_role_factory(
+            permission=[Permission.STAFF_AREA_ACCESS, Permission.PROJECT_CREATE]
+        )
 
         client.force_login(user)
 
@@ -37,9 +29,9 @@ class TestProjectListCreateProjectButton:
         assert "Create a project" in response.text
 
     def test_create_project_button_not_in_rendered_template_for_unauthorised_user(
-        self, client, staff_area_administrator
+        self, client, user_with_fake_role_factory
     ):
-        user = staff_area_administrator
+        user = user_with_fake_role_factory(permission=[Permission.STAFF_AREA_ACCESS])
 
         client.force_login(user)
 
@@ -52,8 +44,8 @@ class TestProjectListCreateProjectButton:
 class TestProjectCreation:
     """Tests of the project creation user flow."""
 
-    def test_projectcreate_unauthorised(self, client, staff_area_administrator):
-        user = staff_area_administrator
+    def test_projectcreate_unauthorised(self, client, user_with_fake_role_factory):
+        user = user_with_fake_role_factory(permission=[Permission.STAFF_AREA_ACCESS])
 
         client.force_login(user)
 
@@ -173,8 +165,8 @@ class TestProjectCreation:
 
         assert len(slack_messages) == 0
 
-    def test_projectcreated_unauthorised(self, client, staff_area_administrator):
-        user = staff_area_administrator
+    def test_projectcreated_unauthorised(self, client, user_with_fake_role_factory):
+        user = user_with_fake_role_factory(permission=[Permission.STAFF_AREA_ACCESS])
 
         client.force_login(user)
 
@@ -191,19 +183,21 @@ class TestProjectDetail:
         "user_has_create_project",
         [True, False],
     )
-    def test_projectdetail_authorized(self, client, user_has_create_project):
+    def test_projectdetail_authorized(
+        self, client, user_with_fake_role_factory, user_has_create_project
+    ):
         """
         Test that a user with permission can access the ProjectDetail view.
 
         Parametrised to test that the Link Application content is only shown
-        to ServiceAdministrators.
+        to users that can manage applications.
         """
-        roles = (
-            [StaffAreaAdministrator, ServiceAdministrator]
+        permissions = (
+            [Permission.STAFF_AREA_ACCESS, Permission.PROJECT_LINK_TO_APPLICATION]
             if user_has_create_project
-            else [StaffAreaAdministrator]
+            else [Permission.STAFF_AREA_ACCESS]
         )
-        user = UserFactory(roles=roles)
+        user = user_with_fake_role_factory(permission=permissions)
         project = ProjectFactory()
 
         client.force_login(user)
@@ -215,7 +209,7 @@ class TestProjectDetail:
         # This class exists only to help automated testing that the content is as expected.
         assert "test-project-information-card" in response.text
         # This class exists only to help automated testing that the content is as expected.
-        # It should only be appear if the user can create projects.
+        # It should only be appear if the user can manage applications.
         assert ("test-link-application" in response.text) == user_has_create_project
 
     def test_projectdetail_unauthorized(self, client):
