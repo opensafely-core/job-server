@@ -256,10 +256,9 @@ def test_projectdetail_sets_permission_flags_for_roles(
     assert response.context_data["user_can_edit_members"] == user_can_edit_members
 
 
-def test_projectedit_get_success(rf, staff_area_administrator):
+def test_projectedit_get_success(rf, staff_area_administrator, potential_copilots):
     project = ProjectFactory(orgs=[OrgFactory()])
-
-    UserFactory(username="beng", fullname="Ben Goldacre")
+    copilot = potential_copilots.first()
 
     request = rf.get("/")
     request.user = staff_area_administrator
@@ -267,7 +266,7 @@ def test_projectedit_get_success(rf, staff_area_administrator):
     response = ProjectEdit.as_view()(request, slug=project.slug)
 
     assert response.status_code == 200
-    assert "Ben Goldacre (beng)" in response.rendered_content
+    assert copilot.fullname in response.rendered_content
 
 
 def test_projectedit_get_unauthorized(rf):
@@ -280,11 +279,11 @@ def test_projectedit_get_unauthorized(rf):
         ProjectEdit.as_view()(request, slug=project.slug)
 
 
-def test_projectedit_post_success(rf, staff_area_administrator):
+def test_projectedit_post_success(rf, staff_area_administrator, potential_copilots):
     project = ProjectFactory(name="test", number=123, orgs=[OrgFactory()])
     old_project_url = project.get_absolute_url()
+    new_copilot = potential_copilots.first()
 
-    new_copilot = UserFactory()
     new_org = OrgFactory()
 
     data = {
@@ -316,11 +315,13 @@ def test_projectedit_post_success(rf, staff_area_administrator):
     assert project.redirects.first().old_url == old_project_url
 
 
-def test_projectedit_post_success_when_not_changing_slug(rf, staff_area_administrator):
+def test_projectedit_post_success_when_not_changing_slug(
+    rf, staff_area_administrator, potential_copilots
+):
     org = OrgFactory()
     project = ProjectFactory(name="Test", slug="test", number=123, orgs=[org])
 
-    new_copilot = UserFactory()
+    new_copilot = potential_copilots.first()
 
     data = {
         "name": "Test",

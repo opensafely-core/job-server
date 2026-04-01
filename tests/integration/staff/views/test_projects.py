@@ -1,6 +1,7 @@
 import pytest
 from django.urls import reverse
 
+from jobserver.authorization.permissions import Permission
 from jobserver.authorization.roles import (
     ServiceAdministrator,
     StaffAreaAdministrator,
@@ -81,13 +82,9 @@ class TestProjectCreation:
         selected_orgs = response.context_data["form"]["orgs"].value()
         assert selected_orgs == bennett_org.pk
 
-    @pytest.mark.parametrize(
-        "role_fixture_name",
-        ["service_administrator", "tech_support"],
-    )
     @pytest.mark.django_db(transaction=True)
     def test_projectcreate_post_success(
-        self, client, request, slack_messages, role_fixture_name
+        self, client, request, slack_messages, user_with_fake_role_factory
     ):
         """
         Test a successful POST to the ProjectCreate view.
@@ -102,18 +99,17 @@ class TestProjectCreation:
             * An AuditableEvent is created for the new project instance.
             * A Slack message is sent to the copilot support channel.
         """
-        role_fixture = request.getfixturevalue(role_fixture_name)
-        user = role_fixture
-        data = CreateProjectFormDataFactory()
+        user = user_with_fake_role_factory(permission=Permission.PROJECT_CREATE)
+        copilot = user_with_fake_role_factory(permission=Permission.STAFF_AREA_ACCESS)
+        data = CreateProjectFormDataFactory(copilot=copilot.pk)
 
         client.force_login(user)
 
         response = client.post(reverse("staff:project-create"), data, follow=True)
+        assert response.status_code == 200
 
         new_project = Project.objects.first()
         url = reverse("staff:project-created", kwargs={"slug": new_project.slug})
-
-        assert response.status_code == 200
         assert response.redirect_chain == [(url, 302)]
 
         assert new_project.copilot.pk == int(data["copilot"])

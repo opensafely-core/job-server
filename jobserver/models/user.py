@@ -15,11 +15,26 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
 
+from jobserver.authorization.permissions import Permission
+from jobserver.authorization.utils import roles_with_permission
+
 from ..authorization.fields import RolesArrayField
 from ..hash_utils import hash_user_pat
 
 
 logger = structlog.get_logger(__name__)
+
+
+class UserQuerySet(models.QuerySet):
+    def with_permission(self, permission):
+        return self.filter(roles__overlap=roles_with_permission(permission))
+
+    def potential_copilots(self, copilot_permission=Permission.STAFF_AREA_ACCESS):
+        """
+        There is no copilot role, so we use staff area access as a proxy.
+        Copilots need access to view the copilot dashboard.
+        """
+        return self.with_permission(copilot_permission)
 
 
 class UserManager(models.Manager):
@@ -45,6 +60,15 @@ class UserManager(models.Manager):
             kwargs["password"] = make_password(password)
 
         return super().create(**kwargs)
+
+    def get_queryset(self):
+        return UserQuerySet(self.model, using=self._db)
+
+    def with_permission(self, permission):
+        return self.get_queryset().with_permission(permission)
+
+    def potential_copilots(self, copilot_permission=Permission.STAFF_AREA_ACCESS):
+        return self.get_queryset().potential_copilots(copilot_permission)
 
 
 class User(AbstractBaseUser):

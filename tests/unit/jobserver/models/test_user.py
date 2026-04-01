@@ -327,3 +327,25 @@ def test_user_fullname_non_blank():
     with pytest.raises(IntegrityError):
         u = User(username="foo", email="foo@bar.com", fullname="")
         u.save()
+
+
+def test_queryset_with_permission(user_with_fake_role_factory):
+    """Test that User.objects.with_permission returns right users."""
+    fake_permission = "foo"
+    user_with_permission0 = user_with_fake_role_factory(permission=fake_permission)
+    user_with_permission1 = user_with_fake_role_factory(permission=fake_permission)
+    UserFactory.create_batch(3)
+
+    copilots = User.objects.with_permission(permission=fake_permission)
+    assert set(copilots) == {user_with_permission0, user_with_permission1}
+
+
+def test_potential_copilots(user_with_fake_role_factory):
+    """Test that User.objects.potential_copilots returns right users."""
+    fake_permission = "copilot_test_permission"
+    copilot0 = user_with_fake_role_factory(permission=fake_permission)
+    copilot1 = user_with_fake_role_factory(permission=fake_permission)
+    UserFactory.create_batch(3)
+
+    copilots = User.objects.potential_copilots(copilot_permission=fake_permission)
+    assert set(copilots) == {copilot0, copilot1}
