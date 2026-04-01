@@ -72,21 +72,6 @@ def api_rf():
     return APIRequestFactory()
 
 
-@pytest.fixture
-def staff_area_administrator():
-    return UserFactory(roles=[StaffAreaAdministrator])
-
-
-@pytest.fixture
-def service_administrator():
-    return UserFactory(roles=[ServiceAdministrator])
-
-
-@pytest.fixture
-def tech_support():
-    return UserFactory(roles=[TechSupport])
-
-
 @pytest.fixture(name="log_output")
 def fixture_log_output():
     yield LogCapture()
@@ -443,6 +428,21 @@ def user_with_fake_role_factory(role_factory):
         return UserFactory(roles=[role_factory(permission=list(permission))])
 
     return _role_factory
+
+
+@pytest.fixture
+def staff_area_administrator():
+    return UserFactory(roles=[StaffAreaAdministrator])
+
+
+@pytest.fixture
+def service_administrator():
+    return UserFactory(roles=[ServiceAdministrator])
+
+
+@pytest.fixture
+def tech_support():
+    return UserFactory(roles=[TechSupport])
 
 
 @pytest.fixture()
