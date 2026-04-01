@@ -24,6 +24,7 @@ import jobserver.authorization.roles
 import services.slack
 from applications.form_specs import form_specs
 from jobserver.actions import project_members
+from jobserver.authorization.permissions import Permission
 from jobserver.authorization.roles import (
     ServiceAdministrator,
     StaffAreaAdministrator,
@@ -443,6 +444,15 @@ def service_administrator():
 @pytest.fixture
 def tech_support():
     return UserFactory(roles=[TechSupport])
+
+
+@pytest.fixture
+def user_USER_EDIT_PROJECT_ROLES(user_with_fake_role_factory):
+    return user_with_fake_role_factory(
+        permission=[
+            Permission.USER_EDIT_PROJECT_ROLES,
+        ]
+    )
 
 
 @pytest.fixture()

@@ -35,29 +35,21 @@ from ....factories import (
 )
 
 
-@pytest.mark.parametrize(
-    "user_fixture",
-    ["tech_support", "service_administrator"],
-)
-def test_projectaddmember_get_success(request, rf, user_fixture):
+def test_projectaddmember_get_success(rf, user_USER_EDIT_PROJECT_ROLES):
     project = ProjectFactory()
     UserFactory(username="beng", fullname="Ben Goldacre")
 
-    req = rf.get("/")
-    req.user = request.getfixturevalue(user_fixture)
+    request = rf.get("/")
+    request.user = user_USER_EDIT_PROJECT_ROLES
 
-    response = ProjectAddMember.as_view()(req, slug=project.slug)
+    response = ProjectAddMember.as_view()(request, slug=project.slug)
 
     assert response.status_code == 200
     assert response.context_data["project"] == project
     assert "Ben Goldacre (beng)" in response.rendered_content
 
 
-@pytest.mark.parametrize(
-    "user_fixture",
-    ["tech_support", "service_administrator"],
-)
-def test_projectaddmember_post_success(request, rf, user_fixture):
+def test_projectaddmember_post_success(rf, user_USER_EDIT_PROJECT_ROLES):
     project = ProjectFactory()
     user1 = UserFactory()
     user2 = UserFactory()
@@ -66,10 +58,10 @@ def test_projectaddmember_post_success(request, rf, user_fixture):
         "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
         "users": [user1.pk, user2.pk],
     }
-    req = rf.post("/", data)
-    req.user = request.getfixturevalue(user_fixture)
+    request = rf.post("/", data)
+    request.user = user_USER_EDIT_PROJECT_ROLES
 
-    response = ProjectAddMember.as_view()(req, slug=project.slug)
+    response = ProjectAddMember.as_view()(request, slug=project.slug)
 
     assert response.status_code == 302
     assert response.url == project.get_staff_url()
@@ -87,13 +79,9 @@ def test_projectaddmember_unauthorized(rf):
         ProjectAddMember.as_view()(request)
 
 
-@pytest.mark.parametrize(
-    "user_fixture",
-    ["tech_support", "service_administrator"],
-)
-def test_projectaddmember_unknown_project(request, rf, user_fixture):
+def test_projectaddmember_unknown_project(request, rf, user_USER_EDIT_PROJECT_ROLES):
     req = rf.post("/")
-    req.user = request.getfixturevalue(user_fixture)
+    req.user = user_USER_EDIT_PROJECT_ROLES
 
     with pytest.raises(Http404):
         ProjectAddMember.as_view()(req, slug="test")
