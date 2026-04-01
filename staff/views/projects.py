@@ -182,6 +182,9 @@ class ProjectDetail(DetailView):
                 self.request.user, Permission.PROJECT_LINK_TO_APPLICATION
             ),
             "workspaces": self.object.workspaces.order_by("name"),
+            "user_can_edit_members": has_permission(
+                self.request.user, Permission.USER_EDIT_PROJECT_ROLES
+            ),
         }
 
 
@@ -190,6 +193,13 @@ class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
     template_name = "staff/project/edit.html"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "user_can_link_applications": has_permission(
+                self.request.user, Permission.PROJECT_LINK_TO_APPLICATION
+            ),
+        }
 
     @transaction.atomic()
     def form_valid(self, form):

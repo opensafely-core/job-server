@@ -22,10 +22,12 @@
       {% #button type="link" href=project.get_staff_edit_url variant="danger" %}
         Edit
       {% /button %}
-      {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
-      {% #button type="link" href=staff_project_add_member_url variant="secondary" %}
-        Add Members
-      {% /button %}
+      {% if user_can_edit_members %}
+        {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
+        {% #button type="link" href=staff_project_add_member_url variant="secondary" %}
+          Add Members
+        {% /button %}
+      {% endif %}
       {% #button type="link" href=project.get_staff_audit_url variant="secondary" %}
         Audit log
       {% /button %}
@@ -85,17 +87,19 @@
           {% for membership in memberships %}
             {% #description_item title=membership.user.get_full_name|default_if_none:membership.user.username %}
               <div class="flex flex-col gap-1">
-                <div class="flex flex-row gap-2">
-                  {% #button type="link" variant="secondary-outline" href=membership.get_staff_edit_url|add:"?next="|add:request.path small=True %}
-                    Edit
-                  {% /button %}
-                  <form method="POST" action="{{ membership.get_staff_remove_url }}">
-                    {% csrf_token %}
-                    {% #button type="submit" variant="danger-outline" small=True %}
-                      Remove <span class="sr-only">from {{ project.title }}</span>
+                {% if user_can_edit_members %}
+                  <div class="flex flex-row gap-2">
+                    {% #button type="link" variant="secondary-outline" href=membership.get_staff_edit_url|add:"?next="|add:request.path small=True %}
+                      Edit
                     {% /button %}
-                  </form>
-                </div>
+                    <form method="POST" action="{{ membership.get_staff_remove_url }}">
+                      {% csrf_token %}
+                      {% #button type="submit" variant="danger-outline" small=True %}
+                        Remove <span class="sr-only">from {{ project.title }}</span>
+                      {% /button %}
+                    </form>
+                  </div>
+                {% endif %}
                 {% if membership.roles %}
                   <dl class="flex flex-row gap-1 mt-2">
                     <dt class="sr-only">Roles:</dt>

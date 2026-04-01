@@ -65,14 +65,19 @@
     {% #card title="Application" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Application" class="sr-only" %}
-
         {% if project.applications.exists %}
           <p>This project is linked to an application, which cannot be edited here.</p>
         {% else %}
-          {% #alert variant="warning" class="mb-" %}
-            If you are looking to link to an application created on this site use "Find and Link"
-            {% link href=project.get_staff_url text="on the Project page" append_after="." %}
-          {% /alert %}
+          {% if user_can_link_applications %}
+            {% #alert variant="warning" class="mb-" %}
+              If you are looking to link to an application created on this site use "Find and Link"
+              {% link href=project.get_staff_url text="on the Project page" append_after="." %}
+            {% /alert %}
+          {% else %}
+            {% #alert variant="warning" class="mb-" %}
+              Applications can only be linked by users with permission to link applications.
+            {% /alert %}
+          {% endif %}
         {% endif %}
       {% /form_fieldset %}
     {% /card %}
