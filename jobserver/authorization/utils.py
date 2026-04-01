@@ -132,6 +132,20 @@ def roles_for(model):
     return [r for r in available_roles if path in r.models]
 
 
+def roles_with_permission(permission):
+    """Get set of Roles with a specific permission.
+
+    That can be useful when querying objects with role fields, the permissions
+    cannot be queried directly as they are not represented in the database.
+    Instead, you can query on something like roles__overlap(permission).
+    """
+
+    # import here to avoid circular imports
+    from jobserver.authorization.global_roles import ALL_ROLES
+
+    return {role for role in ALL_ROLES if permission in role.permissions}
+
+
 def strings_to_roles(strings):
     """
     Convert Role names to Class objects

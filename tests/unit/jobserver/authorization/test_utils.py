@@ -8,6 +8,7 @@ from jobserver.authorization import (
     has_permission,
     has_role,
     roles_for,
+    roles_with_permission,
     strings_to_roles,
 )
 from jobserver.models import ProjectMembership
@@ -101,3 +102,12 @@ def test_strings_to_roles_with_unknown_roles():
     msg = "Unknown Roles:\n - DummyRole\nAvailable Roles are:.*"
     with pytest.raises(Exception, match=msg):
         strings_to_roles(["DummyRole"])
+
+
+def test_roles_with_permission(role_factory):
+    fake_permission = "foo"
+    role_with_permission0 = role_factory(permission=fake_permission)
+    role_with_permission1 = role_factory(permission=fake_permission)
+
+    role_with_permission = roles_with_permission(permission=fake_permission)
+    assert set(role_with_permission) == {role_with_permission0, role_with_permission1}
