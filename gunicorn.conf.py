@@ -20,7 +20,7 @@ port = 8000
 bind = "0.0.0.0"
 
 # request timeout - more than the default of 30 for slow API requests
-timeout = 40
+timeout = 50
 
 
 def post_fork(server, worker):
