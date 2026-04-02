@@ -203,9 +203,13 @@ class ProjectEdit(UpdateView):
 
     @transaction.atomic()
     def form_valid(self, form):
-        new = projects.edit(old=self.get_object(), form=form, by=self.request.user)
+        project = projects.edit(
+            by=self.request.user,
+            project=self.get_object(),
+            fields=form.cleaned_data,
+        )
 
-        return redirect(new.get_staff_url())
+        return redirect(project.get_staff_url())
 
 
 @method_decorator(

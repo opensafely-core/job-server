@@ -48,11 +48,11 @@ class OrgCreate(CreateView):
     model = Org
 
     def form_valid(self, form):
-        org = form.save(commit=False)
-        org.created_by = self.request.user
-        org.updated_by = self.request.user
-        org.save()
+        form.instance.created_by = self.request.user
+        form.instance.updated_by = self.request.user
+        super().form_valid(form)
 
+        org = self.object
         org_detail = org.get_staff_url()
         next_url = self.request.POST.get("next") or self.request.GET.get("next", "")
         if not is_safe_path(next_url):
@@ -147,25 +147,19 @@ class OrgEdit(UpdateView):
     template_name = "staff/org/edit.html"
 
     def form_valid(self, form):
-        # look up the original object from the database because the form will
-        # mutation self.object under us
-        old = self.get_object()
+        # Record this before we may update it.
+        old_url = form.instance.get_absolute_url()
 
-        new = form.save(commit=False)
-        new.updated_by = self.request.user
-        new.save()
+        form.instance.updated_by = self.request.user
+        super().form_valid(form)
 
-        # check changed_data here instead of comparing self.object.slug to
-        # new.slug because self.object is mutated when ModelForm._post_clean
-        # updates the instance it was passed.  This is because form.instance is
-        # set from the passed in self.object.
         if "slug" in form.changed_data:
-            new.redirects.create(
+            self.object.redirects.create(
                 created_by=self.request.user,
-                old_url=old.get_absolute_url(),
+                old_url=old_url,
             )
 
-        return redirect(new.get_staff_url())
+        return redirect(self.object.get_staff_url())
 
 
 @method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")

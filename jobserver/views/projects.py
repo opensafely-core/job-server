@@ -11,6 +11,7 @@ from django.views.generic import ListView, UpdateView, View
 from opentelemetry import context as otel_context
 from opentelemetry import trace
 
+from jobserver.actions import projects
 from jobserver.utils import set_from_qs
 
 from ..authorization import has_permission
@@ -164,22 +165,20 @@ class ProjectEdit(UpdateView):
     template_name = "project/edit.html"
 
     def form_valid(self, form):
-        project = form.save(commit=False)
-        project.updated_by = self.request.user
-        project.save()
-
+        projects.edit(
+            by=self.request.user,
+            project=self.get_object(),
+            fields=form.cleaned_data,
+        )
         url = self.request.GET.get("next") or self.object.get_absolute_url()
         return redirect(url)
 
     def get_object(self):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
-        user = self.request.user
-        user_has_project_manage = has_permission(
-            user, Permission.PROJECT_MANAGE, project=project
-        )
-
-        if not user_has_project_manage:
+        if not has_permission(
+            self.request.user, Permission.PROJECT_MANAGE, project=project
+        ):
             raise PermissionDenied
 
         return project
