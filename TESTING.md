@@ -157,6 +157,7 @@ Some useful `pytest` / `just test*` parameters:
 * `-n`: from the `pytest-xdist` plugin. Tells `pytest` how many worker processes to
   spawn. Use `-n 0` if you insert an explicit `breakpoint()` in your code, to
   stop the plugin interfering.
+* `-functional --headed --slowmo 1000`: Run the functional tests in headed mode, slowing down each Playwright operation by 1000 milliseconds.
 
 
 ## Testing Releases
