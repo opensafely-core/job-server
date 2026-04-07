@@ -88,7 +88,7 @@ jobs:
           just test-ci -n 4
 
       - name: Upload HTML coverage report if tests failed
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: python-coverage-report
           path: htmlcov
@@ -155,7 +155,7 @@ jobs:
           docker save job-server | zstd --fast -o /tmp/job-server.tar.zst
 
       - name: Upload docker image
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
             name: job-server-image
             path: /tmp/job-server.tar.zst

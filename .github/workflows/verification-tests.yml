@@ -33,7 +33,7 @@ jobs:
           just test-verification -n 4
 
       - name: Upload HTML coverage report if tests failed
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: python-coverage-report
           path: htmlcov
