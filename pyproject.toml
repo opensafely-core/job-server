@@ -64,7 +64,7 @@ dependencies = [
 
     # A specific version of the OpenSAFELY Pipeline for health data analysis.
     # Search 'pipeline' in jobserver/
-    "opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.03.12.140752.zip",
+    "opensafely-pipeline[fastparser]@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.03.12.140752.zip",
 
     # OpenTelemetry exporter for sending traces/metrics via OTLP over HTTP.
     "opentelemetry-exporter-otlp-proto-http",
