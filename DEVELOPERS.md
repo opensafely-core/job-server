@@ -318,8 +318,9 @@ database. Sometimes the team may agree to edit the production database
 directly in exceptional circumstances, such as during an incident, or when it is
 not possible to do any other way.
 
-
 ## Testing
+
+More details on testing can be found in [TESTING.md](TESTING.md).
 
 Run the unit tests:
 
@@ -333,19 +334,28 @@ Run all of the tests (including slow tests) apart from verification tests (that 
 just test-ci
 ```
 
-# run Playwright functional tests
+### Run Playwright functional tests
+
+```sh
 just test-functional
+```
 
-# watch a specific functional test in browser, slowed down
-# This is useful in combination with script pausing when writing tests:
-# https://playwright.dev/python/docs/api/class-page#page-pause
+### Watch a specific functional test in browser, slowed down
+
+This is useful in combination with script pausing when writing tests:
+<https://playwright.dev/python/docs/api/class-page#page-pause>
+
+```sh
 just test-functional <path/to/test>::<test name> --headed --slowmo=500
+```
 
-# debug a specific functional test
-# See https://playwright.dev/python/docs/debug for more information.
+### Debug a specific functional test
+
+See <https://playwright.dev/python/docs/debug> for more information.
+
+```sh
 PWDEBUG=1 just test-functional <path/to/test>::<test name>
-
-More details on testing can be found in [TESTING.md](TESTING.md).
+```
 
 ### Slack Testing
 
