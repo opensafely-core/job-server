@@ -45,7 +45,7 @@
       {% #card title="Project information" class="test-project-information-card" %}
         {% #description_list %}
           {% #description_item title="Created by" %}
-            {% link href=project.created_by.get_staff_url text=project.created_by.fullname %}
+            {% link href=project.created_by.get_staff_url text=project.created_by.get_display_name %}
           {% /description_item %}
 
           {% #description_item title="Created at" %}
@@ -56,7 +56,7 @@
 
           {% #description_item title="Application" %}
             {% if application %}
-              {% link href=application.get_staff_url text=application.pk_hash|add:" by "|add:application.created_by.fullname %}
+              {% link href=application.get_staff_url text=application.pk_hash|add:" by "|add:application.created_by.get_display_name %}
             {% else %}
               {% if user_can_link_applications %}
                 {% url "staff:project-link-application" slug=project.slug as staff_link_application_url %}
@@ -85,7 +85,7 @@
       {% #card title="Members" %}
         {% #description_list %}
           {% for membership in memberships %}
-            {% #description_item title=membership.user.get_full_name|default_if_none:membership.user.username %}
+            {% #description_item title=membership.user.get_display_name|default_if_none:membership.user.username %}
               <div class="flex flex-col gap-1">
                 {% if user_can_edit_members %}
                   <div class="flex flex-row gap-2">
@@ -120,7 +120,7 @@
         {% #description_list %}
           {% #description_item title="Co-pilot" %}
             {% if project.copilot %}
-              {% link href=project.copilot.get_staff_url text=project.copilot.fullname %}
+              {% link href=project.copilot.get_staff_url text=project.copilot.get_display_name %}
             {% else %}
               -
             {% endif %}

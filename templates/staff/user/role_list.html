@@ -4,7 +4,7 @@
 {% load roles %}
 {% load selected_filter %}
 
-{% block metatitle %}Edit global roles: {{ user.fullname }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Edit global roles: {{ user.get_display_name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
@@ -18,7 +18,7 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% #staff_hero title="Edit global roles: "|add:user.fullname %}
+  {% #staff_hero title="Edit global roles: "|add:user.get_display_name %}
     <p>Below are the global roles assigned to {{ user.username }}, grouped by the context in which they have been assigned.</p>
     <form action="{{ user.get_staff_clear_roles_url }}" method="POST">
       {% csrf_token %}

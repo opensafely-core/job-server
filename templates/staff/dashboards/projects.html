@@ -130,7 +130,7 @@
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
                   {% if project.copilot %}
-                    <a href="{{ project.copilot.get_staff_url }}">{{ project.copilot.fullname }}</a>
+                    <a href="{{ project.copilot.get_staff_url }}">{{ project.copilot.get_display_name }}</a>
                   {% else %}
                     Unknown
                   {% endif %}

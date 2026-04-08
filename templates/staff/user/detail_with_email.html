@@ -2,7 +2,7 @@
 
 {% load humanize %}
 
-{% block metatitle %}Staff Area: {{ user.fullname }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Staff Area: {{ user.get_display_name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
@@ -15,7 +15,7 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% #staff_hero title="User: "|add:user.fullname %}
+  {% #staff_hero title="User: "|add:user.get_display_name %}
     <div class="flex flex-row gap-2 mt-2">
       {% #button type="link" href=user.get_staff_roles_url variant="danger" %}
         Edit roles
@@ -50,7 +50,7 @@
       {% endif %}
 
       {% #card title="User details" container=True container_class="flex flex-col items-start gap-4" %}
-        {% form_input field=form.fullname label="Full name" class="max-w-prose w-full" %}
+        {% form_input field=form.get_display_name label="Full name" class="max-w-prose w-full" %}
         {% form_input field=form.email label="Email" class="max-w-prose w-full" %}
         {% #button type="submit" variant="success" %}Update details{% /button %}
       {% /card %}
