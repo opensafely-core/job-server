@@ -210,6 +210,10 @@ class User(AbstractBaseUser):
         """Support Django's User contract"""
         return self.fullname
 
+    def get_display_name(self):
+        """Return a user's name in the format: fullname (username)"""
+        return f"{self.fullname} ({self.username})"
+
     def get_logs_url(self):
         return reverse("user-event-log", kwargs={"username": self.username})
 

@@ -327,3 +327,8 @@ def test_user_fullname_non_blank():
     with pytest.raises(IntegrityError):
         u = User(username="foo", email="foo@bar.com", fullname="")
         u.save()
+
+
+def test_user_get_display_name():
+    user = UserFactory(fullname="first last", username="test")
+    assert user.get_display_name() == "first last (test)"
