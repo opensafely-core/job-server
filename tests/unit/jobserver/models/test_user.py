@@ -349,3 +349,8 @@ def test_potential_copilots(user_with_fake_role_factory):
 
     copilots = User.objects.potential_copilots(copilot_permission=fake_permission)
     assert set(copilots) == {copilot0, copilot1}
+
+
+def test_user_get_display_name():
+    user = UserFactory(fullname="first last", username="test")
+    assert user.get_display_name() == "first last (test)"
