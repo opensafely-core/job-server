@@ -4,8 +4,10 @@ from .utils import lookup_user, roles_str_to_class_name_str
 
 
 def updated_roles(*, event: AuditableEvent) -> PresentableAuditableEvent:
+    actor_user_obj = lookup_user(event.created_by)
+
     actor = LinkableObject.build(
-        obj=lookup_user(event.created_by),
+        obj=actor_user_obj,
         link_func="get_staff_url",
     )
     user = LinkableObject.build(
@@ -15,6 +17,7 @@ def updated_roles(*, event: AuditableEvent) -> PresentableAuditableEvent:
     return PresentableAuditableEvent(
         context={
             "actor": actor,
+            "actor_user_obj": actor_user_obj,
             "created_at": event.created_at,
             "user": user,
             "before": roles_str_to_class_name_str(event.old),
