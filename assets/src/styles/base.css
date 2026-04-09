@@ -3,6 +3,7 @@
 @import "./_utils.css" layer(base);
 
 @import "../../../templates/_components/alert/alert.css" layer(base);
+@import "../../../templates/_components/code.css" layer(components);
 @import "../../../templates/_components/pill/pill.css" layer(components);
 
 @plugin "@tailwindcss/forms";

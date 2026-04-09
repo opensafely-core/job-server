@@ -327,8 +327,10 @@
                     "
             >
               {% for action in job_request.requested_actions %}
-                <li class="break-words">
-                  {% #code class="text-xs" %}{{ action }}{% /code %}
+                <li class="wrap-break-word">
+                  <code class="code-block code-block--xs">
+                    {{ action }}
+                  </code>
                 </li>
               {% endfor %}
             </ul>
