@@ -1,0 +1,35 @@
+.pill {
+  @apply inline-flex items-center rounded-full border px-2 text-xs/tight leading-5 font-semibold;
+}
+
+.pill--warning,
+.pill--pending {
+  @apply bg-bn-flamenco-200 text-bn-flamenco-900 border-bn-flamenco-200;
+}
+
+.pill--primary,
+.pill--running {
+  @apply border-blue-200 bg-blue-200 text-blue-900;
+}
+
+.pill--danger,
+.pill--failed {
+  @apply border-red-200 bg-red-200 text-red-900;
+}
+
+.pill--danger-outline {
+  @apply text-bn-ribbon-900 border-bn-ribbon-300 bg-white;
+}
+
+.pill--success,
+.pill--succeeded {
+  @apply border-green-200 bg-green-200 text-green-900;
+}
+
+.pill--success-outline {
+  @apply border-green-400 bg-white text-green-900;
+}
+
+.pill--info {
+  @apply border-slate-200 bg-white text-slate-600;
+}

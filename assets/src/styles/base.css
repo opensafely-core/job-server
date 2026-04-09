@@ -1,6 +1,9 @@
-@import "./_utils.css" layer(base);
-@import "../../../templates/_components/alert/alert.css" layer(base);
 @import "tailwindcss";
+
+@import "./_utils.css" layer(base);
+
+@import "../../../templates/_components/alert/alert.css" layer(base);
+@import "../../../templates/_components/pill/pill.css" layer(components);
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";

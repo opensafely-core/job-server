@@ -155,43 +155,26 @@
                 <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
                   <div class="flex gap-x-2">
                     <dt class="sr-only">Action:</dt>
-                    <dd class="
-                               text-base font-semibold text-oxford-600 transition-colors truncate
-                               group-hover:text-oxford-900
-                               group-focus:text-oxford-900
-                              ">
-                      <a
-                        class="
-                               focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset
-                               before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
-                        href="{{ job.get_absolute_url }}"
-                      >
+                    <dd class="text-base font-semibold text-oxford-600 transition-colors truncate group-hover:text-oxford-900 group-focus:text-oxford-900">
+                      <a class="truncate focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full" href="{{ job.get_absolute_url }}">
                         {{ job.action }}
                       </a>
                     </dd>
                     <dt class="sr-only">Status:</dt>
-                    <dd class="ml-auto shrink-0">
-                      {% if job.status == "pending" %}
-                        {% pill sr_only="Status:" variant="warning" text=job.status|capfirst %}
-                      {% elif job.status == "running" %}
-                        {% pill sr_only="Status:" variant="primary" text=job.status|capfirst %}
-                      {% elif job.status == "failed" %}
-                        {% pill sr_only="Status:" variant="danger" text=job.status|capfirst %}
-                      {% elif job.status == "succeeded" %}
-                        {% pill sr_only="Status:" variant="success" text=job.status|capfirst %}
-                      {% endif %}
-                    </dd>
+                    <dd class="ml-auto shrink-0 pill pill--{{ job.status }}">{{ job.status|capfirst }}</dd>
                   </div>
                   <dt class="sr-only">Job identifier:</dt>
                   <dd class="inline-flex flex-row items-start mr-auto overflow-hidden max-w-full relative z-40">
-                    {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                    </svg>
                     <code class="font-mono font-semibold text-sm text-slate-600 tracking-widest truncate">
                       {{ job.identifier }}
                     </code>
                   </dd>
                   {% if job.status == "failed" and job.status_message %}
                     <dt class="sr-only">Error:</dt>
-                    <dd class="mt-1 bg-red-50 text-red-900 border-red-200 break-words font-mono text-sm pt-2 pb-1.5 px-3 rounded border">
+                    <dd class="mt-1 bg-red-50 text-red-900 border-red-200 wrap-break-word font-mono text-sm pt-2 pb-1.5 px-3 rounded border">
                       {% if job.status_code %}<strong>{{ job.status_code }}:</strong>{% endif %}
                       <span>{{ job.status_message }}</span>
                     </dd>
