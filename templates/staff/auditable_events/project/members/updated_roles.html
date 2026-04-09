@@ -1,15 +1,15 @@
 {% if event.actor.link %}
-  {% link href=event.actor.link text=event.actor %}
+  {% link href=event.actor.link text=event.actor_user_obj.get_display_name %}
 {% else %}
-  {{ event.actor }}
+  {{ event.actor_user_obj.get_display_name }}
 {% endif %}
 
 changed roles for
 
 {% if event.user.link %}
-  {% link href=event.user.link text=event.user %}
+  {% link href=event.user.link text=event.user_obj.get_display_name %}
 {% else %}
-  {{ event.user }}
+  {{ event.user_obj.get_display_name }}
 {% endif %}
 
 on
