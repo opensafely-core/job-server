@@ -116,7 +116,7 @@ class Project(models.Model):
     name = models.TextField(
         unique=True,
         verbose_name="Project title",
-        help_text="This can be found in Section 7 of the NHSE OpenSAFELY Project Application form.",
+        help_text="This can be found in Annex A - 1a of the NHSE Data Sharing Agreement.",
     )
     slug = models.SlugField(max_length=255, unique=True, verbose_name="URL slug")
     number = models.CharField(
