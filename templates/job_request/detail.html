@@ -155,10 +155,14 @@
                 <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
                   <div class="flex gap-x-2">
                     <dt class="sr-only">Action:</dt>
-                    <dd class="text-base font-semibold text-oxford-600 transition-colors truncate group-hover:text-oxford-900 group-focus:text-oxford-900">
-                      <a class="truncate focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full" href="{{ job.get_absolute_url }}">
+                    <dd class="text-base font-semibold truncate">
+                      {% if user.is_authenticated %}
+                        <a class="text-oxford-600 transition-colors group-hover:text-oxford-900 group-focus:text-oxford-900 focus:bg-oxford-50 focus:outline-hidden focus:ring-2 focus:ring-inset before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full" href="{{ job.get_absolute_url }}">
+                          {{ job.action }}
+                        </a>
+                      {% else %}
                         {{ job.action }}
-                      </a>
+                      {% endif %}
                     </dd>
                     <dt class="sr-only">Status:</dt>
                     <dd class="ml-auto shrink-0 pill pill--{{ job.status }}">{{ job.status|capfirst }}</dd>
