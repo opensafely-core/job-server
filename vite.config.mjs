@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => ({
             {
               src: "node_modules/htmx.org/dist/htmx.min.js",
               dest: "vendor",
+              rename: { stripBase: true },
             },
           ],
         })
