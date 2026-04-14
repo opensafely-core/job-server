@@ -66,11 +66,11 @@
                 {% url_without_querystring user=user.username as remove_user_query_url %}
                 {% #list_group_item href=remove_user_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-900! flex flex-row items-center gap-1" %}
                   {% icon_check_outline class="h-5 w-5 stroke-green-700" %}
-                  {{ user.fullname }}
+                  {{ user.get_display_name }}
                 {% /list_group_item %}
               {% else %}
                 {% #list_group_item href=add_user_query_url role="checkbox" aria-checked="false" %}
-                  {{ user.fullname }}
+                  {{ user.get_display_name }}
                 {% /list_group_item %}
               {% endif %}
             {% endfor %}
@@ -108,7 +108,7 @@
                   <dl class="text-sm -mt-2">
                     <div class="flex flex-row gap-1">
                       <dt>Created</dt>
-                      <dd>{{ application.created_at|date:"d F Y"}} by {{ application.created_by.fullname }}</dd>
+                      <dd>{{ application.created_at|date:"d F Y"}} by {{ application.created_by.get_display_name }}</dd>
                     </div>
                   </dl>
                 {% /list_group_rich_item %}
@@ -117,7 +117,7 @@
                   <dl class="text-sm -mt-2">
                     <div class="flex flex-row gap-1">
                       <dt>Deleted</dt>
-                      <dd>{{ application.deleted_at|date:"d F Y" }} by {{ application.deleted_by.fullname }}</dd>
+                      <dd>{{ application.deleted_at|date:"d F Y" }} by {{ application.deleted_by.get_display_name }}</dd>
                     </div>
                     <div class="flex flex-row gap-1 mt-2">
                       <form method="POST" action="{{ application.get_staff_restore_url }}">

@@ -30,7 +30,7 @@
     {% #card title="Workspace information" %}
       {% #description_list %}
         {% #description_item title="Created by" %}
-          {% link href=workspace.created_by.get_staff_url text=workspace.created_by.fullname %}
+          {% link href=workspace.created_by.get_staff_url text=workspace.created_by.get_display_name %}
         {% /description_item %}
 
         {% #description_item title="Created" %}
@@ -92,7 +92,7 @@
         {% #list_group %}
           {% for job_request in job_requests %}
             {% fragment as title %}
-              {{ job_request.pk }} by {{ job_request.created_by.fullname }}
+              {{ job_request.pk }} by {{ job_request.created_by.get_display_name }}
             {% endfragment %}
             {% #list_group_rich_item status_text=job_request.jobs_status title=title type="Job" url=job_request.get_staff_url %}
               Created: {{ job_request.created_at|date:"d F Y" }}

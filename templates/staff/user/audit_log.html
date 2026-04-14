@@ -4,7 +4,7 @@
 {% load querystring_tools %}
 {% load selected_filter %}
 
-{% block metatitle %}Audit log for {{ user.fullname }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Audit log for {{ user.get_display_name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
@@ -33,7 +33,7 @@
       <p>It is visible only to staff and used for internal record keeping.</p>
     </div>
   {% endfragment %}
-  {% staff_hero title="Audit log: "|add:user.fullname text=hero_text %}
+  {% staff_hero title="Audit log: "|add:user.get_display_name text=hero_text %}
 {% endblock hero %}
 
 {% block content %}

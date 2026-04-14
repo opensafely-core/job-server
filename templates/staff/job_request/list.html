@@ -66,7 +66,7 @@
         {% #multiselect custom_field=True name="user" placeholder="Select a user" %}
           {% for user in users.items %}
             {% is_filter_selected key="user" value=user.username as is_user_active %}
-            {% multiselect_option value=user.username name=user.fullname is_active=is_user_active%}
+            {% multiselect_option value=user.username name=user.get_display_name is_active=is_user_active%}
           {% endfor %}
         {% /multiselect %}
       {% /card %}
@@ -101,7 +101,7 @@
         {% #list_group small=True %}
           {% for job_request in object_list %}
             {% fragment as title_text %}
-              {{ job_request.pk }} by {{ job_request.created_by }}
+              {{ job_request.pk }} by {{ job_request.created_by.get_display_name }}
             {% endfragment %}
             {% #list_group_rich_item type="Job Request" url=job_request.get_staff_url title=title_text %}
               <dl class="flex flex-col gap-y-0.5">
