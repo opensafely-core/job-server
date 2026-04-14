@@ -114,38 +114,40 @@
                     {{ workspace.name }}
                   </a>
                 </dd>
-                <dt class="sr-only">Status:</dt>
-                <dd class="ml-auto shrink-0">
-                  {% if workspace.is_archived %}
-                    <span class="relative group">
-                      {% pill variant="warning" text="Archived" %}
-                      {% tooltip position="-bottom-3" content="Creating new jobs is disabled" %}
-                    </span>
-                  {% else %}
-                    {% pill variant="primary" text="Active" %}
-                  {% endif %}
-                </dd>
-              </div>
-              <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
-                <dt class="sr-only">GitHub repository:</dt>
-                <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                  {% icon_github_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-                  <span class="truncate">{{ workspace.repo.name }}</span>
-                </dd>
-                <dt class="sr-only">Git branch:</dt>
-                <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                  {% icon_branches_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-                  <span class="truncate">{{ workspace.branch }}</span>
-                </dd>
-                <dt class="sr-only">Created at:</dt>
-                <dd class="flex flex-row shrink-0 items-start sm:ml-auto">
-                  {% icon_calendar_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-                  <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
-                    {{ workspace.created_at|date:"d M Y" }}
-                  </time>
-                </dd>
-              </div>
-            </dl>
+                {% if can_view_workspace_statuses %}
+                  <dt class="sr-only">Status:</dt>
+                  <dd class="ml-auto shrink-0">
+                    {% if workspace.is_archived %}
+                      <span class="relative group">
+                        {% pill variant="warning" text="Archived" %}
+                        {% tooltip position="-bottom-3" content="Creating new jobs is disabled" %}
+                      </span>
+                    {% else %}
+                      {% pill variant="primary" text="Active" %}
+                    {% endif %}
+                {% endif %}
+              </dd>
+            </div>
+            <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
+              <dt class="sr-only">GitHub repository:</dt>
+              <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                {% icon_github_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                <span class="truncate">{{ workspace.repo.name }}</span>
+              </dd>
+              <dt class="sr-only">Git branch:</dt>
+              <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                {% icon_branches_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                <span class="truncate">{{ workspace.branch }}</span>
+              </dd>
+              <dt class="sr-only">Created at:</dt>
+              <dd class="flex flex-row shrink-0 items-start sm:ml-auto">
+                {% icon_calendar_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
+                <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
+                  {{ workspace.created_at|date:"d M Y" }}
+                </time>
+              </dd>
+            </div>
+          </dl>
           </li>
         {% empty %}
           {% list_group_empty icon=True title="No workspaces" description="This project does not have any associated workspaces" %}
