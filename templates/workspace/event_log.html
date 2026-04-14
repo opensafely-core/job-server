@@ -17,17 +17,19 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% if workspace.is_archived %}
-    {% #alert variant="warning" title="Archived Workspace" class="mb-6" %}
-      <p class="text-sm mb-2">
-        This Workspace has been archived.
-        Logs are still available but new Jobs can no longer be requested.
-      </p>
-      <p class="text-sm">
-        If you think this has been done in error,
-        {% link text="contact an admin" href="mailto:team@opensafely.org" append_after="." %}
-      </p>
-    {% /alert %}
+  {% if user_can_view_workspace_statuses %}
+    {% if workspace.is_archived %}
+      {% #alert variant="warning" title="Archived Workspace" class="mb-6" %}
+        <p class="text-sm mb-2">
+          This Workspace has been archived.
+          Logs are still available but new Jobs can no longer be requested.
+        </p>
+        <p class="text-sm">
+          If you think this has been done in error,
+          {% link text="contact an admin" href="mailto:team@opensafely.org" append_after="." %}
+        </p>
+      {% /alert %}
+    {% endif %}
   {% endif %}
 
   {% fragment as intro_text %}
