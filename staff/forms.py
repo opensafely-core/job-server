@@ -6,7 +6,7 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, SiteAlert, Workspace
+from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
 from jobserver.models.project import NUMBER_REGEX
 
 
@@ -143,6 +143,7 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
         super().__init__(*args, **kwargs)
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
+        self.fields["copilot"].queryset = User.objects.potential_copilots()
 
     def clean_name(self):
         _validate_slug(self.cleaned_data["name"])
@@ -172,6 +173,7 @@ class ProjectEditForm(forms.ModelForm, UniqueProjectNumberMixin):
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["copilot"].required = False
+        self.fields["copilot"].queryset = User.objects.potential_copilots()
 
 
 class ProjectLinkApplicationForm(forms.Form):

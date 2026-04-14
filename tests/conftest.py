@@ -19,16 +19,18 @@ from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from structlog.testing import LogCapture
 
+import jobserver.authorization.global_roles
 import jobserver.authorization.roles
 import services.slack
 from applications.form_specs import form_specs
 from jobserver.actions import project_members
+from jobserver.authorization.permissions import Permission
 from jobserver.authorization.roles import (
     ServiceAdministrator,
     StaffAreaAdministrator,
     TechSupport,
 )
-from jobserver.models import SiteAlert
+from jobserver.models import SiteAlert, User
 from services.logging import base_processors
 from services.tracing import add_exporter, get_provider
 
@@ -69,21 +71,6 @@ def api_rf():
     from rest_framework.test import APIRequestFactory
 
     return APIRequestFactory()
-
-
-@pytest.fixture
-def staff_area_administrator():
-    return UserFactory(roles=[StaffAreaAdministrator])
-
-
-@pytest.fixture
-def service_administrator():
-    return UserFactory(roles=[ServiceAdministrator])
-
-
-@pytest.fixture
-def tech_support():
-    return UserFactory(roles=[TechSupport])
 
 
 @pytest.fixture(name="log_output")
@@ -403,7 +390,11 @@ def role_factory():
         # them using their dotted path. To accommodate the check and the import, we move
         # this role class into place with __module__ and setattr.
 
-        name = f"Role_{permission}"
+        # Allow either single permission or iterable argument
+        if isinstance(permission, str):
+            permission = [permission]
+
+        name = f"Role_{'_'.join(permission)}"
         assert name.isidentifier(), f"{name} is not a valid Python identifier"
 
         Role = getattr(jobserver.authorization.roles, name, None)
@@ -414,14 +405,76 @@ def role_factory():
                 {
                     "__module__": jobserver.authorization.roles.__name__,
                     "models": [],
-                    "permissions": [permission],
+                    "permissions": list(permission),
                 },
             )
             setattr(jobserver.authorization.roles, name, Role)
 
+        all_roles = getattr(jobserver.authorization.global_roles, "ALL_ROLES")
+        all_roles.add(Role)
+
         return Role
 
     return _role_factory
+
+
+@pytest.fixture
+def user_with_fake_role_factory(role_factory):
+    """A fixture for dynamically creating a role with a given permission."""
+
+    def _role_factory(*, permission):
+        # Allow either single permission or iterable argument
+        if isinstance(permission, str):
+            permission = [permission]
+        return UserFactory(roles=[role_factory(permission=list(permission))])
+
+    return _role_factory
+
+
+@pytest.fixture
+def staff_area_administrator():
+    return UserFactory(roles=[StaffAreaAdministrator])
+
+
+@pytest.fixture
+def service_administrator():
+    return UserFactory(roles=[ServiceAdministrator])
+
+
+@pytest.fixture
+def tech_support():
+    return UserFactory(roles=[TechSupport])
+
+
+@pytest.fixture
+def user_USER_EDIT_PROJECT_ROLES(user_with_fake_role_factory):
+    return user_with_fake_role_factory(
+        permission=[
+            Permission.USER_EDIT_PROJECT_ROLES,
+        ]
+    )
+
+
+@pytest.fixture()
+def potential_copilots(monkeypatch, user_with_fake_role_factory):
+    """
+    Fixture for patching User.objects.potential_copilots.
+
+    Decouple tests from real role/permission definitions.
+    Patch the copilot queryset to return two fake users with distinct fake
+    roles with a fake permission used to identify them.
+    """
+    fake_permission = "copilot_test_permission"
+    copilot0 = user_with_fake_role_factory(permission=fake_permission)
+    copilot1 = user_with_fake_role_factory(permission=fake_permission)
+    queryset = User.objects.filter(pk__in=[copilot0.pk, copilot1.pk])
+
+    monkeypatch.setattr(
+        "staff.forms.User.objects.potential_copilots",
+        # Return an actual QuerySet for chaining etc.
+        lambda: queryset,
+    )
+    return queryset
 
 
 @pytest.fixture

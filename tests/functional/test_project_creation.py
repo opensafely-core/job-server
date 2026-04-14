@@ -12,7 +12,14 @@ pytestmark = pytest.mark.functional
 
 
 def test_can_create_a_project(
-    context, client, page, live_server, slack_messages, role_factory, freezer
+    context,
+    client,
+    page,
+    live_server,
+    slack_messages,
+    role_factory,
+    freezer,
+    potential_copilots,
 ):
     """
     Test that a user with the necessary permissions can successfully create a new project by interacting with the UI through their browser.
@@ -33,7 +40,7 @@ def test_can_create_a_project(
 
     # Create the form input data before we load the page, so the copilot User instance
     # exists in the db, and can be used in the copilot select form field later in the test
-    form_data = CreateProjectFormDataFactory()
+    form_data = CreateProjectFormDataFactory(copilot=str(potential_copilots.first().pk))
 
     # Go to the Staff Area Projects page
     page.goto(f"{live_server.url}{reverse('staff:project-list')}")

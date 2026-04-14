@@ -150,13 +150,14 @@ def test_applicationapproveform_rejects_leading_zero_numeric_project_number():
     assert "project_number" in form.errors
 
 
-def test_projectcreateform_unbound():
+def test_projectcreateform_unbound(potential_copilots):
     """
     Test unbound state for ProjectCreate form.
 
     When the form is instantiated then:
         * The form is unbound.
         * name and number fields do not have initial values.
+        * The copilot field has the expected queryset.
     """
 
     form = ProjectCreateForm()
@@ -164,9 +165,10 @@ def test_projectcreateform_unbound():
     assert not form.is_bound
     assert form.fields["name"].initial is None
     assert form.fields["number"].initial is None
+    assert set(form.fields["copilot"].queryset) == set(potential_copilots)
 
 
-def test_projectcreateform_success():
+def test_projectcreateform_success(potential_copilots):
     """
     Test is_valid() success for ProjectCreate form.
 
@@ -174,7 +176,8 @@ def test_projectcreateform_success():
         * The form is bound with copilot, orgs, name, and number data input by the user.
         * Validation succeeds.
     """
-    data = CreateProjectFormDataFactory()
+
+    data = CreateProjectFormDataFactory(copilot=potential_copilots.first())
 
     form = ProjectCreateForm(data=data)
 
@@ -221,14 +224,16 @@ def test_projectcreateform_empty_slug():
 
 
 @pytest.mark.parametrize(
-    "invalid_data_type,data,field",
+    "invalid_data_type,invalid_data,field",
     [
         ("duplicate_name", {}, "name"),
         ("unknown_org", {"orgs": ["99999"]}, "orgs"),
         ("unknown_copilot", {"copilot": "99999"}, "copilot"),
     ],
 )
-def test_projectcreateform_invalid_data(invalid_data_type, data, field):
+def test_projectcreateform_invalid_data(
+    invalid_data_type, invalid_data, field, potential_copilots
+):
     """
     Test invalid data submission to ProjectCreateForm
 
@@ -241,7 +246,8 @@ def test_projectcreateform_invalid_data(invalid_data_type, data, field):
 
     existing_project = ProjectFactory()
 
-    invalid_data = CreateProjectFormDataFactory(**data)
+    valid_data = CreateProjectFormDataFactory(copilot=potential_copilots.first())
+    invalid_data = valid_data | invalid_data
 
     if invalid_data_type == "duplicate_name":
         invalid_data["name"] = existing_project.name
@@ -253,7 +259,9 @@ def test_projectcreateform_invalid_data(invalid_data_type, data, field):
 
 @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
 @pytest.mark.parametrize("missing_type", ["empty", "omitted"])
-def test_projectcreateform_without_required_data(field, missing_type):
+def test_projectcreateform_without_required_data(
+    field, missing_type, potential_copilots
+):
     """
     Test submission of empty and omitted values for each required field in the ProjectCreateForm.
 
@@ -261,7 +269,7 @@ def test_projectcreateform_without_required_data(field, missing_type):
     - is_valid() fails
     - we get a form error for the expected field
     """
-    data = CreateProjectFormDataFactory()
+    data = CreateProjectFormDataFactory(copilot=potential_copilots.first())
 
     if missing_type == "empty":
         if field == "orgs":
@@ -275,6 +283,21 @@ def test_projectcreateform_without_required_data(field, missing_type):
 
     assert not form.is_valid()
     assert form.errors == {field: ["This field is required."]}
+
+
+def test_projecteditform_unbound(potential_copilots):
+    """
+    Test unbound state for ProjectEditForm.
+
+    When the form is instantiated then:
+        * The form is unbound.
+        * The copilot field has the expected queryset.
+    """
+
+    form = ProjectEditForm()
+
+    assert not form.is_bound
+    assert set(form.fields["copilot"].queryset) == set(potential_copilots)
 
 
 def test_projecteditform_number_is_not_required():
