@@ -90,7 +90,7 @@
     {% #card title="Co-pilot details" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
         {% form_legend text="Co-pilot details" class="sr-only" %}
-        {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value required %}
+        {% form_select field=form.copilot choices=form.fields.copilot.choices selected=form.copilot.value %}
       {% /form_fieldset %}
     {% /card %}
     {% #button variant="success" type="submit" class="self-start" %}

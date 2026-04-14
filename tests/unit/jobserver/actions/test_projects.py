@@ -121,7 +121,7 @@ def test_add_project_without_copilot(monkeypatch):
     assert event.parent_id == str(project.pk)
     assert event.created_by == actor.username
 
-    mock_notify.assert_called_once_with(project)
+    mock_notify.assert_not_called()
 
 
 @pytest.mark.django_db(transaction=True)

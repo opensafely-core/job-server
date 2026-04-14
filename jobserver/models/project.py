@@ -25,6 +25,7 @@ DIGITS_PATTERN = r"[1-9][0-9]*"
 # year, '-', followed by a string of digits, usually starting with 2001. Year
 # part must start '20'. Third part has no leading zero.
 POS_FORMAT_PATTERN = r"POS-20[0-9]{2}-[1-9][0-9]{3}"
+POS_FORMAT_REGEX = re.compile(POS_FORMAT_PATTERN)
 # Pattern for either format. This covers all valid values.
 NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
 NUMBER_REGEX = re.compile(NUMBER_PATTERN)

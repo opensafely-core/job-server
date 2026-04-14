@@ -204,6 +204,25 @@ def test_projectcreateform_duplicate_slug():
     assert "name" in form.errors
 
 
+def test_projectcreateform_duplicate_number():
+    """Test that ProjectCreateForm does not validate when an already existing
+    number is submitted.
+
+    Given a project exists with a particular number.
+    When the form is populated with the same number:
+        * Validation fails.
+    """
+    number = "POS-2026-2001"
+    ProjectFactory(number=number)
+    data = CreateProjectFormDataFactory(number=number)
+
+    form = ProjectCreateForm(data=data)
+
+    assert form.is_bound
+    assert not form.is_valid()
+    assert "number" in form.errors
+
+
 def test_projectcreateform_empty_slug():
     """Test that ProjectCreateForm does not validate when an empty
     slug would be generated.
@@ -259,17 +278,23 @@ def test_projectcreateform_invalid_data(
 
 @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
 @pytest.mark.parametrize("missing_type", ["empty", "omitted"])
+@pytest.mark.parametrize("project_number", ["123", "POS-2026-2001"])
 def test_projectcreateform_without_required_data(
-    field, missing_type, potential_copilots
+    field, missing_type, project_number, potential_copilots
 ):
     """
     Test submission of empty and omitted values for each required field in the ProjectCreateForm.
 
     When empty or omitted values are submitted:
-    - is_valid() fails
+    - is_valid() is False
     - we get a form error for the expected field
+    Except if the missing field is copilot and the project number is not such
+    that the copilot field is required. In that case:
+    - is_valid() is True
     """
-    data = CreateProjectFormDataFactory(copilot=potential_copilots.first())
+    data = CreateProjectFormDataFactory(
+        number=project_number, copilot=potential_copilots.first()
+    )
 
     if missing_type == "empty":
         if field == "orgs":
@@ -281,8 +306,14 @@ def test_projectcreateform_without_required_data(
 
     form = ProjectCreateForm(data=data)
 
-    assert not form.is_valid()
-    assert form.errors == {field: ["This field is required."]}
+    # Copilot is only required for POS- projects.
+    if project_number == "123" and field == "copilot":
+        assert form.is_valid()
+    else:
+        assert not form.is_valid()
+        assert set(form.errors.keys()) == {field}
+        assert len(form.errors[field]) == 1
+        assert "is required" in form.errors[field][0]
 
 
 def test_projecteditform_unbound(potential_copilots):
