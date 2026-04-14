@@ -42,6 +42,9 @@ class Workspace(models.Model):
 
     name = models.TextField(unique=True)
     branch = models.TextField()
+
+    # We don't show this field publicly to anonymous users, or to users without roles,
+    # as it may cause confusion or be misleading to users without necessary context.
     is_archived = models.BooleanField(default=False)
     should_notify = models.BooleanField(default=False)
     purpose = models.TextField(default="")
