@@ -145,11 +145,10 @@ def test_applicationapprove_post_success(
     assert complete_application.project.created_by == staff_area_administrator
     assert complete_application.project.updated_by == staff_area_administrator
     assert complete_application.project.number == "42"
+    assert complete_application.project.copilot is None
 
-    # Then one Slack message gets sent. Don't test message details here.
-    assert len(slack_messages) == 1
-    message, channel = slack_messages[0]
-    assert channel == "co-pilot-support"
+    # Then no Slack message gets sent as we did not set a copilot.
+    assert len(slack_messages) == 0
 
 
 def test_applicationapprove_with_deleted_application(

@@ -117,6 +117,7 @@ class TestProjectCreation:
     # required field when POSTing to the ProjectCreateForm.
     @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
     @pytest.mark.parametrize("missing_data", ["empty", "omitted"])
+    @pytest.mark.parametrize("project_number", ["123", "POS-2026-2001"])
     def test_projectcreate_post_with_missing_data(
         self,
         client,
@@ -125,6 +126,7 @@ class TestProjectCreation:
         slack_messages,
         field,
         missing_data,
+        project_number,
     ):
         """
         Test an unsuccessful POST to the ProjectCreate view with missing data.
@@ -135,12 +137,18 @@ class TestProjectCreation:
             * A new project is not created in the db
             * A new AuditableEvent is not created
             * A Slack message is not sent to the copilot support channel.
+        * Except if the missing field is copilot and the project number is not such
+        that the copilot field is required. In that case:
+            * The response is a redirect
+            * A new project is created in the db
+            * A new AuditableEvent is created
+            * A Slack message is not sent to the copilot support channel.
         """
         user = user_with_fake_role_factory(permission=Permission.PROJECT_CREATE)
         projects_count = Project.objects.count()
         aes_count = AuditableEvent.objects.count()
 
-        data = CreateProjectFormDataFactory()
+        data = CreateProjectFormDataFactory(number=project_number)
 
         if missing_data == "empty":
             if field == "orgs":
@@ -154,16 +162,35 @@ class TestProjectCreation:
 
         response = client.post(reverse("staff:project-create"), data)
 
-        assert response.status_code == 200
-        form = response.context_data["form"]
-        assert form.is_bound
-        assert field in form.errors
+        # Copilot is only required for POS- projects.
+        if project_number == "123" and field == "copilot":
+            assert response.status_code == 302
 
-        assert Project.objects.count() == projects_count
+            # This is actually a success case, so do similar checks as in
+            # test_projectcreate_post_success, except without a copilot or
+            # Slack message.
+            new_project = Project.objects.first()
+            assert new_project.copilot is None
+            assert new_project.created_by == user
+            assert new_project.name == data["name"]
+            assert new_project.number == data["number"]
+            assert set_from_qs(new_project.orgs.all()) == {int(data["orgs"])}
+            assert new_project.updated_by == user
 
-        assert AuditableEvent.objects.count() == aes_count
+            assert AuditableEvent.objects.filter(target_id=new_project.pk).count() == 1
 
-        assert len(slack_messages) == 0
+            assert len(slack_messages) == 0
+        else:
+            assert response.status_code == 200
+            form = response.context_data["form"]
+            assert form.is_bound
+            assert field in form.errors
+
+            assert Project.objects.count() == projects_count
+
+            assert AuditableEvent.objects.count() == aes_count
+
+            assert len(slack_messages) == 0
 
     def test_projectcreated_unauthorised(self, client, user_with_fake_role_factory):
         user = user_with_fake_role_factory(permission=[Permission.STAFF_AREA_ACCESS])
