@@ -31,8 +31,13 @@ class UserQuerySet(models.QuerySet):
 
     def potential_copilots(self, copilot_permission=Permission.STAFF_AREA_ACCESS):
         """
-        There is no copilot role, so we use staff area access as a proxy.
-        Copilots need access to view the copilot dashboard.
+        Return a QuerySet of User that could be a copilot.
+
+        There is no copilot role, so we use staff area access as a proxy. If we
+        add a more specific permission later we could use that instead.
+
+        Copilots need access to view the copilot dashboard, and may be assigned
+        to Project.copilot.
         """
         return self.with_permission(copilot_permission)
 
