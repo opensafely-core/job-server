@@ -127,6 +127,19 @@ class TestSiteAlertContextProcessor:
 class TestDbMaintenanceModeContextProcessor:
     """Tests of the db_maintenance_mode context processor."""
 
+    def _db_maintenance_mode(self, request):
+        """Call the function under test in isolation."""
+        with (
+            patch(
+                "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
+            ),
+            patch(
+                "jobserver.context_processors.Backend.objects.get_db_maintenance_mode_statuses",
+                return_value={"tpp": True, "emis": False},
+            ),
+        ):
+            return db_maintenance_mode(request)
+
     @pytest.mark.usefixtures("clear_cache", "enable_db_maintenance_context_processor")
     def test_expected_attribute_values_for_banner_display_url(self, rf):
         """Adds expected db maintenance status values for allowed backends on pre-specified banner display URLs."""
@@ -143,21 +156,11 @@ class TestDbMaintenanceModeContextProcessor:
                 "identifier": job.identifier,
             },
         )
-
         request = rf.get(request_url)
         request.user = user
         request.resolver_match = resolve(request.path_info)
 
-        with (
-            patch(
-                "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
-            ),
-            patch(
-                "jobserver.context_processors.Backend.objects.get_db_maintenance_mode_statuses",
-                return_value={"tpp": True, "emis": False},
-            ),
-        ):
-            context = db_maintenance_mode(request)
+        context = self._db_maintenance_mode(request)
 
         assert context["tpp_maintenance_banner"] is True
         assert context["emis_maintenance_banner"] is False
@@ -169,16 +172,7 @@ class TestDbMaintenanceModeContextProcessor:
         request.user = UserFactory()
         request.resolver_match = resolve(request.path_info)
 
-        with (
-            patch(
-                "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
-            ),
-            patch(
-                "jobserver.context_processors.Backend.objects.get_db_maintenance_mode_statuses",
-                return_value={"tpp": True, "emis": False},
-            ),
-        ):
-            context = db_maintenance_mode(request)
+        context = self._db_maintenance_mode(request)
 
         assert context == {
             "emis_maintenance_banner": False,
@@ -192,16 +186,7 @@ class TestDbMaintenanceModeContextProcessor:
         request = rf.get("/no-match-url/")
         request.user = UserFactory()
 
-        with (
-            patch(
-                "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
-            ),
-            patch(
-                "jobserver.context_processors.Backend.objects.get_db_maintenance_mode_statuses",
-                return_value={"tpp": True, "emis": False},
-            ),
-        ):
-            context = db_maintenance_mode(request)
+        context = self._db_maintenance_mode(request)
 
         assert context == {
             "emis_maintenance_banner": False,
