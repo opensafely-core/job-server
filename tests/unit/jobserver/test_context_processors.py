@@ -169,8 +169,8 @@ class TestDbMaintenanceModeContextProcessor:
         assert context["emis_maintenance_banner"] is False
 
     @pytest.mark.usefixtures("enable_db_maintenance_context_processor")
-    def test_attributes_not_added_for_non_banner_display_url(self, rf):
-        """Returns empty dict for non-banner-display URLs."""
+    def test_attributes_false_for_non_banner_display_url(self, rf):
+        """Test that each backend has a False flag for non-banner-display URLs."""
 
         request = rf.get(reverse("job-list"))
         request.user = UserFactory()
@@ -183,12 +183,19 @@ class TestDbMaintenanceModeContextProcessor:
         ):
             context = db_maintenance_mode(request)
 
-        assert context == {}
+        assert context == {
+            "emis_maintenance_banner": False,
+            "tpp_maintenance_banner": False,
+        }
 
     @pytest.mark.usefixtures("enable_db_maintenance_context_processor")
-    def test_attributes_not_added_for_no_resolver_match_url(self, rf):
-        """Returns empty dict if request has no resolver_match attribute."""
+    def test_attributes_false_for_no_resolver_match_url(self, rf):
+        """Test that each backend has a False flag if request has no
+        resolver_match attribute."""
         request = rf.get("/no-match-url/")
         request.user = UserFactory()
         context = db_maintenance_mode(request)
-        assert context == {}
+        assert context == {
+            "emis_maintenance_banner": False,
+            "tpp_maintenance_banner": False,
+        }
