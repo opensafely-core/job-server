@@ -41,8 +41,9 @@ class ProjectDetail(View):
             request.user, Permission.PROJECT_MANAGE, project=project
         )
 
-        # An AnonymousUser doesn't have the has_any_roles property, so we use getattr
-        can_view_workspace_statuses = getattr(request.user, "has_any_roles", False)
+        can_view_workspace_statuses = (
+            request.user.is_authenticated and request.user.has_any_roles
+        )
 
         memberships = project.memberships.select_related("user").order_by(
             Lower("user__fullname"), "user__username"

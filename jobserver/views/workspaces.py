@@ -193,8 +193,9 @@ class WorkspaceDetail(View):
             project=workspace.project,
         )
 
-        # An AnonymousUser doesn't have the has_any_roles property, so we use getattr
-        can_view_workspace_statuses = getattr(request.user, "has_any_roles", False)
+        can_view_workspace_statuses = (
+            request.user.is_authenticated and request.user.has_any_roles
+        )
 
         has_backends = request.user.is_authenticated and request.user.backends.exists()
 
@@ -296,8 +297,9 @@ class WorkspaceEventLog(ListView):
             )
         ).order_by("name")
 
-        # An AnonymousUser doesn't have the has_any_roles property, so we use getattr
-        can_view_workspace_statuses = getattr(self.request.user, "has_any_roles", False)
+        can_view_workspace_statuses = (
+            self.request.user.is_authenticated and self.request.user.has_any_roles
+        )
 
         return super().get_context_data(**kwargs) | {
             "backends": backends,
