@@ -192,6 +192,11 @@ class WorkspaceDetail(View):
             Permission.WORKSPACE_TOGGLE_NOTIFICATIONS,
             project=workspace.project,
         )
+
+        can_view_workspace_statuses = (
+            request.user.is_authenticated and request.user.has_any_roles
+        )
+
         has_backends = request.user.is_authenticated and request.user.backends.exists()
 
         # Should we show the admin section in the UI?
@@ -215,6 +220,7 @@ class WorkspaceDetail(View):
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
             "user_can_toggle_notifications": can_toggle_notifications,
+            "user_can_view_workspace_statuses": can_view_workspace_statuses,
             "user_has_backends": has_backends,
             "workspace": workspace,
         }
@@ -291,9 +297,14 @@ class WorkspaceEventLog(ListView):
             )
         ).order_by("name")
 
+        can_view_workspace_statuses = (
+            self.request.user.is_authenticated and self.request.user.has_any_roles
+        )
+
         return super().get_context_data(**kwargs) | {
             "backends": backends,
             "workspace": self.workspace,
+            "user_can_view_workspace_statuses": can_view_workspace_statuses,
         }
 
     def get_queryset(self):

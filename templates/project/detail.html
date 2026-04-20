@@ -114,17 +114,19 @@
                     {{ workspace.name }}
                   </a>
                 </dd>
-                <dt class="sr-only">Status:</dt>
-                <dd class="ml-auto shrink-0">
-                  {% if workspace.is_archived %}
-                    <span class="relative group">
-                      {% pill variant="warning" text="Archived" %}
-                      {% tooltip position="-bottom-3" content="Creating new jobs is disabled" %}
-                    </span>
-                  {% else %}
-                    {% pill variant="primary" text="Active" %}
-                  {% endif %}
-                </dd>
+                {% if can_view_workspace_statuses %}
+                  <dt class="sr-only">Status:</dt>
+                  <dd class="ml-auto shrink-0">
+                    {% if workspace.is_archived %}
+                      <span class="relative group">
+                        {% pill variant="warning" text="Archived" %}
+                        {% tooltip position="-bottom-3" content="Creating new jobs is disabled" %}
+                      </span>
+                    {% else %}
+                      {% pill variant="primary" text="Active" %}
+                    {% endif %}
+                  </dd>
+                {% endif %}
               </div>
               <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
                 <dt class="sr-only">GitHub repository:</dt>
