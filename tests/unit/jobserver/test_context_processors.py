@@ -12,7 +12,7 @@ from jobserver.context_processors import (
     site_alerts,
 )
 
-from ...factories import BackendFactory, JobFactory, JobRequestFactory, UserFactory
+from ...factories import JobFactory, JobRequestFactory, UserFactory
 
 
 class TestInProduction:
@@ -127,15 +127,22 @@ class TestSiteAlertContextProcessor:
 class TestDbMaintenanceModeContextProcessor:
     """Tests of the db_maintenance_mode context processor."""
 
-    def setup_method(self):
-        self.tpp = BackendFactory(slug="tpp", is_in_maintenance_mode=True)
-        self.emis = BackendFactory(slug="emis", is_in_maintenance_mode=False)
-        self.other = BackendFactory(slug="other", is_in_maintenance_mode=True)
+    def _db_maintenance_mode(self, request):
+        """Call the function under test in isolation."""
+        with (
+            patch(
+                "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
+            ),
+            patch(
+                "jobserver.context_processors.Backend.objects.get_db_maintenance_mode_statuses",
+                return_value={"tpp": True, "emis": False},
+            ),
+        ):
+            return db_maintenance_mode(request)
 
     @pytest.mark.usefixtures("clear_cache", "enable_db_maintenance_context_processor")
     def test_expected_attribute_values_for_banner_display_url(self, rf):
         """Adds expected db maintenance status values for allowed backends on pre-specified banner display URLs."""
-
         user = UserFactory()
         job_request = JobRequestFactory(created_by=user)
         job = JobFactory(job_request=job_request)
@@ -149,46 +156,39 @@ class TestDbMaintenanceModeContextProcessor:
                 "identifier": job.identifier,
             },
         )
-
         request = rf.get(request_url)
         request.user = user
         request.resolver_match = resolve(request.path_info)
 
-        with (
-            patch(
-                "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
-            ),
-            patch(
-                "jobserver.context_processors.Backend.objects.get_db_maintenance_mode_statuses",
-                return_value={"tpp": True, "emis": False},
-            ),
-        ):
-            context = db_maintenance_mode(request)
+        context = self._db_maintenance_mode(request)
 
         assert context["tpp_maintenance_banner"] is True
         assert context["emis_maintenance_banner"] is False
 
     @pytest.mark.usefixtures("enable_db_maintenance_context_processor")
-    def test_attributes_not_added_for_non_banner_display_url(self, rf):
-        """Returns empty dict for non-banner-display URLs."""
-
+    def test_attributes_false_for_non_banner_display_url(self, rf):
+        """Test that each backend has a False flag for non-banner-display URLs."""
         request = rf.get(reverse("job-list"))
         request.user = UserFactory()
         request.resolver_match = resolve(request.path_info)
 
-        with (
-            patch(
-                "jobserver.context_processors.BANNER_DISPLAY_URL_NAMES", ["job-detail"]
-            ),
-        ):
-            context = db_maintenance_mode(request)
+        context = self._db_maintenance_mode(request)
 
-        assert context == {}
+        assert context == {
+            "emis_maintenance_banner": False,
+            "tpp_maintenance_banner": False,
+        }
 
     @pytest.mark.usefixtures("enable_db_maintenance_context_processor")
-    def test_attributes_not_added_for_no_resolver_match_url(self, rf):
-        """Returns empty dict if request has no resolver_match attribute."""
+    def test_attributes_false_for_no_resolver_match_url(self, rf):
+        """Test that each backend has a False flag if request has no
+        resolver_match attribute."""
         request = rf.get("/no-match-url/")
         request.user = UserFactory()
-        context = db_maintenance_mode(request)
-        assert context == {}
+
+        context = self._db_maintenance_mode(request)
+
+        assert context == {
+            "emis_maintenance_banner": False,
+            "tpp_maintenance_banner": False,
+        }

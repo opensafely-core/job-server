@@ -86,15 +86,18 @@ def login_url(request):
 def db_maintenance_mode(request):
     """Add database maintenance banner flags to context for specific
     views."""
+    maintenance_statuses = Backend.objects.get_db_maintenance_mode_statuses()
 
     if (
         request.user.is_authenticated
         and request.resolver_match
         and request.resolver_match.url_name in BANNER_DISPLAY_URL_NAMES
     ):
-        maintenance_statuses = Backend.objects.get_db_maintenance_mode_statuses()
         return {
             f"{backend}_maintenance_banner": status
             for backend, status in maintenance_statuses.items()
         }
-    return {}
+    return {
+        f"{backend}_maintenance_banner": False
+        for backend, status in maintenance_statuses.items()
+    }
