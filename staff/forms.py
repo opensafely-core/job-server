@@ -7,7 +7,7 @@ from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
-from jobserver.models.project import NUMBER_REGEX
+from jobserver.models.project import NUMBER_REGEX, POS_FORMAT_REGEX
 
 
 def user_label_from_instance(obj):
@@ -143,11 +143,27 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
         super().__init__(*args, **kwargs)
 
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
+        self.fields["copilot"].required = False
         self.fields["copilot"].queryset = User.objects.potential_copilots()
 
     def clean_name(self):
         _validate_slug(self.cleaned_data["name"])
         return self.cleaned_data["name"]
+
+    def clean(self):
+        # Only require copilot be set for projects with a POS-format project number.
+        # TODO: When we implement project category, the second part of the
+        # condition could use that.
+        if (
+            "copilot" not in self.cleaned_data or not self.cleaned_data["copilot"]
+        ) and POS_FORMAT_REGEX.fullmatch(self.cleaned_data["number"]):
+            self.add_error(
+                "copilot",
+                forms.ValidationError(
+                    "The copilot field is required for projects with a 'POS-' "
+                    "project number."
+                ),
+            )
 
 
 class ProjectEditForm(forms.ModelForm, UniqueProjectNumberMixin):
