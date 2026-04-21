@@ -16,21 +16,27 @@
 
 {% block hero %}
   {% #staff_hero title="Create a project" %}
-    {# show readonly metadata in the page header #}
     <div class="mt-2">
-      <p>
-        When created, this project will automatically be saved with the following data:
-      </p>
-      <p>
-        <strong>Created by:</strong>
-        {{ request.user.fullname }}
-        &nbsp;|&nbsp;
-        <strong>Created at:</strong>
-        {% now "d/m/Y" %}
-        &nbsp;|&nbsp;
-        <strong>Status:</strong>
-        Ongoing
-      </p>
+      <div class="prose prose-oxford">
+        <p>When created, this project will automatically be saved with the following data:</p>
+      </div>
+
+      <dl class="mt-6 grid sm:grid-cols-3 sm:divide-x sm:divide-bn-ribbon-300">
+        <div class="sm:pr-6">
+          <dt class="font-semibold">Created by:</dt>
+          <dd>{{ request.user.fullname }}</dd>
+        </div>
+
+        <div class="sm:px-6">
+          <dt class="font-semibold">Created at:</dt>
+          <dd>{% now "d/m/Y" %}</dd>
+        </div>
+
+        <div class="sm:pl-6">
+          <dt class="font-semibold">Status:</dt>
+          <dd>Ongoing</dd>
+        </div>
+      </dl>
     </div>
   {% /staff_hero %}
 {% endblock hero %}
