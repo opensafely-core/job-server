@@ -4,7 +4,6 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from django.utils import timezone
 
-from jobserver.models import JobRequestStatus
 from jobserver.utils import set_from_list
 from jobserver.views.status import DBAvailability, PerBackendStatus, Status
 
@@ -78,10 +77,9 @@ def test_perbackendstatus_not_checked_in(rf):
 
 def test_status_healthy(rf):
     last_seen = minutes_ago(timezone.now(), 1)
-    backend = BackendFactory(last_seen_at=last_seen)
 
-    # acked, because JobFactory will implicitly create JobRequests
-    JobFactory.create_batch(3, job_request__backend=backend)
+    # Create a backend in the DB
+    BackendFactory(last_seen_at=last_seen)
 
     request = rf.get("/")
     response = Status.as_view()(request)
@@ -91,8 +89,6 @@ def test_status_healthy(rf):
     )
 
     assert output["last_seen"] == last_seen
-    assert output["queue"]["acked"] == 3
-    assert output["queue"]["unacked"] == 0
     assert not output["show_warning"]
 
 
@@ -109,8 +105,10 @@ def test_status_no_last_seen(rf):
     assert not output["show_warning"]
 
 
-def test_status_unacked_jobs_but_recent_api_contact(rf):
-    last_seen = minutes_ago(timezone.now(), 1)
+def test_status_unhealthy(rf):
+    last_seen = minutes_ago(timezone.now(), 10)
+
+    # Create a backend in the DB
     BackendFactory(last_seen_at=last_seen)
 
     request = rf.get("/")
@@ -119,51 +117,8 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
     output = next(  # pragma: no branch
         d for d in response.context_data["backends"] if d
     )
-
     assert output["last_seen"] == last_seen
-    assert not output["show_warning"]
-
-
-def test_status_unhealthy(rf):
-    last_seen = minutes_ago(timezone.now(), 10)
-    backend = BackendFactory(last_seen_at=last_seen)
-
-    # acked, because JobFactory will implicitly create JobRequests
-    JobFactory.create_batch(2, job_request__backend=backend)
-
-    # unacked, because it has no Jobs
-    JobRequestFactory(backend=backend)
-
-    request = rf.get("/")
-    response = Status.as_view()(request)
-
-    output = next(  # pragma: no branch
-        d for d in response.context_data["backends"] if d
-    )
-    assert output["last_seen"] == last_seen
-    assert output["queue"]["acked"] == 2
-    assert output["queue"]["unacked"] == 1
     assert output["show_warning"]
-
-
-def test_status_unacked_excludes_non_actionable_statuses(rf):
-    backend = BackendFactory()
-
-    # 2 requests that should show, 2 that should not
-    JobRequestFactory(backend=backend)
-    JobRequestFactory(backend=backend, _status=JobRequestStatus.NOTHING_TO_DO)
-    JobRequestFactory(
-        backend=backend, _status=JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
-    )
-    JobRequestFactory(backend=backend)
-
-    request = rf.get("/")
-    response = Status.as_view()(request)
-
-    output = next(  # pragma: no branch
-        d for d in response.context_data["backends"] if d
-    )
-    assert output["queue"]["unacked"] == 2
 
 
 def test_status_counts_all_running_jobs(rf):

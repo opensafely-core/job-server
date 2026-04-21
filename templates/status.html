@@ -65,12 +65,6 @@
                   {% endif %}
                 </time>
               {% /description_item %}
-              {% #description_item title="Job requests not yet processed by "|add:backend.name|add:" backend" stacked=True %}
-                {{ backend.queue.unacked|floatformat:"-3g" }}
-              {% /description_item %}
-              {% #description_item title="Total job requests received by "|add:backend.name|add:" backend" stacked=True %}
-                {{ backend.queue.acked|floatformat:"-3g" }}
-              {% /description_item %}
             </div>
             {% #card_footer no_container class="border-t border-t-slate-200" %}
               <p class="text-sm font-medium text-slate-600">
