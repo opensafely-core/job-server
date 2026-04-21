@@ -110,6 +110,7 @@ def test_applicationapprove_get_with_org_slug_and_unknown_org(
 
 
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.slow_test
 def test_applicationapprove_post_success(
     rf,
     django_assert_num_queries,
@@ -237,6 +238,7 @@ def test_applicationapprove_post_success_with_alphanumeric_project_number(
     assert complete_application.project.number == "POS-2025-2001"
 
 
+@pytest.mark.slow_test
 def test_applicationdetail_success_with_complete_application(
     rf, staff_area_administrator, complete_application
 ):
@@ -273,6 +275,7 @@ def test_applicationdetail_num_queries(
         response.render()
 
 
+@pytest.mark.slow_test
 def test_applicationdetail_success_with_incomplete_application(
     rf, staff_area_administrator, incomplete_application
 ):

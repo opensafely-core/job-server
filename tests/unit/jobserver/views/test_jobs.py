@@ -186,6 +186,7 @@ def test_jobdetail_with_permission(rf, project_membership, role_factory):
     assert "Honeycomb" not in response.rendered_content
 
 
+@pytest.mark.slow_test
 def test_jobdetail_with_staff_area_administrator(rf, freezer):
     freezer.move_to("2022-06-16 12:00")
 
@@ -230,6 +231,7 @@ def test_jobdetail_with_staff_area_administrator(rf, freezer):
     assert escape(honeycomb.status_link(job)) in response.rendered_content
 
 
+@pytest.mark.slow_test
 def test_jobdetail_with_staff_area_administrator_with_completed_at(rf, freezer):
     freezer.move_to("2022-06-15 13:00")
 

@@ -16,6 +16,7 @@ from tests.factories import (
 
 
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.slow_test
 def test_add_project_with_copilot(monkeypatch):
     org0 = OrgFactory()
     org1 = OrgFactory()
@@ -74,6 +75,7 @@ def test_add_project_with_copilot(monkeypatch):
 
 
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.slow_test
 def test_add_project_without_copilot(monkeypatch):
     org0 = OrgFactory()
     org1 = OrgFactory()
@@ -125,6 +127,7 @@ def test_add_project_without_copilot(monkeypatch):
 
 
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.slow_test
 def test_add_project_transaction_rollback(monkeypatch):
     """Test that if a database error rolls back the whole transaction, the
     notify function is not called and no new database entries."""

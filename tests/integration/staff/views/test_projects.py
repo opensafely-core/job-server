@@ -71,6 +71,7 @@ class TestProjectCreation:
         assert selected_orgs == bennett_org.pk
 
     @pytest.mark.django_db(transaction=True)
+    @pytest.mark.slow_test
     def test_projectcreate_post_success(
         self, client, request, slack_messages, user_with_fake_role_factory
     ):
@@ -118,6 +119,7 @@ class TestProjectCreation:
     @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
     @pytest.mark.parametrize("missing_data", ["empty", "omitted"])
     @pytest.mark.parametrize("project_number", ["123", "POS-2026-2001"])
+    @pytest.mark.slow_test
     def test_projectcreate_post_with_missing_data(
         self,
         client,

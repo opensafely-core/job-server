@@ -178,6 +178,7 @@ def test_applicationrestore_unknown_application(rf):
         ApplicationRestore.as_view()(request, pk_hash="")
 
 
+@pytest.mark.slow_test
 def test_confirmation_get_success(rf, incomplete_application):
     request = rf.get("/")
     request.user = incomplete_application.created_by

@@ -70,7 +70,16 @@ This allows testing functionality of the entire running system, as a user would 
 
 We have a custom `@pytest.mark.slow_test` marker that should be used on test
 that take more than about 0.1s to run. These are excluded from `just test` to
-provide a quicker feedback loop.
+provide a quicker feedback loop. They can still be run with `just test-ci`.
+
+To check this against specific tests or as a suite-wide check, run `just test
+-n0 --durations=20 --durations-min=0.1`. We use `-n0` so there is only one
+worker to reduce some sources of variance. Run several times and observe if any
+tests consistently take longer than this. You can specify a module to reduce
+the overall runtime.  Also, try running with and without suspects marked up a
+few times and see if there is a consistent improvement. Remember that the very
+first seems to get punished by including the worker preparation time in its
+setup and call time, so that may appear much worse than it actually is.
 
 #### Database access
 

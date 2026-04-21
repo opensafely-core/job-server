@@ -1422,6 +1422,7 @@ def test_jobrequestdetail_with_permission_with_completed_at(
     assert "Cancel" in response.rendered_content
 
 
+@pytest.mark.slow_test
 def test_jobrequestdetail_with_unauthenticated_user(rf):
     job_request = JobRequestFactory(project_definition="test")
 

@@ -1,8 +1,10 @@
+import pytest
 from slack_sdk.errors import SlackApiError
 
 from services import slack
 
 
+@pytest.mark.slow_test
 def test_post(mocker):
     mock = mocker.patch("services.slack.client", autospec=True)
 
@@ -11,6 +13,7 @@ def test_post(mocker):
     mock.chat_postMessage.assert_called_once_with(channel="channel", text="text")
 
 
+@pytest.mark.slow_test
 def test_post_error(mocker, log_output):
     mock = mocker.patch("services.slack.client", autospec=True)
 
