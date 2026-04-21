@@ -81,6 +81,10 @@ few times and see if there is a consistent improvement. Remember that the very
 first seems to get punished by including the worker preparation time in its
 setup and call time, so that may appear much worse than it actually is.
 
+To benchmark the suite as a whole (or any shell command) you can use a tool
+like `hyperfine`: `hyperfine --warmup 1 'just test' --export-markdown
+hyperfine.md`.
+
 #### Database access
 
 All unit and integration tests have access to the database by default. You can
