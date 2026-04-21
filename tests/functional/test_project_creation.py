@@ -56,7 +56,7 @@ def test_can_create_a_project(
     )
     expect(metadata).to_contain_text(f"Created by: {user.fullname}")
     # We don't control the time/date in this test, so this assertion may fail if run close to midnight
-    expect(metadata).to_contain_text("Created at: 02/04/2026")
+    expect(metadata).to_contain_text("Created at: 02 April 2026")
     expect(metadata).to_contain_text("Project status: Ongoing")
 
     # See an empty form with a link to create a new org
