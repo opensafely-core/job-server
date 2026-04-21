@@ -15,7 +15,24 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% staff_hero title="Create a project" %}
+  {% #staff_hero title="Create a project" %}
+    {# show readonly metadata in the page header #}
+    <div class="mt-2">
+      <p>
+        When created, this project will automatically be saved with the following data:
+      </p>
+      <p>
+        <strong>Created by:</strong>
+        {{ request.user.fullname }}
+        &nbsp;|&nbsp;
+        <strong>Created at:</strong>
+        {% now "d/m/Y" %}
+        &nbsp;|&nbsp;
+        <strong>Status:</strong>
+        Ongoing
+      </p>
+    </div>
+  {% /staff_hero %}
 {% endblock hero %}
 
 {% block content %}
@@ -43,23 +60,6 @@
       {% /alert %}
     {% endif %}
 
-    {# show readonly metadata above the form #}
-    <section class="mb-6">
-      <h3 class="sr-only">Project data</h3>
-      <p class="text-md">
-        When created, this project will automatically be saved with the following data:
-      </p>
-      <p>
-        <strong>Created by:</strong>
-        {{ request.user.fullname }}
-        &nbsp;|&nbsp;
-        <strong>Created at:</strong>
-        {% now "d/m/Y" %}
-        &nbsp;|&nbsp;
-        <strong>Status:</strong>
-        Ongoing
-      </p>
-    </section>
 
     {% #card title="Project information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
