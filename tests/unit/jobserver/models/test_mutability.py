@@ -4,6 +4,10 @@ from django.apps import apps
 from jobserver.model_utils import ImmutableError, get_models
 
 
+# There are many tests in this module and we don't expect them to fail often so
+# it seems okay to bump them to CI testing.
+pytestmark = pytest.mark.slow_test
+
 MUTABLE_MODELS = [
     apps.get_model(x)
     for x in [
