@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.generic import View
 
 from ..backends import show_warning
-from ..models import Backend, Job, JobRequestStatus
+from ..models import Backend, Job
 
 
 class DBAvailability(View):
@@ -51,22 +51,6 @@ class PerBackendStatus(View):
 class Status(View):
     def get(self, request, *args, **kwargs):
         def get_stats(backend):
-            acked = (
-                backend.job_requests.annotate(num_jobs=Count("jobs"))
-                .filter(num_jobs__gt=0)
-                .count()
-            )
-            unacked = (
-                backend.job_requests.annotate(num_jobs=Count("jobs"))
-                .filter(num_jobs=0)
-                .exclude(
-                    _status__in=[
-                        JobRequestStatus.NOTHING_TO_DO,
-                        JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS,
-                    ]
-                )
-                .count()
-            )
             counts_by_status = (
                 Job.objects.filter(
                     job_request__backend=backend,
@@ -89,8 +73,6 @@ class Status(View):
                 "alert_timeout": backend.alert_timeout,
                 "last_seen": last_seen,
                 "queue": {
-                    "acked": acked,
-                    "unacked": unacked,
                     "running": running,
                     "pending": pending,
                 },
