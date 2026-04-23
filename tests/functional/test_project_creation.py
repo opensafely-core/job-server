@@ -46,18 +46,18 @@ def test_can_create_a_project(
     page.goto(f"{live_server.url}{reverse('staff:project-list')}")
 
     # Click "Create a project" button (only visible to those with Permission.PROJECT_CREATE),
-    # go to ProjectCreate page and see correct meta data for new project in text above form
+    # go to ProjectCreate page and see correct meta data for new project in the page header
     expect(page.get_by_role("link", name="Create a project")).to_be_visible()
     page.get_by_role("link", name="Create a project").click()
 
     expect(page).to_have_url(f"{live_server.url}{reverse('staff:project-create')}")
-    metadata = page.locator("section").filter(
+    metadata = page.locator("header").filter(
         has_text="When created, this project will automatically be saved with the following data:"
     )
     expect(metadata).to_contain_text(f"Created by: {user.fullname}")
     # We don't control the time/date in this test, so this assertion may fail if run close to midnight
-    expect(metadata).to_contain_text("Created at: 02/04/2026")
-    expect(metadata).to_contain_text("Status: Ongoing")
+    expect(metadata).to_contain_text("Created at: 02 April 2026")
+    expect(metadata).to_contain_text("Project status: Ongoing")
 
     # See an empty form with a link to create a new org
     form = page.locator("form")

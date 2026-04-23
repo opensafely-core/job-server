@@ -15,7 +15,30 @@
 {% endblock breadcrumbs %}
 
 {% block hero %}
-  {% staff_hero title="Create a project" %}
+  {% #staff_hero title="Create a project" %}
+    <div class="mt-2">
+      <div class="prose prose-oxford">
+        <p>When created, this project will automatically be saved with the following data:</p>
+      </div>
+
+      <dl class="mt-6 grid sm:grid-cols-3 sm:divide-x sm:divide-bn-ribbon-300">
+        <div class="sm:pr-6">
+          <dt class="font-semibold">Created by:</dt>
+          <dd>{{ request.user.fullname }}</dd>
+        </div>
+
+        <div class="sm:px-6">
+          <dt class="font-semibold">Created at:</dt>
+          <dd>{% now "d F Y" %}</dd>
+        </div>
+
+        <div class="sm:pl-6">
+          <dt class="font-semibold">Project status:</dt>
+          <dd>{% pill_project_status status="ongoing" text="Ongoing" %}</dd>
+        </div>
+      </dl>
+    </div>
+  {% /staff_hero %}
 {% endblock hero %}
 
 {% block content %}
@@ -43,23 +66,6 @@
       {% /alert %}
     {% endif %}
 
-    {# show readonly metadata above the form #}
-    <section class="mb-6">
-      <h3 class="sr-only">Project data</h3>
-      <p class="text-md">
-        When created, this project will automatically be saved with the following data:
-      </p>
-      <p>
-        <strong>Created by:</strong>
-        {{ request.user.fullname }}
-        &nbsp;|&nbsp;
-        <strong>Created at:</strong>
-        {% now "d/m/Y" %}
-        &nbsp;|&nbsp;
-        <strong>Status:</strong>
-        Ongoing
-      </p>
-    </section>
 
     {% #card title="Project information" container=True %}
       {% #form_fieldset class="w-full items-stretch gap-y-6" %}
