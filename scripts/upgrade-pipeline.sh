@@ -2,7 +2,7 @@
 set -eu
 
 file=$1
-github_package_url="opensafely-pipeline@https://github.com/opensafely-core/pipeline/archive/refs/tags/"
+github_package_url="@https://github.com/opensafely-core/pipeline/archive/refs/tags/"
 latest=$(git ls-remote -h --refs --tags --heads https://github.com/opensafely-core/pipeline | grep -o "v20.*$" | sort | tail -1)
 echo "Latest version of pipeline is $latest"
 

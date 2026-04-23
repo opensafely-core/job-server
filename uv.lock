@@ -828,7 +828,7 @@ requires-dist = [
     { name = "gunicorn" },
     { name = "markdown" },
     { name = "nh3" },
-    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.03.12.140752.zip" },
+    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.04.22.171515.zip" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "opentelemetry-instrumentation-django" },
     { name = "opentelemetry-instrumentation-psycopg2" },
@@ -933,12 +933,12 @@ wheels = [
 
 [[package]]
 name = "opensafely-pipeline"
-version = "2026.3.12.140752"
-source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.03.12.140752.zip" }
+version = "2026.4.22.171515"
+source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.04.22.171515.zip" }
 dependencies = [
     { name = "ruyaml" },
 ]
-sdist = { hash = "sha256:e6e45b5b17f884af263a4c01ead72347d0e63899a0eb1811d7c3d0d5e802401b" }
+sdist = { hash = "sha256:37a8ba18be79e604913da616904ae093f19c1f0d6869dd3165601e3c5bfe706b" }
 
 [package.optional-dependencies]
 fastparser = [
