@@ -1,3 +1,4 @@
+import pytest
 from django.contrib.auth.models import AnonymousUser
 
 from jobserver.views.index import Index
@@ -11,6 +12,7 @@ from ....factories import (
 )
 
 
+@pytest.mark.slow_test
 def test_index_authenticated(
     rf,
     django_assert_num_queries,
@@ -84,6 +86,7 @@ def test_index_authenticated_display_active_backend_job_requests(
         assert response.context_data["all_job_requests"][0].backend == active_backend
 
 
+@pytest.mark.slow_test
 def test_index_authenticated_client(client, django_assert_num_queries):
     user = UserFactory()
     JobRequestFactory.create_batch(10)
@@ -106,6 +109,7 @@ def test_index_unauthenticated(rf, django_assert_num_queries):
         assert len(response.context_data["all_job_requests"]) == 10
 
 
+@pytest.mark.slow_test
 def test_index_unauthenticated_client(client, django_assert_num_queries):
     JobRequestFactory.create_batch(10)
 

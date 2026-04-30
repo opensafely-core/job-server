@@ -295,6 +295,7 @@ def test_update_output_checking_request_with_slack_notification(
     ]
 
 
+@pytest.mark.slow_test
 def test_update_output_checking_issue_retry_error_and_success():
     org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
