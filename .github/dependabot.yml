@@ -42,3 +42,4 @@ updates:
     ignore:
       - dependency-name: "django"
         versions: [">=6.0.0"]
+      - dependency-name: "jobserver"
