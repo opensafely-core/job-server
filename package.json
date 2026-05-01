@@ -32,26 +32,26 @@
   "dependencies": {
     "@fontsource/public-sans": "^5.2.7",
     "@github/filter-input-element": "^0.1.1",
-    "@sentry/react": "^10.48.0",
+    "@sentry/react": "^10.50.0",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "^4.2.2",
-    "@tanstack/react-query": "^5.99.0",
-    "@tanstack/react-query-devtools": "^5.99.0",
+    "@tailwindcss/vite": "^4.2.4",
+    "@tanstack/react-query": "^5.100.1",
+    "@tanstack/react-query-devtools": "^5.100.1",
     "@zachleat/details-utils": "^2.0.2",
     "highlight.js": "^11.11.1",
-    "htmx.org": "^2.0.8",
+    "htmx.org": "^2.0.10",
     "just-debounce-it": "^3.2.0",
     "pretty-bytes": "^7.1.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-papaparse": "^4.4.0",
-    "react-router-dom": "^7.14.0",
+    "react-router-dom": "^7.14.2",
     "react-toastify": "^11.0.5",
     "simple-datatables": "^10.2.0",
     "slugify": "^1.6.9",
     "tailwindcss": "^4.1.13",
-    "tom-select": "^2.5.2"
+    "tom-select": "^2.6.0"
   }
 }
