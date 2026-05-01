@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     "airlock",
     "applications",
     "jobserver",
+    "maintenance",
     "redirects",
     "staff",
     "anymail",
