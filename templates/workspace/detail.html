@@ -50,66 +50,50 @@
   {% endif %}
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
-      <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
-        <div class="order-2 w-full lg:mr-auto lg:order-1">
-          <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-            {{ workspace.name }}
-          </h1>
-          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
-            <dt class="sr-only">Organisation:</dt>
-            <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_building_library_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-              <span class="truncate">{{ workspace.project.org.name }}</span>
-            </dd>
-            <dt class="sr-only">Project:</dt>
-            <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-              <span class="truncate">{{ workspace.project.name }}</span>
-            </dd>
-          </dl>
-        </div>
+    <div class="grid gap-4 place-items-start lg:col-span-full">
+      <div class="grid grid-flow-row gap-2 place-items-start w-full lg:grid-flow-col lg:gap-6 lg:place-content-between">
+        <h1 class="text-3xl tracking-tight wrap-break-word font-bold text-slate-900 sm:text-4xl">
+          {{ workspace.name }}
+        </h1>
         {% if user_can_view_staff_area %}
-          <div class="order-1 lg:order-2 shrink-0">
-            {% #button href=workspace.get_staff_url type="link" variant="danger" class="shrink-0" %}
-              View in Staff Area
-              {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
-          </div>
+          {% #button href=workspace.get_staff_url type="link" variant="danger" class="shrink-0" %}
+            View in Staff Area
+            {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
         {% endif %}
       </div>
 
-      <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
-        {% if is_member %}
-          {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
-            Edit workspace
-            {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+      <div class="flex items-start gap-2 flex-wrap">
+        {% if user.is_authenticated %}
+          {% if is_member %}
+            {% #button href=workspace.get_edit_url type="link" variant="secondary" class="whitespace-nowrap" %}
+              Edit workspace
+              {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% endif %}
+          {% if workspace.is_archived %}
+            {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" class="whitespace-nowrap" %}
+              Run jobs
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% elif not user_can_run_jobs %}
+            {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on this workspace" class="whitespace-nowrap" %}
+              Run jobs
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% elif not user_has_backends %}
+            {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on any OpenSAFELY backends" class="whitespace-nowrap" %}
+              Run jobs
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% else %}
+            {% #button class="plausible-event-name=Run+jobs+click" href=workspace.get_jobs_url type="link" variant="success" class="whitespace-nowrap" %}
+              Run jobs
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% endif %}
         {% endif %}
-
-        {% if workspace.is_archived %}
-          {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
-        {% elif not user_can_run_jobs %}
-          {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on this workspace" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
-        {% elif not user_has_backends %}
-          {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on any OpenSAFELY backends" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
-        {% else %}
-          {% #button class="plausible-event-name=Run+jobs+click" href=workspace.get_jobs_url type="link" variant="success" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
-        {% endif %}
-
-        {% #button href=workspace.get_logs_url type="link" variant="primary" %}
+        {% #button href=workspace.get_logs_url type="link" variant="primary" class="whitespace-nowrap" %}
           View logs
           {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
         {% /button %}
@@ -163,7 +147,11 @@
 
       {% #card title="Workspace information" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-          {% #description_item title="Repo" %}
+          {% #description_item title="Organisation" stacked=True %}
+            {{ workspace.project.org.name }}
+          {% /description_item %}
+
+          {% #description_item title="Code repository" stacked=True %}
             {% link text=workspace.repo.name href=workspace.repo.url %}
 
             {% if repo_is_private %}
@@ -185,21 +173,18 @@
             {% endif %}
           {% /description_item %}
 
-          {% #description_item title="Branch" %}
+          {% #description_item title="Branch" stacked=True %}
             {% link text=workspace.branch href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
           {% /description_item %}
 
-          {% #description_item title="Created" %}
-            <time
-              datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
-              title="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
-            >
-              {{ workspace.created_at|naturaltime }}
-            </time>
-          {% /description_item %}
-
-          {% #description_item title="Created by" %}
-            {{ workspace.created_by.fullname }}
+          {% #description_item title="Created" stacked=True %}
+            <p>
+              <time
+                datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
+                title="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
+              >
+                {{ workspace.created_at|date:"j M Y" }} at {{ workspace.created_at|date:"H:i" }}
+              </time> by {{ workspace.created_by.fullname }}</p>
           {% /description_item %}
         </dl>
       {% /card %}
