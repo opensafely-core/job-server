@@ -531,6 +531,7 @@ class Level4AuthenticatedUser(serializers.Serializer):
     workspaces = serializers.DictField(default={})
     copiloted_workspaces = serializers.DictField(default={})
     output_checker = serializers.BooleanField(default=False)
+    readonly_access = serializers.BooleanField(default=False)
 
 
 ONGOING_PROJECT_STATUSES = {
@@ -586,6 +587,8 @@ def build_level4_user(user):
             # list the explicit workspaces that the user has this permission
             # for.
             output_checker=has_role(user, OutputChecker),
+            # This permission allows a user readonly access to all workspaces in Airlock
+            readonly_access=has_permission(user, Permission.AIRLOCK_READONLY_ACCESS),
         )
     )
     assert level4_user.is_valid(), level4_user.errors

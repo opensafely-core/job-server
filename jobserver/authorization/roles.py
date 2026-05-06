@@ -142,4 +142,5 @@ class DeploymentAdministrator:
     permissions = [
         Permission.JOB_CANCEL,
         Permission.JOB_RUN,
+        Permission.AIRLOCK_READONLY_ACCESS,
     ]
