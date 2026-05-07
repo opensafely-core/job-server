@@ -725,23 +725,27 @@ Airlock refers to Job Server's permissions model to determine what users can
 do. The code it needs is in [jobserver/api/releases.py]. The endpoints it uses
 are `Level4TokenAuthenticationAPI` (`GET /releases/authenticate/`) and
 `Level4AuthorisationAPI` (`GET /releases/authorise/`). It receives the results
-of `build_level4_user` to determine whether a user is an [OutputChecker], and
-which workspaces they can access. (Current as of 2024-09.)
+of `build_level4_user` to determine whether a user is an [OutputChecker], whether
+they have [AIRLOCK_READONLY_ACCESS] permission for all workspaces and requests
+(currently a permission on the [DeploymentAdminstrator] role only), and which
+workspaces they can access. (Current as of 2026-05.)
 
 When releases are approved, Airlock triggers creation of a [Release] for the
 associated [Workspace] on Job Server through the [jobserver/api/releases.py]
 `ReleaseWorkspaceAPI` endpoint (`POST /releases/workspace/{workspace_name}`).
 Files are uploaded from Airlock to Job Server through the `ReleaseAPI`endpoint
-(`POST releases/release/{release_id}`). (Current as of 2024-09.)
+(`POST releases/release/{release_id}`). (Current as of 2026-05.)
 
 Notifications of events related to release requests are triggered through the
 [airlock_event_view] endpoint (`POST /airlock/events/`), which is currently the
 only responsibility of the [airlock app] within Job Server.  Depending on the
 event, users are notified by email, Slack or by creating/updating GitHub
-issues. (Current as of 2024-09.)
+issues. (Current as of 2026-05.)
 
 [Airlock]: https://github.com/opensafely-core/airlock
 [OutputChecker]: jobserver/authorization/roles.py
+[DeploymentAdministrator]: jobserver/authorization/roles.py
+[AIRLOCK_READONLY_ACCESSS]: jobserver/authorization/permissions.py
 [jobserver/api/releases.py]: jobserver/api/releases.py
 [Release]: jobserver/models/release.py
 [Workspace]: jobserver/models/workspace.py
