@@ -209,67 +209,94 @@
       {% #card title="Latest Job Request" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
           {% #description_item title="Created at" %}
-            <time datetime="{{ latest_job_request.created_at|date:"Y-m-d H:i:sO" }}">
-              {{ latest_job_request.created_at|date:"d M Y H:i:s e" }}
+            <time datetime="{{ latest_job_request.created_at|date:"c" }}">
+              {{ latest_job_request.created_at|date:"j M Y" }} at {{ latest_job_request.created_at|date:"H:i e" }}
             </time>
           {% /description_item %}
 
           {% #description_item title="Total runtime" %}
-            {{ latest_job_request.runtime }}
+            {% if latest_job_request.runtime.hours > 0 %}
+              {{ latest_job_request.runtime.hours }} hour{{ latest_job_request.runtime.hours|pluralize }},
+            {% endif %}
+            {{ latest_job_request.runtime.minutes }} minute{{ latest_job_request.runtime.minutes|pluralize }}
+            and {{ latest_job_request.runtime.seconds }} second{{ latest_job_request.runtime.seconds|pluralize }}
+          {% /description_item %}
+
+          {% #description_item title="Status" %}
+            {% if latest_job_request.jobs_status == "succeeded" %}
+              <span class="pill pill--success">Succeeded</span>
+            {% elif latest_job_request.jobs_status == "pending" %}
+              <span class="pill pill--info">Pending</span>
+            {% elif latest_job_request.jobs_status == "running" %}
+              <span class="pill pill--primary">Running</span>
+            {% elif latest_job_request.jobs_status == "failed" %}
+              <span class="pill pill--danger">Failed</span>
+            {% endif %}
           {% /description_item %}
 
           {% #description_item title="Requested actions" %}
             {{ latest_job_request.requested_actions|join:", " }}
           {% /description_item %}
-        </dl>
 
-        <div class="px-4 py-3 md:px-6 border-t border-slate-200 overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-300">
-            <thead>
-              <tr>
-                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                  Status
-                </th>
-                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                  Action
-                </th>
-                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                  Runtime
-                </th>
-                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                  Status message
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 bg-white text-sm">
-              {% for job in latest_job_request.jobs.all %}
-                <tr>
-                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                    <span class="sr-only">{{ job_request.jobs_status|title }}</span>
-                    {% if job.status == "succeeded" %}
-                      {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
-                    {% elif job.status == "pending" %}
-                      {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
-                    {% elif job.status == "running" %}
-                      {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
-                    {% elif job.status == "failed" %}
-                      {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
-                    {% endif %}
-                  </td>
-                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                    {{ job.action }}
-                  </td>
-                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                    {{ job.runtime }}
-                  </td>
-                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                    {{ job.status_message|default:"-" }}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+          {% #description_item title="Individual actions" stacked=True title_class="sr-only" %}
+            <details class="group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded open:bg-white">
+              <summary class="cursor-pointer list-none p-4 py-2 transition-colors hover:bg-oxford-100 hover:text-oxford-900">
+                <span class="text-lg font-semibold text-oxford">
+                  <span class="group-open:hidden inline-flex">Show</span>
+                  <span class="group-open:inline-flex hidden">Hide</span>
+                  actions
+                </span>
+              </summary>
+
+              <div class="px-4 py-3 md:px-6 border-t border-slate-200 overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-300">
+                  <thead>
+                    <tr>
+                      <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                        Status
+                      </th>
+                      <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                        Action
+                      </th>
+                      <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                        Runtime
+                      </th>
+                      <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                        Status message
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200 bg-white text-sm">
+                    {% for job in latest_job_request.jobs.all %}
+                      <tr>
+                        <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                          {% if job.status == "succeeded" %}
+                            <span class="pill pill--success whitespace-nowrap">Succeeded</span>
+                          {% elif job.status == "pending" %}
+                            <span class="pill pill--info whitespace-nowrap">Pending</span>
+                          {% elif job.status == "running" %}
+                            <span class="pill pill--primary whitespace-nowrap">Running</span>
+                          {% elif job.status == "failed" %}
+                            <span class="pill pill--danger whitespace-nowrap">Failed</span>
+                          {% endif %}
+                        </td>
+                        <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                          {{ job.action }}
+                        </td>
+                        <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                          {{ job.runtime }}
+                        </td>
+                        <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                          {{ job.status_message|default:"-" }}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          {% /description_item %}
+        </dl>
       {% /card %}
     {% endif %}
   </article>
