@@ -2,7 +2,7 @@ from .auditable_event import AuditableEvent
 from .backend import Backend
 from .backend_membership import BackendMembership
 from .job import Job
-from .job_request import JobRequest, JobRequestStatus
+from .job_request import JobRequest, JobRequestNotifications, JobRequestStatus
 from .org import Org
 from .org_membership import OrgMembership
 from .project import Project
@@ -26,6 +26,7 @@ __all__ = [
     "BackendMembership",
     "Job",
     "JobRequest",
+    "JobRequestNotifications",
     "JobRequestStatus",
     "Org",
     "OrgMembership",
