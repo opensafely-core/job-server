@@ -133,7 +133,9 @@ class SignOffRepoWithOutputs:
 
 class DeploymentAdministrator:
     display_name = "Deployment Administrator"
-    description = """Run and cancel jobs on any project, for development and maintenance purposes, including technical support for Approved Projects.
+    description = """
+    Run and cancel jobs on any project, for development and maintenance purposes, including technical support for Approved Projects.
+    View files, logs and release requests for any Airlock workspace, for those with Level 4 access.
     See Developer Permissions Log for the list of individuals who are approved for this role.
     """
     models = [

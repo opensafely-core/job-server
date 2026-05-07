@@ -588,6 +588,7 @@ def build_level4_user(user):
             # for.
             output_checker=has_role(user, OutputChecker),
             # This permission allows a user readonly access to all workspaces in Airlock
+            # (and consequently, all release requests related to any workspaces)
             readonly_access=has_permission(user, Permission.AIRLOCK_READONLY_ACCESS),
         )
     )
