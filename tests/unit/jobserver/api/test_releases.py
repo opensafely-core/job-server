@@ -1657,6 +1657,7 @@ def test_level4tokenauthenticationapi_success(
         },
         "copiloted_workspaces": {},
         "output_checker": False,
+        "readonly_access": False,
     }
 
 
@@ -1711,6 +1712,38 @@ def test_level4tokenauthenticationapi_success_privileged(
         },  # should not include workspace3
         "copiloted_workspaces": {},
         "output_checker": True,
+        "readonly_access": False,
+    }
+
+
+def test_level4tokenauthenticationapi_success_readonly_permissions(
+    api_rf, token_login_user, role_factory
+):
+    # enable readonly privileges for user via permission
+    token_login_user.roles.append(
+        role_factory(permission=Permission.AIRLOCK_READONLY_ACCESS)
+    )
+    token_login_user.save()
+
+    token = generate_login_token(token_login_user)
+    backend = token_login_user.backends.first()
+    token_data = {"user": token_login_user.username, "token": token}
+    request = api_rf.post(
+        "/",
+        data=token_data,
+        headers={"authorization": backend.auth_token},
+        format="json",
+    )
+
+    response = Level4TokenAuthenticationAPI.as_view()(request)
+    assert response.status_code == 200
+    assert response.data == {
+        "username": token_login_user.username,
+        "fullname": token_login_user.fullname,
+        "workspaces": {},
+        "copiloted_workspaces": {},
+        "output_checker": False,
+        "readonly_access": True,
     }
 
 
@@ -1863,6 +1896,7 @@ def test_level4authorisationapi_success(
             },
         },
         "output_checker": False,
+        "readonly_access": False,
     }
 
 

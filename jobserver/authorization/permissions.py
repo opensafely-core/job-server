@@ -11,6 +11,8 @@ class Permission(StrEnum):
         member names via `auto()`.
     """
 
+    AIRLOCK_READONLY_ACCESS = auto()
+
     APPLICATION_MANAGE = auto()
 
     BACKEND_MANAGE = auto()
