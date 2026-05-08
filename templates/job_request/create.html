@@ -99,26 +99,25 @@
             </ul>
           {% endif %}
 
-          <ul class="flex flex-col -my-3 -mx-3 md:-mx-6 py-2 text-sm w-[calc(100%+--spacing(6))] md:w-[calc(100%+--spacing(12))]">
+          <ul class="run-jobs__table">
             {% for action in actions %}
-              <li class="bg-white gap-x-2 grid items-center w-full px-4 py-1 md:gap-x-4 md:px-8 grid-cols-[minmax(0,1fr)_min-content_min-content] transition-colors hover:bg-yellow-50" data-action>
-                <label for="checkbox-{{ action.name }}" class="flex flex-row items-start gap-2 w-fit max-w-full min-w-0 break-all leading-tight cursor-pointer hover:text-oxford-700">
+              <li class="run-jobs__row" data-action>
+                <label for="checkbox-{{ action.name }}">
                   <input
                     {% if action.name in form.requested_actions.value %}checked="true"{% endif %}
-                    class="cursor-pointer"
                     id="checkbox-{{ action.name }}"
                     name="requested_actions"
                     type="checkbox"
                     value="{{ action.name }}"
                   >
-                  <span class="font-mono">{{ action.name }}</span>
+                  <span>{{ action.name }}</span>
                 </label>
 
                 {% if action.needs %}
-                  <button class="link inline-flex leading-0 h-fit" data-expander-button={{ action.name }} type="button">
+                  <button data-expander-button={{ action.name }} type="button">
                     Needs
                   </button>
-                  <ul aria-expanded="false" class="hidden mb-2 ml-1.5 pl-3 border-l-4 border-l-oxford-200 order-4 font-mono" data-expander-list="{{ action.name }}">
+                  <ul aria-expanded="false" class="hidden" data-expander-list="{{ action.name }}">
                     {% for need in action.needs %}
                       <li>{{ need }}</li>
                     {% endfor %}
@@ -127,7 +126,7 @@
                   <span></span>
                 {% endif %}
 
-                <span class="pill h-fit w-[14ch] whitespace-nowrap justify-center" data-action-status>Loading</span>
+                <span class="pill" data-action-status>Loading</span>
               </li>
             {% endfor %}
           </ul>
