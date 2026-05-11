@@ -16,12 +16,12 @@ def test_created_with_known_objects():
 
     presenter = users.updated_roles(event=event)
 
-    assert presenter.context["actor"].display_value == actor.fullname
+    assert presenter.context["actor"].display_value == actor.display_name
     assert presenter.context["actor"].link == actor.get_staff_url()
 
     assert presenter.context["created_at"] == event.created_at
 
-    assert presenter.context["user"].display_value == target.fullname
+    assert presenter.context["user"].display_value == target.display_name
     assert presenter.context["user"].link == target.get_staff_url()
 
     assert presenter.context["before"] == "Role1"

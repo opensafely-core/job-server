@@ -113,8 +113,9 @@ def test_projectauditlog_filter_by_type(
 
     assert response.status_code == 200
     assert len(response.context_data["events"]) == 1
-    assert response.context_data["events"][0].context["actor"].display_value == str(
-        actor
+    assert (
+        response.context_data["events"][0].context["actor"].display_value
+        == actor.display_name
     )
 
 

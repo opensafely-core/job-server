@@ -13,7 +13,7 @@ def test_created_with_known_objects():
 
     output = projects.created(event=event)
 
-    assert output.context["actor"].display_value == actor.fullname
+    assert output.context["actor"].display_value == actor.display_name
     assert output.context["actor"].link == actor.get_staff_url()
 
     assert output.context["created_at"] == event.created_at

@@ -1,7 +1,7 @@
 {% if event.actor.link %}
-  {% link href=event.actor.link text=event.actor_user_obj.display_name %}
+  {% link href=event.actor.link text=event.actor %}
 {% else %}
-  {{ event.actor_user_obj.display_name }}
+  {{ event.actor_user }}
 {% endif %}
 
 created project

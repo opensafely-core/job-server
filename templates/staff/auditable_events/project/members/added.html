@@ -1,15 +1,15 @@
 {% if event.actor.link %}
-  {% link href=event.actor.link text=event.actor_user_obj.display_name %}
+  {% link href=event.actor.link text=event.actor %}
 {% else %}
-  {{ event.actor_user_obj.display_name }}
+  {{ event.actor }}
 {% endif %}
 
 added
 
 {% if event.user.link %}
-  {% link href=event.user.link text=event.user_obj.display_name %}
+  {% link href=event.user.link text=event.user %}
 {% else %}
-  {{ event.user_obj.display_name }}
+  {{ event.user }}
 {% endif %}
 
 to
