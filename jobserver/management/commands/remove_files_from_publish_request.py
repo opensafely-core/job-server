@@ -32,9 +32,7 @@ class Command(BaseCommand):
         release_files = []
         for path in paths:
             try:
-                release_file = ReleaseFile.objects.filter(
-                    workspace=snapshot.workspace
-                ).get(name=path)
+                release_file = snapshot.files.get(name=path)
                 release_files.append(release_file)
             except ReleaseFile.DoesNotExist:
                 raise CommandError(f"Unknown file path: {path}")
