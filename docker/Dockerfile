@@ -57,7 +57,7 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv-cli
 #
 # Create node image.
 #
-FROM node:${NODE_VERSION} AS node-builder
+FROM node:${NODE_VERSION}-slim AS node-builder
 
 WORKDIR /usr/src/app
 RUN mkdir -p ./assets
