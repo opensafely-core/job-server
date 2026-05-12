@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   check:
-    name: Check Python formatting, linting, and import sorting
+    name: Python formatting check
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -33,7 +33,7 @@ jobs:
         run: just check
 
   test:
-    name: Run Python and Node.js tests
+    name: Python & JS tests
     runs-on: ubuntu-24.04
     needs: check
 
@@ -111,7 +111,7 @@ jobs:
         if: ${{ failure() }}  # only upload when the previous step, run tests, fails
 
   test-functional:
-    name: Run functional tests in Docker container
+    name: Docker functional tests
     runs-on: ubuntu-24.04
     needs:
       - check
@@ -132,7 +132,7 @@ jobs:
           just docker-test-functional
 
   lint-dockerfile:
-    name: Lint Dockerfile
+    name: Dockerfile lint
     runs-on: ubuntu-24.04
 
     steps:
@@ -145,7 +145,7 @@ jobs:
           dockerfile: docker/Dockerfile
 
   docker-test:
-    name: Run unit tests on Docker dev image, and smoke tests on Docker prod image
+    name: Docker unit & smoke tests
     runs-on: ubuntu-24.04
     needs:
       - check
