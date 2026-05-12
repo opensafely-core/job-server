@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => ({
         base: "./assets/src/scripts/base.js",
         components: "./assets/src/scripts/components.js",
         job_request_create: "./assets/src/scripts/job_request_create.js",
+        job_request_detail: "./assets/src/scripts/job_request_detail.js",
         multiselect: "./templates/_components/multiselect/multiselect.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
       },
