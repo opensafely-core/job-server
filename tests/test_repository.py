@@ -24,4 +24,8 @@ def test_development_db_version_is_consistent(request):
         docker_yaml = yaml.safe_load(f)
         docker_postgres_version = docker_yaml["services"]["db"]["image"]
 
-    assert ci_postgres_version == docker_postgres_version == "postgres:17"
+    assert (
+        ci_postgres_version
+        == docker_postgres_version
+        == "postgres@sha256:b994732fcf33f73776c65d3a5bf1f80c00120ba5007e8ab90307b1a743c1fc16"
+    )
