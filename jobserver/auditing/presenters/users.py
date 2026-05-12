@@ -4,12 +4,15 @@ from .utils import lookup_user, roles_str_to_class_name_str
 
 
 def updated_roles(*, event: AuditableEvent) -> PresentableAuditableEvent:
+
     actor = LinkableObject.build(
         obj=lookup_user(event.created_by),
+        field="display_name",
         link_func="get_staff_url",
     )
     user = LinkableObject.build(
         obj=lookup_user(event.target_user),
+        field="display_name",
         link_func="get_staff_url",
     )
     return PresentableAuditableEvent(

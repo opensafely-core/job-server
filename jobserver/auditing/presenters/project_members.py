@@ -5,6 +5,7 @@ from .utils import lookup_project, lookup_user, roles_str_to_class_name_str
 def added(*, event):
     actor = LinkableObject.build(
         obj=lookup_user(event.created_by),
+        field="display_name",
         link_func="get_staff_url",
     )
     project = LinkableObject.build(
@@ -13,6 +14,7 @@ def added(*, event):
     )
     user = LinkableObject.build(
         obj=lookup_user(event.target_user),
+        field="display_name",
         link_func="get_staff_url",
     )
 
@@ -30,6 +32,7 @@ def added(*, event):
 def updated_roles(*, event):
     actor = LinkableObject.build(
         obj=lookup_user(event.created_by),
+        field="display_name",
         link_func="get_staff_url",
     )
     project = LinkableObject.build(
@@ -38,6 +41,7 @@ def updated_roles(*, event):
     )
     user = LinkableObject.build(
         obj=lookup_user(event.target_user),
+        field="display_name",
         link_func="get_staff_url",
     )
 
@@ -57,6 +61,7 @@ def updated_roles(*, event):
 def removed(*, event):
     actor = LinkableObject.build(
         obj=lookup_user(event.created_by),
+        field="display_name",
         link_func="get_staff_url",
     )
     project = LinkableObject.build(
@@ -65,6 +70,7 @@ def removed(*, event):
     )
     user = LinkableObject.build(
         obj=lookup_user(event.target_user),
+        field="display_name",
         link_func="get_staff_url",
     )
 

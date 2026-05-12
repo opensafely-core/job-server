@@ -55,8 +55,9 @@ def test_userauditlog_filter_by_type(rf, staff_area_administrator, project_membe
 
     assert response.status_code == 200
     assert len(response.context_data["events"]) == 1
-    assert response.context_data["events"][0].context["actor"].display_value == str(
-        actor
+    assert (
+        response.context_data["events"][0].context["actor"].display_value
+        == actor.display_name
     )
 
 

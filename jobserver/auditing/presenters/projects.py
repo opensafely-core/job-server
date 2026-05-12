@@ -11,6 +11,7 @@ def created(*, event: AuditableEvent) -> PresentableAuditableEvent:
 
     actor = LinkableObject.build(
         obj=lookup_user(event.created_by),
+        field="display_name",
         link_func="get_staff_url",
     )
     project = LinkableObject.build(

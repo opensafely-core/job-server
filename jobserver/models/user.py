@@ -189,6 +189,11 @@ class User(AbstractBaseUser):
 
         return "".join(w[0].upper() for w in self.fullname.split(" "))
 
+    @property
+    def display_name(self):
+        """Return a user's name in the format: fullname (username)"""
+        return f"{self.fullname} ({self.username})"
+
     def get_absolute_url(self):
         return reverse("user-detail", kwargs={"username": self.username})
 
