@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   check:
+    name: Python formatting check
     runs-on: ubuntu-22.04
 
     steps:
@@ -25,11 +26,13 @@ jobs:
           install-just: true
           install-uv: true
           cache: uv
-      - name: Check formatting, linting and import sorting
+      - name: Check formatting, linting, and import sorting
         run: just check
 
   test:
+    name: Python & JS tests
     runs-on: ubuntu-22.04
+    needs: check
 
     services:
       postgres:
@@ -105,7 +108,11 @@ jobs:
         if: ${{ failure() }}  # only upload when the previous step, run tests, fails
 
   test-functional:
+    name: Docker functional tests
     runs-on: ubuntu-22.04
+    needs:
+      - check
+      - lint-dockerfile
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -122,6 +129,7 @@ jobs:
           just docker-test-functional
 
   lint-dockerfile:
+    name: Dockerfile lint
     runs-on: ubuntu-22.04
 
     steps:
@@ -134,7 +142,11 @@ jobs:
           dockerfile: docker/Dockerfile
 
   docker-test:
+    name: Docker unit & smoke tests
     runs-on: ubuntu-22.04
+    needs:
+      - check
+      - lint-dockerfile
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
