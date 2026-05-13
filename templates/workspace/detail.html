@@ -12,12 +12,16 @@
 {% endblock extra_meta %}
 
 {% block breadcrumbs %}
-  {% #breadcrumbs %}
-    {% url 'home' as home_url %}
-    {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Project" title=workspace.project.name url=workspace.project.get_absolute_url %}
-    {% breadcrumb location="Workspace" title=workspace.name active=True %}
-  {% /breadcrumbs %}
+  <nav aria-label="Breadcrumb" class="breadcrumbs">
+    <ol>
+      <li class="min-w-fit"><a href="{% url 'home' %}">Home</a></li>
+      <li>
+        <a href="{{ workspace.project.get_absolute_url }}">
+          Project: {{ workspace.project.title }}
+        </a>
+      </li>
+    </ol>
+  </nav>
 {% endblock breadcrumbs %}
 
 {% block content %}
