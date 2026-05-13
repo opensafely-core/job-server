@@ -34,40 +34,32 @@ async function getStatuses() {
  * @returns {void}
  */
 function setIcon(action, status) {
-  const parentEl = action.closest(`#jobActions`);
-  const loadingIcon = parentEl?.querySelector(`[data-action-status="loading"]`);
-  const successIcon = parentEl?.querySelector(
-    `[data-action-status="succeeded"]`,
-  );
-  const failedIcon = parentEl?.querySelector(`[data-action-status="failed"]`);
-  const noneIcon = parentEl?.querySelector(`[data-action-status="none"]`);
+  const parentEl = action.closest(`[data-action]`);
+  const pill = parentEl.querySelector("[data-action-status]");
+
+  pill.classList.remove("pill--success", "pill--failed", "pill--info");
 
   if (status === "succeeded") {
-    loadingIcon?.classList.add("hidden");
-    failedIcon?.classList.add("hidden");
-    return successIcon?.classList.remove("hidden");
+    pill.classList.add("pill--success");
+    return (pill.textContent = "Succeeded");
   }
 
   if (status === "failed") {
-    loadingIcon?.classList.add("hidden");
-    successIcon?.classList.add("hidden");
-    return failedIcon?.classList.remove("hidden");
+    pill.classList.add("pill--failed");
+    return (pill.textContent = "Failed");
   }
 
   if (status === "none") {
-    loadingIcon?.classList.add("hidden");
-    successIcon?.classList.add("hidden");
-    failedIcon?.classList.add("hidden");
-    return noneIcon?.classList.remove("hidden");
+    pill.classList.add("pill--info");
+    return (pill.textContent = "No status");
   }
 
-  failedIcon?.classList.add("hidden");
-  successIcon?.classList.add("hidden");
-  return loadingIcon?.classList.remove("hidden");
+  pill.classList.add("pill--info");
+  return (pill.textContent = "Loading");
 }
 
 async function setActionsStatuses() {
-  const actions = [...document.querySelectorAll(`#jobActions label`)];
+  const actions = [...document.querySelectorAll(`[data-action] label`)];
   actions.map((action) => setIcon(action, "loading"));
 
   const statuses = await getStatuses();

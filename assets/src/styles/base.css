@@ -226,3 +226,55 @@
     transition-duration: 0.15s;
   }
 }
+
+@utility link {
+  color: var(--color-blue-800);
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  transition-duration: 0.2s;
+  transition-property: color, text-decoration;
+  transition-timing-function: ease-in-out;
+
+  &:not(:is(:hover, :focus)) {
+    text-decoration-color: color-mix(in srgb, currentColor, transparent 75%);
+  }
+}
+
+.link {
+  @apply link;
+}
+
+.run-jobs__table {
+  @apply flex flex-col -my-3 -mx-3 md:-mx-6 py-2 text-sm w-[calc(100%+--spacing(6))] md:w-[calc(100%+--spacing(12))];
+}
+
+.run-jobs__row {
+  @apply bg-white gap-x-2 grid items-center w-full px-4 py-1 md:gap-x-4 md:px-8 grid-cols-[minmax(0,1fr)_min-content_--spacing(22)] transition-colors hover:bg-yellow-50;
+
+  label {
+    @apply flex flex-row items-start gap-2 w-fit max-w-full min-w-0 break-all leading-tight cursor-pointer hover:text-oxford-700;
+
+    input {
+      @apply cursor-pointer;
+    }
+
+    span {
+      @apply font-mono;
+    }
+  }
+
+  button {
+    @apply link inline-flex leading-0 h-fit;
+  }
+
+  ul {
+    @apply mb-2 ml-1.5 pl-3 border-l-4 border-l-oxford-200 order-4 font-mono;
+  }
+
+  .pill {
+    @apply h-fit whitespace-nowrap justify-center;
+  }
+}

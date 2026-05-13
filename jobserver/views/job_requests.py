@@ -121,6 +121,8 @@ class JobRequestCreate(CreateView):
     template_name = "job_request/create.html"
 
     def dispatch(self, request, *args, **kwargs):
+        self.actions_error = None
+
         try:
             self.workspace = Workspace.objects.get(
                 project__slug=self.kwargs["project_slug"],
@@ -175,9 +177,11 @@ class JobRequestCreate(CreateView):
             self.actions = []
             self.database_actions = []
             self.codelists_status = None
+            self.actions_error = str(e)
+
             # this is a bit nasty, need to mirror what get/post would set up for us
             self.object = None
-            context = self.get_context_data(actions_error=str(e))
+            context = self.get_context_data()
             return self.render_to_response(context=context)
 
         self.actions = list(get_actions(data))
@@ -261,6 +265,7 @@ class JobRequestCreate(CreateView):
             "actions": self.actions,
             "latest_job_request": self.get_latest_job_request(),
             "workspace": self.workspace,
+            "actions_error": self.actions_error,
         }
 
     def get_form_kwargs(self):
