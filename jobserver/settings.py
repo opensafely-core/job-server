@@ -84,6 +84,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     "airlock",
     "applications",
+    "data_scrubbing",
     "jobserver",
     "maintenance",
     "redirects",
