@@ -26,6 +26,7 @@ def test_remove_files_from_publish_request_unknown_path():
     release_file = ReleaseFileFactory(
         workspace=snapshot.workspace, name="/release/test/file.csv"
     )
+    snapshot.files.add(release_file)
 
     with pytest.raises(CommandError, match="Unknown file path: /dummy/path"):
         call_command(
@@ -36,7 +37,7 @@ def test_remove_files_from_publish_request_unknown_path():
         )
 
 
-def test_remove_files_from_publish_request_path_to_file_in_wrong_workspace():
+def test_remove_files_from_publish_request_path_to_file_not_in_snapshot():
     snapshot = SnapshotFactory()
     release_file = ReleaseFileFactory(name="/release/test/file.csv")
 
@@ -118,3 +119,28 @@ def test_remove_files_from_publish_request(n_to_remove=2):
     )
 
     assert f"{n_to_remove} files removed from" in out.getvalue()
+
+
+def test_remove_files_from_publish_request_ignores_duplicate_path_outside_snapshot():
+    out = StringIO()
+    err = StringIO()
+
+    path = "/release/test/file.csv"
+    snapshot = SnapshotFactory()
+    release_file_to_remove = ReleaseFileFactory(workspace=snapshot.workspace, name=path)
+    duplicate_release_file = ReleaseFileFactory(workspace=snapshot.workspace, name=path)
+
+    snapshot.files.add(release_file_to_remove)
+
+    call_command(
+        "remove_files_from_publish_request",
+        snapshot.id,
+        path,
+        stdout=out,
+        stderr=err,
+    )
+
+    assert not err.getvalue()
+    assert release_file_to_remove not in snapshot.files.all()
+    assert duplicate_release_file not in snapshot.files.all()
+    assert "1 files removed from" in out.getvalue()
