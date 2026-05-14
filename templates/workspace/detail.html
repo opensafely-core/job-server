@@ -153,13 +153,15 @@
         {% /list_group %}
       {% /card %}
 
-      {% #card title="Monitoring" subtitle="Honeycomb login required" %}
-        {% #list_group small=True %}
-          {% #list_group_item href=honeycomb_link %}
-            Heatmap of runtimes for completed jobs in this workspace
-          {% /list_group_item%}
-        {% /list_group %}
-      {% /card %}
+      {% if honeycomb_can_view_links %}
+        {% #card title="Monitoring" subtitle="Honeycomb login required" %}
+          {% #list_group small=True %}
+            {% #list_group_item href=honeycomb_link %}
+              Heatmap of runtimes for completed jobs in this workspace
+            {% /list_group_item%}
+          {% /list_group %}
+        {% /card %}
+      {% endif %}
     </div>
 
     <div class="grid content-start gap-6">
