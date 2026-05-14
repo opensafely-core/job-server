@@ -25,224 +25,113 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% if user_can_view_workspace_statuses %}
-    {% if workspace.is_archived %}
-      {% #alert variant="warning" title="Archived Workspace" class="mb-6" %}
-        <p class="text-sm mb-2">
-          This workspace has been archived. Archiving marks this workspace inactive without deleting it. Logs remain available, but you cannot create new jobs until it is unarchived.
-        </p>
-        {% if user_can_archive_workspace %}
-          <p class="text-sm mb-2">
-            Use the <span class="font-semibold">Unarchive workspace</span> button in the workspace admin section below to unarchive this workspace.
-          </p>
-        {% else %}
-          <p class="text-sm">
-            If you think this has been done in error,
-            {% link text="contact an admin" href="mailto:team@opensafely.org" append_after="." %}
-          </p>
-        {% endif %}
-      {% /alert %}
-    {% endif %}
-  {% endif %}
-
-  {% if workspace.project.slug == "opensafely-internal" %}
-    {% #alert variant="warning" title="This workspace belongs to an internal OpenSAFELY project" class="mb-6" %}
-      The project exists for internal purposes only.
-      More information can be found in the
-      {% link text="OpenSAFELY access policy" href="https://docs.opensafely.org/developer-access-policy/" append_after="." %}
-    {% /alert %}
-  {% endif %}
-
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
-      <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
-        <div class="order-2 w-full lg:mr-auto lg:order-1">
-          <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-            {{ workspace.name }}
-          </h1>
-          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
-            <dt class="sr-only">Organisation:</dt>
-            <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_building_library_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-              <span class="truncate">{{ workspace.project.org.name }}</span>
-            </dd>
-            <dt class="sr-only">Project:</dt>
-            <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 shrink-0 text-slate-400" %}
-              <span class="truncate">{{ workspace.project.name }}</span>
-            </dd>
-          </dl>
-        </div>
-        {% if user_can_view_staff_area %}
-          <div class="order-1 lg:order-2 shrink-0">
-            {% #button href=workspace.get_staff_url type="link" variant="danger" class="shrink-0" %}
-              View in Staff Area
-              {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
+  <div class="grid grid-cols-1 gap-y-3 lg:gap-y-6 mb-10">
+    {% if user_can_view_workspace_statuses %}
+      {% if workspace.is_archived %}
+        <div class="alert alert--warning">
+          <div class="alert__container">
+            {% icon_exclamation_triangle_solid class="alert__icon" %}
+            <div>
+              <h2 class="alert__title">Archived Workspace</h2>
+              <div class="alert__text gap-y-2 grid">
+                <p>
+                  This workspace has been archived. Archiving marks this workspace inactive without deleting it. Logs remain available, but you cannot create new jobs until it is unarchived.
+                </p>
+                {% if user_can_archive_workspace %}
+                  <p>
+                    Use the <span class="font-semibold">Unarchive workspace</span> button in the workspace admin section below to unarchive this workspace.
+                  </p>
+                {% else %}
+                  <p>
+                    If you think this has been done in error, <a href="mailto:team@opensafely.org" class="link">contact an admin</a>.
+                  </p>
+                {% endif %}
+              </div>
+            </div>
           </div>
-        {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {% if workspace.project.slug == "opensafely-internal" %}
+      <div class="alert alert--warning">
+        <div class="alert__container">
+          {% icon_exclamation_triangle_solid class="alert__icon" %}
+          <div>
+            <h2 class="alert__title">This workspace belongs to an internal OpenSAFELY project</h2>
+            <div class="alert__text">
+              The project exists for internal purposes only. More information can be found in the <a class="link" href="https://docs.opensafely.org/developer-access-policy/">OpenSAFELY access policy</a>.
+            </div>
+          </div>
+        </div>
       </div>
+    {% endif %}
 
-      <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
-        {% if is_member %}
-          {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
-            Edit workspace
-            {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
-        {% endif %}
+    <h1 class="text-3xl tracking-tight wrap-break-word font-bold text-slate-900 sm:text-4xl">
+      Workspace: {{ workspace.name }}
+    </h1>
 
+    <div class="prose prose-oxford">
+      <p>
+        This represents a working directory for <a class="link" href="{{ workspace.project.get_absolute_url }}">Project: {{ workspace.project.title }}</a> on all of the secure environments supported by OpenSAFELY.
+      </p>
+      <p>
+        On each secure environment, the directory includes <a class="link" href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}">code from the repository</a>, and the results of running it against real data (&ldquo;jobs&rdquo;). Researchers can request jobs are run from this page.
+      </p>
+    </div>
+
+    <ul class="flex flex-row gap-2">
+      {% if is_member %}
         {% if workspace.is_archived %}
-          {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+          <li>
+            {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" %}
+              Run jobs
+            {% /button %}
+          </li>
         {% elif not user_can_run_jobs %}
-          {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on this workspace" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+          <li>
+            {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on this workspace" %}
+              Run jobs
+            {% /button %}
+          </li>
         {% elif not user_has_backends %}
-          {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on any OpenSAFELY backends" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+          <li>
+            {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on any OpenSAFELY backends" %}
+              Run jobs
+            {% /button %}
+          </li>
         {% else %}
-          {% #button class="plausible-event-name=Run+jobs+click" href=workspace.get_jobs_url type="link" variant="success" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+          <li>
+            {% #button class="plausible-event-name=Run+jobs+click" href=workspace.get_jobs_url type="link" variant="success" %}
+              Run jobs
+            {% /button %}
+          </li>
         {% endif %}
-
+      {% endif %}
+      <li>
         {% #button href=workspace.get_logs_url type="link" variant="primary" %}
           View logs
-          {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
         {% /button %}
-      </div>
-    </div>
-
-    <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
-      {% if show_admin %}
-        {% #card title="Workspace admin" class="text-center" container=True %}
-          {% if user_can_archive_workspace %}
-            <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
-              {% csrf_token %}
-              <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
-
-              {% if workspace.is_archived %}
-                {% #button variant="primary" type="submit" %}
-                  Unarchive workspace
-                {% /button %}
-              {% else %}
-                {% #button variant="danger" type="submit" class="" %}
-                  Archive workspace
-                {% /button %}
-              {% endif %}
-            </form>
-          {% endif %}
-
-          {% if repo_is_private %}
-            {% #button variant="warning" type="link" href=workspace.repo.get_sign_off_url class="mb-2" %}
-              Change repo visibility
-            {% /button %}
-          {% endif %}
-
-          {% if user_can_toggle_notifications %}
-            <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
-              {% csrf_token %}
-              <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
-
-              {% if workspace.should_notify %}
-                {% #button variant="warning" type="submit" %}
-                  Disable notifications
-                {% /button %}
-              {% else %}
-                {% #button variant="success" type="submit" %}
-                  Enable notification
-                {% /button %}
-              {% endif %}
-            </form>
-          {% endif %}
-        {% /card %}
+      </li>
+      {% if is_member %}
+        <li>
+          {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
+            Edit workspace
+          {% /button %}
+        </li>
       {% endif %}
-
-      {% #card title="Workspace information" %}
-        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-          {% #description_item title="Repo" %}
-            {% link text=workspace.repo.name href=workspace.repo.url %}
-
-            {% if repo_is_private %}
-              <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
-              <details class="group">
-                <summary
-                  class="
-                         text-oxford-600 font-semibold cursor-pointer
-                         hover:text-oxford-900 hover:underline
-                        "
-                >
-                  Why is this repo private?
-                </summary>
-                <div class="pl-3">
-                  <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
-                  <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
-                </div>
-              </details>
-            {% endif %}
-          {% /description_item %}
-
-          {% #description_item title="Branch" %}
-            {% link text=workspace.branch href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
-          {% /description_item %}
-
-          {% #description_item title="Created" %}
-            <time
-              datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
-              title="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
-            >
-              {{ workspace.created_at|naturaltime }}
-            </time>
-          {% /description_item %}
-
-          {% #description_item title="Created by" %}
-            {{ workspace.created_by.fullname }}
-          {% /description_item %}
-        </dl>
-      {% /card %}
-    </div>
-
-    <div class="grid gap-6 place-content-start lg:col-span-2">
-      {% if show_publish_repo_warning %}
-        {% #alert variant="warning" title="Repository is currently private" %}
-          <p class="text-sm mb-2">
-            The
-            {% link text="first job to run against the git repository" href=first_job.get_absolute_url %}
-            for this workspace ran over 11 months ago. Per our
-            {% link text="platform policy" href="https://docs.opensafely.org/repositories/#when-you-need-to-make-your-code-public" %}
-            we ask that repositories are made public 12 months after they
-            are first executed against patient data.
-          </p>
-          <p class="text-sm">
-            {% link text="Change repository visibility &rarr;" href=workspace.repo.get_sign_off_url %}
-          </p>
-        {% /alert %}
+      {% if user_can_view_staff_area %}
+        <li>
+          {% #button href=workspace.get_staff_url type="link" variant="danger" class="shrink-0" %}
+            View in Staff Area
+          {% /button %}
+        </li>
       {% endif %}
+    </ul>
+  </div>
 
-      {% #card container=True class="font-lg text-slate-700" %}
-        <p class="mb-1">
-          This is an OpenSAFELY workspace.  It represents a working directory for the
-          {% link text=workspace.project.title href=workspace.project.get_absolute_url %}
-          project on all of the secure environments supported by
-          OpenSAFELY.
-        </p>
-        <p>
-          On each secure environment, the directory includes code from the
-          {% spaceless %}
-            {% link text="repository" href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
-          {% endspaceless %},
-          and the results of running it against real data ("jobs").
-          Researchers can request jobs are run from this page.
-        </p>
-      {% /card %}
-
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid content-start gap-6">
       {# Remove this check once we can rely on the purpose field #}
       {% if workspace.purpose %}
         {% #card title="Workspace purpose" container=True %}
@@ -271,6 +160,111 @@
           {% /list_group_item%}
         {% /list_group %}
       {% /card %}
+    </div>
+
+    <div class="grid content-start gap-6">
+      {% if show_admin %}
+        {% #card title="Workspace admin" class="text-center" container=True container_class="flex gap-2" %}
+          {% if user_can_archive_workspace %}
+            <form method="POST" action="{{ workspace.get_archive_toggle_url }}">
+              {% csrf_token %}
+              <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
+              {% if workspace.is_archived %}
+                {% #button variant="primary-outline" type="submit" %}
+                  Unarchive workspace
+                {% /button %}
+              {% else %}
+                {% #button variant="danger-outline" type="submit" %}
+                  Archive workspace
+                {% /button %}
+              {% endif %}
+            </form>
+          {% endif %}
+          {% if repo_is_private %}
+            {% #button variant="warning" type="link" href=workspace.repo.get_sign_off_url %}
+              Change repo visibility
+            {% /button %}
+          {% endif %}
+          {% if user_can_toggle_notifications %}
+            <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
+              {% csrf_token %}
+              <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
+              {% if workspace.should_notify %}
+                {% #button variant="warning-outline" type="submit" %}
+                  Disable notifications
+                {% /button %}
+              {% else %}
+                {% #button variant="success-outline" type="submit" %}
+                  Enable notifications
+                {% /button %}
+              {% endif %}
+            </form>
+          {% endif %}
+        {% /card %}
+      {% endif %}
+
+      {% #card title="Workspace information" %}
+        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+          {% #description_item title="Organisation" stacked=True %}
+            <a class="link" href="{{ workspace.project.org.get_absolute_url }}">
+              {{ workspace.project.org.name }}
+            </a>
+          {% /description_item %}
+
+          {% #description_item title="Project" stacked=True %}
+            <a class="link" href="{{ workspace.project.get_absolute_url }}">
+              {{ workspace.project.title }}
+            </a>
+          {% /description_item %}
+
+          {% #description_item title="Repo" stacked=True %}
+            <a class="link" href="{{ workspace.repo.url }}">{{ workspace.repo.name }}</a>
+
+            {% if repo_is_private %}
+              <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
+              <details class="group">
+                <summary class="link">Why is this repo private?</summary>
+                <div class="pl-3">
+                  <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
+                  <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
+                </div>
+              </details>
+            {% endif %}
+          {% /description_item %}
+
+          {% #description_item title="Branch" stacked=True %}
+            <a class="link" href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}">
+              {{ workspace.branch }}
+            </a>
+          {% /description_item %}
+
+          {% #description_item title="Created" stacked=True %}
+            <time datetime="{{ workspace.created_at|date:"c" }}" title="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
+              {{ workspace.created_at|naturaltime }}
+            </time>
+            by {{ workspace.created_by.fullname }}
+          {% /description_item %}
+        </dl>
+      {% /card %}
+
+      {% if show_publish_repo_warning %}
+        <div class="alert alert--warning">
+          <div class="alert__container">
+            {% icon_exclamation_triangle_solid class="alert__icon" %}
+            <div>
+              <h2 class="alert__title">Repository is currently private</h2>
+              <div class="alert__text gap-y-2 grid text-sm">
+                <p>
+                  The <a href="{{ first_job.get_absolute_url }}" class="link">first job to run against the git repository</a> for this workspace ran over 11 months ago. Per our <a href="https://docs.opensafely.org/repositories/#when-you-need-to-make-your-code-public" class="link">platform policy</a> we ask that repositories are made public 12 months after they are first executed against patient data.
+                </p>
+                <p>
+                  <a href="{{ workspace.repo.get_sign_off_url }}" class="link">Change repository visibility &rarr;</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}
