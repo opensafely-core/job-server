@@ -8,7 +8,10 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Workspace
 
-    project = factory.SubFactory("tests.factories.ProjectFactory")
+    project = factory.SubFactory(
+        "tests.factories.ProjectFactory",
+        org=factory.SubFactory("tests.factories.OrgFactory"),
+    )
     repo = factory.SubFactory("tests.factories.RepoFactory")
     created_by = factory.SubFactory("tests.factories.UserFactory")
     updated_by = factory.SubFactory("tests.factories.UserFactory")
