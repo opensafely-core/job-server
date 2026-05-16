@@ -13,6 +13,7 @@ from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from faker import Faker
 from sentry_sdk import capture_message
 
 from jobserver.authorization.permissions import Permission
@@ -23,6 +24,8 @@ from ..hash_utils import hash_user_pat
 
 
 logger = structlog.get_logger(__name__)
+
+fake = Faker()
 
 
 class UserQuerySet(models.QuerySet):
@@ -142,6 +145,26 @@ class User(AbstractBaseUser):
     # Used by AbstractBaseUser machinery we possibly need.
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
+
+    scrub_fields = {
+        "email": fake.email,
+        "password": "",
+        "login_token": None,
+        "login_token_expires_at": None,
+        "pat_expires_at": None,
+        "pat_token": None,
+    }
+    scrub_allowed = frozenset(
+        {
+            "id",
+            "last_login",
+            "username",
+            "date_joined",
+            "fullname",
+            "created_by_id",
+            "roles",
+        }
+    )
 
     class Meta:
         constraints = [
