@@ -118,7 +118,7 @@ dependencies = [
 
     # Serves static files. Dependabot wasn't updating past 6.3.0 for
     # unclear reasons, and we want to fix #612 from 6.8.0.
-    "whitenoise[brotli]>=6.8.0",
+    "whitenoise[brotli]>=6.12.0",
 
     # Password generator. See jobserver/actions/users.py.
     "xkcdpass",
