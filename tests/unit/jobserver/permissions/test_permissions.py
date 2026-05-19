@@ -19,7 +19,7 @@ from jobserver import permissions
             id="PROJECTS_WITH_NDOO_PERMISSION",
         ),
         pytest.param(
-            permissions.t1oo.PROJECTS_WITH_T1OO_PERMISSION,
+            permissions.population_permissions.t1oo.PROJECTS_WITH_T1OO_PERMISSION,
             id="PROJECTS_WITH_T1OO_PERMISSION",
         ),
     ],

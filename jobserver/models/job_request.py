@@ -13,7 +13,9 @@ from furl import furl
 
 from jobserver import rap_api
 
-from ..permissions.t1oo import project_is_permitted_to_use_t1oo_data
+from ..permissions.population_permissions.t1oo import (
+    project_is_permitted_to_use_t1oo_data,
+)
 from ..runtime import Runtime
 
 
