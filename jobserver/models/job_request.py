@@ -13,9 +13,7 @@ from furl import furl
 
 from jobserver import rap_api
 
-from ..permissions.population_permissions.t1oo import (
-    project_is_permitted_to_use_t1oo_data,
-)
+from ..permissions.population_permissions import t1oo
 from ..runtime import Runtime
 
 
@@ -486,7 +484,7 @@ class JobRequest(models.Model):
 
     @property
     def database_name(self):
-        if project_is_permitted_to_use_t1oo_data(self.workspace.project):
+        if t1oo.project_has_permission(self.workspace.project):
             return "include_t1oo"
         else:
             return "default"
