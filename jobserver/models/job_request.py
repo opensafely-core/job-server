@@ -5,7 +5,7 @@ import sentry_sdk
 import structlog
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Max, Min, Q, prefetch_related_objects
+from django.db.models import Count, F, Min, Q, prefetch_related_objects
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -52,14 +52,14 @@ class JobRequestManager(models.Manager.from_queryset(JobRequestQuerySet)):
             id__lt=job_request.id,
         )
         if filter_succeeded:
-            # "succeeded" is the last in an alphabetical sort of the statuses, so
-            # if the minimum of the related Job's statuses is "succeeded" then they
-            # all must be. There are no constraints on this field, however, so
-            # checking the maximum as well ensure this is robust to new statuses
-            # which would sort later than "succeeded"
+            # Only include requests where total_jobs == num_succeeded_jobs.
             workspace_backend_job_requests = workspace_backend_job_requests.annotate(
-                min_status=Min("jobs__status"), max_status=Max("jobs__status")
-            ).filter(min_status="succeeded", max_status="succeeded")
+                total_jobs=Count("jobs"),
+                num_succeeded_jobs=Count("jobs", filter=Q(jobs__status="succeeded")),
+            ).filter(
+                total_jobs__gt=0,  # Exclude new requests with no jobs yet.
+                total_jobs=F("num_succeeded_jobs"),
+            )
         return workspace_backend_job_requests.order_by("created_at").last()
 
 
