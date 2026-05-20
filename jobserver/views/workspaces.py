@@ -311,7 +311,7 @@ class WorkspaceEventLog(ListView):
         qs = (
             JobRequest.objects.with_started_at()
             .filter(workspace=self.workspace)
-            .select_related("backend", "workspace", "workspace__project")
+            .select_related("backend", "created_by", "workspace", "workspace__project")
             .order_by("-pk")
         )
 
