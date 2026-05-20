@@ -5,13 +5,30 @@ import sentry_sdk
 import structlog
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Count, F, Min, Q, prefetch_related_objects
+from django.db.models import (
+    Case,
+    Count,
+    ExpressionWrapper,
+    F,
+    FloatField,
+    Min,
+    Q,
+    When,
+    prefetch_related_objects,
+)
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from furl import furl
 
 from jobserver import rap_api
+from jobserver.models.job import (
+    COMPLETED_STATES,
+    FAILED_STATES,
+    PENDING_STATES,
+    RUNNING_STATES,
+    SUCCEEDED_STATES,
+)
 
 from ..runtime import Runtime
 
@@ -34,10 +51,40 @@ def new_id():
     return base64.b32encode(secrets.token_bytes(10)).decode("ascii").lower()
 
 
+def _pct(numerator):
+    return ExpressionWrapper(
+        Case(
+            When(total_jobs=0, then=0.0),
+            default=F(numerator) * 100.0 / F("total_jobs"),
+        ),
+        output_field=FloatField(),
+    )
+
+
 class JobRequestQuerySet(models.QuerySet):
     def with_started_at(self):
         return self.prefetch_related("jobs").annotate(
             started_at=Min("jobs__started_at")
+        )
+
+    def with_job_status_counts(self):
+        return self.annotate(
+            total_jobs=Count("jobs"),
+            num_pending_jobs=Count("jobs", filter=Q(jobs__status__in=PENDING_STATES)),
+            num_running_jobs=Count("jobs", filter=Q(jobs__status__in=RUNNING_STATES)),
+            num_succeeded_jobs=Count(
+                "jobs", filter=Q(jobs__status__in=SUCCEEDED_STATES)
+            ),
+            num_failed_jobs=Count("jobs", filter=Q(jobs__status__in=FAILED_STATES)),
+            num_completed_jobs=Count(
+                "jobs", filter=Q(jobs__status__in=COMPLETED_STATES)
+            ),
+        ).annotate(
+            percent_pending_jobs=_pct("num_pending_jobs"),
+            percent_running_jobs=_pct("num_running_jobs"),
+            percent_succeeded_jobs=_pct("num_succeeded_jobs"),
+            percent_failed_jobs=_pct("num_failed_jobs"),
+            percent_completed_jobs=_pct("num_completed_jobs"),
         )
 
 

@@ -924,3 +924,90 @@ def build_job_request():
         return JobRequestFactory(workspace=workspace)
 
     return _build_job_request
+
+
+class TestJobRequestJobStatusCounts:
+    """Tests of JobRequest.objects.with_job_status_counts."""
+
+    def test_no_jobs(self):
+        """Test that when a JobRequest has no associated jobs, all counts are
+        zero."""
+        request = JobRequestFactory()
+        stats = JobRequest.objects.filter(pk=request.pk).with_job_status_counts().last()
+        assert stats.total_jobs == 0
+        assert stats.num_pending_jobs == 0
+        assert stats.num_running_jobs == 0
+        assert stats.num_succeeded_jobs == 0
+        assert stats.num_failed_jobs == 0
+        assert stats.num_completed_jobs == 0
+        assert stats.percent_pending_jobs == 0
+        assert stats.percent_running_jobs == 0
+        assert stats.percent_succeeded_jobs == 0
+        assert stats.percent_failed_jobs == 0
+        assert stats.percent_completed_jobs == 0
+
+    @pytest.mark.parametrize(
+        "status,attr_count_one,attr_percent_one,completed",
+        [
+            ("pending", "num_pending_jobs", "percent_pending_jobs", False),
+            ("running", "num_running_jobs", "percent_running_jobs", False),
+            ("succeeded", "num_succeeded_jobs", "percent_succeeded_jobs", True),
+            ("failed", "num_failed_jobs", "percent_failed_jobs", True),
+            ("Succeeded", "num_succeeded_jobs", "percent_succeeded_jobs", True),
+            ("Failed", "num_failed_jobs", "percent_failed_jobs", True),
+            ("0", "no_count_", "no_percent", True),
+            ("invalid", "no_count", "no_percent", False),
+        ],
+    )
+    def test_single(self, status, attr_count_one, attr_percent_one, completed):
+        """Test that when a JobRequest has a single associated job with a
+        particular status, all counts are correct."""
+        request = JobRequestFactory()
+        JobFactory(job_request=request, status=status)
+        stats = JobRequest.objects.filter(pk=request.pk).with_job_status_counts().last()
+        assert stats.total_jobs == 1
+        assert stats.num_completed_jobs == (1 if completed else 0)
+        for attr_name in (
+            "num_pending_jobs",
+            "num_running_jobs",
+            "num_succeeded_jobs",
+            "num_failed_jobs",
+        ):
+            assert getattr(stats, attr_name) == (
+                1 if attr_name == attr_count_one else 0
+            )
+        for attr_name in (
+            "percent_pending_jobs",
+            "percent_running_jobs",
+            "percent_succeeded_jobs",
+            "percent_failed_jobs",
+        ):
+            assert getattr(stats, attr_name) == (
+                100.0 if attr_name == attr_percent_one else 0.0
+            )
+
+    def test_many(self):
+        """Test that when a JobRequest has many associated Jobs with
+        different statuses, all counts are correct."""
+        request = JobRequestFactory()
+
+        JobFactory.create_batch(6, status="pending", job_request=request)
+        JobFactory.create_batch(5, status="running", job_request=request)
+        JobFactory.create_batch(3, status="succeeded", job_request=request)
+        JobFactory.create_batch(4, status="failed", job_request=request)
+        JobFactory.create_batch(2, status="invalid", job_request=request)
+
+        stats = JobRequest.objects.filter(pk=request.pk).with_job_status_counts().last()
+        assert stats.total_jobs == 20
+
+        assert stats.num_pending_jobs == 6
+        assert stats.num_running_jobs == 5
+        assert stats.num_succeeded_jobs == 3
+        assert stats.num_failed_jobs == 4
+        assert stats.num_completed_jobs == 7
+
+        assert stats.percent_pending_jobs == 30.0
+        assert stats.percent_running_jobs == 25.0
+        assert stats.percent_succeeded_jobs == 15.0
+        assert stats.percent_failed_jobs == 20.0
+        assert stats.percent_completed_jobs == 35.0

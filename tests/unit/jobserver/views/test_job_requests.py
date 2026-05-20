@@ -1232,6 +1232,10 @@ def test_jobrequestdetail_with_job_request_creator(rf):
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
 
+    # There are no jobs, so we should not see the stats table.
+    assert "test-marker-stats-table" not in response.rendered_content
+    assert "test-marker-no-stats-table" in response.rendered_content
+
 
 def test_jobrequestdetail_with_invalid_job_request(rf, django_assert_num_queries):
     job_request = JobRequestFactory()
@@ -1280,6 +1284,9 @@ def test_jobrequestdetail_with_permission(rf, project_membership, role_factory):
     assert not response.context_data["project_yaml"]["is_too_large"]
     assert not response.context_data["project_yaml"]["definition"]
     assert "Cancel" in response.rendered_content
+    # There are some jobs, so we should see the stats table.
+    assert "test-marker-stats-table" in response.rendered_content
+    assert "test-marker-no-stats-table" not in response.rendered_content
 
 
 def test_jobrequestdetail_with_permission_staff_area_administrator(rf, freezer):

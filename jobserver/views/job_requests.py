@@ -302,6 +302,7 @@ class JobRequestDetail(View):
                 .annotate(
                     last_updated_at=Max("jobs__updated_at", default=timezone.now())
                 )
+                .with_job_status_counts()
                 .get(
                     workspace__project__slug=self.kwargs["project_slug"],
                     workspace__name=self.kwargs["workspace_slug"],

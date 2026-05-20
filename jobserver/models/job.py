@@ -12,7 +12,11 @@ from ..runtime import Runtime
 
 logger = structlog.get_logger(__name__)
 
-COMPLETED_STATES = ["failed", "succeeded"]
+PENDING_STATES = ["pending"]
+RUNNING_STATES = ["running"]
+FAILED_STATES = ["failed", "Failed"]
+SUCCEEDED_STATES = ["succeeded", "Succeeded"]
+COMPLETED_STATES = ["failed", "succeeded", "Failed", "Succeeded", "0"]
 
 
 class JobManager(models.Manager):
