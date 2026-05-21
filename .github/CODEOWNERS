@@ -11,8 +11,8 @@
 # other files in the permissions directory can be made with the approval
 # of any user who has write access to the repository. See documentation in individual
 # files for approval process.
-jobserver/permissions/t1oo.py         @opensafely-core/ig-team
-jobserver/permissions/sqlrunner.py    @opensafely-core/ig-team
+jobserver/permissions/population_permissions/t1oo.py         @opensafely-core/ig-team
+jobserver/permissions/sqlrunner.py                           @opensafely-core/ig-team
 
 # Replacement for Dependabot reviewers
 **/package*.json @tomodwyer

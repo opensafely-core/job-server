@@ -210,6 +210,7 @@ def create(job_request):
     """
     analysis_scope = {}
     for population_module in [
+        population_permissions.t1oo,
         population_permissions.ndoo,
         population_permissions.gp_activations,
     ]:

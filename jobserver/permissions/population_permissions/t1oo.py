@@ -8,8 +8,9 @@
 #
 # Note also that this file is linked to in the documentation. If you move or restructure
 # this file you should ensure the documentation is updated appropriately.
-# https://github.com/opensafely/documentation/blob/af88baf1/docs/type-one-opt-outs.md
+# https://github.com/opensafely/documentation/blob/1394ac771298611d40483e36a76b11ebb507ae7a/docs/type-one-opt-outs.md
 
+ANALYSIS_SCOPE_KEY = "include_t1oo"
 
 # From Appendix 3 of DPIA document linked here:
 # https://digital.nhs.uk/about-nhs-digital/corporate-information-and-documents/directions-and-data-provision-notices/data-provision-notices-dpns/opensafely-covid-19-service-data-provision-notice
@@ -113,7 +114,12 @@ PROJECTS_WITH_T1OO_PERMISSION = {
 }
 
 
-def project_is_permitted_to_use_t1oo_data(project):
+def project_has_permission(project):
     if not project.number:
         return False
     return project.number in PROJECTS_WITH_T1OO_PERMISSION
+
+
+def analysis_scope_for_project(project):
+    if project_has_permission(project):
+        return ANALYSIS_SCOPE_KEY

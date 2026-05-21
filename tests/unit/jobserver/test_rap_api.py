@@ -415,8 +415,12 @@ class TestCreate:
         mock_api_call = patch_api_call(fake_json=fake_json)
 
         job_request, expected_request_body = job_request_for_create
-        # mock ndoo and gp_activations permissions to ensure this job's project has permission
-        # with no permission, the request body will send `"analysis_scop": {}`
+        # mock t1oo, ndoo and gp_activations permissions to ensure this job's project has permission
+        # with no permission, the request body will send `"analysis_scope": {}`
+        monkeypatch.setattr(
+            "jobserver.permissions.population_permissions.t1oo.PROJECTS_WITH_T1OO_PERMISSION",
+            [job_request.workspace.project.number],
+        )
         monkeypatch.setattr(
             "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
             [job_request.workspace.project.number],
@@ -427,8 +431,16 @@ class TestCreate:
         )
         # update request body with expected analysis scope
         expected_request_body["analysis_scope"] = {
-            "population_permissions": ["include_ndoo", "include_gp_unactivated"]
+            "population_permissions": [
+                "include_t1oo",
+                "include_ndoo",
+                "include_gp_unactivated",
+            ]
         }
+        # update request body with database name, as this project now has t1oo permission
+        # TODO: Note this is the current method of applying t1oo permission. When we have moved to using
+        # the new permissions via the analysis_scope RAP API, this should be updated.
+        expected_request_body["database_name"] = "include_t1oo"
 
         result = create(job_request)
         assert result == fake_json
