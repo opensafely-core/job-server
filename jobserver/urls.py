@@ -292,7 +292,7 @@ urlpatterns = [
     path("health-check/", HealthCheck.as_view(), name="health-check"),
     path("jobs/", RedirectView.as_view(query_string=True, pattern_name="job-list")),
     path(
-        "job-requests/<pk>/",
+        "job-requests/<int:pk>/",
         JobRequestDetailRedirect.as_view(),
         name="job-request-detail",
     ),
