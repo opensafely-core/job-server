@@ -5,6 +5,7 @@ import "@fontsource/public-sans/600.css";
 import "@fontsource/public-sans/700.css";
 
 // Web components
+// biome-ignore lint: Export error in Biomb
 import "@zachleat/details-utils";
 
 // Styles
