@@ -98,6 +98,7 @@ export const csvExample = `"gradually","worried","cold","field","burn","by"
 "search","exist","weight","if","lift","bell"
 "aside","off","exchange","prepare","hunter","select"`;
 
+// biome-ignore lint: Not a secret
 export const pngExample = "data:image/png;base64,W29iamVjdCBPYmplY3Rd";
 
 export const txtExample = "Hello world";

@@ -6,6 +6,7 @@ import { csvFile, fileList, htmlFile } from "../../helpers/files";
 import props from "../../helpers/props";
 import { history, render, screen, waitFor } from "../../test-utils";
 
+// biome-ignore lint: Used in tests
 function FileListWrapper() {
   const [listVisible] = useState(true);
   const [_, setSelectedFile] = useState(false);

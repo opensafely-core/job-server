@@ -9,6 +9,7 @@ hljs.highlightAll();
 
 document.addEventListener("DOMContentLoaded", () => {
   const headings = document.querySelectorAll(
+    // biome-ignore lint: Not a secret
     '.prose :where(h2, h3):not(:where([class~="not-prose"] *))',
   );
 
