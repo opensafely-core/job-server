@@ -150,9 +150,8 @@
           {% /description_item %}
 
           {% #description_item title="Job identifier" %}
-            <code class="font-mono font-semibold text-oxford-800 tracking-widest">
-              {{ job.identifier }}
-            </code>
+            {% url 'job-redirect' job.identifier as job_short_link_redirect %}
+            {% link href=job_short_link_redirect text=job.identifier %}
           {% /description_item %}
 
           {% #description_item title="Job request" %}
