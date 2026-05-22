@@ -1,6 +1,9 @@
 ---
 name: Deploy
 
+permissions:
+  contents: read
+
 env:
   IMAGE_NAME: job-server
   HOST: dokku4.ebmdatalab.net
@@ -17,6 +20,8 @@ concurrency: deploy-production
 jobs:
   test-and-build-docker-image:
     uses: ./.github/workflows/main.yml
+    permissions:
+      contents: read
 
   deploy:
     needs: [test-and-build-docker-image]
