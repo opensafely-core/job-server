@@ -1,0 +1,15 @@
+.breadcrumbs {
+  @apply border-b border-b-slate-200 bg-slate-50 pt-4 pb-3;
+
+  ol {
+    @apply container flex flex-row flex-wrap text-sm leading-none md:flex-nowrap xl:max-w-(--breakpoint-xl);
+
+    li {
+      @apply relative inline-flex min-w-0 pl-2 before:absolute before:inset-0 before:mx-0 before:my-auto before:block before:size-[0.4em] before:rotate-45 before:border-t before:border-r before:border-slate-500 first:-ml-2 first:pl-0 first:before:hidden first:before:content-none;
+
+      a {
+        @apply link inline-block font-medium max-w-fit overflow-hidden p-1 decoration-1 truncate underline-offset-1 lg:p-2;
+      }
+    }
+  }
+}
