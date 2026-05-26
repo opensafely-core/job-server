@@ -198,17 +198,16 @@ assets-clean:
 
 
 # Install the Node.js dependencies
-assets-install *args="":
-    #!/usr/bin/env bash
-    set -euo pipefail
+assets-install:
+    pnpm install
 
 
-    # exit if lock file has not changed since we installed them. -nt == "newer than",
-    # but we negate with || to avoid error exit code
-    test package-lock.json -nt node_modules/.written || exit 0
+assets-lint: assets-install
+    pnpm run lint
 
-    npm ci {{ args }}
-    touch node_modules/.written
+
+assets-lint-ci: assets-install
+    pnpm run lint:ci
 
 
 # Build the Node.js assets
@@ -226,7 +225,7 @@ assets-build:
         find assets/src -type f -newer assets/dist/.written | grep -q . || exit 0
     fi
 
-    npm run build
+    pnpm run build
     touch assets/dist/.written
 
 
@@ -234,10 +233,10 @@ assets-build:
 collectstatic: devenv
     ./scripts/collect-me-maybe.sh $BIN/python
 
-# install npm toolchain, build and collect assets
+# install pnpm toolchain, build and collect assets
 assets: assets-install assets-build collectstatic
 
-# rebuild all npm/static assets
+# rebuild all pnpm/static assets
 assets-rebuild: assets-clean assets
 
 assets-run: assets-install
@@ -249,11 +248,11 @@ assets-run: assets-install
         exit 1
     fi
 
-    npm run dev
+    pnpm run dev
 
 
 assets-test: assets-install
-    npm run test:coverage
+    pnpm run test:coverage
 
 
 # dump data for co-pilot reporting to a compressed SQLite database
