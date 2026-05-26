@@ -19,7 +19,10 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
     cooldown:
       default-days: 7
 
@@ -43,3 +46,23 @@ updates:
       - dependency-name: "django"
         versions: [">=6.0.0"]
       - dependency-name: "jobserver"
+
+  - package-ecosystem: "docker"
+    directory: "docker"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: "docker-compose"
+    directory: "/docker"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    cooldown:
+      default-days: 7

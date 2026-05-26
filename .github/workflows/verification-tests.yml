@@ -1,6 +1,9 @@
 ---
 name: Verification Tests
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   schedule:
@@ -11,8 +14,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v6
-      - uses: "opensafely-core/setup-action@v1"
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           python-version: "3.12"
           install-just: true
@@ -33,7 +39,7 @@ jobs:
           just test-verification -n 4
 
       - name: Upload HTML coverage report if tests failed
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: python-coverage-report
           path: htmlcov
