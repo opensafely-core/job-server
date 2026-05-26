@@ -57,23 +57,26 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv-cli
 #
 # Create node image.
 #
-FROM node:${NODE_VERSION} AS node-builder
+FROM node:${NODE_VERSION}-slim AS node-builder
+
+# pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
 WORKDIR /usr/src/app
 RUN mkdir -p ./assets
 
-# copy just what npm ci needs
-COPY package-lock.json package.json ./
-RUN --mount=type=cache,target=/usr/src/app/.npm \
-    npm set cache /usr/src/app/.npm && \
-    npm ci
+# copy just what pnpm needs
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm fetch --prod
 
-# just copy in the files `npm run build` needs
+# just copy in the files `pnpm run build` needs
 COPY vite.config.mjs ./
 COPY assets/src ./assets/src
 COPY templates ./templates
 
-RUN --mount=type=cache,target=./npm npm run build
+RUN pnpm run build
 
 ##################################################
 #
