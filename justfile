@@ -198,17 +198,16 @@ assets-clean:
 
 
 # Install the Node.js dependencies
-assets-install *args="":
-    #!/usr/bin/env bash
-    set -euo pipefail
+assets-install:
+    pnpm install
 
 
-    # exit if lock file has not changed since we installed them. -nt == "newer than",
-    # but we negate with || to avoid error exit code
-    test package-lock.json -nt node_modules/.written || exit 0
+assets-lint: assets-install
+    pnpm run lint
 
-    pnpm ci {{ args }}
-    touch node_modules/.written
+
+assets-lint-ci: assets-install
+    pnpm run lint:ci
 
 
 # Build the Node.js assets

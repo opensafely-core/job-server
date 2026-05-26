@@ -81,10 +81,10 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install
+        run: just assets-install
 
       - name: Lint assets
-        run: npm run lint:ci
+        run: just assets-lint-ci
 
       - name: Run JS tests
         run: just assets-test
