@@ -4,6 +4,7 @@
 /.idea
 /.ipynb_checkpoints
 /.pytest_cache
+/.pnpm-store
 /.venv/
 **/*.egg-info/
 __pycache__

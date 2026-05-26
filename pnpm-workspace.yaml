@@ -1,0 +1,10 @@
+# prevent transitive dependencies from using exotic sources
+# (like git repositories or direct tarball URLs)
+blockExoticSubdeps: true
+
+# Delay dependency updates by 7 days (10,080 mins)
+minimumReleaseAge: 10080
+
+# pnpm will fail if a package's trust level has decreased compared to
+# previous releases
+trustPolicy: no-downgrade
