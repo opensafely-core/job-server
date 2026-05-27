@@ -66,3 +66,7 @@ updates:
       timezone: "Europe/London"
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: "postgres"
+        update-types:
+          - "version-update:semver-major"
