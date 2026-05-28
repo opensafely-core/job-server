@@ -85,6 +85,11 @@ class Backend(models.Model):
 
     objects = BackendManager()
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "auth_token": generate_token,
+        }
+
     def __str__(self):
         return self.slug
 
