@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
+from data_scrubbing.management.commands.scrub_data import fake
 from jobserver import hash_utils
 
 
@@ -219,6 +220,16 @@ class ContactDetailsPage(AbstractPage):
     # TODO: how will we tie this to an existing org, especially with typos?
     organisation = models.TextField(blank=True)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "full_name": fake.name,
+            "email": fake.email,
+            "telephone": "",
+            "job_title": "",
+            "team_name": "",
+            "organisation": "",
+        }
+
 
 class CommercialInvolvementPage(AbstractPage):
     details = models.TextField(blank=True)
@@ -243,6 +254,12 @@ class StudyPurposePage(AbstractPage):
     is_covid_vaccine_eligibility_or_coverage = models.BooleanField(default=False)
     is_covid_vaccine_effectiveness_or_safety = models.BooleanField(default=False)
     is_other_impacts_of_covid = models.BooleanField(default=False)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "author_name": fake.name,
+            "author_email": fake.email,
+        }
 
 
 class StudyDataPage(AbstractPage):
@@ -281,6 +298,14 @@ class SponsorDetailsPage(AbstractPage):
     sponsor_job_role = models.TextField(blank=True)
     institutional_rec_reference = models.TextField(blank=True)
     is_member_of_bennett_or_lshtm = models.BooleanField(default=False)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "sponsor_name": fake.name,
+            "sponsor_email": fake.email,
+            "sponsor_job_role": "",
+            "institutional_rec_reference": "",
+        }
 
 
 class ShortDataReportPage(AbstractPage):
@@ -370,6 +395,19 @@ class ResearcherRegistration(models.Model):
     github_username = models.TextField(default="", blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "name": fake.name,
+            "email": fake.email,
+            "job_title": "",
+            "telephone": "",
+            "phone_type": "iphone",
+            "github_username": "",
+            "daa": None,
+            "training_with_org": "",
+            "training_passed_at": None,
+        }
 
     def __str__(self):
         return self.name

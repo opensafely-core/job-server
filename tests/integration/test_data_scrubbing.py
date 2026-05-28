@@ -1,12 +1,26 @@
 import pytest
 from django.core.management import call_command
 
-from ..factories import BackendFactory, UserFactory
+from ..factories import (
+    BackendFactory,
+    ContactDetailsPageFactory,
+    ResearcherRegistrationFactory,
+    SponsorDetailsPageFactory,
+    StudyPurposePageFactory,
+    UserFactory,
+)
 
 
 @pytest.mark.django_db
 def test_scrub_data_command():
-    instances = [UserFactory(), BackendFactory()]
+    instances = [
+        UserFactory(),
+        BackendFactory(),
+        ContactDetailsPageFactory(),
+        ResearcherRegistrationFactory(),
+        SponsorDetailsPageFactory(),
+        StudyPurposePageFactory(),
+    ]
 
     # Snapshot fields before scrubbing.
     before_by_instance = {

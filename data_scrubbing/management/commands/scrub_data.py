@@ -8,7 +8,10 @@ fake = Faker()
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        for model in apps.get_app_config("jobserver").get_models():
+        models = {model for model in apps.get_app_config("jobserver").get_models()}
+        models |= {model for model in apps.get_app_config("applications").get_models()}
+
+        for model in models:
             data_scrubbing = getattr(model, "DataScrubbing", None)
             if data_scrubbing is None:
                 continue
