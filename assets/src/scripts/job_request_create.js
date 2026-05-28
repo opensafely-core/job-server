@@ -28,34 +28,47 @@ async function getStatuses() {
 }
 
 /**
+ * @typedef {"succeeded"|"failed"|"none"|"running"|"pending"|"loading"} StatusState
+ */
+
+/** @type {Record<StatusState, {className: string, label: string}>} */
+const STATUS_STATES = {
+  succeeded: {
+    className: "pill--success",
+    label: "Succeeded",
+  },
+  failed: {
+    className: "pill--failed",
+    label: "Failed",
+  },
+  none: {
+    className: "pill--info",
+    label: "No status",
+  },
+  loading: {
+    className: "pill--info",
+    label: "Loading",
+  },
+};
+
+/**
  * Set the visible icon based on the status returned from the API
  * @param {Element} action - label element for an action
- * @param {("succeeded"|"failed"|"loading")} status - status returned from the API
+ * @param {StatusState|string} status - status returned from the API
  * @returns {void}
  */
 function setIcon(action, status) {
   const parentEl = action.closest(`[data-action]`);
   const pill = parentEl.querySelector("[data-action-status]");
+  const state = STATUS_STATES[status] || STATUS_STATES.loading;
 
-  pill.classList.remove("pill--success", "pill--failed", "pill--info");
-
-  if (status === "succeeded") {
-    pill.classList.add("pill--success");
-    return (pill.textContent = "Succeeded");
-  }
-
-  if (status === "failed") {
-    pill.classList.add("pill--failed");
-    return (pill.textContent = "Failed");
-  }
-
-  if (status === "none") {
-    pill.classList.add("pill--info");
-    return (pill.textContent = "No status");
-  }
-
-  pill.classList.add("pill--info");
-  return (pill.textContent = "Loading");
+  pill.classList.remove(
+    ...[...pill.classList].filter((className) =>
+      className.startsWith("pill--"),
+    ),
+  );
+  pill.classList.add(state.className);
+  pill.textContent = state.label;
 }
 
 async function setActionsStatuses() {
