@@ -13,7 +13,6 @@ from furl import furl
 
 from jobserver import rap_api
 
-from ..permissions.population_permissions import t1oo
 from ..runtime import Runtime
 
 
@@ -484,10 +483,7 @@ class JobRequest(models.Model):
 
     @property
     def database_name(self):
-        if t1oo.project_has_permission(self.workspace.project):
-            return "include_t1oo"
-        else:
-            return "default"
+        return "default"
 
     @property
     def human_readable_status(self):

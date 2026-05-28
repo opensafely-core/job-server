@@ -775,20 +775,13 @@ def test_jobrequestmanager_with_started_at():
     assert JobRequest.objects.with_started_at().filter(workspace=workspace).count() == 2
 
 
-def test_jobrequest_database_name_with_no_project_number(build_job_request):
+def test_jobrequest_database_name(build_job_request):
+    # Note: database_name used to pass a different string if the
+    # project had permission to access t1oo; that permission has now moved to
+    # the new permissions system and is passed via the rap_api module, so
+    # the databse_name is now always "default"
     job_request = build_job_request(project_number=None)
     assert job_request.database_name == "default"
-
-
-def test_jobrequest_database_name_without_t1oo_permission(build_job_request):
-    job_request = build_job_request(project_number=1)
-    assert job_request.database_name == "default"
-
-
-def test_jobrequest_database_name_with_t1oo_permission(build_job_request):
-    # This is one of the project numbers hardcoded into `permissions/population_permissions/t1oo.py`
-    job_request = build_job_request(project_number="2")
-    assert job_request.database_name == "include_t1oo"
 
 
 @patch("jobserver.rap_api.create")
