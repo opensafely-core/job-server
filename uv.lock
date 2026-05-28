@@ -879,7 +879,7 @@ requires-dist = [
     { name = "social-auth-core" },
     { name = "stamina" },
     { name = "structlog" },
-    { name = "whitenoise", extras = ["brotli"], specifier = ">=6.8.0" },
+    { name = "whitenoise", extras = ["brotli"], specifier = ">=6.12.0" },
     { name = "xkcdpass" },
 ]
 
