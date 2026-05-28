@@ -45,6 +45,14 @@ const STATUS_STATES = {
     className: "pill--info",
     label: "No status",
   },
+  running: {
+    className: "pill--running",
+    label: "Running",
+  },
+  pending: {
+    className: "pill--pending",
+    label: "Pending",
+  },
   loading: {
     className: "pill--info",
     label: "Loading",
