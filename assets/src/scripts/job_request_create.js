@@ -70,7 +70,7 @@ const STATUS_STATES = {
 function setActionStatus(action, status) {
   const parentEl = action.closest(`[data-action]`);
   const pill = parentEl.querySelector("[data-action-status]");
-  const state = STATUS_STATES[status] || STATUS_STATES.loading;
+  const state = STATUS_STATES[status] || STATUS_STATES.none;
 
   pill.classList.remove(
     ...[...pill.classList].filter((className) =>
