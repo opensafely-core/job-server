@@ -437,10 +437,6 @@ class TestCreate:
                 "include_gp_unactivated",
             ]
         }
-        # update request body with database name, as this project now has t1oo permission
-        # TODO: Note this is the current method of applying t1oo permission. When we have moved to using
-        # the new permissions via the analysis_scope RAP API, this should be updated.
-        expected_request_body["database_name"] = "include_t1oo"
 
         result = create(job_request)
         assert result == fake_json
