@@ -62,12 +62,12 @@ const STATUS_STATES = {
 };
 
 /**
- * Set the visible icon based on the status returned from the API
+ * Set the visible status based on the API
  * @param {Element} action - label element for an action
  * @param {StatusState|string} status - status returned from the API
  * @returns {void}
  */
-function setIcon(action, status) {
+function setActionStatus(action, status) {
   const parentEl = action.closest(`[data-action]`);
   const pill = parentEl.querySelector("[data-action-status]");
   const state = STATUS_STATES[status] || STATUS_STATES.loading;
@@ -83,14 +83,14 @@ function setIcon(action, status) {
 
 async function setActionsStatuses() {
   const actions = [...document.querySelectorAll(`[data-action] label`)];
-  actions.map((action) => setIcon(action, "loading"));
+  actions.map((action) => setActionStatus(action, "loading"));
 
   const statuses = await getStatuses();
 
   actions.map((action) => {
     const actionName = action?.textContent?.trim();
     const status = statuses?.[actionName] || "none";
-    return setIcon(action, status);
+    return setActionStatus(action, status);
   });
 }
 
