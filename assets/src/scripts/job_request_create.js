@@ -28,11 +28,21 @@ async function getStatuses() {
 }
 
 /**
- * @typedef {"succeeded"|"failed"|"none"|"running"|"pending"|"loading"} StatusState
+ * @typedef {"pending"|"running"|"succeeded"|"failed"|"loading"|"none"} StatusState
+ * These are taken from StatusCode which is defined in Job Runner. We add
+ * "loading" and "none" as states the UI may end up in.
  */
 
 /** @type {Record<StatusState, {className: string, label: string}>} */
 const STATUS_STATES = {
+  pending: {
+    className: "pill--pending",
+    label: "Pending",
+  },
+  running: {
+    className: "pill--running",
+    label: "Running",
+  },
   succeeded: {
     className: "pill--success",
     label: "Succeeded",
@@ -41,21 +51,13 @@ const STATUS_STATES = {
     className: "pill--failed",
     label: "Failed",
   },
-  none: {
-    className: "pill--info",
-    label: "No status",
-  },
-  running: {
-    className: "pill--running",
-    label: "Running",
-  },
-  pending: {
-    className: "pill--pending",
-    label: "Pending",
-  },
   loading: {
     className: "pill--info",
     label: "Loading",
+  },
+  none: {
+    className: "pill--info",
+    label: "No status",
   },
 };
 
