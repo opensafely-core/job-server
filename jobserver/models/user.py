@@ -146,7 +146,7 @@ class User(AbstractBaseUser):
 
     class DataScrubbing:
         fields_to_scrub = {
-            "email": fake.email,
+            "email": fake.unique.email,
             "password": "",
             "login_token": None,
             "login_token_expires_at": None,
