@@ -138,3 +138,67 @@ and then remove `OLD_SECRET_KEY` as soon as possible when reminded:
 ```bash
 dokku config:unset job-server OLD_SECRET_KEY
 ```
+
+## Setting up the `jobserver_data_scrubbing` database and user
+
+As part of the scrubbed JobServer backup workflow, we created a separate database and dedicated user for the scrubbing process.
+
+The database user, `jobserver_data_scrubbing`, is intentionally restricted and should only have read access to the `jobserver` database and all access to the `jobserver_data_scrubbing` database.
+
+Follow the steps below to create the database, user, and set required permissions:
+
+1. Create database and user on [primary cluster](https://cloud.digitalocean.com/databases/5b41e51a-5c11-4816-90f3-47d2367a47af/users?i=0b5867) using the [DigitalOcean Control Panel](https://docs.digitalocean.com/products/databases/postgresql/how-to/manage-users-and-databases/#add-or-delete-a-database-user-using-the-control-panel).
+
+2. Login to dokku4
+
+   ```sql
+   ssh <username>@dokku4.ebmdatalab.net
+   ```
+
+3. Login to `jobserver` database as `doadmin` user using the connection string obtained from [DigitalOcean](https://docs.digitalocean.com/products/databases/postgresql/how-to/connect/#connection-details)
+
+   ```sql
+   psql <connection_string>
+   ```
+
+4. Check current permissions `jobserver_data_scrubbing` user have on `jobserver` database
+
+   ```sql
+   SELECT grantee, table_schema, table_name, privilege_type
+   FROM information_schema.role_table_grants
+   WHERE grantee = 'jobserver_data_scrubbing';
+   ```
+
+   This will return no rows.
+
+5. Allow `jobserver_data_scrubbing` user to connect to `jobserver` database
+
+   ```sql
+   GRANT CONNECT ON DATABASE jobserver TO jobserver_data_scrubbing;
+   ```
+
+6. Allow access to the public schema
+
+   ```sql
+   GRANT USAGE ON SCHEMA public TO  jobserver_data_scrubbing;
+   ```
+
+7. Grant read access to existing tables
+
+   ```sql
+   GRANT SELECT ON ALL TABLES IN SCHEMA public TO jobserver_data_scrubbing;
+   ```
+
+8. Grant read access to future tables
+
+   ```sql
+   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO jobserver_data_scrubbing;
+   ```
+
+9. Re-run the query from step 4 and verify that the expected permissions have been granted.
+
+10. Make `jobserver_data_scrubbing` the owner of the `jobserver_data_scrubbing` database so it can restore, modify, and scrub data within that database.
+
+    ```sql
+    ALTER DATABASE jobserver_data_scrubbing OWNER TO jobserver_data_scrubbing;
+    ```
