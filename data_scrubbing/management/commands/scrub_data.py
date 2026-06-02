@@ -7,6 +7,10 @@ fake = Faker()
 
 
 class Command(BaseCommand):
+    """Management command to scrub sensitive fields"""
+
+    help = "Scrub sensitive data from selected fields"
+
     def handle(self, *args, **kwargs):
         models = {model for model in apps.get_app_config("jobserver").get_models()}
         models |= {model for model in apps.get_app_config("applications").get_models()}
@@ -28,5 +32,5 @@ class Command(BaseCommand):
             field_names = scrub_fields.keys()
             model.objects.bulk_update(objs, field_names)
             self.stdout.write(
-                f"Scrubbed {len(objs)} {model.__name__} records from fields:{field_names}"
+                f"Scrubbed {len(objs)} {model.__name__} records from fields: {', '.join(field_names)}"
             )
