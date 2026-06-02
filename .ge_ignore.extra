@@ -1,0 +1,2 @@
+# Earlybird-only ignore patterns (not part of .gitignore semantics)
+**/uv.lock

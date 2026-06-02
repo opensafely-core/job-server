@@ -1,0 +1,98 @@
+---
+rules:
+  - Codes:
+      - 3014
+    Pattern: '(?i)^applications@opensafely\.org'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: applications@opensafely.org"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^bennett@phc\.ox\.ac\.uk$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: bennett@phc.ox.ac.uk"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^dokku@dokku4\.ebmdatalab\.net$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: dokku@dokku4.ebmdatalab.net"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^foo@bar\.com$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: foo@bar.com"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^george@ghickman\.co\.uk$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: george@ghickman.co.uk"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^ghp_testing@github\.com$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: ghp_testing@github.com"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^me@myemail\.org$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: me@myemail.org"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^notifications@jobs\.opensafely\.org$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: notifications@jobs.opensafely.org"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^publications@opensafely\.org$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: publications@opensafely.org"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^queries@hra\.nhs\.uk$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: queries@hra.nhs.uk"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^secure\.training@ukdataservice\.ac\.uk$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: secure.training@ukdataservice.ac.uk"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^tEsT@TeSt\.tEST$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: tEsT@TeSt.tEST"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^team@opensafely\.org$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: team@opensafely.org"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^tech@opensafely\.org$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: tech@opensafely.org"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^test@test\.test$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: test@test.test"
+  - Codes:
+      - 3014
+    Pattern: '(?i)^xxx@xxx\.ingest\.sentry\.io$'
+    FileExtensions: []
+    UseFullLine: false
+    Description: "Ignore known-safe email address: xxx@xxx.ingest.sentry.io"
