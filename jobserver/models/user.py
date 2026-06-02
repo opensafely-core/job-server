@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
 
+from data_scrubbing.management.commands.scrub_data import fake
 from jobserver.authorization.permissions import Permission
 from jobserver.authorization.utils import roles_with_permission
 
@@ -142,6 +143,16 @@ class User(AbstractBaseUser):
     # Used by AbstractBaseUser machinery we possibly need.
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "email": fake.email,
+            "password": "",
+            "login_token": None,
+            "login_token_expires_at": None,
+            "pat_expires_at": None,
+            "pat_token": None,
+        }
 
     class Meta:
         constraints = [
