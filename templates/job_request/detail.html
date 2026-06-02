@@ -250,6 +250,80 @@
     </div>
 
     <div class="gap-6 place-content-start lg:col-span-1 flex flex-col">
+      {% if job_request.total_jobs > 0 %}
+        {% #card class="text-sm test-marker-stats-table" header_class="border-b border-slate-200" title="Job statistics" %}
+          {% #table %}
+            {% #table_head %}
+              {% #table_header nowrap %}Status{% /table_header %}
+              {% #table_header nowrap class="text-right" %}Count{% /table_header %}
+              {% #table_header nowrap class="text-right" %}Percentage{% /table_header %}
+            {% /table_head %}
+            {% #table_body %}
+              {% #table_row %}
+                {% #table_cell %}
+                  {% pill variant="warning" class="whitespace-nowrap" text="Pending" %}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.num_pending_jobs | floatformat:"g" }}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.percent_pending_jobs | floatformat }}%
+                {% /table_cell %}
+              {% /table_row %}
+
+              {% #table_row %}
+                {% #table_cell %}
+                  {% pill variant="primary" class="whitespace-nowrap" text="Running" %}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.num_running_jobs | floatformat:"g" }}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.percent_running_jobs | floatformat }}%
+                {% /table_cell %}
+              {% /table_row %}
+
+              {% #table_row %}
+                {% #table_cell %}
+                  {% pill variant="success" class="whitespace-nowrap" text="Succeeded" %}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.num_succeeded_jobs | floatformat:"g" }}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.percent_succeeded_jobs | floatformat }}%
+                {% /table_cell %}
+              {% /table_row %}
+
+              {% #table_row %}
+                {% #table_cell %}
+                  {% pill variant="danger" class="whitespace-nowrap" text="Failed" %}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.num_failed_jobs | floatformat:"g" }}
+                {% /table_cell %}
+                {% #table_cell class="tabular-nums text-right" %}
+                  {{ job_request.percent_failed_jobs | floatformat }}%
+                {% /table_cell %}
+              {% /table_row %}
+            {% /table_body %}
+          {% /table %}
+
+          {% #card_footer no_container=True %}
+            <p class="font-medium text-center">
+              {{ job_request.num_completed_jobs|intcomma }} /
+              {{ job_request.total_jobs|intcomma }}
+              ({{ job_request.percent_completed_jobs | floatformat }}%)
+              complete
+            </p>
+          {% /card_footer %}
+        {% /card %}
+      {% else %}
+        {% #card container=True title="Job statistics" class="test-marker-no-stats-table" %}
+          <p class="no-stats-message">No updates received from backend yet.</p>
+        {% /card %}
+      {% endif %}
+
       {% #card title="Timeline" container=True %}
         <ul class="flow-root">
           {% #timeline_item background="blue" title="Created:" time=job_request.created_at %}
