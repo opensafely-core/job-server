@@ -21,7 +21,6 @@ jobs:
         with:
           install-just: true
           install-uv: true
-          cache: uv
 
       - name: Ensure requirements.uvmirror.txt is consistent with uv.lock
         run: just uvmirror && git diff -s --exit-code
