@@ -177,9 +177,10 @@ After restoring a production database dump locally, run the data scrubbing comma
 just scrub-data
 ```
 
-This command removes or replaces sensitive data.
+This command removes or replaces sensitive data in your local database.
 
-Once the dump has been restored and scrubbed, the original downloaded dump file should be deleted, if present. This helps minimise the amount of raw production data stored outside production systems.
+As part of the scrubbing process, the local `jobserver.dump` file is automatically deleted. This helps minimise the amount of raw production data stored outside production system.
+If you have any additional copies of `jobserver.dump`, they should be deleted once they are no longer needed.
 
 
 #### Steps
