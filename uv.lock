@@ -899,7 +899,7 @@ dev = [
     { name = "pytest-icdiff" },
     { name = "pytest-mock" },
     { name = "pytest-playwright" },
-    { name = "pytest-socket" },
+    { name = "pytest-socket", specifier = "==0.7.0" },
     { name = "pytest-xdist", extras = ["psutil"] },
     { name = "responses" },
     { name = "ruff" },
