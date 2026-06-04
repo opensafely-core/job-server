@@ -267,7 +267,8 @@ dev = [
     "pytest-icdiff",
     "pytest-mock",
     "pytest-playwright",
-    "pytest-socket",
+    # Pin temporarily due to failures with v0.8.0.
+    "pytest-socket==0.7.0",
     "pytest-xdist[psutil]",
     "responses",
     "ruff",
