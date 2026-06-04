@@ -1,5 +1,6 @@
 from django.apps import apps
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
+from django.db.utils import OperationalError
 from faker import Faker
 
 
@@ -12,6 +13,16 @@ class Command(BaseCommand):
     help = "Scrub sensitive data from selected fields"
 
     def handle(self, *args, **kwargs):
+        try:
+            self.scrub_data()
+        except OperationalError as error:
+            raise CommandError(
+                "Could not connect to the database. "
+                "Before running this command, make sure PostgreSQL is running. "
+                "If using Docker, start it with `just docker/db`."
+            ) from error
+
+    def scrub_data(self):
         models = {model for model in apps.get_app_config("jobserver").get_models()}
         models |= {model for model in apps.get_app_config("applications").get_models()}
 
