@@ -179,7 +179,7 @@ just scrub-data
 
 This command removes or replaces sensitive data.
 
-Once the dump has been restored and scrubbed, the original downloaded dump file should be deleted. This helps minimise the amount of raw production data stored outside production systems.
+Once the dump has been restored and scrubbed, the original downloaded dump file should be deleted, if present. This helps minimise the amount of raw production data stored outside production systems.
 
 
 #### Steps
