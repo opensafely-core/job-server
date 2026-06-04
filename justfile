@@ -74,7 +74,8 @@ install-precommit:
 upgrade-package package: && devenv
     uv lock --upgrade-package {{ package }}
 
-# The upgrade-all recipe is used for doing lockfileMaintenance via update-dependencies action, until min release age is respected fo uv
+# The upgrade-all recipe is used for doing lockfile
+# maintenance via update-dependencies action, until min release age is respected for uv.
 # Note that we run devenv with && to remove the timestamp written into the uv.lock file
 
 # upgrade all dependencies with specified cooldown
