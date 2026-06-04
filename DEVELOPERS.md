@@ -10,6 +10,7 @@
       - [Installing on Linux](#installing-on-linux)
       - [Creating a database](#creating-a-database)
     - [Restoring Backups](#restoring-backups)
+    - [Scrubbing jobserver database](#scrubbing-jobserver-database)
     - [Steps](#steps)
   - [Docker Compose](#docker-compose)
   - [Frontend development (CSS/JS)](#frontend-development-cssjs)
@@ -167,6 +168,18 @@ Note: `pg_restore` will throw errors in various scenarios, which can often be ig
 The important line to check for (typically at the very end) is `errors ignored on restore: N`.
 Where `N` should match the number of errors you got.
 
+
+#### Scrubbing jobserver database
+
+After restoring a production database dump locally, run the data scrubbing command before using the database for development or debugging:
+
+```bash
+just scrub-data
+```
+
+This command removes or replaces sensitive data.
+
+Once the dump has been restored and scrubbed, the original downloaded dump file should be deleted. This helps minimise the amount of raw production data stored outside production systems.
 
 
 #### Steps
