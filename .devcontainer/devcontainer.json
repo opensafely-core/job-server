@@ -1,0 +1,12 @@
+{
+  "name": "Ubuntu",
+  "image": "mcr.microsoft.com/devcontainers/base:noble@sha256:405175cbb232701dc27c47a2f178da555ea3ad20f85ea4142ad6a24f877af399",
+  "features": {
+    "ghcr.io/devcontainers/features/node:2": {
+      "nodeGypDependencies": true,
+      "installNode": false,
+      "nvmVersion": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:3": {}
+  }
+}
