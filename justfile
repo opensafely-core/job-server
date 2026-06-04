@@ -94,6 +94,11 @@ run-telemetry: devenv
 manage command *args:
     $BIN/python manage.py {{command}} {{args}}
 
+# scrub sensitive data from the database
+scrub-data: devenv
+    $BIN/python manage.py scrub_data
+    rm -f jobserver.dump
+
 test-ci *args: assets
     #!/bin/bash
     export COVERAGE_PROCESS_START="pyproject.toml"
