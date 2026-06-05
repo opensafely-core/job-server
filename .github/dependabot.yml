@@ -26,27 +26,6 @@ updates:
     cooldown:
       default-days: 7
 
-  - package-ecosystem: "uv"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "08:00"
-      timezone: "Europe/London"
-    cooldown:
-      default-days: 7
-    groups:
-      production-dependencies:
-        dependency-type: "production"
-      development-dependencies:
-        dependency-type: "development"
-    allow:
-      - dependency-type: "all"
-    ignore:
-      - dependency-name: "django"
-        versions: [">=6.0.0"]
-      - dependency-name: "jobserver"
-
   - package-ecosystem: "docker"
     directory: "docker"
     schedule:

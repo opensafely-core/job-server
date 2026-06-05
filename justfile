@@ -74,12 +74,23 @@ install-precommit:
 upgrade-package package: && devenv
     uv lock --upgrade-package {{ package }}
 
+# The upgrade-all recipe is used for doing lockfile
+# maintenance via update-dependencies action, until min release age is respected for uv.
+# Note that we run devenv with && to remove the timestamp written into the uv.lock file
+
+# upgrade all dependencies with specified cooldown
+upgrade-all cooldown="7 days ago": && devenv
+    uv lock --upgrade --exclude-newer "{{ cooldown }}"
+
+# update the companion requirements formatted file
+uvmirror file="requirements.uvmirror":
+    rm -f {{ file }}
+    uv export --format requirements-txt --frozen --no-hashes --all-groups --all-extras > {{ file }}
 
 # Upgrade all packages to the latest version per pyproject.toml, then
 # update the local venv. NOTE: This does not upgrade the opensafely-pipeline;
 # to upgrade, run the upgrade-pipeline recipe
-update-dependencies: devenv
-    uv lock --upgrade
+update-dependencies: upgrade-all && uvmirror
 
 # upgrade our internal pipeline library
 upgrade-pipeline: && prodenv
