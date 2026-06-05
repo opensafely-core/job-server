@@ -22,6 +22,12 @@ repos:
       language: system
       types: [python]
       require_serial: true
+    - id: hadolint
+      name: Hadolint
+      description: Haskell-based Docker image linter
+      language: docker_image
+      types: [dockerfile]
+      entry: hadolint/hadolint:v2.14.0@sha256:27086352fd5e1907ea2b934eb1023f217c5ae087992eb59fde121dce9c9ff21e hadolint
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
@@ -34,15 +40,3 @@ repos:
     - id: check-toml
     - id: check-yaml
     - id: detect-private-key
-
-  - repo: https://github.com/rtts/djhtml
-    rev: 8577ec017145d76a0b954ebb7cb3169d4303014c # v3.0.11
-    hooks:
-      - id: djhtml
-        entry: djhtml --tabwidth 2 # Use a tabwidth of 2 for HTML files
-        files: ^templates/.*\.html$ # Indent only HTML files in template directories
-
-  - repo: https://github.com/hadolint/hadolint
-    rev: b3555ba9c2bfd9401e79f2f0da68dd1ae38e10c7 # v2.12.0
-    hooks:
-    - id: hadolint-docker
