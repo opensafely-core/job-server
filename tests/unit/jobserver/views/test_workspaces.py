@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.permissions import Permission
+from jobserver.authorization.roles import DeploymentAdministrator
 from jobserver.models import PublishRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
@@ -432,6 +433,32 @@ def test_workspacedetail_authorized_run_jobs(rf, project_membership, role_factor
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
     assert response.context_data["user_has_backends"]
+
+
+def test_workspacedetail_deployment_administrator_run_jobs(
+    rf, project_membership, role_factory
+):
+    workspace = WorkspaceFactory()
+    user = UserFactory(roles=[DeploymentAdministrator])
+    backend = BackendFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
+    assert response.context_data["user_has_backends"]
+
+    response.render()
+    assert b"Run jobs" in response.content
 
 
 def test_workspacedetail_authorized_run_jobs_no_backends(
