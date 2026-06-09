@@ -259,6 +259,7 @@ class StudyPurposePage(AbstractPage):
         fields_to_scrub = {
             "author_name": fake.name,
             "author_email": fake.email,
+            "author_organisation": "",
         }
 
 
