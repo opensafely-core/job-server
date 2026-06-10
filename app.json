@@ -19,6 +19,10 @@
     {
       "command": "python manage.py runjobs monthly",
       "schedule": "@monthly"
+    },
+    {
+      "command": "python manage.py runjobs yearly",
+      "schedule": "0 15 10 6 *"
     }
   ],
   "healthchecks": {
