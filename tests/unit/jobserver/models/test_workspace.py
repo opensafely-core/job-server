@@ -1,12 +1,15 @@
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
+from jobserver.authorization.permissions import Permission
 from jobserver.models import Workspace
 
 from ....factories import (
     BackendFactory,
+    BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
     ProjectFactory,
@@ -120,6 +123,84 @@ def test_workspace_get_jobs_url():
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
+    )
+
+
+def test_workspace_get_reason_can_run_jobs(project_membership, role_factory):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+    backend = BackendFactory()
+
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permission=Permission.JOB_RUN)],
+    )
+    BackendMembershipFactory(backend=backend, user=user)
+
+    assert workspace.get_reason_cannot_run_jobs(user) is None
+
+
+def test_workspace_get_reason_can_run_jobs_global_permission(
+    user_with_fake_role_factory,
+):
+    workspace = WorkspaceFactory()
+    user = user_with_fake_role_factory(permission=Permission.JOB_RUN)
+    backend = BackendFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+
+    assert workspace.get_reason_cannot_run_jobs(user) is None
+
+
+def test_workspace_get_reason_cannot_run_jobs_archived():
+    workspace = WorkspaceFactory(is_archived=True)
+    user = UserFactory()
+
+    assert (
+        workspace.get_reason_cannot_run_jobs(user)
+        == "Jobs cannot be run on an archived workspace"
+    )
+
+
+def test_workspace_get_reason_cannot_run_jobs_without_project_permission():
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+    backend = BackendFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+
+    assert (
+        workspace.get_reason_cannot_run_jobs(user)
+        == "You do not have permission to run jobs on this workspace"
+    )
+
+
+def test_workspace_get_reason_cannot_run_jobs_without_backend_access(
+    project_membership, role_factory
+):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permission=Permission.JOB_RUN)],
+    )
+
+    assert (
+        workspace.get_reason_cannot_run_jobs(user)
+        == "You do not have permission to run jobs on any OpenSAFELY backends"
+    )
+
+
+def test_workspace_get_reason_cannot_run_jobs_anonymous_user():
+    workspace = WorkspaceFactory()
+    user = AnonymousUser()
+
+    assert (
+        workspace.get_reason_cannot_run_jobs(user)
+        == "You do not have permission to run jobs on this workspace"
     )
 
 

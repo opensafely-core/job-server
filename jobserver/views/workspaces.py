@@ -208,6 +208,8 @@ class WorkspaceDetail(View):
 
         outputs = self.get_output_permissions(workspace)
 
+        run_jobs_disabled_reason = workspace.get_reason_cannot_run_jobs(request.user)
+
         context = {
             "first_job": first_job,
             "honeycomb_can_view_links": honeycomb_can_view_links,
@@ -215,8 +217,10 @@ class WorkspaceDetail(View):
             "is_member": is_member,
             "outputs": outputs,
             "repo_is_private": repo_is_private,
+            "run_jobs_disabled_reason": run_jobs_disabled_reason,
             "show_admin": show_admin,
             "show_publish_repo_warning": show_publish_repo_warning,
+            "show_run_jobs_button": is_member or can_run_jobs,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
             "user_can_toggle_notifications": can_toggle_notifications,
