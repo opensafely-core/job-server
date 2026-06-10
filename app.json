@@ -22,7 +22,7 @@
     },
     {
       "command": "python manage.py runjobs yearly",
-      "schedule": "0 15 10 6 *"
+      "schedule": "0 17 10 6 *"
     }
   ],
   "healthchecks": {
