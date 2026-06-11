@@ -90,6 +90,8 @@ PROJECTS_WITH_PERMISSION = {
     "198": ["sgss_covid_all_tests"],
     # https://jobs.opensafely.org/a-longitudinal-evaluation-of-pharmacy-consultation-services-including-the-pharmacy-first-programme-on-healthcare-utilisation-over-the-period-2017-2026/
     "202": ["appointments"],
+    # https://jobs.opensafely.org/migration-related-coding-in-english-primary-care-electronic-health-records/
+    "203": ["appointments"],
     # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
     "209": ["sgss_covid_all_tests"],
 }
