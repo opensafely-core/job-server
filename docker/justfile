@@ -90,4 +90,12 @@ restore-db dump="jobserver.dump": clean-volumes  db
     #!/bin/bash
     set -eux
     path=$(realpath ../{{ dump }})
-    docker compose run -v "$path:/tmp/jobserver.dump" --entrypoint bash --rm dev -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL /tmp/jobserver.dump"
+    docker compose run -v "$path:/tmp/jobserver.dump" --entrypoint bash --rm dev -c '
+        set -eux
+        pg_restore --clean --if-exists --no-acl --no-owner -d "$DATABASE_URL" /tmp/jobserver.dump
+        has_temp=$(psql "$DATABASE_URL" -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name = '\''temp_scrubbed_schema'\''")
+        if [ "$has_temp" = "1" ]; then
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "DROP SCHEMA IF EXISTS public CASCADE"
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "ALTER SCHEMA temp_scrubbed_schema RENAME TO public"
+        fi
+    '
