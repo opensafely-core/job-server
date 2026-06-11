@@ -6,13 +6,8 @@ import structlog
 from django.conf import settings
 from furl import furl
 
-from jobserver.settings import get_env_var
-
 
 logger = structlog.getLogger(__name__)
-
-
-JOBSERVER_GITHUB_TOKEN = get_env_var("JOBSERVER_GITHUB_TOKEN")
 
 
 session = requests.Session()
@@ -657,4 +652,6 @@ class GitHubAPI:
 
 def _get_github_api():
     """Simple invocation wrapper of GitHubAPI"""
-    return GitHubAPI(_session=session, token=JOBSERVER_GITHUB_TOKEN)  # pragma: no cover
+    return GitHubAPI(
+        _session=session, token=settings.JOBSERVER_GITHUB_TOKEN
+    )  # pragma: no cover
