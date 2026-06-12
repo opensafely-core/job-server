@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from jobserver.authorization import StaffAreaAdministrator
 from jobserver.authorization.permissions import Permission
+from jobserver.authorization.roles import DeploymentAdministrator
 from jobserver.models import PublishRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
@@ -432,6 +433,41 @@ def test_workspacedetail_authorized_run_jobs(rf, project_membership, role_factor
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
     assert response.context_data["user_has_backends"]
+    assert response.context_data["show_run_jobs_button"]
+    assert response.context_data["run_jobs_disabled_reason"] is None
+
+    response.render()
+    assert b"Run jobs" in response.content
+    assert workspace.get_jobs_url().encode() in response.content
+
+
+def test_workspacedetail_deployment_administrator_run_jobs(
+    rf, project_membership, role_factory
+):
+    workspace = WorkspaceFactory()
+    user = UserFactory(roles=[DeploymentAdministrator])
+    backend = BackendFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
+    assert response.context_data["user_has_backends"]
+    assert response.context_data["show_run_jobs_button"]
+    assert response.context_data["run_jobs_disabled_reason"] is None
+
+    response.render()
+    assert b"Run jobs" in response.content
+    assert workspace.get_jobs_url().encode() in response.content
 
 
 def test_workspacedetail_authorized_run_jobs_no_backends(
@@ -458,6 +494,88 @@ def test_workspacedetail_authorized_run_jobs_no_backends(
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
     assert not response.context_data["user_has_backends"]
+    assert response.context_data["show_run_jobs_button"]
+    assert (
+        response.context_data["run_jobs_disabled_reason"]
+        == "You do not have permission to run jobs on any OpenSAFELY backends"
+    )
+
+    response.render()
+    assert b"Run jobs" in response.content
+    assert workspace.get_jobs_url().encode() not in response.content
+    assert (
+        b"You do not have permission to run jobs on any OpenSAFELY backends"
+        in response.content
+    )
+
+
+def test_workspacedetail_run_jobs_disabled_when_archived(
+    rf, project_membership, role_factory
+):
+    workspace = WorkspaceFactory(is_archived=True)
+    user = UserFactory()
+    backend = BackendFactory()
+
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permission=Permission.JOB_RUN)],
+    )
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
+    assert response.context_data["user_has_backends"]
+    assert response.context_data["show_run_jobs_button"]
+    assert (
+        response.context_data["run_jobs_disabled_reason"]
+        == "Jobs cannot be run on an archived workspace"
+    )
+
+    response.render()
+    assert b"Run jobs" in response.content
+    assert workspace.get_jobs_url().encode() not in response.content
+    assert b"Jobs cannot be run on an archived workspace" in response.content
+
+
+def test_workspacedetail_run_jobs_disabled_without_permission(rf, project_membership):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    project_membership(project=workspace.project, user=user, roles=[])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert not response.context_data["user_can_run_jobs"]
+    assert response.context_data["show_run_jobs_button"]
+    assert (
+        response.context_data["run_jobs_disabled_reason"]
+        == "You do not have permission to run jobs on this workspace"
+    )
+
+    response.render()
+    assert b"Run jobs" in response.content
+    assert workspace.get_jobs_url().encode() not in response.content
+    assert (
+        b"You do not have permission to run jobs on this workspace" in response.content
+    )
 
 
 def test_workspacedetail_authorized_honeycomb(rf):
@@ -502,7 +620,11 @@ def test_workspacedetail_logged_out(rf):
     assert response.status_code == 200
 
     assert not response.context_data["user_can_run_jobs"]
+    assert not response.context_data["show_run_jobs_button"]
     assert response.context_data["outputs"]["released"]["disabled"]
+
+    response.render()
+    assert b"Run jobs" not in response.content
 
 
 def test_workspacedetail_unauthorized(rf):
