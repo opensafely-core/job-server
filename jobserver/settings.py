@@ -508,3 +508,9 @@ UNIVERSITY_OF_BRISTOL_ORG_PK = 9
 # How long in seconds to wait between calls to the RAP API status endpoint to
 # fetch job updates
 RAP_API_POLL_INTERVAL = int(os.environ.get("RAP_API_POLL_INTERVAL", default=60))
+
+# GitHub token for interactions with the GitHub API.
+# See jobserver/github.py for how this is used.
+# See DEVELOPERS.md and TESTING.md for information on how it is used in
+# production, CI, and developer environments.
+JOBSERVER_GITHUB_TOKEN = os.environ.get("JOBSERVER_GITHUB_TOKEN", default=None)
