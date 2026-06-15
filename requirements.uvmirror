@@ -37,13 +37,13 @@ defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
-distlib==0.4.0
+distlib==0.4.1
     # via virtualenv
 distro==1.9.0
     # via ruyaml
 dj-database-url==3.1.2
     # via jobserver
-django==5.2.14
+django==5.2.15
     # via
     #   dj-database-url
     #   django-anymail
@@ -82,11 +82,11 @@ djhtml==3.0.11
 execnet==2.1.2
     # via pytest-xdist
 factory-boy==3.3.3
-faker==40.19.1
+faker==40.21.0
     # via
     #   factory-boy
     #   jobserver
-filelock==3.29.0
+filelock==3.29.1
     # via
     #   python-discovery
     #   virtualenv
@@ -104,7 +104,7 @@ icdiff==2.0.10
     # via pytest-icdiff
 identify==2.6.19
     # via pre-commit
-idna==3.17
+idna==3.18
     # via
     #   django-anymail
     #   requests
@@ -272,7 +272,7 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.15.15
+ruff==0.15.16
 ruyaml==0.91.0
     # via opensafely-pipeline
 sentry-sdk==2.61.1
@@ -300,7 +300,7 @@ sqlparse==0.5.5
     #   django-debug-toolbar
 stamina==26.1.0
     # via jobserver
-structlog==25.5.0
+structlog==26.1.0
     # via
     #   django-structlog
     #   jobserver
