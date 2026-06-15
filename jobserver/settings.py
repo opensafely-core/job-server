@@ -282,12 +282,10 @@ SOCIAL_AUTH_GITHUB_SECRET = get_env_var("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 RAP_API_BASE_URL = os.environ.get("RAP_API_BASE_URL", default="")
 RAP_API_TOKEN = os.environ.get("RAP_API_TOKEN", default="")
-JOBSERVER_READONLY_DATABASE_URL = os.environ.get(
-    "JOBSERVER_READONLY_DATABASE_URL", default=""
-)
-JOBSERVER_SCRUBBED_DATABASE_URL = os.environ.get(
-    "JOBSERVER_SCRUBBED_DATABASE_URL", default=""
-)
+if readonly_database_url := os.environ.get("JOBSERVER_READONLY_DATABASE_URL"):
+    DATABASES["readonly"] = dj_database_url.parse(readonly_database_url)
+if scrubbed_database_url := os.environ.get("JOBSERVER_SCRUBBED_DATABASE_URL"):
+    DATABASES["scrubbed"] = dj_database_url.parse(scrubbed_database_url)
 
 
 # Passwords

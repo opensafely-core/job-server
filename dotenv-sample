@@ -2,7 +2,7 @@
 # point another postgres
 DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
 JOBSERVER_READONLY_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
-JOBSERVER_SCRUBBED_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
+JOBSERVER_SCRUBBED_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver_scrubbed
 
 # Turn on debug
 DEBUG=1

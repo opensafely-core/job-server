@@ -1,4 +1,5 @@
-from urllib.parse import urlparse
+import pathlib
+import subprocess
 
 import structlog
 from django.conf import settings
@@ -12,14 +13,62 @@ class Job(YearlyJob):
     help = "Scrubbed database dump job (in progress)"
 
     def execute(self):
-        readonly_db_url = urlparse(settings.JOBSERVER_READONLY_DATABASE_URL)
-        scrubbed_db_url = urlparse(settings.JOBSERVER_SCRUBBED_DATABASE_URL)
-        logger.info("Scrubbed database dump job")
-        logger.info(
-            "Database path for readonly JobServer database",
-            database_path=readonly_db_url.path,
-        )
-        logger.info(
-            "Database path for scrubbed JobServer database",
-            database_path=scrubbed_db_url.path,
-        )
+        raw_dump = pathlib.Path("/tmp/jobserver_raw.dump")
+        readonly_db = settings.DATABASES.get("readonly")
+        scrubbed_db = settings.DATABASES.get("scrubbed")
+
+        if readonly_db is None:
+            raise RuntimeError("JOBSERVER_READONLY_DATABASE_URL is not found")
+
+        if scrubbed_db is None:
+            raise RuntimeError("JOBSERVER_SCRUBBED_DATABASE_URL is not found")
+
+        try:
+            logger.info("Creating raw dump of readonly jobserver database")
+            dump_database(readonly_db, raw_dump)
+
+            logger.info("Restoring dump into scrubbed jobserver database")
+            restore_database(scrubbed_db, raw_dump)
+
+            logger.info("Finished restoring dump into database")
+
+        finally:
+            logger.info("Deleting temporary source dump")
+            raw_dump.unlink(missing_ok=True)
+
+
+def database_url(db):
+    return f"postgresql://{db['USER']}@{db['HOST']}:{db['PORT']}/{db['NAME']}"
+
+
+def dump_database(db, output):
+    if not output.parent.exists():
+        raise RuntimeError(f"Unknown output directory: {output.parent}")
+
+    subprocess.check_call(
+        [
+            "pg_dump",
+            "--format=c",
+            "--no-acl",
+            "--no-owner",
+            f"--file={output}",
+            database_url(db),
+        ],
+        env={"PGPASSWORD": db["PASSWORD"]},
+    )
+
+
+def restore_database(db, input_dump):
+    subprocess.check_call(
+        [
+            "pg_restore",
+            "--clean",
+            "--if-exists",
+            "--no-acl",
+            "--no-owner",
+            "--dbname",
+            database_url(db),
+            str(input_dump),
+        ],
+        env={"PGPASSWORD": db["PASSWORD"]},
+    )
