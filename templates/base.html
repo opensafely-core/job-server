@@ -80,7 +80,7 @@
       {% block full_width_content %}{% endblock full_width_content %}
     </main>
 
-    {% footer nav=nav %}
+    {% include "_partials/footer.html" with ctx=None only %}
 
     {% block extra_js %}{% endblock %}
   </body>

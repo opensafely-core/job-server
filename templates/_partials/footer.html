@@ -1,0 +1,46 @@
+{% load static %}
+
+<footer class="os-footer">
+  <div class="container os-footer__content">
+    <nav>
+      <h2>OpenSAFELY Jobs</h2>
+      <a class="link" href="{% url 'home' %}">Home</a>
+      <a class="link" href="{% url 'job-list'%}">Event log</a>
+      <a class="link" href="{% url 'org-list'%}">Organisations</a>
+      <a class="link" href="{% url 'status' %}">Status</a>
+    </nav>
+    <nav>
+      <h2>OpenSAFELY</h2>
+      <a class="link" href="https://docs.opensafely.org/">Documentation</a>
+      <a class="link" href="https://www.opensafely.org/">OpenSAFELY</a>
+      <a class="link" href="https://www.opensafely.org/blog/">OpenSAFELY Blog</a>
+      <a class="link" href="https://status.opensafely.org/">OpenSAFELY Service Status</a>
+    </nav>
+    <nav>
+      <h2>More</h2>
+      <a class="link" href="https://www.bennett.ox.ac.uk/">Bennett Institute for Applied Data Science</a>
+      <a class="link" href="https://www.phc.ox.ac.uk/">Nuffield Department of Primary Care Health Sciences</a>
+      <a class="link" href="https://www.ox.ac.uk/">University of Oxford</a>
+      <a class="link" href="https://www.opensafely.org/privacy/">Privacy Policy</a>
+    </nav>
+    <div class="text-slate-600 md:pt-6 lg:col-span-3">
+      <h2 class="sr-only">Copyright statement</h2>
+      <p>
+        © University of Oxford for the Bennett Institute for Applied Data
+        Science {% now 'Y' %}. This work may be copied freely for
+        non-commercial research and study. If you wish to do any of the other
+        acts restricted by the copyright you should apply in writing to
+        <a class="link" href="mailto:bennett@phc.ox.ac.uk">bennett@phc.ox.ac.uk</a>.
+      </p>
+    </div>
+  </div>
+  <div class="container os-footer__logo">
+    <a href="https://www.bennett.ox.ac.uk/">
+      <img alt="Bennett Institute logo" height="96" src="{% static 'bennett-logo.svg' %}" width="220" />
+    </a>
+    <p>
+      OpenSAFELY is a project from the
+      <span>Bennett Institute for Applied Data Science</span>
+    </p>
+  </div>
+</footer>
