@@ -1,4 +1,5 @@
 import pytest
+from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import CommandError
 
@@ -72,3 +73,59 @@ def test_scrub_data_command_success():
 def test_scrub_data_command_require_confirmation_on_default_database():
     with pytest.raises(CommandError, match="Use --i-am-sure"):
         call_command("scrub_data", "default")
+
+
+@pytest.mark.xfail(reason="Not finished initial categorisation yet")
+def test_all_applications_fields_categorised():
+    models = {model for model in apps.get_app_config("applications").get_models()}
+
+    models_with_no_configuration = set()
+    fields_not_categorised = {}
+
+    for model in models:
+        dotted_path = f"{model.__module__}.{model.__name__}"
+        data_scrubbing = getattr(model, "DataScrubbing", None)
+
+        if data_scrubbing is None:
+            models_with_no_configuration.add(dotted_path)
+            continue
+        fields_to_scrub_dict = getattr(data_scrubbing, "fields_to_scrub", {})
+        fields_to_scrub = set(fields_to_scrub_dict.keys())
+        allowed_fields = getattr(data_scrubbing, "allowed_fields", set())
+
+        all_model_fields = {f.name for f in model._meta.fields}
+        uncategorised_fields = all_model_fields - fields_to_scrub - allowed_fields
+        if uncategorised_fields:
+            fields_not_categorised[dotted_path] = uncategorised_fields
+
+    hint = (
+        "Each model must define a `DataScrubbing` inner class specifying "
+        "`fields_to_scrub` (a dict of field name -> scrubbing strategy) and/or "
+        "`allowed_fields` (a set of field names that don't need scrubbing) "
+        "so that every field is explicitly categorised. They must not overlap.\n"
+        "Refer to the documentation of the data_scrubbing module."
+    )
+
+    if models_with_no_configuration:
+        missing_list = "\n".join(
+            f"  - {name}" for name in sorted(models_with_no_configuration)
+        )
+        pytest.fail(
+            f"{len(models_with_no_configuration)} model(s) are missing a "
+            f"`DataScrubbing` inner class entirely:\n"
+            f"{missing_list}\n\n"
+            f"{hint}"
+        )
+
+    if fields_not_categorised:
+        details = "\n".join(
+            f"  - {name}:\n"
+            + "\n".join(f'{" " * 16}"{field}",' for field in sorted(fields))
+            for name, fields in sorted(fields_not_categorised.items())
+        )
+        pytest.fail(
+            f"{len(fields_not_categorised)} model(s) have fields not included in "
+            f"their `DataScrubbing` inner class:\n"
+            f"{details}\n\n"
+            f"{hint}"
+        )
