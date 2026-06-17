@@ -1,5 +1,6 @@
 import pytest
 from django.core.management import call_command
+from django.core.management.base import CommandError
 
 from ..factories import (
     BackendFactory,
@@ -12,7 +13,7 @@ from ..factories import (
 
 
 @pytest.mark.django_db
-def test_scrub_data_command():
+def test_scrub_data_command_success():
     instances = [
         UserFactory(),
         BackendFactory(),
@@ -32,7 +33,7 @@ def test_scrub_data_command():
         for instance in instances
     }
 
-    call_command("scrub_data", "default")
+    call_command("scrub_data", "default", "--i-am-sure")
 
     # For each instance check that scrubbing was applied according
     # to the configuration in DataScrubbing. Manually specifying
@@ -65,3 +66,8 @@ def test_scrub_data_command():
             assert getattr(instance, field_name) == original_value, (
                 f"{model_class.__name__}.{field_name} should not have been touched by scrubbing"
             )
+
+
+def test_scrub_data_command_require_confirmation_on_default_database():
+    with pytest.raises(CommandError, match="Use --i-am-sure"):
+        call_command("scrub_data", "default")

@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from faker import Faker
 
@@ -19,9 +19,17 @@ class Command(BaseCommand):
             "database_alias",
             help=f"Alias of database to scrub, options: {options}",
         )
+        parser.add_argument(
+            "--i-am-sure",
+            action="store_true",
+            dest="i_am_sure",
+            help="Must be set to scrub the default database",
+        )
 
     def handle(self, *args, **kwargs):
         database_alias = kwargs["database_alias"]
+        if database_alias == "default" and not kwargs["i_am_sure"]:
+            raise CommandError("Use --i-am-sure flag to run against default database")
 
         models = {model for model in apps.get_app_config("jobserver").get_models()}
         models |= {model for model in apps.get_app_config("applications").get_models()}
