@@ -12,10 +12,18 @@ class Command(BaseCommand):
 
     help = "Scrub sensitive data from selected fields"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "database_alias",
+            help="Alias of database to scrub, should be in Django setting DATABASES",
+        )
+
     def handle(self, *args, **kwargs):
+        database_alias = kwargs["database_alias"]
+
         models = {model for model in apps.get_app_config("jobserver").get_models()}
         models |= {model for model in apps.get_app_config("applications").get_models()}
-        with transaction.atomic():
+        with transaction.atomic(using=database_alias):
             for model in models:
                 data_scrubbing = getattr(model, "DataScrubbing", None)
                 if data_scrubbing is None:
@@ -25,13 +33,13 @@ class Command(BaseCommand):
                     continue
                 field_names = scrub_fields.keys()
 
-                objs = model.objects.all().iterator()
+                objs = model.objects.using(database_alias).all().iterator()
                 count = 0
                 for obj in objs:
                     for attr_name, fake_value in scrub_fields.items():
                         value = fake_value() if callable(fake_value) else fake_value
                         setattr(obj, attr_name, value)
-                    obj.save(update_fields=field_names)
+                    obj.save(using=database_alias, update_fields=field_names)
                     count += 1
 
                 self.stdout.write(

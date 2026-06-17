@@ -32,7 +32,7 @@ def test_scrub_data_command():
         for instance in instances
     }
 
-    call_command("scrub_data")
+    call_command("scrub_data", "default")
 
     # For each instance check that scrubbing was applied according
     # to the configuration in DataScrubbing. Manually specifying
