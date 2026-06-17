@@ -22,15 +22,17 @@ class Command(BaseCommand):
             scrub_fields = getattr(data_scrubbing, "fields_to_scrub", None)
             if not scrub_fields:
                 continue
+            field_names = scrub_fields.keys()
 
-            objs = list(model.objects.all())
+            objs = model.objects.all().iterator()
+            count = 0
             for obj in objs:
                 for attr_name, fake_value in scrub_fields.items():
                     value = fake_value() if callable(fake_value) else fake_value
                     setattr(obj, attr_name, value)
+                obj.save(update_fields=field_names)
+                count += 1
 
-            field_names = scrub_fields.keys()
-            model.objects.bulk_update(objs, field_names)
             self.stdout.write(
-                f"Scrubbed {len(objs)} {model.__name__} records from fields: {', '.join(field_names)}"
+                f"Scrubbed {count} {model.__name__} records from fields: {', '.join(field_names)}"
             )
