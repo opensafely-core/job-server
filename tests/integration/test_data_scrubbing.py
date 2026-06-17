@@ -13,6 +13,7 @@ from ..factories import (
 
 
 @pytest.mark.django_db
+@pytest.mark.slow_test
 def test_scrub_data_command_success():
     instances = [
         UserFactory(),
