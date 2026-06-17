@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from faker import Faker
@@ -13,9 +14,10 @@ class Command(BaseCommand):
     help = "Scrub sensitive data from selected fields"
 
     def add_arguments(self, parser):
+        options = list(settings.DATABASES.keys())
         parser.add_argument(
             "database_alias",
-            help="Alias of database to scrub, should be in Django setting DATABASES",
+            help=f"Alias of database to scrub, options: {options}",
         )
 
     def handle(self, *args, **kwargs):
