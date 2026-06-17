@@ -169,6 +169,10 @@ DATABASES = {
         os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
     ),
 }
+DATA_SCRUBBING_DATABASE_URL = os.environ.get("JOBSERVER_SCRUBBED_DATABASE_URL")
+if DATA_SCRUBBING_DATABASE_URL:
+    DATABASES["data_scrubbing"] = dj_database_url.parse(DATA_SCRUBBING_DATABASE_URL)
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
