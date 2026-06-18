@@ -80,10 +80,27 @@ def test_scrub_data_command_require_confirmation_on_default_database():
 
 
 def _details_str(model_dict):
+    """String listing apps and fields in model_dict formatted nicely."""
     return "\n".join(
         f"  - {name}:\n"
         + "\n".join(f'{" " * 16}"{field}",' for field in sorted(fields))
         for name, fields in sorted(model_dict.items())
+    )
+
+
+def test_details_str_formats_model_dict():
+    """Test that _details_str can format a model dict."""
+    model_dict = {
+        "app.models.Foo": {"alpha", "beta"},
+        "app.models.Bar": {"gamma"},
+    }
+    result = _details_str(model_dict)
+    assert result == (
+        "  - app.models.Bar:\n"
+        '                "gamma",\n'
+        "  - app.models.Foo:\n"
+        '                "alpha",\n'
+        '                "beta",'
     )
 
 
@@ -112,7 +129,7 @@ def test_all_applications_fields_categorised():
         dotted_path = f"{model.__module__}.{model.__name__}"
         data_scrubbing = getattr(model, "DataScrubbing", None)
 
-        if data_scrubbing is None:
+        if data_scrubbing is None:  # pragma: no cover
             models_with_no_configuration.add(dotted_path)
             continue
 
@@ -123,15 +140,15 @@ def test_all_applications_fields_categorised():
         all_model_fields = {f.name for f in model._meta.fields}
 
         uncategorised_fields = all_model_fields - fields_to_scrub - allowed_fields
-        if uncategorised_fields:
+        if uncategorised_fields:  # pragma: no cover
             fields_not_categorised[dotted_path] = uncategorised_fields
 
         extras = (fields_to_scrub | allowed_fields) - all_model_fields
-        if extras:
+        if extras:  # pragma: no cover
             extra_fields[dotted_path] = extras
 
         duplicates = fields_to_scrub & allowed_fields
-        if duplicates:
+        if duplicates:  # pragma: no cover
             duplicated_fields[dotted_path] = duplicates
 
     # Assertions on the results of the above.
@@ -143,7 +160,7 @@ def test_all_applications_fields_categorised():
         "Refer to the documentation of the data_scrubbing module."
     )
 
-    if models_with_no_configuration:
+    if models_with_no_configuration:  # pragma: no cover
         missing_list = "\n".join(
             f"  - {name}" for name in sorted(models_with_no_configuration)
         )
@@ -154,21 +171,21 @@ def test_all_applications_fields_categorised():
             f"{hint}"
         )
 
-    if fields_not_categorised:
+    if fields_not_categorised:  # pragma: no cover
         details = _details_str(fields_not_categorised)
         pytest.fail(
             f"{len(fields_not_categorised)} model(s) have fields not included in "
             f"their `DataScrubbing` inner class:\n{details}\n\n{hint}"
         )
 
-    if extra_fields:
+    if extra_fields:  # pragma: no cover
         details = _details_str(extra_fields)
         pytest.fail(
             f"{len(extra_fields)} model(s) have extra fields included in "
             f"their `DataScrubbing` inner class:\n{details}\n\n{hint}"
         )
 
-    if duplicated_fields:
+    if duplicated_fields:  # pragma: no cover
         details = _details_str(duplicated_fields)
         pytest.fail(
             f"{len(duplicated_fields)} model(s) have fields included in both "
