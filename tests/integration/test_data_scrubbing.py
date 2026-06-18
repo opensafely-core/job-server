@@ -16,6 +16,10 @@ from ..factories import (
 @pytest.mark.django_db
 @pytest.mark.slow_test
 def test_scrub_data_command_success():
+    """Test that the scrub_data command does replace senstive fields according
+    to its configuration.
+
+    See the data_scrubbing package to better understand this functionality."""
     instances = [
         UserFactory(),
         BackendFactory(),
@@ -84,14 +88,27 @@ def _details_str(model_dict):
 
 
 def test_all_applications_fields_categorised():
+    """Test that each model has an exhaustive DataScrubbing class.
+
+    Each model must define a `DataScrubbing` inner class specifying
+    `fields_to_scrub` (a dict of field name -> scrubbing strategy) and/or
+    `allowed_fields` (a set of field names that don't need scrubbing) so that
+    every field is explicitly categorised. They must not overlap.
+
+    Refer to the documentation of the data_scrubbing module."""
     models = {model for model in apps.get_app_config("applications").get_models()}
 
     models_with_no_configuration = set()
+    """Set of model dotted paths that have on DataScrubbing configuration."""
     fields_not_categorised = {}
+    """Dict mapping model dotted paths to list of fields missing from DataScrubbing."""
     extra_fields = {}
+    """Dict mapping model dotted paths to list of extra fields in DataScrubbing."""
     duplicated_fields = {}
+    """Dict mapping model dotted paths to list of fields duplicated in DataScrubbing."""
 
     for model in models:
+        # Check that the model has DataScrubbing configuration.
         dotted_path = f"{model.__module__}.{model.__name__}"
         data_scrubbing = getattr(model, "DataScrubbing", None)
 
@@ -99,6 +116,7 @@ def test_all_applications_fields_categorised():
             models_with_no_configuration.add(dotted_path)
             continue
 
+        # Check for uncategorised, extra and duplicated fields with set operations.
         fields_to_scrub_dict = getattr(data_scrubbing, "fields_to_scrub", {})
         fields_to_scrub = set(fields_to_scrub_dict.keys())
         allowed_fields = getattr(data_scrubbing, "allowed_fields", set())
@@ -116,6 +134,7 @@ def test_all_applications_fields_categorised():
         if duplicates:
             duplicated_fields[dotted_path] = duplicates
 
+    # Assertions on the results of the above.
     hint = (
         "Each model must define a `DataScrubbing` inner class specifying "
         "`fields_to_scrub` (a dict of field name -> scrubbing strategy) and/or "
