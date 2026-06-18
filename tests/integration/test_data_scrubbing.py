@@ -75,7 +75,6 @@ def test_scrub_data_command_require_confirmation_on_default_database():
         call_command("scrub_data", "default")
 
 
-@pytest.mark.xfail(reason="Not finished initial categorisation yet")
 def test_all_applications_fields_categorised():
     models = {model for model in apps.get_app_config("applications").get_models()}
 
