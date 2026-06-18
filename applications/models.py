@@ -239,7 +239,6 @@ class ContactDetailsPage(AbstractPage):
     telephone = models.TextField(blank=True)
     job_title = models.TextField(blank=True)
     team_name = models.TextField(blank=True)
-    # TODO: how will we tie this to an existing org, especially with typos?
     organisation = models.TextField(blank=True)
 
     class DataScrubbing:
