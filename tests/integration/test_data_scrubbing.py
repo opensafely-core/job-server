@@ -75,11 +75,21 @@ def test_scrub_data_command_require_confirmation_on_default_database():
         call_command("scrub_data", "default")
 
 
+def _details_str(model_dict):
+    return "\n".join(
+        f"  - {name}:\n"
+        + "\n".join(f'{" " * 16}"{field}",' for field in sorted(fields))
+        for name, fields in sorted(model_dict.items())
+    )
+
+
 def test_all_applications_fields_categorised():
     models = {model for model in apps.get_app_config("applications").get_models()}
 
     models_with_no_configuration = set()
     fields_not_categorised = {}
+    extra_fields = {}
+    duplicated_fields = {}
 
     for model in models:
         dotted_path = f"{model.__module__}.{model.__name__}"
@@ -88,14 +98,23 @@ def test_all_applications_fields_categorised():
         if data_scrubbing is None:
             models_with_no_configuration.add(dotted_path)
             continue
+
         fields_to_scrub_dict = getattr(data_scrubbing, "fields_to_scrub", {})
         fields_to_scrub = set(fields_to_scrub_dict.keys())
         allowed_fields = getattr(data_scrubbing, "allowed_fields", set())
-
         all_model_fields = {f.name for f in model._meta.fields}
+
         uncategorised_fields = all_model_fields - fields_to_scrub - allowed_fields
         if uncategorised_fields:
             fields_not_categorised[dotted_path] = uncategorised_fields
+
+        extras = (fields_to_scrub | allowed_fields) - all_model_fields
+        if extras:
+            extra_fields[dotted_path] = extras
+
+        duplicates = fields_to_scrub & allowed_fields
+        if duplicates:
+            duplicated_fields[dotted_path] = duplicates
 
     hint = (
         "Each model must define a `DataScrubbing` inner class specifying "
@@ -117,14 +136,23 @@ def test_all_applications_fields_categorised():
         )
 
     if fields_not_categorised:
-        details = "\n".join(
-            f"  - {name}:\n"
-            + "\n".join(f'{" " * 16}"{field}",' for field in sorted(fields))
-            for name, fields in sorted(fields_not_categorised.items())
-        )
+        details = _details_str(fields_not_categorised)
         pytest.fail(
             f"{len(fields_not_categorised)} model(s) have fields not included in "
-            f"their `DataScrubbing` inner class:\n"
-            f"{details}\n\n"
-            f"{hint}"
+            f"their `DataScrubbing` inner class:\n{details}\n\n{hint}"
+        )
+
+    if extra_fields:
+        details = _details_str(extra_fields)
+        pytest.fail(
+            f"{len(extra_fields)} model(s) have extra fields included in "
+            f"their `DataScrubbing` inner class:\n{details}\n\n{hint}"
+        )
+
+    if duplicated_fields:
+        details = _details_str(duplicated_fields)
+        pytest.fail(
+            f"{len(duplicated_fields)} model(s) have fields included in both "
+            f"`fields_to_scrub` and in `allowed_fields` in "
+            f"their `DataScrubbing` inner class:\n{details}\n\n{hint}"
         )
