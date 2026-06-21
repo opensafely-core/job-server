@@ -1,3 +1,4 @@
+import os
 import pathlib
 import subprocess
 
@@ -42,10 +43,7 @@ def database_url(db):
 
 
 def dump_database(db, output):
-    if not output.parent.exists():
-        raise RuntimeError(f"Unknown output directory: {output.parent}")
-
-    subprocess.check_call(
+    subprocess.run(
         [
             "pg_dump",
             "--format=c",
@@ -54,12 +52,13 @@ def dump_database(db, output):
             f"--file={output}",
             database_url(db),
         ],
-        env={"PGPASSWORD": db["PASSWORD"]},
+        env={**os.environ, "PGPASSWORD": db["PASSWORD"]},
+        check=True,
     )
 
 
 def restore_database(db, input_dump):
-    subprocess.check_call(
+    subprocess.run(
         [
             "pg_restore",
             "--clean",
@@ -70,5 +69,6 @@ def restore_database(db, input_dump):
             database_url(db),
             str(input_dump),
         ],
-        env={"PGPASSWORD": db["PASSWORD"]},
+        env={**os.environ, "PGPASSWORD": db["PASSWORD"]},
+        check=True,
     )
