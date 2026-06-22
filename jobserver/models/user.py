@@ -147,12 +147,23 @@ class User(AbstractBaseUser):
     class DataScrubbing:
         fields_to_scrub = {
             "email": fake.unique.email,
+            "fullname": "Fake user name",
             "password": "",
             "login_token": None,
             "login_token_expires_at": None,
             "pat_expires_at": None,
             "pat_token": None,
         }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_by",
+                "date_joined",
+                "last_login",
+                "roles",
+                "username",
+            ]
+        )
 
     class Meta:
         constraints = [

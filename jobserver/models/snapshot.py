@@ -34,6 +34,17 @@ class Snapshot(models.Model):
         related_name="snapshots",
     )
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "workspace",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

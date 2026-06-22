@@ -57,6 +57,22 @@ class SiteAlert(models.Model):
     def __repr__(self):
         return f"<SiteAlert title: '{self.title}' message: '{self.message}' level: {self.level}>"
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "message": "fake site alert message",
+            "title": "fake site alert title",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "level",
+                "updated_at",
+                "updated_by",
+            ]
+        )
+
     class Meta:
         ordering = ["-created_at"]
 

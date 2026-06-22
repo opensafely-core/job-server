@@ -105,7 +105,6 @@ def test_details_str_formats_model_dict():
     )
 
 
-@pytest.mark.xfail(reason="Not categorised jobserver models yet")
 def test_all_scrubbed_model_fields_categorised():
     """Test that each model in `get_scrubbed_models` has a DataScrubbing class
     that includes all its concrete fields.

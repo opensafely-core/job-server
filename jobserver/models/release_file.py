@@ -72,6 +72,27 @@ class ReleaseFile(models.Model):
 
     uploaded_at = models.DateTimeField(null=True)
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "deleted_at",
+                "deleted_by",
+                "filehash",
+                "metadata",
+                "mtime",
+                "name",
+                "path",
+                "release",
+                "size",
+                "uploaded_at",
+                "workspace",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

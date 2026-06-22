@@ -11,6 +11,17 @@ class Stats(models.Model):
     api_last_seen = models.DateTimeField(null=True, blank=True)
     url = models.TextField()
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "api_last_seen",
+                "backend",
+                "url",
+            ]
+        )
+
     class Meta:
         unique_together = ["backend", "url"]
 

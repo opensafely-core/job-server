@@ -77,6 +77,29 @@ class Workspace(models.Model):
 
     objects = WorkspaceQuerySet.as_manager()
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "purpose": "fake workspace purpose",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "branch",
+                "created_at",
+                "created_by",
+                "is_archived",
+                "name",
+                "project",
+                "repo",
+                "should_notify",
+                "signed_off_at",
+                "signed_off_by",
+                "updated_at",
+                "updated_by",
+                "uses_new_release_flow",
+            ]
+        )
+
     class Meta:
         constraints = [
             # mirror Django's validate_slug validator into the database

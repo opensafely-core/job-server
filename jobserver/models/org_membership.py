@@ -28,6 +28,18 @@ class OrgMembership(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "org",
+                "user",
+            ]
+        )
+
     class Meta:
         unique_together = ["org", "user"]
 
