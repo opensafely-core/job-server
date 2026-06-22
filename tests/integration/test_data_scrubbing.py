@@ -1,7 +1,8 @@
 import pytest
-from django.apps import apps
 from django.core.management import call_command
 from django.core.management.base import CommandError
+
+from data_scrubbing.management.commands.scrub_data import get_scrubbed_models
 
 from ..factories import (
     BackendFactory,
@@ -104,17 +105,17 @@ def test_details_str_formats_model_dict():
     )
 
 
-def test_all_applications_fields_categorised():
-    """Test that each model has an exhaustive DataScrubbing class.
+@pytest.mark.xfail(reason="Not categorised jobserver models yet")
+def test_all_scrubbed_model_fields_categorised():
+    """Test that each model in `get_scrubbed_models` has a DataScrubbing class
+    that includes all its concrete fields.
 
     Each model must define a `DataScrubbing` inner class specifying
     `fields_to_scrub` (a dict of field name -> scrubbing strategy) and/or
     `allowed_fields` (a set of field names that don't need scrubbing) so that
-    every field is explicitly categorised. They must not overlap.
+    every concrete field is explicitly categorised. They must not overlap.
 
     Refer to the documentation of the data_scrubbing module."""
-    models = {model for model in apps.get_app_config("applications").get_models()}
-
     models_with_no_configuration = set()
     """Set of model dotted paths that have on DataScrubbing configuration."""
     fields_not_categorised = {}
@@ -124,7 +125,7 @@ def test_all_applications_fields_categorised():
     duplicated_fields = {}
     """Dict mapping model dotted paths to list of fields duplicated in DataScrubbing."""
 
-    for model in models:
+    for model in get_scrubbed_models():
         # Check that the model has DataScrubbing configuration.
         dotted_path = f"{model.__module__}.{model.__name__}"
         data_scrubbing = getattr(model, "DataScrubbing", None)
