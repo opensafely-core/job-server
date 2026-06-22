@@ -26,11 +26,13 @@ class Job(YearlyJob):
         with tempfile.NamedTemporaryFile(suffix=".dump") as raw_dump:
             logger.info("Creating raw dump of readonly jobserver database")
             dump_database(readonly_database, raw_dump.name)
-
-            logger.info("Restoring dump into data scrubbing database")
-            restore_database(data_scrubbing_database, raw_dump.name)
-
-            logger.info("Finished restoring dump into database")
+            try:
+                logger.info("Restoring dump into data scrubbing database")
+                restore_database(data_scrubbing_database, raw_dump.name)
+                logger.info("Finished restoring dump into database")
+            finally:
+                logger.info("Clearing data scrubbing database")
+                clear_database(data_scrubbing_database)
 
 
 def database_url(database):
@@ -63,6 +65,19 @@ def restore_database(database, input_dump):
             "--dbname",
             database_url(database),
             input_dump,
+        ],
+        env={**os.environ, "PGPASSWORD": database["PASSWORD"]},
+        check=True,
+    )
+
+
+def clear_database(database):
+    subprocess.run(
+        [
+            "psql",
+            database_url(database),
+            "--command",
+            "DROP SCHEMA public CASCADE; CREATE SCHEMA public;",
         ],
         env={**os.environ, "PGPASSWORD": database["PASSWORD"]},
         check=True,
