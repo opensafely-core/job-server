@@ -172,6 +172,9 @@ DATABASES = {
 DATA_SCRUBBING_DATABASE_URL = os.environ.get("JOBSERVER_SCRUBBED_DATABASE_URL")
 if DATA_SCRUBBING_DATABASE_URL:
     DATABASES["data_scrubbing"] = dj_database_url.parse(DATA_SCRUBBING_DATABASE_URL)
+READONLY_DATABASE_URL = os.environ.get("JOBSERVER_READONLY_DATABASE_URL")
+if READONLY_DATABASE_URL:
+    DATABASES["readonly"] = dj_database_url.parse(READONLY_DATABASE_URL)
 
 
 # Default primary key field type
@@ -282,10 +285,6 @@ SOCIAL_AUTH_GITHUB_SECRET = get_env_var("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 RAP_API_BASE_URL = os.environ.get("RAP_API_BASE_URL", default="")
 RAP_API_TOKEN = os.environ.get("RAP_API_TOKEN", default="")
-if readonly_database_url := os.environ.get("JOBSERVER_READONLY_DATABASE_URL"):
-    DATABASES["readonly"] = dj_database_url.parse(readonly_database_url)
-if scrubbed_database_url := os.environ.get("JOBSERVER_SCRUBBED_DATABASE_URL"):
-    DATABASES["scrubbed"] = dj_database_url.parse(scrubbed_database_url)
 
 
 # Passwords

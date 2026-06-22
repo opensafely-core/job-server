@@ -15,7 +15,7 @@ class Job(YearlyJob):
 
     def execute(self):
         readonly_database = settings.DATABASES.get("readonly")
-        data_scrubbing_database = settings.DATABASES.get("scrubbed")
+        data_scrubbing_database = settings.DATABASES.get("data_scrubbing")
 
         if readonly_database is None:
             raise JobError("JOBSERVER_READONLY_DATABASE_URL is not set")
@@ -27,7 +27,7 @@ class Job(YearlyJob):
             logger.info("Creating raw dump of readonly jobserver database")
             dump_database(readonly_database, raw_dump.name)
 
-            logger.info("Restoring dump into scrubbed jobserver database")
+            logger.info("Restoring dump into data scrubbing database")
             restore_database(data_scrubbing_database, raw_dump.name)
 
             logger.info("Finished restoring dump into database")
