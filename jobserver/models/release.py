@@ -53,6 +53,22 @@ class Release(models.Model):
         related_name="releases",
     )
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "backend",
+                "created_at",
+                "created_by",
+                "metadata",
+                "requested_files",
+                "review",
+                "status",
+                "workspace",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

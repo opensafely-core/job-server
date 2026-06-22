@@ -41,6 +41,19 @@ class ProjectMembership(ImmutableModelMixin, models.Model):
 
     objects = ImmutableManager()
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "project",
+                "roles",
+                "user",
+            ]
+        )
+
     class Meta:
         unique_together = ["project", "user"]
 

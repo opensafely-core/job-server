@@ -73,6 +73,27 @@ class Job(models.Model):
 
     metrics = models.JSONField(null=True)
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "action",
+                "completed_at",
+                "created_at",
+                "identifier",
+                "job_request",
+                "metrics",
+                "run_command",
+                "started_at",
+                "status",
+                "status_code",
+                "status_message",
+                "trace_context",
+                "updated_at",
+            ]
+        )
+
     class Meta:
         ordering = ["pk"]
 

@@ -28,6 +28,18 @@ class BackendMembership(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "backend",
+                "created_at",
+                "created_by",
+                "user",
+            ]
+        )
+
     class Meta:
         unique_together = ["backend", "user"]
 

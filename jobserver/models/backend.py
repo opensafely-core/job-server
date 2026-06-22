@@ -89,6 +89,21 @@ class Backend(models.Model):
         fields_to_scrub = {
             "auth_token": generate_token,
         }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "alert_timeout",
+                "created_at",
+                "is_active",
+                "is_in_maintenance_mode",
+                "last_seen_at",
+                "last_seen_maintenance_mode",
+                "name",
+                "rap_api_state",
+                "slug",
+                "updated_at",
+            ]
+        )
 
     def __str__(self):
         return self.slug

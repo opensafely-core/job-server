@@ -34,6 +34,23 @@ class Org(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "description": "fake org description",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "github_orgs",
+                "logo",
+                "logo_file",
+                "name",
+                "slug",
+            ]
+        )
+
     class Meta:
         verbose_name = "Organisation"
 

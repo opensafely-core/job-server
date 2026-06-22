@@ -147,12 +147,29 @@ class User(AbstractBaseUser):
     class DataScrubbing:
         fields_to_scrub = {
             "email": fake.unique.email,
+            "fullname": "Fake user name",
             "password": "",
             "login_token": None,
             "login_token_expires_at": None,
             "pat_expires_at": None,
             "pat_token": None,
         }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_by",
+                "date_joined",
+                "last_login",
+                "roles",
+                # GitHub usernames OAuth. Developers sometimes need this
+                # locally and it is convenient. These are online identifiers
+                # publicly visible on the GitHub and Job Server websites. Their
+                # public nature and the removal of other related personal data
+                # (such as fullname and email) reduces the severity of any
+                # accidental disclosure.
+                "username",
+            ]
+        )
 
     class Meta:
         constraints = [

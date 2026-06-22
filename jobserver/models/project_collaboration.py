@@ -34,6 +34,21 @@ class ProjectCollaboration(models.Model):
         suffix = " (lead)" if self.is_lead else ""
         return f"{self.org.name} <-> {self.project.name}{suffix}"
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "is_lead",
+                "org",
+                "project",
+                "updated_at",
+                "updated_by",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.UniqueConstraint(

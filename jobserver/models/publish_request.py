@@ -48,6 +48,23 @@ class PublishRequest(models.Model):
         related_name="snapshot_requests_updated",
     )
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "decision",
+                "decision_at",
+                "decision_by",
+                "snapshot",
+                "updated_at",
+                "updated_by",
+                "workspace",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
