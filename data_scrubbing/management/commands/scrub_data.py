@@ -14,6 +14,16 @@ SCRUBBED_APPLICATIONS = {
 "Names of Django applications with models to be scrubbed."
 
 
+def get_scrubbed_models():
+    "Accumulate set of Django model classes to be scrubbed."
+    scrubbed_models = set()
+    for application in SCRUBBED_APPLICATIONS:
+        scrubbed_models |= {
+            model for model in apps.get_app_config(application).get_models()
+        }
+    return scrubbed_models
+
+
 class Command(BaseCommand):
     """Management command to scrub sensitive fields"""
 
@@ -37,13 +47,8 @@ class Command(BaseCommand):
         if database_alias == "default" and not kwargs["i_am_sure"]:
             raise CommandError("Use --i-am-sure flag to run against default database")
 
-        # Accumulate models from the in-scope applications.
-        models = {}
-        for application in SCRUBBED_APPLICATIONS:
-            models |= {model for model in apps.get_app_config(application).get_models()}
-
         with transaction.atomic(using=database_alias):
-            for model in models:
+            for model in get_scrubbed_models():
                 # Find fields to scrub, if any.
                 data_scrubbing = getattr(model, "DataScrubbing", None)
                 if data_scrubbing is None:
