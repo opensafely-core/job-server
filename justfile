@@ -107,7 +107,7 @@ manage command *args:
 
 # scrub sensitive data from the database
 scrub-data: devenv
-    $BIN/python manage.py scrub_data
+    $BIN/python manage.py scrub_data default --i-am-sure
     rm -f jobserver.dump
 
 test-ci *args: assets
