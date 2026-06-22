@@ -35,11 +35,20 @@ class Job(YearlyJob):
                 clear_database(data_scrubbing_database)
 
 
-def database_url(database):
-    return f"postgresql://{database['USER']}@{database['HOST']}:{database['PORT']}/{database['NAME']}"
+def database_connection_args(database_config):
+    return [
+        "--host",
+        database_config["HOST"],
+        "--port",
+        str(database_config["PORT"]),
+        "--username",
+        database_config["USER"],
+        "--dbname",
+        database_config["NAME"],
+    ]
 
 
-def dump_database(database, output):
+def dump_database(database_config, output):
     subprocess.run(
         [
             "pg_dump",
@@ -47,14 +56,14 @@ def dump_database(database, output):
             "--no-acl",
             "--no-owner",
             f"--file={output}",
-            database_url(database),
+            *database_connection_args(database_config),
         ],
-        env={**os.environ, "PGPASSWORD": database["PASSWORD"]},
+        env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
         check=True,
     )
 
 
-def restore_database(database, input_dump):
+def restore_database(database_config, input_dump):
     subprocess.run(
         [
             "pg_restore",
@@ -62,23 +71,22 @@ def restore_database(database, input_dump):
             "--if-exists",
             "--no-acl",
             "--no-owner",
-            "--dbname",
-            database_url(database),
+            *database_connection_args(database_config),
             input_dump,
         ],
-        env={**os.environ, "PGPASSWORD": database["PASSWORD"]},
+        env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
         check=True,
     )
 
 
-def clear_database(database):
+def clear_database(database_config):
     subprocess.run(
         [
             "psql",
-            database_url(database),
+            *database_connection_args(database_config),
             "--command",
             "DROP SCHEMA public CASCADE; CREATE SCHEMA public;",
         ],
-        env={**os.environ, "PGPASSWORD": database["PASSWORD"]},
+        env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
         check=True,
     )
