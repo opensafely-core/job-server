@@ -7,6 +7,12 @@ from faker import Faker
 
 fake = Faker()
 
+SCRUBBED_APPLICATIONS = {
+    "applications",
+    "jobserver",
+}
+"Names of Django applications with models to be scrubbed."
+
 
 class Command(BaseCommand):
     """Management command to scrub sensitive fields"""
@@ -31,8 +37,10 @@ class Command(BaseCommand):
         if database_alias == "default" and not kwargs["i_am_sure"]:
             raise CommandError("Use --i-am-sure flag to run against default database")
 
-        models = {model for model in apps.get_app_config("jobserver").get_models()}
-        models |= {model for model in apps.get_app_config("applications").get_models()}
+        models = {}
+        for application in SCRUBBED_APPLICATIONS:
+            models |= {model for model in apps.get_app_config(application).get_models()}
+
         with transaction.atomic(using=database_alias):
             for model in models:
                 data_scrubbing = getattr(model, "DataScrubbing", None)
