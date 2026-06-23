@@ -24,8 +24,14 @@ class Job(YearlyJob):
             raise JobError("JOBSERVER_SCRUBBED_DATABASE_URL is not set")
 
         with tempfile.NamedTemporaryFile(suffix=".dump") as raw_dump:
-            logger.info("Creating raw dump of readonly jobserver database")
+            logger.info(
+                "Creating raw dump of readonly jobserver database", path=raw_dump.name
+            )
             dump_database(readonly_database, raw_dump.name)
+            logger.info(
+                "Finished creating raw dump of readonly jobserver database",
+                path=raw_dump.name,
+            )
             try:
                 logger.info("Restoring dump into data scrubbing database")
                 restore_database(data_scrubbing_database, raw_dump.name)
@@ -33,6 +39,7 @@ class Job(YearlyJob):
             finally:
                 logger.info("Clearing data scrubbing database")
                 clear_database(data_scrubbing_database)
+                logger.info("Finished clearing data scrubbing database")
 
 
 def database_connection_args(database_config):

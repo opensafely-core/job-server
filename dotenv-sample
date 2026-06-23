@@ -1,7 +1,13 @@
 # Note: this assumes docker dev db. You will need to change it if you want to
 # point another postgres
 DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
+
+# Database URLs used by the scrubbing database workflow.
+# These can be left commented out for normal local development.
+# Set them when running the scrubbing job manually.
+# Source database to create dump from.
 # JOBSERVER_READONLY_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
+# Database where data will be restored and scrubbed.
 # JOBSERVER_SCRUBBED_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver_scrubbing
 
 # Turn on debug
