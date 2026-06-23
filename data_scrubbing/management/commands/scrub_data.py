@@ -7,7 +7,7 @@ from faker import Faker
 
 fake = Faker()
 
-SCRUBBED_APPLICATIONS = {
+APPLICATIONS_TO_SCRUB = {
     "applications",
     "jobserver",
     "redirects",
@@ -18,7 +18,7 @@ SCRUBBED_APPLICATIONS = {
 def get_scrubbed_models():
     "Accumulate set of Django model classes to be scrubbed."
     scrubbed_models = set()
-    for application in SCRUBBED_APPLICATIONS:
+    for application in APPLICATIONS_TO_SCRUB:
         scrubbed_models |= {
             model for model in apps.get_app_config(application).get_models()
         }
