@@ -10,6 +10,7 @@ fake = Faker()
 SCRUBBED_APPLICATIONS = {
     "applications",
     "jobserver",
+    "redirects",
 }
 "Names of Django applications with models to be scrubbed."
 
