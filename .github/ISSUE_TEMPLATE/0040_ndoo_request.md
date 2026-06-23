@@ -19,4 +19,4 @@ When a member of the OpenSAFELY service team creates this issue, they should:
 1. Wait for tech-support to confirm that the project permissions have been updated before allowing the project to start running jobs on the backend
 
 
-Whoever is on tech-support should [follow the instructions in the playbook](https://bennett.wiki/tech-group/tech-support/playbook/#adding-project-permission-for-restricted-tables-in-ehrql) to configure the project.
+Whoever is on tech-support should [follow the instructions in the playbook](https://bennett.wiki/tech-group/tech-support/playbook/#requests-for-national-data-opt-out-ndoo-permissions) to configure the project.
