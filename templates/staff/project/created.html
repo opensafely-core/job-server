@@ -29,6 +29,7 @@
         <li><a href={{project.get_staff_url}}>View project in the Staff Area</a></li>
       </ul>
       <p>You can now add users to the project.</p>
+      <p>If the project will <em>not</em> be applying NDOO, create a <a href="https://github.com/opensafely-core/job-server/issues/new?template=0040_ndoo_request.md">National Data Opt-Out request issue</a> and share it with tech-support on Slack so they can update the permissions.</p>
       <p>We sent a notification about the new project to the <a href="https://bennettoxford.slack.com/archives/C028EJH752A" target="_blank" class="whitespace-nowrap">#co-pilot-support</a> Slack channel so they can begin the project setup process.</p>
     </div>
     {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
