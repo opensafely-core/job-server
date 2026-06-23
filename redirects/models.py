@@ -50,6 +50,24 @@ class Redirect(models.Model):
         related_name="redirect_deleted",
     )
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "created_by",
+                "deleted_at",
+                "deleted_by",
+                "expires_at",
+                "old_url",
+                "org",
+                "project",
+                "updated_at",
+                "workspace",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
