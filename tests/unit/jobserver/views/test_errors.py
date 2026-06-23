@@ -9,6 +9,8 @@ from jobserver.views.errors import (
     server_error,
 )
 
+from ....factories import UserFactory
+
 
 def test_bad_request(rf):
     request = rf.get("/")
@@ -46,28 +48,52 @@ def test_csrf_failure(rf):
     assert "The form was not able to submit." in response.rendered_content
 
 
-def test_permission_denied(rf):
-    request = rf.get("/")
+def test_permission_denied_for_anonymous_user(rf):
+    request = rf.get("/test/")
     request.user = AnonymousUser()
 
     response = permission_denied(request)
 
     assert response.status_code == 403
     assert "Permission denied" in response.rendered_content
-    assert (
-        "You do not have permission to access this page." in response.rendered_content
-    )
+    assert "you may need to log in" in response.rendered_content.lower()
+    assert 'id="error-page-login-button"' in response.rendered_content
 
 
-def test_page_not_found(rf):
-    request = rf.get("/")
+def test_permission_denied_for_authenticated_user(rf):
+    request = rf.get("/test/")
+    request.user = UserFactory()
+
+    response = permission_denied(request)
+
+    assert response.status_code == 403
+    assert "Permission denied" in response.rendered_content
+    assert "you may need to log in" not in response.rendered_content.lower()
+    assert 'id="error-page-login-button"' not in response.rendered_content
+
+
+def test_page_not_found_for_anonymous_user(rf):
+    request = rf.get("/test/")
     request.user = AnonymousUser()
 
     response = page_not_found(request)
 
     assert response.status_code == 404
     assert "Page not found" in response.rendered_content
-    assert "Please check the URL in the address bar." in response.rendered_content
+    assert "you may need to log in" in response.rendered_content.lower()
+    assert 'id="error-page-login-button"' in response.rendered_content
+
+
+def test_page_not_found_for_authenticated_user(rf):
+    request = rf.get("/test/")
+    request.user = UserFactory()
+
+    response = page_not_found(request)
+
+    assert response.status_code == 404
+    assert "Page not found" in response.rendered_content
+    assert "you may need to log in" not in response.rendered_content.lower()
+    assert 'id="error-page-login-button"' not in response.rendered_content
 
 
 def test_server_error(rf):

@@ -41,6 +41,12 @@ def csrf_failure(request, reason=""):
 
 
 def page_not_found(request, exception=None):
+
+    if not request.user.is_authenticated:
+        error_message = "We could not find the page you are looking for. The link may be incorrect, the page may have moved, or you may need to log in to access it. Please check the URL, try logging in, or contact us if you need further help."
+    else:
+        error_message = "We could not find the page you are looking for. The link may be incorrect or the page may have moved. Please check the URL or contact us if you need further help."
+
     return TemplateResponse(
         request,
         "error.html",
@@ -48,12 +54,18 @@ def page_not_found(request, exception=None):
         context={
             "error_code": "404",
             "error_name": "Page not found",
-            "error_message": "Please check the URL in the address bar.",
+            "error_message": error_message,
         },
     )
 
 
 def permission_denied(request, exception=None):
+
+    if not request.user.is_authenticated:
+        error_message = "You do not have permission to access this page. You may need to log in, or your account may not have the required permissions. Try logging in, or if you need to discuss permissions please contact us."
+    else:
+        error_message = "You do not have permission to access this page. Please contact us if you have a query about your permissions or require further support."
+
     return TemplateResponse(
         request,
         "error.html",
@@ -61,7 +73,7 @@ def permission_denied(request, exception=None):
         context={
             "error_code": "403",
             "error_name": "Permission denied",
-            "error_message": "You do not have permission to access this page.",
+            "error_message": error_message,
         },
     )
 
