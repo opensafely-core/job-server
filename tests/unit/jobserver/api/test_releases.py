@@ -1798,25 +1798,22 @@ def test_level4tokenauthenticationapi_fails_invalid_token(
     )
 
 
-def invalid_users():
-    def nonsocial_user():
-        user = UserFactory()
-        return user, f"User {user.username} is not a github user"
-
-    def social_user():
-        # github user but no backends
-        social_user = UserFactory()
-        UserSocialAuthFactory(user=social_user)
-        return (
-            social_user,
-            f"User {social_user.username} does not have access to any backends",
-        )
-
-    yield nonsocial_user
-    yield social_user
+def nonsocial_user():
+    user = UserFactory()
+    return user, f"User {user.username} is not a github user"
 
 
-@pytest.mark.parametrize("user_function", invalid_users())
+def social_user():
+    # github user but no backends
+    social_user = UserFactory()
+    UserSocialAuthFactory(user=social_user)
+    return (
+        social_user,
+        f"User {social_user.username} does not have access to any backends",
+    )
+
+
+@pytest.mark.parametrize("user_function", [nonsocial_user, social_user])
 def test_level4tokenauthenticationapi_fails_invalid_user(
     api_rf, project_membership, user_function, role_factory
 ):
