@@ -185,16 +185,19 @@ Follow the steps below to create the database, user, and set required permission
    GRANT USAGE ON SCHEMA public TO  jobserver_data_scrubbing;
    ```
 
-7. Grant read access to existing tables
+7. Grant read access to existing tables and sequences
 
    ```sql
    GRANT SELECT ON ALL TABLES IN SCHEMA public TO jobserver_data_scrubbing;
+   GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO jobserver_data_scrubbing;
    ```
 
-8. Grant read access to future tables
+8. Grant read access to future tables and sequences
 
    ```sql
    ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO jobserver_data_scrubbing;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON SEQUENCES TO jobserver_data_scrubbing;
+
    ```
 
 9. Re-run the query from step 4 and verify that the expected permissions have been granted.
