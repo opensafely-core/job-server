@@ -89,6 +89,8 @@ def parse(data):
         "SENTRY_DSN",
         "SOCIAL_AUTH_GITHUB_KEY",
         "SOCIAL_AUTH_GITHUB_SECRET",
+        "JOBSERVER_SCRUBBING_DATABASE_URL",
+        "JOBSERVER_READONLY_DATABASE_URL",
     ]
 
     for token in tokens:
