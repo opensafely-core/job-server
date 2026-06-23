@@ -8,7 +8,7 @@ DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
 # Source database to create dump from.
 # JOBSERVER_READONLY_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
 # Database where data will be restored and scrubbed.
-# JOBSERVER_SCRUBBED_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver_scrubbing
+# JOBSERVER_SCRUBBING_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver_scrubbing
 
 # Turn on debug
 DEBUG=1

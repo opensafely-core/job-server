@@ -29,7 +29,7 @@ dokku config:set job-server SOCIAL_AUTH_GITHUB_SECRET='xxx'
 dokku config:set job-server RAP_API_TOKEN='xxx'
 dokku config:set job-server RAP_API_BASE_URL=https://controller.opensafely.org/controller/v1/
 dokku config:set job-server JOBSERVER_READONLY_DATABASE_URL='xxxx'
-dokku config:set job-server JOBSERVER_SCRUBBED_DATABASE_URL='xxxx'
+dokku config:set job-server JOBSERVER_SCRUBBING_DATABASE_URL='xxxx'
 
 # Disable zero-downtime deploys for the rapstatus process (which runs the rap_status_service
 # manangement command). We don't ever want two of these loops running simultaneously

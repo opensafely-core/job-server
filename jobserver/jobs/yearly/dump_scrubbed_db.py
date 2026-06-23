@@ -21,7 +21,7 @@ class Job(YearlyJob):
             raise JobError("JOBSERVER_READONLY_DATABASE_URL is not set")
 
         if data_scrubbing_database is None:
-            raise JobError("JOBSERVER_SCRUBBED_DATABASE_URL is not set")
+            raise JobError("JOBSERVER_SCRUBBING_DATABASE_URL is not set")
 
         with tempfile.NamedTemporaryFile(suffix=".dump") as raw_dump:
             logger.info(
