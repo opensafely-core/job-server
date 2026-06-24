@@ -155,6 +155,27 @@ class Project(models.Model):
 
     objects = ProjectQuerySet.as_manager()
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "copilot_notes": "fake copilot notes",
+            "status_description": "fake status description",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "copilot",
+                "copilot_support_ends_at",
+                "created_at",
+                "created_by",
+                "name",
+                "number",
+                "slug",
+                "status",
+                "updated_at",
+                "updated_by",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

@@ -65,6 +65,28 @@ class Application(models.Model):
     approved_at = models.DateTimeField(null=True)
     deleted_at = models.DateTimeField(null=True)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "status_comment": "",
+            "has_agreed_to_terms": True,
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "project",
+                "status",
+                "created_at",
+                "created_by",
+                "submitted_at",
+                "submitted_by",
+                "approved_at",
+                "approved_by",
+                "completed_at",
+                "deleted_at",
+                "deleted_by",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -217,11 +239,11 @@ class ContactDetailsPage(AbstractPage):
     telephone = models.TextField(blank=True)
     job_title = models.TextField(blank=True)
     team_name = models.TextField(blank=True)
-    # TODO: how will we tie this to an existing org, especially with typos?
     organisation = models.TextField(blank=True)
 
     class DataScrubbing:
         fields_to_scrub = {
+            "notes": "",
             "full_name": fake.name,
             "email": fake.email,
             "telephone": "",
@@ -229,10 +251,38 @@ class ContactDetailsPage(AbstractPage):
             "team_name": "",
             "organisation": "",
         }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class CommercialInvolvementPage(AbstractPage):
     details = models.TextField(blank=True)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "details": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class StudyInformationPage(AbstractPage):
@@ -241,6 +291,25 @@ class StudyInformationPage(AbstractPage):
     read_analytic_methods_policy = models.BooleanField(
         null=True, choices=YES_NO_CHOICES
     )
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "study_name": "",
+            "study_purpose": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+                "read_analytic_methods_policy",
+            ]
+        )
 
 
 class StudyPurposePage(AbstractPage):
@@ -257,14 +326,52 @@ class StudyPurposePage(AbstractPage):
 
     class DataScrubbing:
         fields_to_scrub = {
+            "notes": "",
             "author_name": fake.name,
             "author_email": fake.email,
+            "author_organisation": "",
+            "description": "",
         }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+                "is_covid_prevention",
+                "is_covid_vaccine_effectiveness_or_safety",
+                "is_covid_vaccine_eligibility_or_coverage",
+                "is_other_impacts_of_covid",
+                "is_post_covid_health_impacts",
+                "is_risk_from_covid",
+            ]
+        )
 
 
 class StudyDataPage(AbstractPage):
     data_meets_purpose = models.TextField(blank=True)
     need_record_level_data = models.BooleanField(null=True, choices=YES_NO_CHOICES)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "data_meets_purpose": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+                "need_record_level_data",
+            ]
+        )
 
 
 class DatasetsPage(AbstractPage):
@@ -274,9 +381,47 @@ class DatasetsPage(AbstractPage):
     needs_phosp = models.BooleanField(default=False)
     needs_ukrr = models.BooleanField(default=False)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+                "needs_icnarc",
+                "needs_isaric",
+                "needs_ons_cis",
+                "needs_phosp",
+                "needs_ukrr",
+            ]
+        )
+
 
 class RecordLevelDataPage(AbstractPage):
     record_level_data_reasons = models.TextField(blank=True)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "record_level_data_reasons": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class TypeOfStudyPage(AbstractPage):
@@ -285,11 +430,50 @@ class TypeOfStudyPage(AbstractPage):
     is_study_audit = models.BooleanField(default=False)
     is_study_short_data_report = models.BooleanField(default=False)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+                "is_study_audit",
+                "is_study_research",
+                "is_study_service_evaluation",
+                "is_study_short_data_report",
+            ]
+        )
+
 
 class ReferencesPage(AbstractPage):
     hra_ires_id = models.TextField(blank=True)
     hra_rec_reference = models.TextField(blank=True)
     institutional_rec_reference = models.TextField(blank=True)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "hra_ires_id": "",
+            "hra_rec_reference": "",
+            "institutional_rec_reference": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class SponsorDetailsPage(AbstractPage):
@@ -301,36 +485,149 @@ class SponsorDetailsPage(AbstractPage):
 
     class DataScrubbing:
         fields_to_scrub = {
+            "notes": "",
             "sponsor_name": fake.name,
             "sponsor_email": fake.email,
             "sponsor_job_role": "",
             "institutional_rec_reference": "",
+            "is_member_of_bennett_or_lshtm": False,
         }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class ShortDataReportPage(AbstractPage):
-    pass
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class CmoPriorityListPage(AbstractPage):
     is_on_cmo_priority_list = models.BooleanField(null=True, choices=YES_NO_CHOICES)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+                "is_on_cmo_priority_list",
+            ]
+        )
 
 
 class LegalBasisPage(AbstractPage):
     legal_basis_for_accessing_data_under_dpa = models.TextField(blank=True)
     how_is_duty_of_confidentiality_satisfied = models.TextField(blank=True)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "how_is_duty_of_confidentiality_satisfied": "",
+            "legal_basis_for_accessing_data_under_dpa": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
+
 
 class StudyFundingPage(AbstractPage):
     funding_details = models.TextField(blank=True)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "funding_details": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class TeamDetailsPage(AbstractPage):
     team_details = models.TextField(blank=True)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "team_details": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
+
 
 class PreviousEhrExperiencePage(AbstractPage):
     previous_experience_with_ehr = models.TextField(blank=True)
+
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "previous_experience_with_ehr": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class SoftwareDevelopmentExperiencePage(AbstractPage):
@@ -339,13 +636,62 @@ class SoftwareDevelopmentExperiencePage(AbstractPage):
         null=True, choices=YES_NO_CHOICES
     )
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "evidence_of_coding": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+                "all_applicants_completed_getting_started",
+            ]
+        )
+
 
 class SharingCodePage(AbstractPage):
     evidence_of_sharing_in_public_domain_before = models.TextField(blank=True)
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+            "evidence_of_sharing_in_public_domain_before": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
+
 
 class ResearcherDetailsPage(AbstractPage):
-    pass
+    class DataScrubbing:
+        fields_to_scrub = {
+            "notes": "",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "reviewed_by",
+                "is_approved",
+                "last_reviewed_at",
+                "created_at",
+                "updated_at",
+            ]
+        )
 
 
 class ResearcherRegistration(models.Model):
@@ -407,7 +753,17 @@ class ResearcherRegistration(models.Model):
             "daa": None,
             "training_with_org": "",
             "training_passed_at": None,
+            "user": None,
+            "has_taken_safe_researcher_training": True,
         }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "application",
+                "created_at",
+                "does_researcher_need_server_access",
+            ]
+        )
 
     def __str__(self):
         return self.name

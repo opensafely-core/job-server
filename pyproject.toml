@@ -201,6 +201,7 @@ markers = [
   "verification: tests that verify fakes",
   "functional: tests that use Playwright in functional tests",
 ]
+xfail_strict=true
 
 [tool.ruff]
 line-length = 88

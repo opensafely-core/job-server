@@ -7,6 +7,23 @@ from faker import Faker
 
 fake = Faker()
 
+SCRUBBED_APPLICATIONS = {
+    "applications",
+    "jobserver",
+    "redirects",
+}
+"""Names of Django applications with models to be scrubbed."""
+
+
+def get_scrubbed_models():
+    "Accumulate set of Django model classes to be scrubbed."
+    scrubbed_models = set()
+    for application in SCRUBBED_APPLICATIONS:
+        scrubbed_models |= {
+            model for model in apps.get_app_config(application).get_models()
+        }
+    return scrubbed_models
+
 
 class Command(BaseCommand):
     """Management command to scrub sensitive fields"""
@@ -31,10 +48,9 @@ class Command(BaseCommand):
         if database_alias == "default" and not kwargs["i_am_sure"]:
             raise CommandError("Use --i-am-sure flag to run against default database")
 
-        models = {model for model in apps.get_app_config("jobserver").get_models()}
-        models |= {model for model in apps.get_app_config("applications").get_models()}
         with transaction.atomic(using=database_alias):
-            for model in models:
+            for model in get_scrubbed_models():
+                # Find fields to scrub, if any.
                 data_scrubbing = getattr(model, "DataScrubbing", None)
                 if data_scrubbing is None:
                     continue
@@ -43,6 +59,9 @@ class Command(BaseCommand):
                     continue
                 field_names = scrub_fields.keys()
 
+                # Iterate per-object updating and saving scrubbed fields.
+                # Many small queries in the transaction but avoids either holding
+                # whole tables in memory or chunking bulk updates.
                 objs = model.objects.using(database_alias).all().iterator()
                 count = 0
                 for obj in objs:

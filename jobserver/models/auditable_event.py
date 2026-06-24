@@ -47,6 +47,26 @@ class AuditableEvent(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.TextField()
 
+    class DataScrubbing:
+        fields_to_scrub = {
+            "new": "fake new audit value",
+            "old": "fake old audit value",
+            "created_by": "fake audit created_by",
+        }
+        allowed_fields = frozenset(
+            [
+                "id",
+                "created_at",
+                "parent_id",
+                "parent_model",
+                "target_field",
+                "target_id",
+                "target_model",
+                "target_user",
+                "type",
+            ]
+        )
+
     def __str__(self):
         return f"pk={self.pk} type={self.type}"
 

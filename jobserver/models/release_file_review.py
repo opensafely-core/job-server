@@ -29,6 +29,19 @@ class ReleaseFileReview(models.Model):
         related_name="release_file_reviews",
     )
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "comments",
+                "created_at",
+                "created_by",
+                "release_file",
+                "status",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

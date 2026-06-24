@@ -30,6 +30,20 @@ class Repo(models.Model):
         related_name="repos_signed_off_by_researcher",
     )
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "has_github_outputs",
+                "internal_signed_off_at",
+                "internal_signed_off_by",
+                "researcher_signed_off_at",
+                "researcher_signed_off_by",
+                "url",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(

@@ -180,6 +180,28 @@ class JobRequest(models.Model):
 
     objects = JobRequestManager()
 
+    class DataScrubbing:
+        fields_to_scrub = {}
+        allowed_fields = frozenset(
+            [
+                "id",
+                "_status",
+                "backend",
+                "cancelled_actions",
+                "codelists_ok",
+                "created_at",
+                "created_by",
+                "force_run_dependencies",
+                "identifier",
+                "project_definition",
+                "requested_actions",
+                "sha",
+                "status_message",
+                "will_notify",
+                "workspace",
+            ]
+        )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
