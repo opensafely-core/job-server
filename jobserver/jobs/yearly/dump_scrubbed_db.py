@@ -56,15 +56,23 @@ def database_connection_args(database_config):
 
 
 def run_database_command(command, database_config):
-    result = subprocess.run(
-        command,
-        env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
-        capture_output=True,
-        text=True,
-    )
+    logger.info("Running database command", command=command)
 
-    if result.returncode != 0:
-        raise JobError(f"{command[0]} failed: stderr={result.stderr}")
+    try:
+        subprocess.run(
+            command,
+            env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as error:
+        raise JobError(
+            f"{command[0]} failed\n"
+            f"returncode={error.returncode}\n"
+            f"stdout={error.stdout}\n"
+            f"stderr={error.stderr}"
+        ) from error
 
 
 def dump_database(database_config, output):
