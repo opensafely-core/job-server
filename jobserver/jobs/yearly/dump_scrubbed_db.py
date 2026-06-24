@@ -17,6 +17,7 @@ class Job(YearlyJob):
 
     def execute(self):
         scrubbed_dump_path = pathlib.Path("/storage/jobserver_scrubbed.dump")
+        temp_scrubbed_dump_path = scrubbed_dump_path.with_suffix(".dump.tmp")
         readonly_database = settings.DATABASES.get("readonly")
         data_scrubbing_database = settings.DATABASES.get("data_scrubbing")
 
@@ -43,12 +44,19 @@ class Job(YearlyJob):
                 logger.info("Scrubbing data scrubbing database")
                 call_command("scrub_data", "data_scrubbing")
                 logger.info("Finished scrubbing database")
-
-                logger.info("Creating scrubbed database dump", path=scrubbed_dump_path)
-                dump_database(data_scrubbing_database, scrubbed_dump_path)
-                logger.info(
-                    "Finished creating scrubbed database dump", path=scrubbed_dump_path
-                )
+                try:
+                    logger.info(
+                        "Creating scrubbed database dump",
+                        path=temp_scrubbed_dump_path.name,
+                    )
+                    dump_database(data_scrubbing_database, temp_scrubbed_dump_path)
+                    temp_scrubbed_dump_path.replace(scrubbed_dump_path)
+                    logger.info(
+                        "Finished creating scrubbed database dump",
+                        path=scrubbed_dump_path.name,
+                    )
+                finally:
+                    temp_scrubbed_dump_path.unlink(missing_ok=True)
             finally:
                 logger.info("Clearing data scrubbing database")
                 clear_database(data_scrubbing_database)
