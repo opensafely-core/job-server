@@ -91,6 +91,8 @@ def parse(data):
         "SOCIAL_AUTH_GITHUB_SECRET",
         "JOBSERVER_SCRUBBING_DATABASE_URL",
         "JOBSERVER_READONLY_DATABASE_URL",
+        "PASSWORD",
+        "PGPASSWORD",
     ]
 
     for token in tokens:
