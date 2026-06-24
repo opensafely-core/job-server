@@ -1,9 +1,11 @@
 import os
+import pathlib
 import subprocess
 import tempfile
 
 import structlog
 from django.conf import settings
+from django.core.management import call_command
 from django_extensions.management.jobs import JobError, YearlyJob
 
 
@@ -14,6 +16,7 @@ class Job(YearlyJob):
     help = "Scrubbed database dump job (in progress)"
 
     def execute(self):
+        scrubbed_dump_path = pathlib.Path("/storage/jobserver_scrubbed.dump")
         readonly_database = settings.DATABASES.get("readonly")
         data_scrubbing_database = settings.DATABASES.get("data_scrubbing")
 
@@ -36,6 +39,16 @@ class Job(YearlyJob):
                 logger.info("Restoring dump into data scrubbing database")
                 restore_database(data_scrubbing_database, raw_dump.name)
                 logger.info("Finished restoring dump into database")
+
+                logger.info("Scrubbing data scrubbing database")
+                call_command("scrub_data", "data_scrubbing")
+                logger.info("Finished scrubbing database")
+
+                logger.info("Creating scrubbed database dump", path=scrubbed_dump_path)
+                dump_database(data_scrubbing_database, scrubbed_dump_path)
+                logger.info(
+                    "Finished creating scrubbed database dump", path=scrubbed_dump_path
+                )
             finally:
                 logger.info("Clearing data scrubbing database")
                 clear_database(data_scrubbing_database)
