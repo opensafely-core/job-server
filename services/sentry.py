@@ -82,17 +82,22 @@ def parse(data):
 
     # tokens with values we want to strip
     tokens = [
+        "DATABASES",
+        "DATABASE_URL",
+        "CSP_REPORT_URI",
         "GITHUB_TOKEN_TESTING",
         "JOBSERVER_GITHUB_TOKEN",
+        "JOBSERVER_SCRUBBING_DATABASE_URL",
+        "JOBSERVER_READONLY_DATABASE_URL",
+        "MAILGUN_API_KEYPASSWORD",
+        "PASSWORD",
+        "PGPASSWORD",
         "RAP_API_TOKEN",
         "SECRET_KEY",
         "SENTRY_DSN",
+        "SLACK_BOT_TOKEN",
         "SOCIAL_AUTH_GITHUB_KEY",
         "SOCIAL_AUTH_GITHUB_SECRET",
-        "JOBSERVER_SCRUBBING_DATABASE_URL",
-        "JOBSERVER_READONLY_DATABASE_URL",
-        "PASSWORD",
-        "PGPASSWORD",
     ]
 
     for token in tokens:
