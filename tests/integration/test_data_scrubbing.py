@@ -76,6 +76,8 @@ def test_scrub_data_command_success():
 
 
 def test_scrub_data_command_require_confirmation_on_default_database():
+    """Test that the scrub_data command requires confirmation through an extra
+    flag when running against the default database."""
     with pytest.raises(CommandError, match="Use --i-am-sure"):
         call_command("scrub_data", "default")
 
@@ -157,7 +159,7 @@ def test_all_scrubbed_model_fields_categorised():
         "`fields_to_scrub` (a dict of field name -> scrubbing strategy) and/or "
         "`allowed_fields` (a set of field names that don't need scrubbing) "
         "so that every field is explicitly categorised. They must not overlap.\n"
-        "Refer to the documentation of the data_scrubbing module."
+        "See the `data_scrubbing` package to better understand this functionality."
     )
 
     if models_with_no_configuration:  # pragma: no cover
