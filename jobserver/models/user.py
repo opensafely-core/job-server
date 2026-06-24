@@ -144,6 +144,7 @@ class User(AbstractBaseUser):
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
 
+    # fullname and username are not marked for scrubbing as it is visible publicly in JobServer
     class DataScrubbing:
         fields_to_scrub = {
             "email": fake.unique.email,
