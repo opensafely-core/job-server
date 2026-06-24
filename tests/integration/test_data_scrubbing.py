@@ -17,7 +17,7 @@ from ..factories import (
 @pytest.mark.django_db
 @pytest.mark.slow_test
 def test_scrub_data_command_success():
-    """Test that the scrub_data command does replace senstive fields according
+    """Test that the scrub_data command does replace sensitive fields according
     to its configuration.
 
     See the data_scrubbing package to better understand this functionality."""
