@@ -55,8 +55,28 @@ def database_connection_args(database_config):
     ]
 
 
+def run_database_command(command, database_config):
+    logger.info("Running database command", command=command)
+
+    try:
+        subprocess.run(
+            command,
+            env={"PATH": os.environ["PATH"], "PGPASSWORD": database_config["PASSWORD"]},
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as error:
+        raise JobError(
+            f"{command[0]} failed\n"
+            f"returncode={error.returncode}\n"
+            f"stdout={error.stdout}\n"
+            f"stderr={error.stderr}"
+        ) from error
+
+
 def dump_database(database_config, output):
-    subprocess.run(
+    run_database_command(
         [
             "pg_dump",
             "--format=c",
@@ -65,13 +85,12 @@ def dump_database(database_config, output):
             f"--file={output}",
             *database_connection_args(database_config),
         ],
-        env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
-        check=True,
+        database_config,
     )
 
 
 def restore_database(database_config, input_dump):
-    subprocess.run(
+    run_database_command(
         [
             "pg_restore",
             "--clean",
@@ -81,19 +100,17 @@ def restore_database(database_config, input_dump):
             *database_connection_args(database_config),
             input_dump,
         ],
-        env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
-        check=True,
+        database_config,
     )
 
 
 def clear_database(database_config):
-    subprocess.run(
+    run_database_command(
         [
             "psql",
             *database_connection_args(database_config),
             "--command",
             "DROP SCHEMA public CASCADE; CREATE SCHEMA public;",
         ],
-        env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
-        check=True,
+        database_config,
     )
