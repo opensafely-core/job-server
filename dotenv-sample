@@ -9,6 +9,8 @@ DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
 # JOBSERVER_READONLY_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
 # Database where data will be restored and scrubbed.
 # JOBSERVER_SCRUBBING_DATABASE_URL=postgres://user:pass@localhost:6543/jobserver_scrubbing
+# Path where the scrubbed database dump will be written.
+# JOBSERVER_SCRUBBED_DUMP_PATH=/tmp/jobserver_scrubbed.dump
 
 # Turn on debug
 DEBUG=1
