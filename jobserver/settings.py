@@ -452,6 +452,11 @@ RELEASE_FILE_SIZE_LIMIT = int(
 # surprises with django's default uploads implementation.
 RELEASE_STORAGE = Path(os.environ.get("RELEASE_STORAGE", default="releases"))
 
+# Path where the data scrubbing job writes the final scrubbed database dump.
+SCRUBBED_DATABASE_DUMP_PATH = Path(
+    os.environ.get("JOBSERVER_SCRUBBED_DUMP_PATH", default="jobserver_scrubbed.dump")
+)
+
 # IP prefix of docker subnet on dokku 4
 TRUSTED_PROXIES = (
     [

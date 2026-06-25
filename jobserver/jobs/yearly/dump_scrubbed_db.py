@@ -16,7 +16,7 @@ class Job(YearlyJob):
     help = "Scrubbed database dump job (in progress)"
 
     def execute(self):
-        scrubbed_dump_path = pathlib.Path("/storage/jobserver_scrubbed.dump")
+        scrubbed_dump_path = pathlib.Path(settings.SCRUBBED_DATABASE_DUMP_PATH)
         temp_scrubbed_dump_path = scrubbed_dump_path.with_suffix(".dump.tmp")
         readonly_database = settings.DATABASES.get("readonly")
         data_scrubbing_database = settings.DATABASES.get("data_scrubbing")
