@@ -54,16 +54,26 @@ def get_all_paired_fields(lsuffix, rsuffix, *, exclude=None):
         else:
             models.pop(model)
 
+    paired_fields = []
     for model, field_names in models.items():
         factory = get_factory(model)
         for lname, rname in get_paired_fields(model, lsuffix, rsuffix, field_names):
-            yield factory, lname, rname
+            paired_fields.append(
+                (factory, lname, rname),
+            )
+
+    return paired_fields
 
 
 def get_optional_paired_fields(*args, **kwargs):
+    paired_fields = []
     for factory, lname, rname in get_all_paired_fields(*args, **kwargs):
         model = factory._meta.model
         lfield = model._meta.get_field(lname)
         rfield = model._meta.get_field(rname)
         if lfield.null and rfield.null:
-            yield factory, lname, rname
+            paired_fields.append(
+                (factory, lname, rname),
+            )
+
+    return paired_fields
