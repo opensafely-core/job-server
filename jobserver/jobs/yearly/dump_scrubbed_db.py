@@ -17,7 +17,6 @@ class Job(YearlyJob):
 
     def execute(self):
         scrubbed_dump_path = pathlib.Path(settings.SCRUBBED_DATABASE_DUMP_PATH)
-        temp_scrubbed_dump_path = scrubbed_dump_path.with_suffix(".dump.tmp")
         readonly_database = settings.DATABASES.get("readonly")
         data_scrubbing_database = settings.DATABASES.get("data_scrubbing")
 
@@ -27,36 +26,38 @@ class Job(YearlyJob):
         if data_scrubbing_database is None:
             raise JobError("JOBSERVER_SCRUBBING_DATABASE_URL is not set")
 
-        with tempfile.NamedTemporaryFile(suffix=".dump") as raw_dump:
+        with tempfile.TemporaryDirectory(
+            prefix="dump-scrubbed-db-", dir=scrubbed_dump_path.parent
+        ) as temp_dir:
+            temp_dir = pathlib.Path(temp_dir)
+            raw_dump_path = temp_dir / "raw.dump"
+            temp_scrubbed_dump_path = temp_dir / scrubbed_dump_path.name
             logger.info(
-                "Creating raw dump of readonly jobserver database", path=raw_dump.name
+                "Creating raw dump of readonly jobserver database", path=raw_dump_path
             )
-            dump_database(readonly_database, raw_dump.name)
+            dump_database(readonly_database, raw_dump_path)
             logger.info(
                 "Finished creating raw dump of readonly jobserver database",
-                path=raw_dump.name,
+                path=raw_dump_path,
             )
             try:
                 logger.info("Restoring dump into data scrubbing database")
-                restore_database(data_scrubbing_database, raw_dump.name)
+                restore_database(data_scrubbing_database, raw_dump_path)
                 logger.info("Finished restoring dump into database")
 
                 logger.info("Scrubbing data scrubbing database")
                 call_command("scrub_data", "data_scrubbing")
                 logger.info("Finished scrubbing database")
-                try:
-                    logger.info(
-                        "Creating scrubbed database dump",
-                        path=temp_scrubbed_dump_path.name,
-                    )
-                    dump_database(data_scrubbing_database, temp_scrubbed_dump_path)
-                    temp_scrubbed_dump_path.replace(scrubbed_dump_path)
-                    logger.info(
-                        "Finished creating scrubbed database dump",
-                        path=scrubbed_dump_path.name,
-                    )
-                finally:
-                    temp_scrubbed_dump_path.unlink(missing_ok=True)
+
+                logger.info(
+                    "Creating scrubbed database dump", path=temp_scrubbed_dump_path
+                )
+                dump_database(data_scrubbing_database, temp_scrubbed_dump_path)
+                temp_scrubbed_dump_path.replace(scrubbed_dump_path)
+                logger.info(
+                    "Finished creating scrubbed database dump",
+                    path=scrubbed_dump_path,
+                )
             finally:
                 logger.info("Clearing data scrubbing database")
                 clear_database(data_scrubbing_database)
