@@ -61,7 +61,7 @@ def run_database_command(command, database_config):
     try:
         subprocess.run(
             command,
-            env={**os.environ, "PGPASSWORD": database_config["PASSWORD"]},
+            env={"PATH": os.environ["PATH"], "PGPASSWORD": database_config["PASSWORD"]},
             capture_output=True,
             text=True,
             check=True,
