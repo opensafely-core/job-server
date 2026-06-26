@@ -189,16 +189,15 @@ jobs:
           run: |
             docker save job-server | zstd --fast -o /tmp/job-server.tar.zst
 
-      - parallel:
-        - name: Run smoke test on prod
-          run: |
-            just docker-serve prod -d
-            sleep 5
-            just docker-smoke-test || { docker logs job-server-prod-1; exit 1; }
+      - name: Run smoke test on prod
+        run: |
+          just docker-serve prod -d
+          sleep 5
+          just docker-smoke-test || { docker logs job-server-prod-1; exit 1; }
 
-        - name: Upload docker image
-          uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-          with:
-            name: job-server-image
-            path: /tmp/job-server.tar.zst
-            compression-level: 0
+      - name: Upload docker image
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: job-server-image
+          path: /tmp/job-server.tar.zst
+          compression-level: 0
