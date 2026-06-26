@@ -26,6 +26,11 @@
           {% #button href="mailto:tech@opensafely.org" type="link" variant="secondary" %}
             Contact support
           {% /button %}
+          {% if not user.is_authenticated %}
+            {% #button id="error-page-login-button" href=login_url type="link" variant="success" %}
+              Login
+            {% /button %}
+          {% endif %}
         </div>
       </div>
     </div>
