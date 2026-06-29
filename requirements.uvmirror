@@ -14,7 +14,7 @@ asgiref==3.11.1
     #   social-auth-app-django
 brotli==1.2.0
     # via whitenoise
-certifi==2026.5.20
+certifi==2026.6.17
     # via
     #   requests
     #   sentry-sdk
@@ -28,7 +28,7 @@ charset-normalizer==3.4.7
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.14.1
+coverage==7.14.2
 cryptography==49.0.0
     # via
     #   pyjwt
@@ -62,7 +62,7 @@ django-anymail==15.0
     # via jobserver
 django-csp==4.0
     # via jobserver
-django-debug-toolbar==6.3.0
+django-debug-toolbar==7.0.0
 django-extensions==4.1
     # via jobserver
 django-htmx==1.27.0
@@ -96,7 +96,7 @@ furl==2.1.4
     # via jobserver
 googleapis-common-protos==1.75.0
     # via opentelemetry-exporter-otlp-proto-http
-greenlet==3.5.1
+greenlet==3.5.2
     # via playwright
 gunicorn==26.0.0
     # via jobserver
@@ -112,7 +112,7 @@ iniconfig==2.3.0
     # via pytest
 markdown==3.10.2
     # via jobserver
-nh3==0.3.5
+nh3==0.3.6
     # via jobserver
 nodeenv==1.10.0
     # via pre-commit
@@ -214,7 +214,7 @@ pygments==2.20.0
     #   pytest
 pyjwt==2.13.0
     # via social-auth-core
-pytest==9.1.0
+pytest==9.1.1
     # via
     #   pytest-base-url
     #   pytest-django
@@ -272,10 +272,10 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.15.17
+ruff==0.15.18
 ruyaml==0.91.0
     # via opensafely-pipeline
-sentry-sdk==2.62.0
+sentry-sdk==2.63.0
     # via jobserver
 setuptools==82.0.1
     # via ruyaml
@@ -332,11 +332,11 @@ urllib3==2.7.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.5.0
+virtualenv==21.5.1
     # via pre-commit
 whitenoise==6.12.0
     # via jobserver
-wrapt==2.2.1
+wrapt==2.2.2
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
