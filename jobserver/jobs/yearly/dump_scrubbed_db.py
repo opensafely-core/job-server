@@ -28,9 +28,7 @@ class Job(YearlyJob):
         if data_scrubbing_database is None:
             raise JobError("JOBSERVER_SCRUBBING_DATABASE_URL is not set")
 
-        with tempfile.TemporaryDirectory(
-            prefix="dump-scrubbed-db-", dir=scrubbed_dump_path.parent
-        ) as temp_dir_path:
+        with tempfile.TemporaryDirectory(prefix="dump-scrubbed-db-") as temp_dir_path:
             temp_dir_path = pathlib.Path(temp_dir_path)
             raw_dump_path = temp_dir_path / "raw.dump"
             temp_scrubbed_dump_path = temp_dir_path / scrubbed_dump_path.name
