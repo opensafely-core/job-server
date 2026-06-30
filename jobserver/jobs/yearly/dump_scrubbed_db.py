@@ -5,7 +5,7 @@ import tempfile
 
 import structlog
 from django.conf import settings
-from django.core.management import call_command
+from django.core.management import CommandError, call_command
 from django_extensions.management.jobs import JobError, YearlyJob
 
 
@@ -118,7 +118,10 @@ def restore_database(database_config, dump_file_path):
 
 def scrub_database(database_alias):
     logger.info("Scrubbing database", database=database_alias)
-    call_command("scrub_data", database_alias)
+    try:
+        call_command("scrub_data", database_alias)
+    except CommandError as error:
+        raise JobError(f"Scrubbing failed: {error}") from error
     logger.info("Finished scrubbing database", database=database_alias)
 
 
