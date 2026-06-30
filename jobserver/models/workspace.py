@@ -6,6 +6,9 @@ from django.urls import reverse
 from django.utils import timezone
 from furl import furl
 
+from ..authorization import has_permission
+from ..authorization.permissions import Permission
+
 
 logger = structlog.get_logger(__name__)
 
@@ -145,6 +148,18 @@ class Workspace(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_reason_cannot_run_jobs(self, user):
+        if self.is_archived:
+            return "Jobs cannot be run on an archived workspace"
+
+        if not has_permission(user, Permission.JOB_RUN, project=self.project):
+            return "You do not have permission to run jobs on this workspace"
+
+        if not user.backends.exists():
+            return "You do not have permission to run jobs on any OpenSAFELY backends"
+
+        return None
 
     def get_absolute_url(self):
         return reverse(

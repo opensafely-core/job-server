@@ -81,32 +81,18 @@
     </div>
 
     <ul class="flex flex-row gap-2">
-      {% if is_member %}
-        {% if workspace.is_archived %}
-          <li>
-            {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" %}
+      {% if show_run_jobs_button %}
+        <li>
+          {% if run_jobs_disabled_reason %}
+            {% #button type="button" variant="info" disabled=True tooltip=run_jobs_disabled_reason %}
               Run jobs
             {% /button %}
-          </li>
-        {% elif not user_can_run_jobs %}
-          <li>
-            {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on this workspace" %}
-              Run jobs
-            {% /button %}
-          </li>
-        {% elif not user_has_backends %}
-          <li>
-            {% #button type="button" variant="info" disabled=True tooltip="You do not have permission to run jobs on any OpenSAFELY backends" %}
-              Run jobs
-            {% /button %}
-          </li>
-        {% else %}
-          <li>
+          {% else %}
             {% #button class="plausible-event-name=Run+jobs+click" href=workspace.get_jobs_url type="link" variant="success" %}
               Run jobs
             {% /button %}
-          </li>
-        {% endif %}
+          {% endif %}
+        </li>
       {% endif %}
       <li>
         {% #button href=workspace.get_logs_url type="link" variant="primary" %}

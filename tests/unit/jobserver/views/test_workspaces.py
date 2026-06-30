@@ -1,3 +1,4 @@
+import re
 import zipfile
 from datetime import timedelta
 
@@ -458,6 +459,68 @@ def test_workspacedetail_authorized_run_jobs_no_backends(
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
     assert not response.context_data["user_has_backends"]
+
+
+def test_workspacedetail_run_jobs_button_disabled(
+    rf, mocker, project_membership, role_factory
+):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+    backend = BackendFactory()
+    reason = "Jobs cannot be run on an archived workspace"
+    get_reason_cannot_run_jobs = mocker.patch.object(
+        Workspace,
+        "get_reason_cannot_run_jobs",
+        autospec=True,
+        return_value=reason,
+    )
+
+    project_membership(
+        project=workspace.project,
+        user=user,
+        roles=[role_factory(permission=Permission.JOB_RUN)],
+    )
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["run_jobs_disabled_reason"] == reason
+    get_reason_cannot_run_jobs.assert_called_once_with(workspace, user)
+
+    assert re.search(
+        r"<button\b(?=[^>]*\bdisabled\b)[^>]*>\s*Run jobs",
+        response.rendered_content,
+    )
+    assert workspace.get_jobs_url() not in response.rendered_content
+    assert reason in response.rendered_content
+
+
+def test_workspacedetail_run_jobs_button_hidden(rf, mocker):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert not response.context_data["show_run_jobs_button"]
+
+    assert "Run jobs" not in response.rendered_content
+    assert workspace.get_jobs_url() not in response.rendered_content
 
 
 def test_workspacedetail_authorized_honeycomb(rf):
