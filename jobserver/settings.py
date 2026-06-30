@@ -160,6 +160,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "jobserver.wsgi.application"
+READONLY_DATABASE_ALIAS = "readonly"
+DATA_SCRUBBING_DATABASE_ALIAS = "data_scrubbing"
 
 
 # Database
@@ -171,10 +173,12 @@ DATABASES = {
 }
 DATA_SCRUBBING_DATABASE_URL = os.environ.get("JOBSERVER_SCRUBBING_DATABASE_URL")
 if DATA_SCRUBBING_DATABASE_URL:
-    DATABASES["data_scrubbing"] = dj_database_url.parse(DATA_SCRUBBING_DATABASE_URL)
+    DATABASES[DATA_SCRUBBING_DATABASE_ALIAS] = dj_database_url.parse(
+        DATA_SCRUBBING_DATABASE_URL
+    )
 READONLY_DATABASE_URL = os.environ.get("JOBSERVER_READONLY_DATABASE_URL")
 if READONLY_DATABASE_URL:
-    DATABASES["readonly"] = dj_database_url.parse(READONLY_DATABASE_URL)
+    DATABASES[READONLY_DATABASE_ALIAS] = dj_database_url.parse(READONLY_DATABASE_URL)
 
 
 # Default primary key field type
