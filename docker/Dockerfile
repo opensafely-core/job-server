@@ -2,7 +2,7 @@
 
 ## These build args are used in FROM lines, so need to be declared globally and have defaults set.
 ARG NODE_VERSION
-ARG UV_VERSION=0.9
+ARG UV_VERSION=0.11
 
 #################################################
 #
@@ -34,8 +34,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 ENV UV_LINK_MODE=copy
 # compile at installation time, not import time
 ENV UV_COMPILE_BYTECODE=1
-# we are providing python via deadsnakes ppa
-# (as we require dynamic linking of openssl for security reasons)
+# we are using the ubuntu 24.04 system default python (3.12)
 ENV UV_PYTHON_DOWNLOADS=never
 # set the directory for the venv
 ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
