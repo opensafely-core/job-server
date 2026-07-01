@@ -160,6 +160,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "jobserver.wsgi.application"
+READONLY_DATABASE_ALIAS = "readonly"
+DATA_SCRUBBING_DATABASE_ALIAS = "data_scrubbing"
 
 
 # Database
@@ -171,10 +173,12 @@ DATABASES = {
 }
 DATA_SCRUBBING_DATABASE_URL = os.environ.get("JOBSERVER_SCRUBBING_DATABASE_URL")
 if DATA_SCRUBBING_DATABASE_URL:
-    DATABASES["data_scrubbing"] = dj_database_url.parse(DATA_SCRUBBING_DATABASE_URL)
+    DATABASES[DATA_SCRUBBING_DATABASE_ALIAS] = dj_database_url.parse(
+        DATA_SCRUBBING_DATABASE_URL
+    )
 READONLY_DATABASE_URL = os.environ.get("JOBSERVER_READONLY_DATABASE_URL")
 if READONLY_DATABASE_URL:
-    DATABASES["readonly"] = dj_database_url.parse(READONLY_DATABASE_URL)
+    DATABASES[READONLY_DATABASE_ALIAS] = dj_database_url.parse(READONLY_DATABASE_URL)
 
 
 # Default primary key field type
@@ -451,6 +455,11 @@ RELEASE_FILE_SIZE_LIMIT = int(
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
 RELEASE_STORAGE = Path(os.environ.get("RELEASE_STORAGE", default="releases"))
+
+# Path where the data scrubbing job writes the final scrubbed database dump.
+SCRUBBED_DATABASE_DUMP_PATH = Path(
+    os.environ.get("JOBSERVER_SCRUBBED_DUMP_PATH", default="jobserver_scrubbed.dump")
+)
 
 # IP prefix of docker subnet on dokku 4
 TRUSTED_PROXIES = (
