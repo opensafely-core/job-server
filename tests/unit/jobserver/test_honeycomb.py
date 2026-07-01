@@ -142,7 +142,7 @@ def test_jobrequest_link(freezer):
     assert parsed.stacked
     assert parsed.omit_missing
     assert parsed.query == {
-        "breakdowns": ["job", "name"],
+        "breakdowns": ["job.id", "name"],
         "calculations": [
             {"op": "CONCURRENCY"},
         ],
@@ -150,7 +150,7 @@ def test_jobrequest_link(freezer):
         "filter_combination": "AND",
         "filters": [
             {"column": "scope", "op": "=", "value": "ticks"},
-            {"column": "job_request", "op": "=", "value": "jpbaeldzjqqiaolg"},
+            {"column": "job.request", "op": "=", "value": "jpbaeldzjqqiaolg"},
         ],
         "granularity": 0,
         "havings": [],
@@ -181,8 +181,8 @@ def test_previous_actions_link(freezer):
         "filter_combination": "AND",
         "filters": [
             {"column": "scope", "op": "=", "value": "jobs"},
-            {"column": "workspace", "op": "=", "value": "my_test_workspace"},
-            {"column": "action", "op": "=", "value": "my_sample_action"},
+            {"column": "job.workspace", "op": "=", "value": "my_test_workspace"},
+            {"column": "job.action", "op": "=", "value": "my_sample_action"},
             {"column": "name", "op": "=", "value": "EXECUTING"},
         ],
         "granularity": 0,
