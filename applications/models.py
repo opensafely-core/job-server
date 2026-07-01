@@ -244,8 +244,8 @@ class ContactDetailsPage(AbstractPage):
     class DataScrubbing:
         fields_to_scrub = {
             "notes": "",
-            "full_name": fake.name,
-            "email": fake.email,
+            "full_name": fake.name(),
+            "email": fake.email(),
             "telephone": "",
             "job_title": "",
             "team_name": "",
@@ -327,8 +327,8 @@ class StudyPurposePage(AbstractPage):
     class DataScrubbing:
         fields_to_scrub = {
             "notes": "",
-            "author_name": fake.name,
-            "author_email": fake.email,
+            "author_name": fake.name(),
+            "author_email": fake.email(),
             "author_organisation": "",
             "description": "",
         }
@@ -486,8 +486,8 @@ class SponsorDetailsPage(AbstractPage):
     class DataScrubbing:
         fields_to_scrub = {
             "notes": "",
-            "sponsor_name": fake.name,
-            "sponsor_email": fake.email,
+            "sponsor_name": fake.name(),
+            "sponsor_email": fake.email(),
             "sponsor_job_role": "",
             "institutional_rec_reference": "",
             "is_member_of_bennett_or_lshtm": False,
@@ -744,8 +744,8 @@ class ResearcherRegistration(models.Model):
 
     class DataScrubbing:
         fields_to_scrub = {
-            "name": fake.name,
-            "email": fake.email,
+            "name": fake.name(),
+            "email": fake.email(),
             "job_title": "",
             "telephone": "",
             "phone_type": "iphone",

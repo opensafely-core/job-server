@@ -94,7 +94,7 @@ class Command(BaseCommand):
                 count = 0
                 for obj in objs:
                     for attr_name, fake_value in scrub_fields.items():
-                        value = fake_value() if callable(fake_value) else fake_value
+                        value = fake_value(obj) if callable(fake_value) else fake_value
                         setattr(obj, attr_name, value)
                     obj.save(using=database_alias, update_fields=field_names)
                     count += 1
