@@ -1,16 +1,23 @@
+from datetime import timedelta
+
 import pytest
+from django.contrib.sessions.models import Session
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.utils import timezone
+from social_django.models import Association, Code, Nonce, Partial, UserSocialAuth
 
 from data_scrubbing.management.commands.scrub_data import get_scrubbed_models
 
 from ..factories import (
     BackendFactory,
     ContactDetailsPageFactory,
+    PartialFactory,
     ResearcherRegistrationFactory,
     SponsorDetailsPageFactory,
     StudyPurposePageFactory,
     UserFactory,
+    UserSocialAuthFactory,
 )
 
 
@@ -194,3 +201,54 @@ def test_all_scrubbed_model_fields_categorised():
             f"`fields_to_scrub` and in `allowed_fields` in "
             f"their `DataScrubbing` inner class:\n{details}\n\n{hint}"
         )
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.slow_test
+def test_scrub_data_command_truncates_session_and_social_auth_tables():
+    """Test that scrub_data removes rows from session and social-auth tables.
+
+    These tables may contain sensitive personal data or tokens so the command
+    should empty them entirely."""
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+    PartialFactory()
+
+    Session.objects.create(
+        session_key="test_session_key",
+        session_data="test_session_data",
+        expire_date=timezone.now() + timedelta(days=1),
+    )
+    Association.objects.create(
+        server_url="https://example.com",
+        handle="test_handle",
+        secret="test_secret",
+        issued=1,
+        lifetime=1,
+        assoc_type="test_assoc_type",
+    )
+    Code.objects.create(
+        email="person@example.com",
+        code="test_code",
+    )
+    Nonce.objects.create(
+        server_url="https://example.com",
+        timestamp=1,
+        salt="test_salt",
+    )
+
+    assert Session.objects.exists()
+    assert Association.objects.exists()
+    assert Code.objects.exists()
+    assert Nonce.objects.exists()
+    assert Partial.objects.exists()
+    assert UserSocialAuth.objects.exists()
+
+    call_command("scrub_data", "default", "--i-am-sure")
+
+    assert not Session.objects.exists()
+    assert not Association.objects.exists()
+    assert not Code.objects.exists()
+    assert not Nonce.objects.exists()
+    assert not Partial.objects.exists()
+    assert not UserSocialAuth.objects.exists()
