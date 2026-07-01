@@ -156,7 +156,7 @@ def jobrequest_link(job_request):
     url = TemplatedUrl(
         start_time=start,
         end_time=end,
-        breakdowns=["job", "name"],
+        breakdowns=["job.id", "name"],
         calculations=[
             {"op": "CONCURRENCY"},
         ],
@@ -165,7 +165,7 @@ def jobrequest_link(job_request):
         omit_missing=True,
         filters=[
             {"column": "scope", "op": "=", "value": "ticks"},
-            {"column": "job_request", "op": "=", "value": job_request.identifier},
+            {"column": "job.request", "op": "=", "value": job_request.identifier},
         ],
     )
     return url.url
@@ -180,8 +180,12 @@ def previous_actions_link(job):
         calculations=[{"op": "HEATMAP", "column": "duration_minutes"}],
         filters=[
             {"column": "scope", "op": "=", "value": "jobs"},
-            {"column": "workspace", "op": "=", "value": job.job_request.workspace.name},
-            {"column": "action", "op": "=", "value": job.action},
+            {
+                "column": "job.workspace",
+                "op": "=",
+                "value": job.job_request.workspace.name,
+            },
+            {"column": "job.action", "op": "=", "value": job.action},
             {"column": "name", "op": "=", "value": "EXECUTING"},
         ],
     )

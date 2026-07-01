@@ -215,7 +215,7 @@ def test_jobdetail_with_staff_area_administrator(rf, freezer):
     assert "trace_end_ts=1655380800" in response.rendered_content
     assert "Previous runs" in response.rendered_content
     assert (
-        "%22action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_sample_action%22"
+        "%22job.action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_sample_action%22"
         in response.rendered_content
     )
 
