@@ -28,6 +28,9 @@ class Job(YearlyJob):
         if data_scrubbing_database is None:
             raise JobError("JOBSERVER_SCRUBBING_DATABASE_URL is not set")
 
+        # Create the temporary directory beside the final dump so Path.replace()
+        # does not fail across filesystems. This can be simplified with Path.move()
+        # once we are on Python 3.14.
         with tempfile.TemporaryDirectory(
             prefix="dump-scrubbed-db-", dir=scrubbed_dump_path.parent
         ) as temp_dir_path:
