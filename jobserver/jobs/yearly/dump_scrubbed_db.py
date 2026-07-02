@@ -37,6 +37,7 @@ class Job(YearlyJob):
                 restore_database(data_scrubbing_database, raw_dump_path)
                 scrub_database(settings.DATA_SCRUBBING_DATABASE_ALIAS)
                 dump_database(data_scrubbing_database, temp_scrubbed_dump_path)
+                # Note: `Pathlib.replace` requires source and destination to be on the same filesystem.
                 temp_scrubbed_dump_path.replace(scrubbed_dump_path)
             finally:
                 clear_database(data_scrubbing_database)
