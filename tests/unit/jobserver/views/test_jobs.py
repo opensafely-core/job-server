@@ -228,7 +228,6 @@ def test_jobdetail_with_staff_area_administrator(rf, freezer):
     assert job_request.identifier in response.rendered_content
 
     assert escape(honeycomb.metrics_link(job)) in response.rendered_content
-    assert escape(honeycomb.status_link(job)) in response.rendered_content
 
 
 @pytest.mark.slow_test

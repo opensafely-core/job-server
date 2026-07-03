@@ -78,9 +78,6 @@ class JobDetail(View):
             if trace_link:  # pragma: no cover
                 honeycomb_links["Job Trace"] = trace_link
             honeycomb_links["Job Metrics"] = honeycomb.metrics_link(job)
-            honeycomb_links["Status and Resources [DEPRECATED]"] = (
-                honeycomb.status_link(job)
-            )
 
             # Look this up manually, because if we use job.job_request, the
             # JobRequest will not have prefetched all associated Jobs, and
