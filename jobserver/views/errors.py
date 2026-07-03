@@ -1,5 +1,14 @@
+from textwrap import dedent
+
 from django.core.exceptions import TooManyFieldsSent
 from django.template.response import TemplateResponse
+from markdown import markdown
+
+from jobserver import html_utils
+
+
+def markdown_error_message(error_message):
+    return html_utils.clean_html(markdown(dedent(error_message).strip()))
 
 
 def bad_request(request, exception=None):
@@ -11,7 +20,9 @@ def bad_request(request, exception=None):
             context={
                 "error_code": "413",
                 "error_name": "Too many fields submitted",
-                "error_message": "Your submission contained too many fields. Please reduce the number of selected items and try again.",
+                "error_message": markdown_error_message(
+                    "Your submission contained too many fields. Please reduce the number of selected items and try again."
+                ),
             },
         )
 
@@ -22,7 +33,9 @@ def bad_request(request, exception=None):
         context={
             "error_code": "400",
             "error_name": "Bad request",
-            "error_message": "An error has occurred displaying this page.",
+            "error_message": markdown_error_message(
+                "An error occurred while displaying this page."
+            ),
         },
     )
 
@@ -35,7 +48,7 @@ def csrf_failure(request, reason=""):
         context={
             "error_code": "CSRF",
             "error_name": "CSRF Failed",
-            "error_message": "The form was not able to submit.",
+            "error_message": markdown_error_message("The form could not be submitted."),
         },
     )
 
@@ -43,9 +56,29 @@ def csrf_failure(request, reason=""):
 def page_not_found(request, exception=None):
 
     if not request.user.is_authenticated:
-        error_message = "We could not find the page you are looking for. The link may be incorrect, the page may have moved, or you may need to log in to access it. Please check the URL, try logging in, or contact us if you need further help."
+        error_message = """
+            We could not find the page you are looking for.
+
+            This may be because:
+
+            - the link is incorrect
+            - the page has moved
+            - you need to log in to view this page
+
+            Please check the URL, try logging in, or contact us if you need further help.
+        """
+
     else:
-        error_message = "We could not find the page you are looking for. The link may be incorrect or the page may have moved. Please check the URL or contact us if you need further help."
+        error_message = """
+            We could not find the page you are looking for.
+
+            This may be because:
+
+            - the link is incorrect
+            - the page has moved
+
+            Please check the URL or contact us if you need further help.
+        """
 
     return TemplateResponse(
         request,
@@ -54,7 +87,7 @@ def page_not_found(request, exception=None):
         context={
             "error_code": "404",
             "error_name": "Page not found",
-            "error_message": error_message,
+            "error_message": markdown_error_message(error_message),
         },
     )
 
@@ -62,9 +95,18 @@ def page_not_found(request, exception=None):
 def permission_denied(request, exception=None):
 
     if not request.user.is_authenticated:
-        error_message = "You do not have permission to access this page. You may need to log in, or your account may not have the required permissions. Try logging in, or if you need to discuss permissions please contact us."
+        error_message = """
+            You do not have permission to access this page.
+
+            This may be because:
+
+            - you need to log in to view this page
+            - your account does not have the required permissions
+
+            Try logging in, or contact us if you need to discuss permissions.
+        """
     else:
-        error_message = "You do not have permission to access this page. Please contact us if you have a query about your permissions or require further support."
+        error_message = "You do not have permission to access this page. Contact us if you have a question about your permissions or need further support."
 
     return TemplateResponse(
         request,
@@ -73,7 +115,7 @@ def permission_denied(request, exception=None):
         context={
             "error_code": "403",
             "error_name": "Permission denied",
-            "error_message": error_message,
+            "error_message": markdown_error_message(error_message),
         },
     )
 
@@ -86,6 +128,8 @@ def server_error(request):
         context={
             "error_code": "500",
             "error_name": "Server error",
-            "error_message": "An error has occurred displaying this page.",
+            "error_message": markdown_error_message(
+                "An error occurred while displaying this page."
+            ),
         },
     )
