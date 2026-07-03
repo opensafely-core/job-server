@@ -130,27 +130,6 @@ def metrics_link(job):
     return url.url
 
 
-def status_link(job):
-    start, end = format_honeycomb_timestamps(job)
-    url = TemplatedUrl(
-        start_time=start,
-        end_time=end,
-        breakdowns=["name"],
-        calculations=[
-            {"op": "CONCURRENCY"},
-            {"op": "MAX", "column": "cpu_percentage"},
-            {"op": "MAX", "column": "memory_used"},
-        ],
-        stacked=True,
-        omit_missing=True,
-        filters=[
-            {"column": "scope", "op": "=", "value": "ticks"},
-            {"column": "job", "op": "=", "value": job.identifier},
-        ],
-    )
-    return url.url
-
-
 def jobrequest_link(job_request):
     start, end = format_honeycomb_timestamps(job_request)
     url = TemplatedUrl(
