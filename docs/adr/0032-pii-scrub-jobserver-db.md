@@ -4,7 +4,7 @@ Date: 2025-12-03
 
 ## Status
 
-Accepted
+Superseded by: [ADR 35](0035-scrub-jobserver-db)
 
 ## Context
 
