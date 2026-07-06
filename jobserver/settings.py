@@ -461,6 +461,11 @@ SCRUBBED_DATABASE_DUMP_PATH = Path(
     os.environ.get("JOBSERVER_SCRUBBED_DUMP_PATH", default="jobserver_scrubbed.dump")
 )
 
+# Path where the dump_raw_data command writes the raw database dump
+RAW_DATABASE_DUMP_PATH = Path(
+    os.environ.get("JOBSERVER_RAW_DUMP_PATH", default="jobserver.dump")
+)
+
 # IP prefix of docker subnet on dokku 4
 TRUSTED_PROXIES = (
     [
