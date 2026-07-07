@@ -28,7 +28,7 @@ charset-normalizer==3.4.7
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.14.2
+coverage==7.14.3
 cryptography==49.0.0
     # via
     #   pyjwt
@@ -69,11 +69,11 @@ django-htmx==1.27.0
     # via jobserver
 django-ipware==7.0.1
     # via django-structlog
-django-permissions-policy==4.31.0
+django-permissions-policy==4.32.0
     # via jobserver
 django-structlog==10.1.0
     # via jobserver
-django-upgrade==1.30.0
+django-upgrade==1.31.1
 django-vite==3.1.0
     # via jobserver
 djangorestframework==3.17.1
@@ -96,7 +96,7 @@ furl==2.1.4
     # via jobserver
 googleapis-common-protos==1.75.0
     # via opentelemetry-exporter-otlp-proto-http
-greenlet==3.5.2
+greenlet==3.5.3
     # via playwright
 gunicorn==26.0.0
     # via jobserver
@@ -122,7 +122,7 @@ oauthlib==3.3.1
     #   social-auth-core
 opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.04.22.171515.zip
     # via jobserver
-opentelemetry-api==1.42.1
+opentelemetry-api==1.43.0
     # via
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-instrumentation
@@ -133,36 +133,36 @@ opentelemetry-api==1.42.1
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp-proto-common==1.42.1
+opentelemetry-exporter-otlp-proto-common==1.43.0
     # via opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-http==1.42.1
+opentelemetry-exporter-otlp-proto-http==1.43.0
     # via jobserver
-opentelemetry-instrumentation==0.63b1
+opentelemetry-instrumentation==0.64b0
     # via
     #   opentelemetry-instrumentation-dbapi
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-psycopg2
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-dbapi==0.63b1
+opentelemetry-instrumentation-dbapi==0.64b0
     # via opentelemetry-instrumentation-psycopg2
-opentelemetry-instrumentation-django==0.63b1
+opentelemetry-instrumentation-django==0.64b0
     # via jobserver
-opentelemetry-instrumentation-psycopg2==0.63b1
+opentelemetry-instrumentation-psycopg2==0.64b0
     # via jobserver
-opentelemetry-instrumentation-requests==0.63b1
+opentelemetry-instrumentation-requests==0.64b0
     # via jobserver
-opentelemetry-instrumentation-wsgi==0.63b1
+opentelemetry-instrumentation-wsgi==0.64b0
     # via opentelemetry-instrumentation-django
-opentelemetry-proto==1.42.1
+opentelemetry-proto==1.43.0
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-sdk==1.42.1
+opentelemetry-sdk==1.43.0
     # via
     #   jobserver
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-semantic-conventions==0.63b1
+opentelemetry-semantic-conventions==0.64b0
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
@@ -170,7 +170,7 @@ opentelemetry-semantic-conventions==0.63b1
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.63b1
+opentelemetry-util-http==0.64b0
     # via
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-requests
@@ -194,7 +194,7 @@ pluggy==1.6.0
 pprintpp==0.4.0
     # via pytest-icdiff
 pre-commit==4.6.0
-protobuf==6.33.6
+protobuf==7.35.1
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
@@ -272,7 +272,7 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.15.18
+ruff==0.15.20
 ruyaml==0.91.0
     # via opensafely-pipeline
 sentry-sdk==2.63.0
@@ -288,9 +288,9 @@ slack-sdk==3.42.0
     # via jobserver
 slippers==0.7.0
     # via jobserver
-social-auth-app-django==5.9.0
+social-auth-app-django==6.0.0
     # via jobserver
-social-auth-core==4.9.1
+social-auth-core==5.0.2
     # via
     #   jobserver
     #   social-auth-app-django
