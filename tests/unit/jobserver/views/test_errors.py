@@ -20,7 +20,7 @@ def test_bad_request(rf):
 
     assert response.status_code == 400
     assert "Bad request" in response.rendered_content
-    assert "An error has occurred displaying this page." in response.rendered_content
+    assert "An error occurred while displaying this page." in response.rendered_content
 
 
 def test_bad_request_too_many_fields(rf):
@@ -45,7 +45,7 @@ def test_csrf_failure(rf):
 
     assert response.status_code == 400
     assert "CSRF Failed" in response.rendered_content
-    assert "The form was not able to submit." in response.rendered_content
+    assert "The form could not be submitted." in response.rendered_content
 
 
 def test_permission_denied_for_anonymous_user(rf):
@@ -56,7 +56,11 @@ def test_permission_denied_for_anonymous_user(rf):
 
     assert response.status_code == 403
     assert "Permission denied" in response.rendered_content
-    assert "you may need to log in" in response.rendered_content.lower()
+    assert "you need to log in" in response.rendered_content.lower()
+    assert (
+        "your account does not have the required permissions"
+        in response.rendered_content.lower()
+    )
     assert 'id="error-page-login-button"' in response.rendered_content
 
 
@@ -68,7 +72,7 @@ def test_permission_denied_for_authenticated_user(rf):
 
     assert response.status_code == 403
     assert "Permission denied" in response.rendered_content
-    assert "you may need to log in" not in response.rendered_content.lower()
+    assert "you need to log in" not in response.rendered_content.lower()
     assert 'id="error-page-login-button"' not in response.rendered_content
 
 
@@ -80,7 +84,9 @@ def test_page_not_found_for_anonymous_user(rf):
 
     assert response.status_code == 404
     assert "Page not found" in response.rendered_content
-    assert "you may need to log in" in response.rendered_content.lower()
+    assert "<p>This may be because:</p>" in response.rendered_content
+    assert "<li>the link is incorrect</li>" in response.rendered_content
+    assert "you need to log in" in response.rendered_content.lower()
     assert 'id="error-page-login-button"' in response.rendered_content
 
 
@@ -92,7 +98,7 @@ def test_page_not_found_for_authenticated_user(rf):
 
     assert response.status_code == 404
     assert "Page not found" in response.rendered_content
-    assert "you may need to log in" not in response.rendered_content.lower()
+    assert "you need to log in" not in response.rendered_content.lower()
     assert 'id="error-page-login-button"' not in response.rendered_content
 
 
@@ -104,4 +110,4 @@ def test_server_error(rf):
 
     assert response.status_code == 500
     assert "Server error" in response.rendered_content
-    assert "An error has occurred displaying this page." in response.rendered_content
+    assert "An error occurred while displaying this page." in response.rendered_content
