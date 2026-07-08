@@ -170,7 +170,7 @@ skip_covered = true
 show_contexts = true
 
 [tool.pytest.ini_options]
-addopts = "--disable-socket --tb=native --maxprocesses=6 --strict-markers"
+addopts = "--disable-socket --allow-hosts=localhost --tb=native --maxprocesses=6 --strict-markers"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "JOBSERVER_GITHUB_TOKEN=empty",
@@ -277,8 +277,7 @@ dev = [
     "pytest-icdiff",
     "pytest-mock",
     "pytest-playwright",
-    # Pin temporarily due to failures with v0.8.0.
-    "pytest-socket==0.7.0",
+    "pytest-socket",
     "pytest-xdist[psutil]",
     "responses",
     "ruff",
