@@ -1,5 +1,6 @@
 import os
 import subprocess
+from types import SimpleNamespace
 
 import pytest
 from django.core.management import call_command
@@ -14,22 +15,29 @@ TEST_DBNAME = "test_dbname"
 
 
 @pytest.fixture
-def default_database(settings):
-    database_config = {
-        "HOST": TEST_HOST,
-        "PORT": TEST_PORT,
-        "USER": TEST_USER,
-        "PASSWORD": TEST_PASSWORD,
-        "NAME": TEST_DBNAME,
-    }
-    settings.DATABASES["default"] = database_config
-    return database_config
+def fake_database_settings(monkeypatch, tmp_path):
+    fake_settings = SimpleNamespace(
+        DATABASES={
+            "default": {
+                "HOST": TEST_HOST,
+                "PORT": TEST_PORT,
+                "USER": TEST_USER,
+                "PASSWORD": TEST_PASSWORD,
+                "NAME": TEST_DBNAME,
+            }
+        },
+        RAW_DATABASE_DUMP_PATH=tmp_path / "jobserver.dump",
+    )
+
+    monkeypatch.setattr(
+        "jobserver.management.commands.dump_raw_data.settings", fake_settings
+    )
+
+    return fake_settings
 
 
-def test_dump_raw_data_command(
-    settings, default_database, monkeypatch, tmp_path, capsys
-):
-    settings.RAW_DATABASE_DUMP_PATH = tmp_path / "jobserver.dump"
+@pytest.fixture
+def fake_subprocess_calls(monkeypatch):
     calls = []
 
     def fake_run(command, env, capture_output, text, check):
@@ -48,28 +56,35 @@ def test_dump_raw_data_command(
         fake_run,
     )
 
+    return calls
+
+
+def test_dump_raw_data_command_with_default_path(
+    fake_database_settings, fake_subprocess_calls, capsys
+):
     call_command("dump_raw_data")
 
-    assert calls == [
+    output_path = fake_database_settings.RAW_DATABASE_DUMP_PATH
+    assert fake_subprocess_calls == [
         {
             "command": [
                 "pg_dump",
                 "--format=c",
                 "--no-acl",
                 "--no-owner",
-                f"--file={tmp_path / 'jobserver.dump'}",
+                f"--file={output_path}",
                 "--host",
-                default_database["HOST"],
+                TEST_HOST,
                 "--port",
-                default_database["PORT"],
+                TEST_PORT,
                 "--username",
-                default_database["USER"],
+                TEST_USER,
                 "--dbname",
-                default_database["NAME"],
+                TEST_DBNAME,
             ],
             "env": {
                 "PATH": os.environ["PATH"],
-                "PGPASSWORD": default_database["PASSWORD"],
+                "PGPASSWORD": TEST_PASSWORD,
             },
             "capture_output": True,
             "text": True,
@@ -78,37 +93,21 @@ def test_dump_raw_data_command(
     ]
 
     out, _ = capsys.readouterr()
-    assert (
-        f"Creating raw JobServer database dump at {tmp_path / 'jobserver.dump'}" in out
-    )
-    assert (
-        f"Finished creating raw JobServer database dump at {tmp_path / 'jobserver.dump'}"
-        in out
-    )
+    assert f"Creating raw JobServer database dump at {output_path}" in out
+    assert f"Finished creating raw JobServer database dump at {output_path}" in out
 
 
 def test_dump_raw_data_command_with_custom_path(
-    default_database, monkeypatch, tmp_path
+    fake_database_settings, fake_subprocess_calls, tmp_path
 ):
-    calls = []
-
-    def fake_run(command, **kwargs):
-        calls.append(command)
-
-    monkeypatch.setattr(
-        "jobserver.management.commands.dump_raw_data.subprocess.run",
-        fake_run,
-    )
-
     output_path = tmp_path / "custom.dump"
+
     call_command("dump_raw_data", "--output", str(output_path))
 
-    assert calls[0][4] == f"--file={output_path}"
+    assert fake_subprocess_calls[0]["command"][4] == f"--file={output_path}"
 
 
-def test_command_error(settings, default_database, monkeypatch, tmp_path):
-    settings.RAW_DATABASE_DUMP_PATH = tmp_path / "jobserver.dump"
-
+def test_dump_raw_data_command_error(fake_database_settings, monkeypatch):
     def fake_run(*args, **kwargs):
         raise subprocess.CalledProcessError(
             returncode=1,
