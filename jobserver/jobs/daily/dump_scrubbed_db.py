@@ -6,14 +6,14 @@ import tempfile
 import structlog
 from django.conf import settings
 from django.core.management import CommandError, call_command
-from django_extensions.management.jobs import JobError, YearlyJob
+from django_extensions.management.jobs import DailyJob, JobError
 
 
 logger = structlog.get_logger(__name__)
 
 
-class Job(YearlyJob):
-    help = "Scrubbed database dump job (in progress)"
+class Job(DailyJob):
+    help = "Create a scrubbed database dump"
 
     def execute(self):
         scrubbed_dump_path = settings.SCRUBBED_DATABASE_DUMP_PATH
