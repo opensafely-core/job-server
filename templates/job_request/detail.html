@@ -176,12 +176,14 @@
                       {{ job.identifier }}
                     </code>
                   </dd>
-                  {% if job.status == "failed" and job.status_message %}
-                    <dt class="sr-only">Error:</dt>
-                    <dd class="mt-1 bg-red-50 text-red-900 border-red-200 wrap-break-word font-mono text-sm pt-2 pb-1.5 px-3 rounded border">
-                      {% if job.status_code %}<strong>{{ job.status_code }}:</strong>{% endif %}
-                      <span>{{ job.status_message }}</span>
-                    </dd>
+                  {% if job.status == "failed" or job.status == "pending" %}
+                    {% if job.status_message %}
+                      <dt class="sr-only">Status message:</dt>
+                      <dd class="{% if job.status == "failed" %}bg-red-50 text-red-900 border-red-200 {% endif %}{% if job.status == "pending" %}bg-orange-50 text-orange-900 border-orange-200 {% endif %}mt-1 wrap-break-word font-mono text-sm pt-2 pb-1.5 px-3 rounded border">
+                        {% if job.status_code %}<strong>{{ job.status_code }}:</strong>{% endif %}
+                        <span>{{ job.status_message }}</span>
+                      </dd>
+                    {% endif %}
                   {% endif %}
                 </dl>
               </li>
