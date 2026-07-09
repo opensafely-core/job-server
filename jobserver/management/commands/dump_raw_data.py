@@ -19,8 +19,14 @@ def database_connection_args(database_config):
     ]
 
 
+# This command creates a raw JobServer database dump containing personal data.
+# Follow the personal data copying policy before running it. Only create or
+# download a raw dump when agreed with your line manager or Tech SLT.
 class Command(BaseCommand):
-    help = "Create a raw dump of the JobServer database"
+    help = (
+        "Create a raw dump of the JobServer database. "
+        "Only run this when agreed with your line manager or Tech SLT."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
