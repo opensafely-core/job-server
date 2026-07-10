@@ -197,6 +197,7 @@ markers = [
   "slow_test: mark test as being slow running",
   "verification: tests that verify fakes",
   "functional: tests that use Playwright in functional tests",
+  "docker_test: tests that require the Docker test environment or its system dependencies",
 ]
 xfail_strict=true
 
