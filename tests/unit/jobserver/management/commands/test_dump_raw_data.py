@@ -1,10 +1,12 @@
 import os
 import subprocess
-from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.test import override_settings
 
 
 TEST_HOST = "test_host"
@@ -15,25 +17,23 @@ TEST_DBNAME = "test_dbname"
 
 
 @pytest.fixture
-def fake_database_settings(monkeypatch, tmp_path):
-    fake_settings = SimpleNamespace(
-        DATABASES={
-            "default": {
-                "HOST": TEST_HOST,
-                "PORT": TEST_PORT,
-                "USER": TEST_USER,
-                "PASSWORD": TEST_PASSWORD,
-                "NAME": TEST_DBNAME,
-            }
-        },
-        RAW_DATABASE_DUMP_PATH=tmp_path / "jobserver.dump",
-    )
+def dump_raw_data_settings(tmp_path):
+    database_config = {
+        **settings.DATABASES["default"],
+        "HOST": TEST_HOST,
+        "PORT": TEST_PORT,
+        "USER": TEST_USER,
+        "PASSWORD": TEST_PASSWORD,
+        "NAME": TEST_DBNAME,
+    }
 
-    monkeypatch.setattr(
-        "jobserver.management.commands.dump_raw_data.settings", fake_settings
-    )
+    output_path = tmp_path / "jobserver.dump"
 
-    return fake_settings
+    with (
+        patch.dict(settings.DATABASES["default"], database_config),
+        override_settings(RAW_DATABASE_DUMP_PATH=output_path),
+    ):
+        yield output_path
 
 
 @pytest.fixture
@@ -60,11 +60,12 @@ def fake_subprocess_calls(monkeypatch):
 
 
 def test_dump_raw_data_command_with_default_path(
-    fake_database_settings, fake_subprocess_calls, capsys
+    dump_raw_data_settings, fake_subprocess_calls, capsys
 ):
     call_command("dump_raw_data")
 
-    output_path = fake_database_settings.RAW_DATABASE_DUMP_PATH
+    output_path = dump_raw_data_settings
+
     assert fake_subprocess_calls == [
         {
             "command": [
@@ -98,7 +99,7 @@ def test_dump_raw_data_command_with_default_path(
 
 
 def test_dump_raw_data_command_with_custom_path(
-    fake_database_settings, fake_subprocess_calls, tmp_path
+    dump_raw_data_settings, fake_subprocess_calls, tmp_path
 ):
     output_path = tmp_path / "custom.dump"
 
@@ -107,7 +108,7 @@ def test_dump_raw_data_command_with_custom_path(
     assert fake_subprocess_calls[0]["command"][4] == f"--file={output_path}"
 
 
-def test_dump_raw_data_command_error(fake_database_settings, monkeypatch):
+def test_dump_raw_data_command_error(dump_raw_data_settings, monkeypatch):
     def fake_run(*args, **kwargs):
         raise subprocess.CalledProcessError(
             returncode=1,
