@@ -84,6 +84,7 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "208",  #    https://jobs.opensafely.org/diagnostics-demand-optimisation/
     "209",  # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
     "POS-2026-2001",  # Evaluating the implementation of NICE gout guidance within the NHS
+    "POS-2026-2002",  # Improving disease burden estimation in England
 }
 
 
