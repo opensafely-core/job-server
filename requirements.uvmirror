@@ -28,7 +28,7 @@ charset-normalizer==3.4.7
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.14.3
+coverage==7.15.0
 cryptography==49.0.0
     # via
     #   pyjwt
@@ -82,11 +82,11 @@ djhtml==3.0.11
 execnet==2.1.2
     # via pytest-xdist
 factory-boy==3.3.3
-faker==40.23.0
+faker==40.28.1
     # via
     #   factory-boy
     #   jobserver
-filelock==3.29.4
+filelock==3.29.5
     # via
     #   python-discovery
     #   virtualenv
@@ -187,7 +187,7 @@ platformdirs==4.10.0
     # via
     #   python-discovery
     #   virtualenv
-playwright==1.60.0
+playwright==1.61.0
     # via pytest-playwright
 pluggy==1.6.0
     # via pytest
@@ -237,7 +237,7 @@ pytest-socket==0.8.0
 pytest-xdist==3.8.0
 python-dateutil==2.9.0.post0
     # via freezegun
-python-discovery==1.4.2
+python-discovery==1.4.3
     # via virtualenv
 python-dotenv==1.2.2
     # via pytest-env
@@ -265,7 +265,7 @@ requests==2.34.2
     #   social-auth-core
 requests-oauthlib==2.0.0
     # via social-auth-core
-responses==0.26.1
+responses==0.26.2
 ruamel-yaml==0.18.15
     # via opensafely-pipeline
 ruamel-yaml-clib==0.2.8
@@ -275,16 +275,16 @@ ruamel-yaml-clib==0.2.8
 ruff==0.15.20
 ruyaml==0.91.0
     # via opensafely-pipeline
-sentry-sdk==2.63.0
+sentry-sdk==2.64.0
     # via jobserver
-setuptools==82.0.1
+setuptools==83.0.0
     # via ruyaml
 six==1.17.0
     # via
     #   furl
     #   orderedmultidict
     #   python-dateutil
-slack-sdk==3.42.0
+slack-sdk==3.43.0
     # via jobserver
 slippers==0.7.0
     # via jobserver
@@ -312,7 +312,7 @@ tokenize-rt==6.2.0
     # via django-upgrade
 typeguard==2.13.3
     # via slippers
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   opentelemetry-api
     #   opentelemetry-exporter-otlp-proto-http
