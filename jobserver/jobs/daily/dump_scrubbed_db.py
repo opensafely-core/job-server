@@ -7,6 +7,9 @@ import structlog
 from django.conf import settings
 from django.core.management import CommandError, call_command
 from django_extensions.management.jobs import DailyJob, JobError
+from sentry_sdk.crons.decorator import monitor
+
+from services.sentry import monitor_config
 
 
 logger = structlog.get_logger(__name__)
@@ -15,6 +18,9 @@ logger = structlog.get_logger(__name__)
 class Job(DailyJob):
     help = "Create a scrubbed database dump"
 
+    @monitor(
+        monitor_slug="dump_scrubbed_db", monitor_config=monitor_config("0 0 * * *")
+    )
     def execute(self):
         scrubbed_dump_path = settings.SCRUBBED_DATABASE_DUMP_PATH
         readonly_database = settings.DATABASES.get(settings.READONLY_DATABASE_ALIAS)

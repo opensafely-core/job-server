@@ -10,7 +10,8 @@
       - [Installing on Linux](#installing-on-linux)
       - [Creating a database](#creating-a-database)
     - [Restoring Backups](#restoring-backups)
-    - [Scrubbing jobserver database](#scrubbing-jobserver-database)
+    - [Creating raw JobServer database dump](#creating-raw-jobserver-database-dump)
+    - [Scrubbing JobServer database](#scrubbing-jobserver-database)
     - [Steps](#steps)
   - [Docker Compose](#docker-compose)
   - [Frontend development (CSS/JS)](#frontend-development-cssjs)
@@ -134,32 +135,28 @@ GRANT ALL PRIVILEGES on database jobserver to jobsuser;
 "
 ```
 
-
 #### Restoring Backups
 
-Copies of production can be restored to a local database using a dump pulled from production.
+A scrubbed copy of the production database can be restored locally for development and debugging.
 If you do not have access to pull production backups, follow the [setting up a fresh install](#setting-up-a-fresh-install) instead of restoring a backup.
 
-
-Backups can be copied with:
+Copy the scrubbed dump from the server:
 
 ```sh
-scp dokku4:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
+scp dokku4:/var/lib/dokku/data/storage/job-server/jobserver_scrubbed.dump jobserver_scrubbed.dump
 ```
-
 
 If using the provided docker db you just need to do (note this will wipe your current
 dev db):
 
 ```sh
-just docker/restore-db jobserver.dump
+just docker/restore-db jobserver_scrubbed.dump
 ```
 
 If using a manual install, you can restore with:
 
-
 ```sh
-pg_restore --clean --if-exists --no-acl --no-owner -d jobserver jobserver.dump
+pg_restore --clean --if-exists --no-acl --no-owner -d jobserver jobserver_scrubbed.dump
 ```
 
 Note: This assumes ident auth (the default in Postgres.app) is set up.
@@ -168,10 +165,28 @@ Note: `pg_restore` will throw errors in various scenarios, which can often be ig
 The important line to check for (typically at the very end) is `errors ignored on restore: N`.
 Where `N` should match the number of errors you got.
 
+The dump has already been scrubbed and can be used for local development without running the `scrub_data` management command.
 
-#### Scrubbing jobserver database
+#### Creating raw JobServer database dump
 
-After restoring a production database dump locally, run the data scrubbing command before using the database for development or debugging:
+Raw production database dumps are not created automatically. They contain personal data and should only be created when a scrubbed dump is not suitable for a specific task.
+
+Before creating or copying a raw dump, follow the [personal data copying policy](https://bennett.wiki/tech-group/policies/personal-data-copying-policy/#personal-data-copying-policy) and agree the plan with your line manager or Tech SLT.
+If the decision is to proceed with copying the data, create an entry in the [decision log](https://docs.google.com/spreadsheets/d/1C1z3WV-WSL-H1keZZCVPm6hR_5ajjgRT5zGO5cLv2Aw/edit?gid=0#gid=0) before creating or downloading the dump, as required by the policy.
+
+Once agreed, create the raw dump manually on Dokku4 server using the management command:
+
+```sh
+dokku run job-server python manage.py dump_raw_data
+```
+
+The command writes the dump to the location configured by `JOBSERVER_RAW_DUMP_PATH`, currently `/storage/jobserver.dump`.
+
+Only download, restore, or retain the raw dump as agreed. Delete the dump locally and any local database containing its data as soon as they are no longer required.
+
+#### Scrubbing JobServer database
+
+If restoring a raw production database dump locally, run the data scrubbing command before using the database for development or debugging:
 
 ```bash
 just scrub-data
