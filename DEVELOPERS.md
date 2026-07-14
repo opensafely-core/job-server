@@ -10,7 +10,7 @@
       - [Installing on Linux](#installing-on-linux)
       - [Creating a database](#creating-a-database)
     - [Restoring Backups](#restoring-backups)
-    - [Creating raw JobServer database dump](#creating-raw-JobServer-database-dump)
+    - [Creating raw JobServer database dump](#creating-raw-jobserver-database-dump)
     - [Scrubbing JobServer database](#scrubbing-jobserver-database)
     - [Steps](#steps)
   - [Docker Compose](#docker-compose)
