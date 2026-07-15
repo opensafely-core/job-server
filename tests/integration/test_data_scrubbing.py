@@ -11,6 +11,7 @@ from data_scrubbing.management.commands.scrub_data import get_scrubbed_models
 
 from ..factories import (
     BackendFactory,
+    CodeFactory,
     ContactDetailsPageFactory,
     NonceFactory,
     PartialFactory,
@@ -215,6 +216,7 @@ def test_scrub_data_command_truncates_session_and_social_auth_tables():
     UserSocialAuthFactory(user=user)
     PartialFactory()
     NonceFactory()
+    CodeFactory()
 
     Session.objects.create(
         session_key="test_session_key",
@@ -228,10 +230,6 @@ def test_scrub_data_command_truncates_session_and_social_auth_tables():
         issued=1,
         lifetime=1,
         assoc_type="test_assoc_type",
-    )
-    Code.objects.create(
-        email="person@example.com",
-        code="test_code",
     )
 
     assert Session.objects.exists()
