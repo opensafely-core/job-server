@@ -1,10 +1,7 @@
-from datetime import timedelta
-
 import pytest
 from django.contrib.sessions.models import Session
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.utils import timezone
 from social_django.models import Association, Code, Nonce, Partial, UserSocialAuth
 
 from data_scrubbing.management.commands.scrub_data import get_scrubbed_models
@@ -17,6 +14,7 @@ from ..factories import (
     NonceFactory,
     PartialFactory,
     ResearcherRegistrationFactory,
+    SessionFactory,
     SponsorDetailsPageFactory,
     StudyPurposePageFactory,
     UserFactory,
@@ -213,18 +211,13 @@ def test_scrub_data_command_truncates_session_and_social_auth_tables():
 
     These tables may contain sensitive personal data or tokens so the command
     should empty them entirely."""
+    SessionFactory()
     user = UserFactory()
     UserSocialAuthFactory(user=user)
     PartialFactory()
     NonceFactory()
     CodeFactory()
     AssociationFactory()
-
-    Session.objects.create(
-        session_key="test_session_key",
-        session_data="test_session_data",
-        expire_date=timezone.now() + timedelta(days=1),
-    )
 
     assert Session.objects.exists()
     assert Association.objects.exists()

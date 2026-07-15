@@ -2,6 +2,7 @@ from .application import *  # noqa: F401, F403
 from .auditable_event import *  # noqa: F401, F403
 from .backend import *  # noqa: F401, F403
 from .backend_membership import *  # noqa: F401, F403
+from .django.contrib.sessions.session import SessionFactory  # noqa: F401
 from .job import *  # noqa: F401, F403
 from .job_request import *  # noqa: F401, F403
 from .org import *  # noqa: F401, F403
