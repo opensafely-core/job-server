@@ -212,11 +212,11 @@ def test_scrub_data_command_truncates_session_and_social_auth_tables():
     These tables may contain sensitive personal data or tokens so the command
     should empty them entirely."""
     SessionFactory()
-    UserSocialAuthFactory(user=UserFactory())
-    PartialFactory()
-    NonceFactory()
-    CodeFactory()
     AssociationFactory()
+    CodeFactory()
+    NonceFactory()
+    PartialFactory()
+    UserSocialAuthFactory(user=UserFactory())
 
     assert Session.objects.exists()
     assert Association.objects.exists()
