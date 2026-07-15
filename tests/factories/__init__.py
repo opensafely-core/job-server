@@ -17,6 +17,7 @@ from .release_file_review import *  # noqa: F401, F403
 from .repo import *  # noqa: F401, F403
 from .site_alert import *  # noqa: F401, F403
 from .snapshot import *  # noqa: F401, F403
+from .social_django.association import AssociationFactory  # noqa: F401
 from .social_django.code import CodeFactory  # noqa: F401
 from .social_django.nonce import NonceFactory  # noqa: F401
 from .social_django.partial import PartialFactory  # noqa: F401

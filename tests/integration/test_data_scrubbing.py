@@ -10,6 +10,7 @@ from social_django.models import Association, Code, Nonce, Partial, UserSocialAu
 from data_scrubbing.management.commands.scrub_data import get_scrubbed_models
 
 from ..factories import (
+    AssociationFactory,
     BackendFactory,
     CodeFactory,
     ContactDetailsPageFactory,
@@ -217,19 +218,12 @@ def test_scrub_data_command_truncates_session_and_social_auth_tables():
     PartialFactory()
     NonceFactory()
     CodeFactory()
+    AssociationFactory()
 
     Session.objects.create(
         session_key="test_session_key",
         session_data="test_session_data",
         expire_date=timezone.now() + timedelta(days=1),
-    )
-    Association.objects.create(
-        server_url="https://example.com",
-        handle="test_handle",
-        secret="test_secret",
-        issued=1,
-        lifetime=1,
-        assoc_type="test_assoc_type",
     )
 
     assert Session.objects.exists()
