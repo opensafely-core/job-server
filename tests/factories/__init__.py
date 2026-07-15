@@ -17,8 +17,8 @@ from .release_file_review import *  # noqa: F401, F403
 from .repo import *  # noqa: F401, F403
 from .site_alert import *  # noqa: F401, F403
 from .snapshot import *  # noqa: F401, F403
-from .social_django.partial import *  # noqa: F401, F403
-from .social_django.user_social_auth import *  # noqa: F401, F403
+from .social_django.partial import PartialFactory  # noqa: F401
+from .social_django.user_social_auth import UserSocialAuthFactory  # noqa: F401
 from .stats import *  # noqa: F401, F403
 from .user import *  # noqa: F401, F403
 from .workspace import *  # noqa: F401, F403
