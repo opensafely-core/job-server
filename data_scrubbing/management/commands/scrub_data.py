@@ -174,10 +174,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
 from django.db import connections, transaction
-from faker import Faker
 
-
-fake = Faker()
 
 APPLICATIONS_TO_SCRUB = {
     "applications",
