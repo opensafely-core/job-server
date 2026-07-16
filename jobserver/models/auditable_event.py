@@ -48,10 +48,15 @@ class AuditableEvent(models.Model):
     created_by = models.TextField()
 
     class DataScrubbing:
+        # Several AuditableEvent fields contain arbitrary data, so we should
+        # scrub all of these to be safe. That makes the audit logs unrealistic
+        # in the scrubbed data. The developer will just have to trigger new
+        # ones in the development environment if they need more realistic ones.
         fields_to_scrub = {
             "new": "fake new audit value",
             "old": "fake old audit value",
             "created_by": "fake audit created_by",
+            "target_user": "fake audit target_user",
         }
         allowed_fields = frozenset(
             [
@@ -62,7 +67,6 @@ class AuditableEvent(models.Model):
                 "target_field",
                 "target_id",
                 "target_model",
-                "target_user",
                 "type",
             ]
         )
