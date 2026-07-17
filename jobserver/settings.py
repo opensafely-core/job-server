@@ -498,6 +498,8 @@ APPLICATIONS_SLACK_CHANNEL = os.environ.get(
 COPILOT_SUPPORT_SLACK_CHANNEL = os.environ.get(
     "COPILOT_SUPPORT_SLACK_CHANNEL", default="co-pilot-support"
 )
+# For the team managing production Job Server to hear about important things
+ALERTS_SLACK_CHANNEL = os.environ.get("ALERTS_SLACK_CHANNEL", default="team-rex-alerts")
 # for Airlock
 DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL = os.environ.get(
     "DEFAULT_OUTPUT_CHECKING_SLACK_CHANNEL", default="opensafely-outputs"
