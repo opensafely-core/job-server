@@ -30,6 +30,8 @@ import subprocess
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from jobserver.slacks import alert_raw_dump
+
 
 def database_connection_args(database_config):
     return [
@@ -97,3 +99,4 @@ class Command(BaseCommand):
         self.stdout.write(
             f"Finished creating raw JobServer database dump at {output_path}"
         )
+        alert_raw_dump()
