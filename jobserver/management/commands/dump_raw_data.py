@@ -1,3 +1,28 @@
+"""Django management command to create a raw database dump.
+
+Read this docstring before using this command!
+
+Usually developers should instead use the scrubbed database dump if they need
+near-realistic production data for use in their development process. Some
+investigations or tasks may need to use the raw database dump in exceptional
+circumstances.
+
+If you think you need to use this you must follow the [personal data copying
+policy]. That means you must:
+
+- decide whether you really need to copy it or if you could achieve your goal
+  in a different way;
+- discuss your plans with your line manager or the Tech SLT if they are not
+  available;
+- record your decision in the [personal data copying decision log] if
+  you go ahead.
+- remove the raw dump from the server and developer machines as soon as it is
+  no longer required.
+
+[personal data copying policy]: https://bennett.wiki/tech-group/policies/personal-data-copying-policy/#personal-data-copying-policy
+[personal data copying decision log]: https://docs.google.com/spreadsheets/d/1C1z3WV-WSL-H1keZZCVPm6hR_5ajjgRT5zGO5cLv2Aw
+"""
+
 import os
 import pathlib
 import subprocess
@@ -19,13 +44,13 @@ def database_connection_args(database_config):
     ]
 
 
-# This command creates a raw JobServer database dump containing personal data.
-# Follow the personal data copying policy before running it. Only create or
-# download a raw dump when agreed with your line manager or Tech SLT.
 class Command(BaseCommand):
     help = (
-        "Create a raw dump of the JobServer database. "
-        "Only run this when agreed with your line manager or Tech SLT."
+        "Create a raw database dump. You must follow the personal data "
+        "copying policy. Only run this when agreed with your line manager "
+        "or Tech SLT. You must record your decision in the personal data "
+        "copying decision log and remove the raw dump from the server and "
+        "developer machines as soon as it is no longer required."
     )
 
     def add_arguments(self, parser):
