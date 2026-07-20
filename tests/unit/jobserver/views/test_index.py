@@ -88,7 +88,7 @@ def test_index_authenticated_display_active_backend_job_requests(
 
 @pytest.mark.slow_test
 def test_index_authenticated_client(client, django_assert_num_queries):
-    user = UserFactory()
+    user = UserFactory(fullname="Test User")
     JobRequestFactory.create_batch(10)
 
     with django_assert_num_queries(41):
@@ -96,6 +96,8 @@ def test_index_authenticated_client(client, django_assert_num_queries):
         response = client.get("/")
         assert response.status_code == 200
         assert "OpenSAFELY Jobs" in response.rendered_content
+        assert "Signed in as:" in response.rendered_content
+        assert user.fullname in response.rendered_content
 
 
 def test_index_unauthenticated(rf, django_assert_num_queries):
