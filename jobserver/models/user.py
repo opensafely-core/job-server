@@ -211,13 +211,6 @@ class User(AbstractBaseUser):
         return any(self.roles + project_roles)
 
     @property
-    def initials(self):
-        if self.fullname == self.username:
-            return self.fullname[0].upper()
-
-        return "".join(w[0].upper() for w in self.fullname.split(" "))
-
-    @property
     def display_name(self):
         """Return a user's name in the format: fullname (username)"""
         return f"{self.fullname} ({self.username})"
