@@ -1,3 +1,5 @@
+import inspect
+
 import pytest
 from django.contrib.sessions.models import Session
 from django.core.management import call_command
@@ -24,11 +26,13 @@ from ..factories import (
 
 @pytest.mark.django_db
 @pytest.mark.slow_test
-def test_scrub_data_command_success():
+def test_scrub_data_command_success(freezer):
     """Test that the scrub_data command does replace sensitive fields according
     to its configuration.
 
     See the data_scrubbing package to better understand this functionality."""
+    freezer.move_to("2026-07-10")
+
     instances = [
         UserFactory(),
         BackendFactory(),
@@ -64,7 +68,13 @@ def test_scrub_data_command_success():
         # Scrubbed fields changed to their defined replacement values.
         for field_name, fake_value in fields_to_scrub.items():
             actual = getattr(instance, field_name)
-            if callable(fake_value):
+            if inspect.isgenerator(fake_value):
+                # For now, the only generator that we use for a fake value is
+                # for User.email, so special case that the fake e-mail based on
+                # frozen time is generated as expected.
+                # If we add more generators we will have to rework.
+                assert actual == "260710000000_1@example.com"
+            elif callable(fake_value):
                 assert actual != before[field_name], (
                     f"{model_class.__name__}.{field_name} should have changed"
                 )

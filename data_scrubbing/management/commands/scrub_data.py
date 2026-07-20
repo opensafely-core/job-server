@@ -166,6 +166,9 @@ scrub, it will need to be in TABLES_TO_TRUNCATE and have a DataScrubbing
 defined on the model.
 """
 
+import inspect
+from datetime import datetime
+
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -196,6 +199,32 @@ TABLES_TO_TRUNCATE = [
     "social_auth_usersocialauth",
 ]
 """Names of Database tables to be truncated entirely."""
+
+
+def get_fake_unique_email():
+    """Generator function for a "fairly unique" fake e-mail address string.
+
+    It embeds the start time of the generator and an loop counter so should be
+    unique within-process (assuming no threading) and between consecutive runs
+    triggered by humans, but is not globally unique. In practice we only expect
+    one data scrubbing process at a time, so this should be sufficient to avoid
+    hitting uniqueness constraints.
+
+    Example fake e-mail generated: '260716073644_1@example.com'."""
+    start_time_str = datetime.now().strftime("%y%m%d%H%M%S")
+    count = 0
+
+    while True:
+        count += 1
+        yield f"{start_time_str}_{count}@example.com"
+
+
+fake_unique_email = get_fake_unique_email()
+"""Generator for a "fairly unique" fake e-mail address string.
+
+This is in this module as a variable so that multiple places can share this and
+avoid repeats, and because this module is where the mechanisms for data
+scrubbing are defined."""
 
 
 def get_scrubbed_models():
@@ -262,7 +291,12 @@ class Command(BaseCommand):
                 count = 0
                 for obj in objs:
                     for attr_name, fake_value in scrub_fields.items():
-                        value = fake_value() if callable(fake_value) else fake_value
+                        if inspect.isgenerator(fake_value):
+                            value = next(fake_value)
+                        elif callable(fake_value):
+                            value = fake_value()
+                        else:
+                            value = fake_value
                         setattr(obj, attr_name, value)
                     obj.save(using=database_alias, update_fields=field_names)
                     count += 1
