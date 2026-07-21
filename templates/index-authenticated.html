@@ -13,7 +13,11 @@
     <div class="bg-white shadow-sm">
       <div class="grid gap-y-2 text-center text-slate-700 py-6 px-8">
         <h1 class="text-xl/6 font-semibold text-slate-900">Your OpenSAFELY Dashboard</h1>
-        <p class="text-slate-600 text-sm/tight">Signed in as: <strong class="text-slate-900">{{ user.fullname }}</strong></p>
+        <p class="text-slate-600 text-sm/tight">
+          Logged in as:
+          <strong class="text-slate-900">{{ user.fullname }} </strong>
+          ({{ user.username }} via GitHub)
+        </p>
         <p>Continue your research, view job requests, and see recent workspace activity.</p>
       </div>
 
