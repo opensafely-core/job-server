@@ -16,12 +16,12 @@ from rest_framework.exceptions import (
     PermissionDenied,
     ValidationError,
 )
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView
 from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from jobserver import releases, slacks
+from jobserver import releases
 from jobserver.actions import users
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import (
@@ -102,30 +102,6 @@ class ReleaseSerializer(serializers.Serializer):
     files = FileSerializer(many=True)
     metadata = serializers.DictField()
     review = serializers.DictField(allow_null=True)
-
-
-class ReleaseNotificationAPICreate(CreateAPIView):
-    authentication_classes = [SessionAuthentication]
-
-    class serializer_class(serializers.Serializer):
-        created_by = serializers.CharField()
-        path = serializers.CharField()
-        files = serializers.ListField(
-            child=serializers.CharField(), required=False, default=None
-        )
-
-    def initial(self, request, *args, **kwargs):
-        token = request.headers.get("Authorization")
-
-        # require auth for all requests
-        self.backend = get_backend_from_token(token)
-
-        return super().initial(request, *args, **kwargs)
-
-    def perform_create(self, serializer):
-        kwargs = serializer.data
-        kwargs["backend"] = self.backend
-        slacks.notify_github_release(**kwargs)
 
 
 def validate_files(db_files, payload_files):
@@ -277,8 +253,6 @@ class ReleaseWorkspaceAPI(APIView):
             workspace, backend, user, files, metadata=metadata, id=release_id
         )
 
-        slacks.notify_release_created(release)
-
         # Current osrelease workflow should not create a Github issues, so allow that to be supressed
         # Note: this is broken and spamming issues, so comment out for now
         # if request.headers.get("Suppress-Github-Issue") is None:  # pragma: no cover
@@ -354,8 +328,6 @@ class ReleaseAPI(APIView):
             releases.ReleaseFileHashMismatch,
         ) as exc:
             raise ValidationError({"detail": str(exc)})
-
-        slacks.notify_release_file_uploaded(rfile)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id

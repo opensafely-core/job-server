@@ -486,9 +486,6 @@ BACKEND_IP_MAP = {
 
 
 # SLACK CHANNELS
-RELEASES_SLACK_CHANNEL = os.environ.get(
-    "RELEASES_SLACK_CHANNEL", default="opensafely-releases"
-)
 REGISTRATIONS_SLACK_CHANNEL = os.environ.get(
     "REGISTRATIONS_SLACK_CHANNEL", default="job-server-registrations"
 )
