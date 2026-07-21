@@ -9,52 +9,31 @@
 {% endblock %}
 
 {% block content %}
-  {% #card container=True class="my-6 sm:mb-12 md:mt-0" %}
-    <h2 class="sr-only" id="profile-overview-title">Profile Overview</h2>
-    <div class="flex items-center justify-center sm:justify-between">
-      <div class="sm:flex sm:space-x-5 sm:items-center">
-        <div class="shrink-0">
-          <div
-            class="flex items-center justify-center w-16 h-16 bg-oxford-100 aspect-square rounded-2xl border border-oxford-500/25 overflow-hidden shrink-0 mx-auto sm:mx-0"
-          >
-            <span class="py-2 text-oxford-600 text-2xl font-bold" role="presentation">
-              {{ user.initials }}
-            </span>
-          </div>
-        </div>
-        <div class="mt-4 text-center sm:mt-0 sm:text-left">
-          <p class="text-sm font-medium text-slate-600">Welcome back,</p>
-          <p class="text-xl font-bold text-slate-900 sm:text-2xl">{{ user.fullname }}</p>
-        </div>
+  <section class="my-6 sm:mb-12 md:mt-0">
+    <div class="bg-white shadow-sm">
+      <div class="grid gap-y-2 text-center text-slate-700 py-6 px-8">
+        <h1 class="text-xl/6 font-semibold text-slate-900">Your OpenSAFELY Dashboard</h1>
+        <p class="text-slate-600 text-sm/tight">
+          Logged in as:
+          <strong class="text-slate-900">{{ user.fullname }} </strong>
+          ({{ user.username }} via GitHub)
+        </p>
+        <p>Continue your research, view job requests, and see recent workspace activity.</p>
       </div>
-    </div>
 
-    {% #card_footer class="py-0! px-0! -mb-3! md:-mb-5!" %}
-      <ul class="grid grid-cols-1 divide-y divide-slate-200 border-t border-slate-200 bg-slate-50 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-        <li class="px-6 py-5 text-center text-sm font-medium text-slate-600">
-          <span class="text-slate-900">{{ counts.job_requests }}</span>
-          <span class="text-slate-600">job request{{ counts.job_requests|pluralize }}</span>
+      <ul class="grid divide-y divide-slate-200 border-t border-slate-200 bg-slate-50 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
+        <li class="px-6 py-4 text-center text-base/tight font-medium text-slate-600">
+          <span class="text-slate-900">{{ counts.job_requests }}</span> job request{{ counts.job_requests|pluralize }}
         </li>
-
-        <li class="px-6 py-5 text-center text-sm font-medium">
-          <span class="text-slate-900">{{ counts.workspaces }}</span>
-          <span class="text-slate-600">workspace{{ counts.workspaces|pluralize }}</span>
+        <li class="px-6 py-4 text-center text-base/tight font-medium text-slate-600">
+          <span class="text-slate-900">{{ counts.workspaces }}</span> workspace{{ counts.workspaces|pluralize }}
         </li>
-
-        <li class="px-6 py-5 text-center text-sm font-medium">
-          <span class="text-slate-900">{{ counts.projects }}</span>
-          <span class="text-slate-600">project{{ counts.projects|pluralize }}</span>
+        <li class="px-6 py-4 text-center text-base/tight font-medium text-slate-600">
+          <span class="text-slate-900">{{ counts.projects }}</span> project{{ counts.projects|pluralize }}
         </li>
       </ul>
-    {% /card_footer %}
-  {% /card %}
-
-  <div class="border-b border-slate-200 pb-5 mb-5 text-center">
-    <h3 class="text-xl font-semibold leading-6 text-slate-900">Your OpenSAFELY Dashboard</h3>
-    <p class="mt-2 max-w-4xl text-base text-center mx-auto text-slate-700">
-      Continue your research, view job requests, see latest workspace activity
-    </p>
-  </div>
+    </div>
+  </section>
 
   <div class="grid gap-4 lg:grid-cols-2 mb-6">
     {% #card title="Job requests" subtitle="Your most recent job requests" %}

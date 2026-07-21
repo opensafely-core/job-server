@@ -94,8 +94,10 @@ def test_index_authenticated_client(client, django_assert_num_queries):
     with django_assert_num_queries(41):
         client.force_login(user)
         response = client.get("/")
-        assert response.status_code == 200
-        assert "OpenSAFELY Jobs" in response.rendered_content
+        content = response.rendered_content
+        assert "OpenSAFELY Jobs" in content
+        assert "Logged in as:" in content
+        assert user.fullname in content
 
 
 def test_index_unauthenticated(rf, django_assert_num_queries):

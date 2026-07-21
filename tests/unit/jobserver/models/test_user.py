@@ -198,31 +198,6 @@ def test_user_get_staff_url():
     )
 
 
-def test_user_initials_with_email():
-    user = UserFactory(email="test@example.com", username="test@example.com")
-
-    assert user.initials == "T"
-
-
-def test_user_initials_with_username_as_fullname():
-    user = UserFactory(username="Testuser", fullname="Testuser")
-
-    assert user.initials == "T"
-
-
-@pytest.mark.parametrize(
-    "name,initials",
-    [
-        ("Ben Goldacre", "BG"),
-        ("Tom O'Dwyer", "TO"),
-        ("Brian MacKenna", "BM"),
-        ("Ben Butler-Cole", "BB"),
-    ],
-)
-def test_user_initials_with_names(name, initials):
-    assert UserFactory(fullname=name).initials == initials
-
-
 def test_user_fullname():
     assert UserFactory(fullname="first last", username="test").fullname == "first last"
     assert UserFactory(username="username", fullname="username").fullname == "username"
