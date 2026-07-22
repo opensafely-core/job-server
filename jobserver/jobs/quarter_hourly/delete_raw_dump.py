@@ -22,7 +22,7 @@ A raw database dump will not exist most of the time, so the dump not existing is
 error.
 """
 
-from datetime import UTC, datetime, timedelta
+import time
 
 import structlog
 from django.conf import settings
@@ -34,7 +34,7 @@ from services.sentry import monitor_config
 
 logger = structlog.get_logger(__name__)
 
-RAW_DUMP_AGE_LIMIT = timedelta(minutes=15)
+RAW_DUMP_AGE_LIMIT = 15 * 60
 """Delete files older than this when the job runs."""
 
 
@@ -57,17 +57,14 @@ class Job(QuarterHourlyJob):
         if not raw_dump_path.is_file():
             raise JobError(f"Raw database dump path is not a file: {raw_dump_path}")
 
-        # Use the file's last-modified time as an approximation of when the dump
-        # finished being written, and convert it to UTC datetime.
-        modified_at = datetime.fromtimestamp(raw_dump_path.stat().st_mtime, tz=UTC)
         # Calculate how long the raw dump has been available since it was last modified.
-        dump_age = datetime.now(UTC) - modified_at
+        dump_age = time.time() - raw_dump_path.stat().st_mtime
 
         if dump_age < RAW_DUMP_AGE_LIMIT:
             logger.info(
                 "Raw database dump not deleted as it had not reached deletion age",
-                age_seconds=dump_age.total_seconds(),
-                deletion_age=RAW_DUMP_AGE_LIMIT.total_seconds(),
+                age_seconds=dump_age,
+                deletion_age=RAW_DUMP_AGE_LIMIT,
                 path=raw_dump_path,
             )
             return
@@ -75,7 +72,7 @@ class Job(QuarterHourlyJob):
         raw_dump_path.unlink(missing_ok=True)
         logger.info(
             "Deleted raw database dump as it had reached deletion age",
-            age_seconds=dump_age.total_seconds(),
-            deletion_age=RAW_DUMP_AGE_LIMIT.total_seconds(),
+            age_seconds=dump_age,
+            deletion_age=RAW_DUMP_AGE_LIMIT,
             path=raw_dump_path,
         )
