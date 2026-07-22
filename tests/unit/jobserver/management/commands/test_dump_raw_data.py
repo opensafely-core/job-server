@@ -1,6 +1,6 @@
 import os
 import subprocess
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from django.conf import settings
@@ -60,8 +60,14 @@ def fake_subprocess_calls(monkeypatch):
 
 
 def test_dump_raw_data_command_with_default_path(
-    dump_raw_data_settings, fake_subprocess_calls, capsys
+    dump_raw_data_settings, fake_subprocess_calls, capsys, monkeypatch
 ):
+    # Mock alerter to avoid testing details of how it works in this unit test.
+    mock_alert = Mock()
+    monkeypatch.setattr(
+        "jobserver.management.commands.dump_raw_data.alert_raw_dump", mock_alert
+    )
+
     call_command("dump_raw_data")
 
     output_path = dump_raw_data_settings
@@ -97,11 +103,19 @@ def test_dump_raw_data_command_with_default_path(
     assert f"Creating raw JobServer database dump at {output_path}" in out
     assert f"Finished creating raw JobServer database dump at {output_path}" in out
 
+    mock_alert.assert_called_once_with()
+
 
 def test_dump_raw_data_command_with_custom_path(
-    dump_raw_data_settings, fake_subprocess_calls, tmp_path
+    dump_raw_data_settings, fake_subprocess_calls, tmp_path, monkeypatch
 ):
     output_path = tmp_path / "custom.dump"
+
+    # Mock alerter to avoid testing details of how it works in this unit test.
+    mock_alert = Mock()
+    monkeypatch.setattr(
+        "jobserver.management.commands.dump_raw_data.alert_raw_dump", mock_alert
+    )
 
     call_command("dump_raw_data", "--output", str(output_path))
 

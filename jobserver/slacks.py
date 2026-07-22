@@ -153,3 +153,21 @@ def notify_copilots_of_repo_sign_off(
     message.append(f"Copilot: {copilot_link}")
 
     slack.post(text="\n".join(message), channel=channel)
+
+
+def alert_raw_dump(channel=settings.ALERTS_SLACK_CHANNEL):
+    policy_link = slack.link(
+        "https://bennett.wiki/tech-group/policies/personal-data-copying-policy/",
+        "personal data copying policy",
+    )
+    log_link = slack.link(
+        "https://docs.google.com/spreadsheets/d/1C1z3WV-WSL-H1keZZCVPm6hR_5ajjgRT5zGO5cLv2Aw",
+        "personal data copying decision log",
+    )
+    message = (
+        "Someone ran `dump_raw_data` to generate a raw Job Server database dump. "
+        f"The {policy_link} must be followed. The copying of raw personal data must "
+        f"be recorded in {log_link}. The raw dump must be removed from the server "
+        "and developer machines as soon as it is no longer required."
+    )
+    slack.post(text=message, channel=channel)

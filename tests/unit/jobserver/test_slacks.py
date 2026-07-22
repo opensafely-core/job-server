@@ -2,6 +2,7 @@ import pytest
 from django.utils import timezone
 
 from jobserver.slacks import (
+    alert_raw_dump,
     notify_copilots_of_repo_sign_off,
     notify_copilots_project_added,
 )
@@ -83,3 +84,19 @@ def test_notify_copilots_of_repo_sign_off(copilot_assigned, slack_messages):
     assert researcher.fullname in message
     # Case-specific assertion, depending whether we have a copilot.
     assert expected_copilot_fragment in message
+
+
+def test_alert_raw_dump(slack_messages):
+    # When the function under test is called.
+    alert_raw_dump()
+
+    # Then one Slack message gets sent to the right channel.
+    assert len(slack_messages) == 1
+    message, channel = slack_messages[0]
+    assert channel == "team-rex-alerts"
+
+    # ...and message contains expected values, including approximate right links.
+    # Testing for the full message content would be too brittle to changes.
+    assert "bennett.wiki" in message
+    assert "docs.google" in message
+    assert "database dump" in message
