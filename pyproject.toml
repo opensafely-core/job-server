@@ -50,9 +50,6 @@ dependencies = [
     # Toolkit for building REST APIs in Django. Search "from rest_framework"
     "djangorestframework",
 
-    # Generate realistic fake data where needed in data scrubbing.
-    "faker",
-
     # URL manipulation and building. Used pervasively.
     "furl",
 

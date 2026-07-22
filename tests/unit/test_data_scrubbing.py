@@ -1,6 +1,9 @@
 from django.apps import apps
 
-from data_scrubbing.management.commands.scrub_data import APPLICATIONS_TO_SCRUB
+from data_scrubbing.management.commands.scrub_data import (
+    APPLICATIONS_TO_SCRUB,
+    get_fake_unique_email,
+)
 
 
 def test_applications_to_scrub():
@@ -43,3 +46,18 @@ def test_applications_to_scrub():
     ), (
         "All apps with models must be listed in APPLICATIONS_TO_SCRUB or apps_confirmed_as_not_needing_scrubbing"
     )
+
+
+def test_get_fake_unique_email(freezer):
+    """Test that get_fake_unique_email yields distinct "fairly" unique
+    e-mail address strings embedding a kind of timestamp and counter for
+    uniqueness."""
+    # Fix date and time so we know what values to expect.
+    freezer.move_to("2026-07-10")
+    # Fresh generator for just this test so state is shared between test calls
+    # but not with any other process.
+    fake_unique_email = get_fake_unique_email()
+
+    assert next(fake_unique_email) == "260710000000_1@example.com"
+    assert next(fake_unique_email) == "260710000000_2@example.com"
+    assert next(fake_unique_email) == "260710000000_3@example.com"
