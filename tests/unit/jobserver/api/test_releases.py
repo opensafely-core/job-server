@@ -14,7 +14,6 @@ from jobserver.api.releases import (
     Level4TokenAuthenticationAPI,
     ReleaseAPI,
     ReleaseFileAPI,
-    ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
     ReviewAPI,
     SnapshotAPI,
@@ -289,14 +288,6 @@ def test_releaseapi_post_success(api_rf, slack_messages, build_release, file_con
     assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
     assert response.headers["File-Id"] == rfile.id
 
-    assert len(slack_messages) == 1
-    text, channel = slack_messages[0]
-    assert channel == "opensafely-releases"
-    assert f"{uploading_user.get_staff_url()}|{uploading_user.fullname}>" in text
-    assert f"{release.get_absolute_url()}|release>" in text
-    assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
-    assert release.backend.name in text
-
 
 def test_releaseapi_post_with_content_length_too_large(api_rf, build_release, settings):
     settings.RELEASE_FILE_SIZE_LIMIT = 5
@@ -379,53 +370,6 @@ def test_releaseapi_post_with_no_backend_token(api_rf):
     response = ReleaseAPI.as_view()(request, release_id=release.id)
 
     assert response.status_code == 403
-
-
-def test_releasenotificationapicreate_success(api_rf, slack_messages):
-    backend = BackendFactory(name="test")
-
-    data = {
-        "created_by": "test user",
-        "path": "/path/to/outputs",
-    }
-    request = api_rf.post("/", data, headers={"authorization": backend.auth_token})
-    request.user = UserFactory()
-
-    response = ReleaseNotificationAPICreate.as_view()(request)
-
-    assert response.status_code == 201, response.data
-
-    # check we called the slack API in the expected way
-    assert len(slack_messages) == 1
-    text, channel = slack_messages[0]
-    assert channel == "opensafely-releases"
-    assert text == f"test user released outputs from /path/to/outputs on {backend.name}"
-
-
-def test_releasenotificationapicreate_success_with_files(api_rf, slack_messages):
-    backend = BackendFactory(name="test")
-
-    data = {
-        "created_by": "test user",
-        "path": "/path/to/outputs",
-        "files": ["output/file1.txt", "output/file2.txt"],
-    }
-    request = api_rf.post("/", data, headers={"authorization": backend.auth_token})
-    request.user = UserFactory()
-
-    response = ReleaseNotificationAPICreate.as_view()(request)
-
-    assert response.status_code == 201, response.data
-
-    # check we called the slack API in the expected way
-    assert len(slack_messages) == 1
-    text, channel = slack_messages[0]
-    assert channel == "opensafely-releases"
-    assert text == (
-        f"test user released 2 outputs from /path/to/outputs on {backend.name}:\n"
-        "`output/file1.txt`\n"
-        "`output/file2.txt`"
-    )
 
 
 def test_releaseworkspaceapi_get_unknown_workspace(api_rf):
@@ -573,15 +517,6 @@ def test_releaseworkspaceapi_post_create_release(
     assert response.data["release_id"] == str(release.id)
     assert response.data["release_url"].startswith("http://testserver/")
     assert response.data["release_url"].endswith(f"/releases/{release.id}/")
-
-    assert len(slack_messages) == 1
-    text, channel = slack_messages[0]
-
-    assert channel == "opensafely-releases"
-    assert f"{user.get_staff_url()}|{user.fullname}>" in text
-    assert f"{release.get_absolute_url()}|release>" in text
-    assert f"{workspace.get_absolute_url()}|{workspace.name}>" in text
-    assert backend.name in text
 
 
 def test_releaseworkspaceapi_post_create_release_with_airlock_id(

@@ -18,7 +18,6 @@ from jobserver.api.releases import (
     Level4TokenAuthenticationAPI,
     ReleaseAPI,
     ReleaseFileAPI,
-    ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
     ReviewAPI,
     SnapshotAPI,
@@ -83,7 +82,6 @@ api_urls = [
     path("airlock/", include("airlock.urls")),
     path("job-requests/", JobRequestAPIList.as_view()),
     path("jobs/", JobAPIUpdate.as_view()),
-    path("release-notifications/", ReleaseNotificationAPICreate.as_view()),
     path("users/<str:username>/", UserAPIDetail.as_view(), name="user-detail"),
     path(
         "workspaces/<str:name>/statuses/",

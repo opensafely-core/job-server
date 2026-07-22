@@ -55,7 +55,6 @@ OTEL_EXPORTER_CONSOLE=False
 # SLACK_BOT_TOKEN=
 # Channel names. Note these all have prod defaults in settings.py.
 # For testing purposes on BennettTest, post to the `testing` channel.
-# RELEASES_SLACK_CHANNEL=
 # REGISTRATIONS_SLACK_CHANNEL=
 # APPLICATIONS_SLACK_CHANNEL=
 # COPILOT_SUPPORT_SLACK_CHANNEL=
