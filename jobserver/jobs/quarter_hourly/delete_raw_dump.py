@@ -1,23 +1,25 @@
 """
-QuarterHourly job to delete raw JobServer database dumps after their retention period.
+Quarter-hourly job to delete raw JobServer database dumps that have reached a certain
+age.
 
-Raw database dumps may contain production personal data and other sensitive
-information. They are created manually using the dump_raw_data management
-command when access has been agreed and recorded in accordance with the
-Personal Data Copying Policy.
+Usually developers should use the scrubbed database dump if they need near-realistic
+production data for use in their development process. Some investigations or  tasks
+may need to use the raw database dump in exceptional circumstances. They are created
+manually using the dump_raw_data management command when access has been  agreed and
+recorded in accordance with the Personal Data Copying Policy.
 
-The raw dump needs to remain available for long enough for an authorised
-developer to download it, but it should not remain on the production server
-indefinitely. This job limits that exposure by deleting the dump once it has
-existed for at least 15 minutes.
+The raw dump needs to remain available for long enough for an authorised developer to
+download it. The developer who created the dump should delete it from the production
+server as soon as it is no longer needed for the approved purpose. This job acts as a
+backstop to delete dumps within a certain period, in case of manual error.
 
-The age of the dump is determined from its modification time. Checking its age,
-rather than deleting any dump that exists, prevents a newly created dump from
-being deleted by an quarter hourly run before it can be downloaded.
+The age of the dump is determined from its modification time. Running this job every
+15 minutes and deleting dumps that are at least 15 minutes old allows at least 15
+minutes to download a dump while ensuring that it is automatically deleted within 30
+minutes.
 
-Because this job runs once every 15 minutes, a dump will normally be deleted
-between 15-30 minutes after it is created. A missing dump is expected and is not
-treated as an error.
+A raw database dump will not exist most of the time, so the dump not existing is not an
+error.
 """
 
 from datetime import UTC, datetime, timedelta
@@ -32,12 +34,15 @@ from services.sentry import monitor_config
 
 logger = structlog.get_logger(__name__)
 
-RAW_DUMP_RETENTION_PERIOD = timedelta(minutes=15)
-"""Minimum period for which a raw dump remains available before deletion."""
+RAW_DUMP_AGE_LIMIT = timedelta(minutes=15)
+"""Delete files older than this when the job runs."""
 
 
 class Job(QuarterHourlyJob):
-    help = "Delete raw database dumps after the retention period to limit the availability of production data"
+    help = (
+        "Delete raw database dumps that have reached the deletion age to limit the "
+        "availability of production data"
+    )
 
     @monitor(
         monitor_slug="delete_raw_dump", monitor_config=monitor_config("*/15 * * * *")
@@ -58,17 +63,19 @@ class Job(QuarterHourlyJob):
         # Calculate how long the raw dump has been available since it was last modified.
         dump_age = datetime.now(UTC) - modified_at
 
-        if dump_age < RAW_DUMP_RETENTION_PERIOD:
+        if dump_age < RAW_DUMP_AGE_LIMIT:
             logger.info(
-                "Raw database dump is still within its retention period",
+                "Raw database dump not deleted as it had not reached deletion age",
                 age_seconds=dump_age.total_seconds(),
+                deletion_age=RAW_DUMP_AGE_LIMIT.total_seconds(),
                 path=raw_dump_path,
             )
             return
 
         raw_dump_path.unlink(missing_ok=True)
         logger.info(
-            "Deleted raw database dump after its retention period",
+            "Deleted raw database dump as it had reached deletion age",
             age_seconds=dump_age.total_seconds(),
+            deletion_age=RAW_DUMP_AGE_LIMIT.total_seconds(),
             path=raw_dump_path,
         )
