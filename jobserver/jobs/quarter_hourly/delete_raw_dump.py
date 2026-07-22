@@ -1,5 +1,5 @@
 """
-Hourly job to delete raw JobServer database dumps after their retention period.
+QuarterHourly job to delete raw JobServer database dumps after their retention period.
 
 Raw database dumps may contain production personal data and other sensitive
 information. They are created manually using the dump_raw_data management
@@ -9,22 +9,22 @@ Personal Data Copying Policy.
 The raw dump needs to remain available for long enough for an authorised
 developer to download it, but it should not remain on the production server
 indefinitely. This job limits that exposure by deleting the dump once it has
-existed for at least one hour.
+existed for at least 15 minutes.
 
 The age of the dump is determined from its modification time. Checking its age,
 rather than deleting any dump that exists, prevents a newly created dump from
-being deleted by an hourly run before it can be downloaded.
+being deleted by an quarter hourly run before it can be downloaded.
 
-Because this job runs once an hour, a dump will normally be deleted between one
-and two hours after it is created. A missing dump is expected and is not treated
-as an error.
+Because this job runs once every 15 minutes, a dump will normally be deleted
+between 15-30 minutes after it is created. A missing dump is expected and is not
+treated as an error.
 """
 
 from datetime import UTC, datetime, timedelta
 
 import structlog
 from django.conf import settings
-from django_extensions.management.jobs import HourlyJob, JobError
+from django_extensions.management.jobs import JobError, QuarterHourlyJob
 from sentry_sdk.crons.decorator import monitor
 
 from services.sentry import monitor_config
@@ -32,14 +32,16 @@ from services.sentry import monitor_config
 
 logger = structlog.get_logger(__name__)
 
-RAW_DUMP_RETENTION_PERIOD = timedelta(hours=1)
+RAW_DUMP_RETENTION_PERIOD = timedelta(minutes=15)
 """Minimum period for which a raw dump remains available before deletion."""
 
 
-class Job(HourlyJob):
+class Job(QuarterHourlyJob):
     help = "Delete raw database dumps after the retention period to limit the availability of production data"
 
-    @monitor(monitor_slug="delete_raw_dump", monitor_config=monitor_config("0 * * * *"))
+    @monitor(
+        monitor_slug="delete_raw_dump", monitor_config=monitor_config("*/15 * * * *")
+    )
     def execute(self):
         raw_dump_path = settings.RAW_DATABASE_DUMP_PATH
 

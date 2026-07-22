@@ -5,6 +5,10 @@
       "schedule": "* * * * *"
     },
     {
+      "command": "python manage.py runjobs quarter_hourly",
+      "schedule": "*/15 * * * *"
+    },
+    {
       "command": "python manage.py runjobs hourly",
       "schedule": "@hourly"
     },
