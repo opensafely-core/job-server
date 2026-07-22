@@ -490,7 +490,7 @@ REGISTRATIONS_SLACK_CHANNEL = os.environ.get(
     "REGISTRATIONS_SLACK_CHANNEL", default="job-server-registrations"
 )
 APPLICATIONS_SLACK_CHANNEL = os.environ.get(
-    "RELEASES_SLACK_CHANNEL", default="job-server-applications"
+    "APPLICATIONS_SLACK_CHANNEL", default="job-server-applications"
 )
 COPILOT_SUPPORT_SLACK_CHANNEL = os.environ.get(
     "COPILOT_SUPPORT_SLACK_CHANNEL", default="co-pilot-support"
