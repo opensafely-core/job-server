@@ -3,9 +3,9 @@ Quarter-hourly job to delete raw JobServer database dumps that have reached a ce
 age.
 
 Usually developers should use the scrubbed database dump if they need near-realistic
-production data for use in their development process. Some investigations or  tasks
+production data for use in their development process. Some investigations or tasks
 may need to use the raw database dump in exceptional circumstances. They are created
-manually using the dump_raw_data management command when access has been  agreed and
+manually using the dump_raw_data management command when access has been agreed and
 recorded in accordance with the Personal Data Copying Policy.
 
 The raw dump needs to remain available for long enough for an authorised developer to

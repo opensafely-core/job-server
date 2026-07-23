@@ -66,4 +66,16 @@ def test_deletes_dump_at_age_limit(raw_dump_path, log_output):
         == "Deleted raw database dump as it had reached deletion age"
     )
     assert log_output.entries[0]["dump_age"] == dump_age
+    assert log_output.entries[0]["deletion_age"] == delete_raw_dump.RAW_DUMP_AGE_LIMIT
     assert log_output.entries[0]["path"] == raw_dump_path
+
+
+def test_raises_error_when_raw_dump_path_is_not_a_file(raw_dump_path):
+    raw_dump_path.mkdir()
+
+    with pytest.raises(
+        delete_raw_dump.JobError, match="Raw database dump path is not a file"
+    ):
+        delete_raw_dump.Job().execute()
+
+    assert raw_dump_path.is_dir()
