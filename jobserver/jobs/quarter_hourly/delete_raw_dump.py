@@ -63,7 +63,7 @@ class Job(QuarterHourlyJob):
         if dump_age < RAW_DUMP_AGE_LIMIT:
             logger.info(
                 "Raw database dump not deleted as it had not reached deletion age",
-                age_seconds=dump_age,
+                dump_age=dump_age,
                 deletion_age=RAW_DUMP_AGE_LIMIT,
                 path=raw_dump_path,
             )
@@ -72,7 +72,7 @@ class Job(QuarterHourlyJob):
         raw_dump_path.unlink(missing_ok=True)
         logger.info(
             "Deleted raw database dump as it had reached deletion age",
-            age_seconds=dump_age,
+            dump_age=dump_age,
             deletion_age=RAW_DUMP_AGE_LIMIT,
             path=raw_dump_path,
         )
