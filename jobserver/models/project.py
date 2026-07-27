@@ -13,29 +13,6 @@ from furl import furl
 
 logger = structlog.get_logger(__name__)
 
-# Patterns, compiled regex, and validators for regex matching for different
-# possible kinds of Project.number.
-
-# Pattern for projects with an application managed in Job Server.
-# String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
-# and back. Using \d instead would match several other characters.
-DIGITS_PATTERN = r"[1-9][0-9]*"
-DIGITS_REGEX = re.compile(DIGITS_PATTERN)
-# Pattern for projects with an application managed outside of Job Server.
-# Like POS-2025-2001. 'POS-' followed by a string of digits representing the
-# year, '-', followed by a string of digits, usually starting with 2001. Year
-# part must start '20'. Third part has no leading zero.
-POS_FORMAT_PATTERN = r"POS-20[0-9]{2}-[1-9][0-9]{3}"
-POS_FORMAT_REGEX = re.compile(POS_FORMAT_PATTERN)
-# Pattern for either format. This covers all valid values.
-NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
-NUMBER_REGEX = re.compile(NUMBER_PATTERN)
-# Either format, wrapping each with ^$ anchors to require full match.
-NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
-NUMBER_REGEX_DESCRIPTION = (
-    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
-)
-
 
 class ProjectCategory(models.TextChoices):
     """The purpose and approval process of a Project."""
@@ -56,6 +33,37 @@ class ProjectCategory(models.TextChoices):
     """Unknown category, fallback option."""
 
 
+# Patterns and compiled regex for matching different possible kinds of
+# Project.number, also called identifiers.
+
+IDENTIFIER_PATTERNS = {
+    # String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
+    # and back. Using \d instead would match several other characters.
+    ProjectCategory.LEGACY_APPROVED: r"[1-9][0-9]*",
+    # Like POS-2026-2001. 'POS-' followed by a string of digits representing the
+    # year, '-', followed by a string of digits, usually starting with 2001. Year
+    # part must start '20'. Third part has no leading zero.
+    ProjectCategory.APPROVED: r"POS-20[0-9]{2}-[1-9][0-9]{3}",
+}
+
+IDENTIFIER_REGEXES = {
+    category: re.compile(pattern) for category, pattern in IDENTIFIER_PATTERNS.items()
+}
+
+NUMBER_PATTERN = (
+    rf"{IDENTIFIER_PATTERNS[ProjectCategory.LEGACY_APPROVED]}|"
+    rf"{IDENTIFIER_PATTERNS[ProjectCategory.APPROVED]}"
+)
+NUMBER_REGEX = re.compile(NUMBER_PATTERN)
+
+NUMBER_REGEX_DESCRIPTION = (
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
+)
+
+# Either format, wrapping with ^$ anchors to require full match.
+NUMBER_PATTERN_FULLMATCH = rf"^({NUMBER_PATTERN})$"
+
+
 class ProjectQuerySet(models.QuerySet):
     def order_by_project_identifier(self):
         """
@@ -74,7 +82,7 @@ class ProjectQuerySet(models.QuerySet):
             ),
             numeric_value=Case(
                 When(
-                    number__regex=rf"^{DIGITS_PATTERN}$",
+                    number__regex=rf"^{IDENTIFIER_PATTERNS[ProjectCategory.LEGACY_APPROVED]}$",
                     then=Cast("number", IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
@@ -312,9 +320,9 @@ class Project(models.Model):
 
     @classmethod
     def category_from_identifier(cls, identifier):
-        if DIGITS_REGEX.fullmatch(identifier):
+        if IDENTIFIER_REGEXES[ProjectCategory.LEGACY_APPROVED].fullmatch(identifier):
             return ProjectCategory.LEGACY_APPROVED
-        elif POS_FORMAT_REGEX.fullmatch(identifier):
+        elif IDENTIFIER_REGEXES[ProjectCategory.APPROVED].fullmatch(identifier):
             return ProjectCategory.APPROVED
         elif identifier == "":
             return ProjectCategory.UNKNOWN
