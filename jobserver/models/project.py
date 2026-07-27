@@ -308,19 +308,3 @@ class Project(models.Model):
             self.collaborations.select_related("org").order_by("-is_lead", "pk").first()
         )
         return collaboration.org if collaboration else None
-
-    @classmethod
-    def next_project_identifier(cls):
-        """
-        Return the next numeric project number, or 1 if no numeric values exist.
-        """
-        numeric_values = [
-            int(number)
-            for number in cls.objects.values_list("number", flat=True)
-            if number is not None and number.isdigit()
-        ]
-
-        if not numeric_values:
-            return 1
-
-        return max(numeric_values) + 1
