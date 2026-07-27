@@ -4,7 +4,7 @@ import pkgutil
 import pytest
 
 from jobserver import permissions
-from jobserver.models.project import NUMBER_REGEX
+from jobserver.models import Project
 
 
 @pytest.mark.parametrize(
@@ -39,7 +39,7 @@ def test_project_permission_vars(project_identifiers, variable_name):
     only the keys are examined, not the permission values."""
     for project_identifier in project_identifiers:
         assert (
-            NUMBER_REGEX.fullmatch(project_identifier)
+            Project.is_valid_identifier(project_identifier)
             # This is a specific exemption for the one case where a project slug is used.
             # We should remove this in future and use a standard identifier.
             or project_identifier == "opensafely-internal"
