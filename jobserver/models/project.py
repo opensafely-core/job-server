@@ -50,18 +50,18 @@ IDENTIFIER_REGEXES = {
     category: re.compile(pattern) for category, pattern in IDENTIFIER_PATTERNS.items()
 }
 
-NUMBER_PATTERN = (
+ANY_IDENTIFIER_PATTERN = (
     rf"{IDENTIFIER_PATTERNS[ProjectCategory.LEGACY_APPROVED]}|"
     rf"{IDENTIFIER_PATTERNS[ProjectCategory.APPROVED]}"
 )
-NUMBER_REGEX = re.compile(NUMBER_PATTERN)
+ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
 
-NUMBER_REGEX_DESCRIPTION = (
+IDENTIFIER_PATTERN_DESCRIPTION = (
     "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
 )
 
 # Either format, wrapping with ^$ anchors to require full match.
-NUMBER_PATTERN_FULLMATCH = rf"^({NUMBER_PATTERN})$"
+ANY_IDENTIFIER_PATTERN_FULLMATCH = rf"^({ANY_IDENTIFIER_PATTERN})$"
 
 
 class ProjectQuerySet(models.QuerySet):
@@ -151,13 +151,14 @@ class Project(models.Model):
         blank=True,
         validators=[
             RegexValidator(
-                re.compile(NUMBER_PATTERN_FULLMATCH), NUMBER_REGEX_DESCRIPTION
+                re.compile(ANY_IDENTIFIER_PATTERN_FULLMATCH),
+                IDENTIFIER_PATTERN_DESCRIPTION,
             )
         ],
         verbose_name="Project ID",
         help_text=(
             "Project ID can be found in the All Projects spreadsheet. "
-            + NUMBER_REGEX_DESCRIPTION
+            + IDENTIFIER_PATTERN_DESCRIPTION
         ),
     )
     category = models.TextField(
@@ -243,7 +244,8 @@ class Project(models.Model):
             models.CheckConstraint(
                 name="number_valid_format",
                 condition=(
-                    Q(number__isnull=True) | Q(number__regex=NUMBER_PATTERN_FULLMATCH)
+                    Q(number__isnull=True)
+                    | Q(number__regex=ANY_IDENTIFIER_PATTERN_FULLMATCH)
                 ),
             ),
         ]
