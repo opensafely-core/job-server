@@ -6,8 +6,15 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
-from jobserver.models.project import POS_FORMAT_REGEX
+from jobserver.models import (
+    Backend,
+    Org,
+    Project,
+    ProjectCategory,
+    SiteAlert,
+    User,
+    Workspace,
+)
 
 
 def user_label_from_instance(obj):
@@ -119,7 +126,11 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
         # condition could use that.
         number = self.cleaned_data.get("number")
         copilot = self.cleaned_data.get("copilot")
-        if not copilot and number and POS_FORMAT_REGEX.fullmatch(number):
+        if (
+            not copilot
+            and number
+            and Project.category_from_identifier(number) == ProjectCategory.APPROVED
+        ):
             self.add_error(
                 "copilot",
                 forms.ValidationError(

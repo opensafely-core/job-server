@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import Project
+from jobserver.models import Project, ProjectCategory
 
 from ....factories import (
     OrgFactory,
@@ -314,3 +314,21 @@ def test_order_by_project_identifier(rows, expected):
     )
 
     assert ordered_projects == expected
+
+
+@pytest.mark.parametrize(
+    "identifier,expected_category,expected_bool",
+    [
+        ("123", ProjectCategory.LEGACY_APPROVED, True),
+        ("POS-2026-2001", ProjectCategory.APPROVED, True),
+        ("", ProjectCategory.UNKNOWN, True),
+        ("bad identifier", None, False),
+    ],
+)
+def test_category_from_identifier_methods(identifier, expected_category, expected_bool):
+    """Test that Project classmethods category_from_identifier and
+    is_valid_identifier return expected values."""
+    # is_valid_identifier is a readability wrapper for category_from_identifier.
+    # They are so closely linked it makes more sense to test them in one test.
+    assert Project.category_from_identifier(identifier) == expected_category
+    assert Project.is_valid_identifier(identifier) == expected_bool

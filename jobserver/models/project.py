@@ -20,6 +20,7 @@ logger = structlog.get_logger(__name__)
 # String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
 # and back. Using \d instead would match several other characters.
 DIGITS_PATTERN = r"[1-9][0-9]*"
+DIGITS_REGEX = re.compile(DIGITS_PATTERN)
 # Pattern for projects with an application managed outside of Job Server.
 # Like POS-2025-2001. 'POS-' followed by a string of digits representing the
 # year, '-', followed by a string of digits, usually starting with 2001. Year
@@ -308,3 +309,18 @@ class Project(models.Model):
             self.collaborations.select_related("org").order_by("-is_lead", "pk").first()
         )
         return collaboration.org if collaboration else None
+
+    @classmethod
+    def category_from_identifier(cls, identifier):
+        if DIGITS_REGEX.fullmatch(identifier):
+            return ProjectCategory.LEGACY_APPROVED
+        elif POS_FORMAT_REGEX.fullmatch(identifier):
+            return ProjectCategory.APPROVED
+        elif identifier == "":
+            return ProjectCategory.UNKNOWN
+        else:
+            return None
+
+    @classmethod
+    def is_valid_identifier(cls, identifier):
+        return bool(cls.category_from_identifier(identifier))
