@@ -37,7 +37,11 @@ class ProjectCategory(models.TextChoices):
 # Project.number, also called identifiers.
 
 IDENTIFIER_PATTERNS = {
-    # String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
+    # Like INTERNAL-0123. 'INTERNAL-' followed by a string of 4 ASCII digits.
+    # INTERNAL-0000 is valid but not used by convention for simplicity. Using
+    # \d instead would match several other characters.
+    ProjectCategory.INTERNAL: r"INTERNAL-[0-9]{4}",
+    # String of ASCII digits, no leading 0. Convertible unambiguously to an int
     # and back. Using \d instead would match several other characters.
     ProjectCategory.LEGACY_APPROVED: r"[1-9][0-9]*",
     # Like POS-2026-2001. 'POS-' followed by a string of digits representing the
@@ -55,9 +59,10 @@ ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
 
 IDENTIFIER_PATTERN_DESCRIPTION = (
     "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
+    "or INTERNAL-NNNN (for example, INTERNAL-0003)."
 )
 
-# Either format, wrapping with ^$ anchors to require full match.
+# Any format, wrapping with ^$ anchors to require full match.
 ANY_IDENTIFIER_PATTERN_FULLMATCH = rf"^({ANY_IDENTIFIER_PATTERN})$"
 
 
@@ -85,9 +90,15 @@ class ProjectQuerySet(models.QuerySet):
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
             ),
+            internal_format_lex=Case(
+                When(number__startswith="INTERNAL-", then=F("number")),
+                default=Value("", output_field=CharField()),
+                output_field=CharField(),
+            ),
         ).order_by(
             "-pos_format_lex",
             F("numeric_value").desc(nulls_last=True),
+            "-internal_format_lex",
             Lower("name"),
         )
 
