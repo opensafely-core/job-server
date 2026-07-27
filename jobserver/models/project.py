@@ -319,14 +319,12 @@ class Project(models.Model):
 
     @classmethod
     def category_from_identifier(cls, identifier):
-        if IDENTIFIER_REGEXES[ProjectCategory.LEGACY_APPROVED].fullmatch(identifier):
-            return ProjectCategory.LEGACY_APPROVED
-        elif IDENTIFIER_REGEXES[ProjectCategory.APPROVED].fullmatch(identifier):
-            return ProjectCategory.APPROVED
-        elif identifier == "":
+        if identifier == "":
             return ProjectCategory.UNKNOWN
-        else:
-            return None
+        for category, pattern in IDENTIFIER_REGEXES.items():
+            if pattern.fullmatch(identifier):
+                return category
+        return None
 
     @classmethod
     def is_valid_identifier(cls, identifier):
