@@ -15,10 +15,6 @@ from jobserver.models import (
     User,
     Workspace,
 )
-from jobserver.models.project import (
-    ANY_IDENTIFIER_REGEX,
-    IDENTIFIER_PATTERN_DESCRIPTION,
-)
 
 
 def user_label_from_instance(obj):
@@ -65,40 +61,6 @@ def _validate_slug(project_name: str):
             f'Project with the URL slug "{slug}" generated '
             "from this project title already exists."
         )
-
-
-class ApplicationApproveForm(forms.Form):
-    project_name = forms.CharField(help_text="Update the study name if necessary")
-    project_number = forms.CharField()
-
-    def __init__(self, orgs, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["org"] = forms.ChoiceField(choices=[(o.pk, o.name) for o in orgs])
-
-    def clean_org(self):
-        return Org.objects.get(pk=self.cleaned_data["org"])
-
-    def clean_project_name(self):
-        project_name = self.cleaned_data["project_name"]
-
-        if Project.objects.filter(name=project_name).exists():
-            raise forms.ValidationError(f'Project "{project_name}" already exists.')
-
-        _validate_slug(project_name)
-
-        return project_name
-
-    def clean_project_number(self):
-        project_number = self.cleaned_data["project_number"]
-        if not ANY_IDENTIFIER_REGEX.fullmatch(project_number):
-            raise forms.ValidationError(IDENTIFIER_PATTERN_DESCRIPTION)
-        if Project.objects.filter(number=project_number).exists():
-            raise forms.ValidationError(
-                f'Project with number "{project_number}" already exists.'
-            )
-
-        return project_number
 
 
 class OrgAddGitHubOrgForm(forms.Form):
