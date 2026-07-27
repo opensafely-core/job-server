@@ -1,98 +1,20 @@
 import functools
 
 from django.contrib import messages
-from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, ListView, UpdateView, View
+from django.views.generic import ListView, UpdateView, View
 
 from applications.form_specs import form_specs
 from applications.models import Application
 from applications.wizard import Wizard
-from jobserver.actions import projects
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.permissions import Permission
 from jobserver.hash_utils import unhash, unhash_or_404
-from jobserver.models import Org, Project, User
-
-from ..forms import ApplicationApproveForm
-
-
-@method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")
-class ApplicationApprove(FormView):
-    form_class = ApplicationApproveForm
-    model = Application
-    response_class = TemplateResponse
-    template_name = "staff/application/approve.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.application = get_object_or_404(
-            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
-        )
-
-        if self.application.is_deleted:
-            msg = f"Application {self.application.pk_hash} has been deleted, you need to restore it before you can approve it."
-            messages.error(request, msg)
-            return redirect("staff:application-list")
-
-        if not hasattr(self.application, "studyinformationpage"):
-            msg = "The Study Information page must be filled in before an Application can be approved."
-            messages.error(request, msg)
-            return redirect(self.application.get_staff_url())
-
-        if self.application.approved_at:
-            return redirect(self.application.get_staff_url())
-
-        return super().dispatch(request, *args, **kwargs)
-
-    @transaction.atomic()
-    def form_valid(self, form):
-        project = projects.add(
-            name=form.cleaned_data["project_name"],
-            number=form.cleaned_data["project_number"],
-            orgs=[form.cleaned_data["org"]],
-            by=self.request.user,
-        )
-
-        self.application.approved_at = timezone.now()
-        self.application.approved_by = self.request.user
-        self.application.project = project
-        self.application.save()
-
-        # redirect to the project since that's the object we've created
-        return redirect(project.get_staff_url())
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "application": self.application,
-        }
-
-    def get_form_kwargs(self):
-        return super().get_form_kwargs() | {
-            "orgs": Org.objects.order_by("name"),
-        }
-
-    def get_initial(self):
-        project_number = Project.next_project_identifier()
-
-        # set the value of project_name from the study_name field in the
-        # application form
-        initial = {
-            "project_name": self.application.studyinformationpage.study_name,
-            "project_number": project_number,
-        }
-
-        # set the Org if a slug is included in the query args
-        if org_slug := self.request.GET.get("org-slug"):
-            try:
-                initial["org"] = Org.objects.get(slug=org_slug)
-            except Org.DoesNotExist:
-                pass
-
-        return initial
+from jobserver.models import User
 
 
 @method_decorator(require_permission(Permission.STAFF_AREA_ACCESS), name="dispatch")

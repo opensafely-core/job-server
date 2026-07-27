@@ -263,20 +263,6 @@ def test_project_org_returns_first_org_when_no_lead():
     assert project.org == first_org
 
 
-def test_next_project_identifier():
-    ProjectFactory(number="100")
-    ProjectFactory(number="102")
-    ProjectFactory(number="103")
-
-    assert Project.next_project_identifier() == 104
-
-
-def test_next_project_identifier_returns_one_when_no_numeric_ids_exist():
-    ProjectFactory(number=None)
-
-    assert Project.next_project_identifier() == 1
-
-
 @pytest.mark.parametrize(
     "rows,expected",
     [
