@@ -16,8 +16,8 @@ from jobserver.models import (
     Workspace,
 )
 from jobserver.models.project import (
-    NUMBER_REGEX,
-    NUMBER_REGEX_DESCRIPTION,
+    ANY_IDENTIFIER_REGEX,
+    IDENTIFIER_PATTERN_DESCRIPTION,
 )
 
 
@@ -91,8 +91,8 @@ class ApplicationApproveForm(forms.Form):
 
     def clean_project_number(self):
         project_number = self.cleaned_data["project_number"]
-        if not NUMBER_REGEX.fullmatch(project_number):
-            raise forms.ValidationError(NUMBER_REGEX_DESCRIPTION)
+        if not ANY_IDENTIFIER_REGEX.fullmatch(project_number):
+            raise forms.ValidationError(IDENTIFIER_PATTERN_DESCRIPTION)
         if Project.objects.filter(number=project_number).exists():
             raise forms.ValidationError(
                 f'Project with number "{project_number}" already exists.'
