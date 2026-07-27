@@ -34,9 +34,6 @@ NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
 NUMBER_REGEX_DESCRIPTION = (
     "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
 )
-NUMBER_REGEX_VALIDATOR = RegexValidator(
-    re.compile(NUMBER_PATTERN_FULLMATCH), NUMBER_REGEX_DESCRIPTION
-)
 
 
 class ProjectCategory(models.TextChoices):
@@ -143,7 +140,11 @@ class Project(models.Model):
         max_length=20,
         null=True,
         blank=True,
-        validators=[NUMBER_REGEX_VALIDATOR],
+        validators=[
+            RegexValidator(
+                re.compile(NUMBER_PATTERN_FULLMATCH), NUMBER_REGEX_DESCRIPTION
+            )
+        ],
         verbose_name="Project ID",
         help_text=(
             "Project ID can be found in the All Projects spreadsheet. "
