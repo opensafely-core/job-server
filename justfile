@@ -113,8 +113,8 @@ scrub-data: devenv
 test-ci *args: assets
     #!/bin/bash
     export COVERAGE_PROCESS_START="pyproject.toml"
-    export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*,tests/functional/*"
-    ./scripts/test-coverage.sh -m "not verification and not functional" {{ args }}
+    export COVERAGE_REPORT_ARGS="--omit=jobserver/github.py,jobserver/opencodelists.py,tests/fakes.py,tests/verification/*,tests/functional/*,tests/integration/test_dump_raw_data.py"
+    ./scripts/test-coverage.sh -m "not verification and not functional and not docker_test" {{ args }}
 
 # Run the Python functional tests, using Playwright.
 test-functional *ARGS: devenv
