@@ -49,3 +49,13 @@ updates:
       - dependency-name: "postgres"
         update-types:
           - "version-update:semver-major"
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    cooldown:
+      default-days: 7
