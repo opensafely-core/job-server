@@ -42,9 +42,8 @@ jobs:
       postgres:
         # When this updates, you need to also update:
         # - docker/docker-compose.yaml:9
-        # - tests/test_repository.py:30
         # to match this SHA
-        image: postgres:17@sha256:5c855ad7b85e68e48a62f34662853f38b57c1c1d80f3a927ab58034fd6d31c5e # v17
+        image: postgres:17@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d # v17
         env:
           POSTGRES_USER: user
           POSTGRES_PASSWORD: password
