@@ -88,6 +88,11 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "POS-2026-2003",  # The effect of herpes zoster vaccines on incident dementia in England
     "POS-2026-2004",  # Harmonised assessment of risk groups for vaccine prioritisation
     "POS-2026-2005",  # Monitoring Prescribing Of Obesity Pharmacotherapy In Primary Care In England
+    "POS-2026-3001",  # Evaluating the implementation of NICE gout guidance within the NHS
+    "POS-2026-3002",  # Improving disease burden estimation in England
+    "POS-2026-3003",  # The effect of herpes zoster vaccines on incident dementia in England
+    "POS-2026-3004",  # Harmonised assessment of risk groups for vaccine prioritisation
+    "POS-2026-3005",  # Monitoring Prescribing Of Obesity Pharmacotherapy In Primary Care In England
 }
 
 
