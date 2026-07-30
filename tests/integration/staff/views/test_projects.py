@@ -118,7 +118,7 @@ class TestProjectCreation:
     # required field when POSTing to the ProjectCreateForm.
     @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
     @pytest.mark.parametrize("missing_data", ["empty", "omitted"])
-    @pytest.mark.parametrize("project_number", ["123", "POS-2026-2001"])
+    @pytest.mark.parametrize("project_number", ["123", "POS-2026-3001"])
     @pytest.mark.slow_test
     def test_projectcreate_post_with_missing_data(
         self,

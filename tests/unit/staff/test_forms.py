@@ -212,7 +212,7 @@ def test_projectcreateform_duplicate_number():
     When the form is populated with the same number:
         * Validation fails.
     """
-    number = "POS-2026-2001"
+    number = "POS-2026-3001"
     ProjectFactory(number=number)
     data = CreateProjectFormDataFactory(number=number)
 
@@ -278,7 +278,7 @@ def test_projectcreateform_invalid_data(
 
 @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
 @pytest.mark.parametrize("missing_type", ["empty", "omitted"])
-@pytest.mark.parametrize("project_number", ["123", "POS-2026-2001"])
+@pytest.mark.parametrize("project_number", ["123", "POS-2026-3001"])
 def test_projectcreateform_without_required_data(
     field, missing_type, project_number, potential_copilots
 ):
@@ -390,7 +390,7 @@ def test_projecteditform_rejects_leading_zero_numeric_project_number():
     assert not form.is_valid()
     assert form.errors == {
         "number": [
-            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
+            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
         ]
     }
 
@@ -427,7 +427,7 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
     assert not form.is_valid()
     assert form.errors == {
         "number": [
-            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
+            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
         ]
     }
 
