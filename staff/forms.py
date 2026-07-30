@@ -7,7 +7,11 @@ from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
-from jobserver.models.project import NUMBER_REGEX, POS_FORMAT_REGEX
+from jobserver.models.project import (
+    NUMBER_REGEX,
+    NUMBER_REGEX_DESCRIPTION,
+    POS_FORMAT_REGEX,
+)
 
 
 def user_label_from_instance(obj):
@@ -81,10 +85,7 @@ class ApplicationApproveForm(forms.Form):
     def clean_project_number(self):
         project_number = self.cleaned_data["project_number"]
         if not NUMBER_REGEX.fullmatch(project_number):
-            raise forms.ValidationError(
-                "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
-            )
-
+            raise forms.ValidationError(NUMBER_REGEX_DESCRIPTION)
         if Project.objects.filter(number=project_number).exists():
             raise forms.ValidationError(
                 f'Project with number "{project_number}" already exists.'

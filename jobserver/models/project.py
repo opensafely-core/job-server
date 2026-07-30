@@ -32,7 +32,7 @@ NUMBER_REGEX = re.compile(NUMBER_PATTERN)
 # Either format, wrapping each with ^$ anchors to require full match.
 NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
 NUMBER_REGEX_DESCRIPTION = (
-    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-2001)."
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
 )
 NUMBER_REGEX_VALIDATOR = RegexValidator(
     re.compile(NUMBER_PATTERN_FULLMATCH), NUMBER_REGEX_DESCRIPTION
