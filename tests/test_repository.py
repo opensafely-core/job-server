@@ -10,8 +10,7 @@ def test_development_db_version_is_consistent(request):
     in the GitHub Actions test workflow is consistent with the Docker Compose
     configuration provided for local development.
 
-    When updating the database version, update it in both of those configurations,
-    and in this test."""
+    When updating the database version, update it in both of those configurations."""
     root_path = request.config.rootpath
 
     ci_workflow_path = root_path / ".github" / "workflows" / "main.yml"
