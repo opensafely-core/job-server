@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import App from "../App";
 import { csvFile, fileList } from "./helpers/files";
 import props, { prepareUrl, publishUrl } from "./helpers/props";
-import { render, screen, waitFor } from "./test-utils";
+import { history, render, screen, waitFor } from "./test-utils";
 
 describe("<App />", () => {
   it("returns the file list", async () => {
@@ -75,5 +75,26 @@ describe("<App />", () => {
       expect(screen.getByText("hello")).toBeVisible();
       expect(screen.getByText("world")).toBeVisible();
     });
+  });
+
+  it("restores the previous file when navigating back", async () => {
+    const user = userEvent.setup();
+    history.replace("/");
+    fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
+    render(<App {...props} />);
+
+    await screen.findByText(csvFile.shortName);
+
+    fetch.mockResponseOnce("first file");
+    await user.click(screen.getByRole("link", { name: csvFile.shortName }));
+    await screen.findByText("first file");
+
+    fetch.mockResponseOnce("second file");
+    await user.click(screen.getByRole("link", { name: fileList[2].shortName }));
+    await screen.findByText("second file");
+
+    history.back();
+
+    await waitFor(() => expect(screen.getByText("first file")).toBeVisible());
   });
 });
