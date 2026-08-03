@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { createRef, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 import useFileList from "../../hooks/use-file-list";
 import prettyFileSize from "../../utils/pretty-file-size";
 import { datasetProps } from "../../utils/props";
