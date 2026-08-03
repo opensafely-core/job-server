@@ -14,7 +14,7 @@ asgiref==3.12.1
     #   social-auth-app-django
 brotli==1.2.0
     # via whitenoise
-certifi==2026.6.17
+certifi==2026.7.22
     # via
     #   requests
     #   sentry-sdk
@@ -82,9 +82,9 @@ djhtml==3.0.11
 execnet==2.1.2
     # via pytest-xdist
 factory-boy==3.3.3
-faker==40.31.0
+faker==40.36.0
     # via factory-boy
-filelock==3.31.1
+filelock==3.32.0
     # via
     #   python-discovery
     #   virtualenv
@@ -94,7 +94,7 @@ furl==2.1.4
     # via jobserver
 googleapis-common-protos==1.75.0
     # via opentelemetry-exporter-otlp-proto-http
-greenlet==3.5.3
+greenlet==3.5.4
     # via playwright
 gunicorn==26.0.0
     # via jobserver
@@ -181,7 +181,7 @@ packaging==26.2
     #   gunicorn
     #   opentelemetry-instrumentation
     #   pytest
-platformdirs==4.10.1
+platformdirs==4.11.0
     # via
     #   python-discovery
     #   virtualenv
@@ -191,7 +191,7 @@ pluggy==1.6.0
     # via pytest
 pprintpp==0.4.0
     # via pytest-icdiff
-pre-commit==4.6.0
+pre-commit==4.6.1
 protobuf==7.35.1
     # via
     #   googleapis-common-protos
@@ -226,7 +226,7 @@ pytest==9.1.1
 pytest-base-url==2.1.0
     # via pytest-playwright
 pytest-django==4.12.0
-pytest-env==1.6.0
+pytest-env==1.7.0
 pytest-freezer==0.4.9
 pytest-icdiff==0.9
 pytest-mock==3.15.1
@@ -235,7 +235,7 @@ pytest-socket==0.8.0
 pytest-xdist==3.8.0
 python-dateutil==2.9.0.post0
     # via freezegun
-python-discovery==1.4.4
+python-discovery==1.5.0
     # via virtualenv
 python-dotenv==1.2.2
     # via pytest-env
@@ -243,7 +243,7 @@ python-ipware==3.0.0
     # via django-ipware
 python-slugify==8.0.4
     # via pytest-playwright
-python-ulid==3.2.1
+python-ulid==4.0.1
     # via jobserver
 python3-openid==3.2.0
     # via social-auth-core
@@ -270,10 +270,10 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.15.22
+ruff==0.16.0
 ruyaml==0.91.0
     # via opensafely-pipeline
-sentry-sdk==2.66.0
+sentry-sdk==2.66.1
     # via jobserver
 setuptools==83.0.0
     # via ruyaml
@@ -286,7 +286,7 @@ slack-sdk==3.43.0
     # via jobserver
 slippers==0.7.0
     # via jobserver
-social-auth-app-django==6.0.0
+social-auth-app-django==6.0.1
     # via jobserver
 social-auth-core==5.0.2
     # via
@@ -330,7 +330,7 @@ urllib3==2.7.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.6.1
+virtualenv==21.7.0
     # via pre-commit
 whitenoise==6.12.0
     # via jobserver
