@@ -86,7 +86,7 @@ clean-volumes: clean
 
 
 # restore the db from a dump file. Will wipe and reset your current docker dev db.
-restore-db dump="jobserver.dump": clean-volumes  db
+restore-db dump="jobserver_scrubbed.dump": clean-volumes  db
     #!/bin/bash
     set -eux
     path=$(realpath ../{{ dump }})
