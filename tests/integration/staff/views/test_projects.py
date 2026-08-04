@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 
 from jobserver.authorization.permissions import Permission
-from jobserver.models import AuditableEvent, Project
+from jobserver.models import AuditableEvent, Project, ProjectCategory
 from jobserver.utils import set_from_qs
 from tests.factories import (
     CreateProjectFormDataFactory,
@@ -105,6 +105,7 @@ class TestProjectCreation:
         assert new_project.created_by == user
         assert new_project.name == data["name"]
         assert new_project.number == data["number"]
+        assert new_project.category == ProjectCategory.UNKNOWN
         assert set_from_qs(new_project.orgs.all()) == {int(data["orgs"])}
         assert new_project.updated_by == user
 
@@ -176,6 +177,7 @@ class TestProjectCreation:
             assert new_project.created_by == user
             assert new_project.name == data["name"]
             assert new_project.number == data["number"]
+            assert new_project.category == ProjectCategory.UNKNOWN
             assert set_from_qs(new_project.orgs.all()) == {int(data["orgs"])}
             assert new_project.updated_by == user
 

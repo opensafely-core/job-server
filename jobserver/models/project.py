@@ -39,6 +39,25 @@ NUMBER_REGEX_VALIDATOR = RegexValidator(
 )
 
 
+class ProjectCategory(models.TextChoices):
+    """The purpose and approval process of a Project."""
+
+    INTERNAL = "internal", "Internal platform and data development"
+    """Data development and platform development activity, internally managed."""
+    LEGACY = (
+        "legacy",
+        "Legacy COVID research activity predating specific approval processes",
+    )
+    """Legacy COVID research activity that came before any approval process."""
+    LEGACY_APPROVED = "legacy_approved", "Legacy approved COVID research activity"
+    """Legacy COVID research activity that went through the Job Server-managed
+    approval process."""
+    APPROVED = "approved", "Approved non-COVID research activity"
+    """Research activity that went through the NHSE-managed approval process."""
+    UNKNOWN = "unknown", "(Unknown category)"
+    """Unknown category, fallback option."""
+
+
 class ProjectQuerySet(models.QuerySet):
     def order_by_project_identifier(self):
         """
@@ -131,6 +150,9 @@ class Project(models.Model):
             + NUMBER_REGEX_DESCRIPTION
         ),
     )
+    category = models.TextField(
+        choices=ProjectCategory, default=ProjectCategory.UNKNOWN, max_length=20
+    )
 
     copilot_support_ends_at = models.DateTimeField(null=True, blank=True)
 
@@ -163,6 +185,7 @@ class Project(models.Model):
         allowed_fields = frozenset(
             [
                 "id",
+                "category",
                 "copilot",
                 "copilot_support_ends_at",
                 "created_at",

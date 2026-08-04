@@ -4,7 +4,12 @@ import pytest
 from django.db import transaction
 
 from jobserver.actions import projects
-from jobserver.models import AuditableEvent, Project, ProjectCollaboration
+from jobserver.models import (
+    AuditableEvent,
+    Project,
+    ProjectCategory,
+    ProjectCollaboration,
+)
 from jobserver.utils import set_from_qs
 from redirects.models import Redirect
 from tests.factories import (
@@ -42,6 +47,7 @@ def test_add_project_with_copilot(monkeypatch):
 
     assert project.name == "test"
     assert project.number == 31337
+    assert project.category == ProjectCategory.UNKNOWN
     assert project.copilot == copilot
     assert project.created_at
     assert project.created_by == actor
@@ -94,6 +100,7 @@ def test_add_project_without_copilot(monkeypatch):
 
     assert project.name == "test"
     assert project.number == 31337
+    assert project.category == ProjectCategory.UNKNOWN
     assert project.copilot is None
     assert project.created_at
     assert project.created_by == actor
@@ -298,3 +305,19 @@ def test_edit_change_to_no_orgs():
     assert project == returned
     assert project.name == "bar"
     assert project.orgs.count() == 0
+
+
+def test_edit_category_unchanged():
+    """Test that edit leaves the project category unchanged."""
+    project = ProjectFactory()
+    actor = UserFactory()
+    data = {
+        "name": "new name",
+        "number": 123456,
+    }
+
+    assert project.category == ProjectCategory.UNKNOWN
+
+    projects.edit(project=project, fields=data, by=actor)
+
+    assert project.category == ProjectCategory.UNKNOWN

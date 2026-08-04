@@ -5,7 +5,7 @@ from .job import Job
 from .job_request import JobRequest, JobRequestStatus
 from .org import Org
 from .org_membership import OrgMembership
-from .project import Project
+from .project import Project, ProjectCategory
 from .project_collaboration import ProjectCollaboration
 from .project_membership import ProjectMembership
 from .publish_request import PublishRequest
@@ -30,6 +30,7 @@ __all__ = [
     "Org",
     "OrgMembership",
     "Project",
+    "ProjectCategory",
     "ProjectCollaboration",
     "ProjectMembership",
     "PublishRequest",
