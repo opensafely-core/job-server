@@ -410,7 +410,7 @@ def role_factory():
             )
             setattr(jobserver.authorization.roles, name, Role)
 
-        all_roles = getattr(jobserver.authorization.global_roles, "ALL_ROLES")
+        all_roles = jobserver.authorization.global_roles.ALL_ROLES
         all_roles.add(Role)
 
         return Role
