@@ -115,7 +115,7 @@ def test_releasefile_get_api_url_with_is_published():
     rfile = ReleaseFileFactory()
 
     # mirror the SnapshotAPI view setting this value on the ReleaseFile object.
-    setattr(rfile, "is_published", True)
+    rfile.is_published = True
 
     url = rfile.get_api_url()
 
