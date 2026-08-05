@@ -182,7 +182,17 @@ dokku run job-server python manage.py dump_raw_data
 
 The command writes the dump to the location configured by `JOBSERVER_RAW_DUMP_PATH`, currently `/storage/jobserver.dump`.
 
-Only download, restore, or retain the raw dump as agreed. Delete the dump locally and any local database containing its data as soon as they are no longer required.
+Only download, restore, or retain the raw dump as agreed. Delete the dump and either scrub the restored local database or remove it entirely as soon as the approved work is complete.
+
+The following recipes can help remove raw personal data from a local development environment:
+
+- Run `just scrub-data` to scrub the default local database. This also deletes
+  `jobserver.dump` from the repository root.
+- If using the Docker database and it is no longer needed, run
+  `just docker/clean-volumes` to remove the PostgreSQL volume and all data it
+  contains.
+
+Delete dump files stored under any other name or path manually.
 
 #### Scrubbing JobServer database
 
