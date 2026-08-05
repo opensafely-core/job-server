@@ -27,8 +27,12 @@ class ProjectCategory(models.TextChoices):
     LEGACY_APPROVED = "legacy_approved", "Legacy approved COVID research activity"
     """Legacy COVID research activity that went through the Job Server-managed
     approval process."""
-    APPROVED = "approved", "Approved non-COVID research activity"
-    """Research activity that went through the NHSE-managed approval process."""
+    APPROVED = (
+        "approved",
+        "Approved research activity under the 2025 or later Directions and the NHSE-managed approval process",
+    )
+    """Approved research activity under the 2025 or later Directions and the
+    NHSE-managed approval process"""
     UNKNOWN = "unknown", "(Unknown category)"
     """Unknown category, fallback option."""
 
