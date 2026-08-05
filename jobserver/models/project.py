@@ -53,21 +53,30 @@ IDENTIFIER_PATTERNS = {
     # part must start '20'. Third part has no leading zero.
     ProjectCategory.APPROVED: r"POS-20[0-9]{2}-[1-9][0-9]{3}",
 }
+"""Dict mapping ProjectCategory to regex strings that match valid identifiers
+for that category."""
 
 IDENTIFIER_REGEXES = {
     category: re.compile(pattern) for category, pattern in IDENTIFIER_PATTERNS.items()
 }
+"""Dict mapping ProjectCategory to compiled regex that match valid identifiers
+for that category."""
 
 ANY_IDENTIFIER_PATTERN = r"|".join(IDENTIFIER_PATTERNS.values())
+"""Regex string for any valid project identifier for some category."""
 ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
+"""Compiled regex for any valid project identifier for some category."""
 
 IDENTIFIER_PATTERN_DESCRIPTION = (
     "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
     "or INTERNAL-NNNN (for example, INTERNAL-0003)."
 )
+"""String description of how a valid project identifier may be written. For use
+in forms and validation messages."""
 
-# Any format, wrapping with ^$ anchors to require full match.
 ANY_IDENTIFIER_PATTERN_FULLMATCH = rf"^({ANY_IDENTIFIER_PATTERN})$"
+"""Regex string for any valid project identifier for some category, wrapped
+with ^$ anchors to require a whole match."""
 
 
 class ProjectQuerySet(models.QuerySet):
@@ -333,7 +342,9 @@ class Project(models.Model):
         return collaboration.org if collaboration else None
 
     @classmethod
-    def category_from_identifier(cls, identifier):
+    def category_from_identifier(cls, identifier: str) -> ProjectCategory | None:
+        """Return the ProjectCategory for which the string matches the identifier
+        format or None."""
         if identifier == "":
             return ProjectCategory.UNKNOWN
         for category, pattern in IDENTIFIER_REGEXES.items():
@@ -342,5 +353,6 @@ class Project(models.Model):
         return None
 
     @classmethod
-    def is_valid_identifier(cls, identifier):
+    def is_valid_identifier(cls, identifier: str) -> bool:
+        """Return True if a string matches any ProjectCategory identifier pattern."""
         return bool(cls.category_from_identifier(identifier))
