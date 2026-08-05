@@ -31,7 +31,7 @@ def assert_expected_output(stdout, expected_files, workspace):
     for rf, ef in zip(release_files, expected_files):
         assert rf.path.endswith(ef.name)
         assert rf.name.endswith(ef.name)
-        ef.read_text() == rf.absolute_path().read_text()
+        assert ef.read_text() == rf.absolute_path().read_text()
 
 
 def prepare_release_files(release_dir):

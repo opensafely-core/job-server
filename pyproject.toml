@@ -242,7 +242,6 @@ extend-ignore = [
   "E501", # ignore line-length. We judge case-by-case.
   # Below rules were added by Ruff v0.16.
   # We can fix these gradually and remove these where we think sensible.
-  "B015",
   "B018",
   "BLE001",
   "C401",

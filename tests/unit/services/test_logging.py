@@ -34,11 +34,11 @@ def test_missing_variable_error_filter_with_ignored_prefix():
     template = Template("*{{ my_missing_variable }}*", name="admin/index.html")
     context = Context({"my_variable": "my_value"})
 
-    template.render(context) == "**"
+    assert template.render(context) == "**"
 
 
 def test_missing_variable_error_filter_with_ignored_variable_name():
     template = Template("*{{ csp_nonce }}*", name="index.html")
     context = Context({"csp_nonce": "csp_nonce_value"})
 
-    template.render(context) == "*csp_nonce_value*"
+    assert template.render(context) == "*csp_nonce_value*"

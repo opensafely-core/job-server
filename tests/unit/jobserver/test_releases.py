@@ -88,13 +88,15 @@ def test_create_release_already_exists(build_release):
     workspace = WorkspaceFactory(name="workspace")
     backend = BackendFactory()
 
+    file_size = 4
+    file_sha256 = "hash"
     files = [
         {
             "name": "file1.txt",
             "path": "path/to/file1.txt",
             "url": "",
-            "size": 4,
-            "sha256": "hash",
+            "size": file_size,
+            "sha256": file_sha256,
             "date": "2022-08-17T13:37Z",
             "metadata": {},
         }
@@ -103,7 +105,9 @@ def test_create_release_already_exists(build_release):
     existing_release = ReleaseFactory(
         requested_files=files, workspace=workspace, backend=backend
     )
-    ReleaseFileFactory(release=existing_release, name="file1.txt")
+    ReleaseFileFactory(
+        release=existing_release, name="file1.txt", size=file_size, filehash=file_sha256
+    )
     assert Release.objects.count() == 1
 
     release = releases.create_release(
@@ -119,8 +123,8 @@ def test_create_release_already_exists(build_release):
     assert release.files.count() == 1
 
     rfile = release.files.first()
-    rfile.filehash == "hash"
-    rfile.size == 4
+    assert rfile.filehash == "hash"
+    assert rfile.size == 4
 
 
 def test_create_release_already_exists_file_mismatch():
@@ -189,8 +193,8 @@ def test_create_release_success():
     assert release.files.count() == 1
 
     rfile = release.files.first()
-    rfile.filehash == "hash"
-    rfile.size == 7
+    assert rfile.filehash == "hash"
+    assert rfile.size == 7
 
 
 def test_handle_release_upload_file_created(build_release, file_content):

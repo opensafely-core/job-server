@@ -80,7 +80,7 @@ def test_workspaceedit_post_success(rf, staff_area_administrator):
     assert workspace.uses_new_release_flow
     assert workspace.purpose == "new value"
 
-    Redirect.objects.count() == 1
+    assert Redirect.objects.count() == 1
     redirect = Redirect.objects.first()
     assert redirect.workspace == workspace
     assert redirect.old_url == workspace.get_absolute_url().replace(
