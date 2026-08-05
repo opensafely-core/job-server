@@ -1,4 +1,4 @@
-from jobserver.snippets import render_snippet as snippet
+from applications.snippets import render_snippet as snippet
 
 from . import models
 from .form_spec_helpers import Attributes, Field, Fieldset, Form
