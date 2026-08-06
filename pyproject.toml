@@ -245,7 +245,6 @@ extend-ignore = [
   "BLE001",
   "RUF012",
   "TRY002",
-  "TRY401",
 ]
 
 [tool.ruff.lint.per-file-ignores]

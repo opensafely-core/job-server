@@ -44,9 +44,9 @@ def build_repos_by_project(projects, get_github_api=_get_github_api):
 
     try:
         github_repos = list(get_github_api().get_repos_with_status_and_url(repo_orgs))
-    except GitHubError as exc:
+    except GitHubError:
         logger.exception(
-            f"Failed to get repo status and URL from GitHub API due to: {exc}",
+            "Failed to get repo status and URL from GitHub API",
             repo_orgs=repo_orgs,
         )
         return {}
