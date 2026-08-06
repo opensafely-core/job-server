@@ -70,7 +70,7 @@ if OLD_SECRET_KEY is not None:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", default="0") == "1"
 
-DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR", default=False) == "True"
+DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR") == "True"
 
 # Disable migrations for the django-debug-toolbar
 MIGRATION_MODULES = {"debug_toolbar": None}
@@ -235,7 +235,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = Path(os.environ.get("STATIC_ROOT", default=BASE_DIR / "staticfiles"))
 STATIC_URL = "/static/"
 
-ASSETS_DEV_MODE = os.environ.get("ASSETS_DEV_MODE", default=False) == "True"
+ASSETS_DEV_MODE = os.environ.get("ASSETS_DEV_MODE") == "True"
 
 DJANGO_VITE = {
     "default": {
@@ -441,13 +441,14 @@ initialise_sentry()
 
 
 # PROJECT SETTINGS
-DISABLE_CREATING_JOBS = os.environ.get("DISABLE_CREATING_JOBS", default=False) == "True"
+DISABLE_CREATING_JOBS = os.environ.get("DISABLE_CREATING_JOBS") == "True"
 
+DEFAULT_RELEASE_FILE_SIZE_LIMIT = 16 * 1024 * 1024  # 16Mb
 # Released files per-file size limit
 RELEASE_FILE_SIZE_LIMIT = int(
     os.environ.get(
         "RELEASE_FILE_SIZE_LIMIT",
-        default=16 * 1024 * 1024,  # 16Mb
+        default=str(DEFAULT_RELEASE_FILE_SIZE_LIMIT),
     )
 )
 
@@ -510,7 +511,7 @@ DEFAULT_OUTPUT_CHECKING_REPO = os.environ.get(
     "DEFAULT_OUTPUT_CHECKING_REPO", default="opensafely-output-review"
 )
 DEFAULT_MAX_GITHUB_RETRIES = int(
-    os.environ.get("DEFAULT_MAX_GITHUB_RETRIES", default=3)
+    os.environ.get("DEFAULT_MAX_GITHUB_RETRIES", default="3")
 )
 
 # These orgs are not copiloted
@@ -521,7 +522,7 @@ UNIVERSITY_OF_BRISTOL_ORG_PK = 9
 
 # How long in seconds to wait between calls to the RAP API status endpoint to
 # fetch job updates
-RAP_API_POLL_INTERVAL = int(os.environ.get("RAP_API_POLL_INTERVAL", default=60))
+RAP_API_POLL_INTERVAL = int(os.environ.get("RAP_API_POLL_INTERVAL", default="60"))
 
 # GitHub token for interactions with the GitHub API.
 # See jobserver/github.py for how this is used.
