@@ -21,6 +21,4 @@ def show_warning(last_seen, threshold):
 
     delta = timezone.now() - last_seen
 
-    if delta < threshold:
-        return False
-    return True
+    return delta >= threshold
