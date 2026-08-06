@@ -90,7 +90,7 @@ def test_repo_get_staff_url():
 
 def test_repo_name_no_path():
     with pytest.raises(Exception, match="not in expected format"):
-        RepoFactory(url="http://example.com").name
+        _ = RepoFactory(url="http://example.com").name
 
 
 def test_repo_name_success():
@@ -99,7 +99,7 @@ def test_repo_name_success():
 
 def test_repo_owner_no_path():
     with pytest.raises(Exception, match="not in expected format"):
-        RepoFactory(url="http://example.com").owner
+        _ = RepoFactory(url="http://example.com").owner
 
 
 def test_repo_owner_success():

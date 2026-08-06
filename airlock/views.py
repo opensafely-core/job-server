@@ -93,8 +93,6 @@ class AirlockEvent:
             org = ORG_OUTPUT_CHECKING_REPOS[lookup]["org"]
             repo = ORG_OUTPUT_CHECKING_REPOS[lookup]["repo"]
 
-        workspace.project
-
         return cls(
             event_type=event_type,
             updates=updates,

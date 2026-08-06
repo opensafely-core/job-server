@@ -7,7 +7,7 @@ from jobserver.authorization.permissions import Permission
 
 @require_permission(Permission.STAFF_AREA_ACCESS)
 def error(request):
-    1 / 0
+    _ = 1 / 0
 
 
 @require_permission(Permission.STAFF_AREA_ACCESS)

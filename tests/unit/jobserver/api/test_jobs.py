@@ -784,7 +784,7 @@ def test_jobrequestapilist_success(api_rf):
 
     # Call jobs_status on each job request to ensure that its private _status field isn't stale
     for job_request in JobRequest.objects.all():
-        job_request.jobs_status
+        _ = job_request.jobs_status
 
     # Now we retrive the expected 3 actually active job requests
     response = JobRequestAPIList.as_view()(request)

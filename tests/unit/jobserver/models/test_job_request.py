@@ -754,7 +754,7 @@ def test_jobrequest_jobs_status_without_prefetching_jobs(django_assert_num_queri
 
     assert not hasattr(job_request, "_prefetched_objects_cache")
 
-    job_request.jobs_status
+    _ = job_request.jobs_status
 
     assert "jobs" in job_request._prefetched_objects_cache
 
