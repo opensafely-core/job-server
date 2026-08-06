@@ -25,8 +25,8 @@ def duration(td):
     if td.days:
         output += f"{td.days} days "
 
-    days, remaining_seconds = divmod(td.total_seconds(), 86400)
-    hours, remaining_seconds = divmod(remaining_seconds, 3600)
+    # timedelta.seconds is the remainder after whole days.
+    hours, remaining_seconds = divmod(td.seconds, 3600)
     minutes, seconds = divmod(remaining_seconds, 60)
 
     if hours:

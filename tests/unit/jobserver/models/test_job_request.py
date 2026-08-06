@@ -181,7 +181,7 @@ def test_jobrequest_num_completed_no_jobs():
 def test_jobrequest_num_completed_success():
     job_request = JobRequestFactory()
 
-    job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
+    JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
     assert job_request.num_completed == 2
 
