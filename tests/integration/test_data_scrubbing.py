@@ -79,7 +79,7 @@ def test_scrub_data_command_success(freezer):
                     f"{model_class.__name__}.{field_name} should have changed"
                 )
             else:
-                expected = fields_to_scrub[field_name]
+                expected = fake_value
                 assert actual == expected, (
                     f"{model_class.__name__}.{field_name} should be {expected!r}, got {actual!r}"
                 )
