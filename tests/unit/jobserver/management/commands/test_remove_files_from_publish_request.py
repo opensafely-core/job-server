@@ -91,10 +91,8 @@ def test_remove_files_from_publish_request(n_to_remove=2):
     assert snapshot.files.count() == 1 + n_to_remove
     assert release_file_to_keep in snapshot.files.all()
     assert all(
-        [
-            release_file_to_remove in snapshot.files.all()
-            for release_file_to_remove in release_files_to_remove
-        ]
+        release_file_to_remove in snapshot.files.all()
+        for release_file_to_remove in release_files_to_remove
     )
 
     call_command(
@@ -112,10 +110,8 @@ def test_remove_files_from_publish_request(n_to_remove=2):
     assert snapshot.files.count() == 1
     assert release_file_to_keep in snapshot.files.all()
     assert all(
-        [
-            release_file_to_remove not in snapshot.files.all()
-            for release_file_to_remove in release_files_to_remove
-        ]
+        release_file_to_remove not in snapshot.files.all()
+        for release_file_to_remove in release_files_to_remove
     )
 
     assert f"{n_to_remove} files removed from" in out.getvalue()
