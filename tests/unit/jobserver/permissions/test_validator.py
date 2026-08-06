@@ -9,17 +9,12 @@ class StubRegexPattern:
     The regex used is already tested elsewhere in the codebase."""
 
     def fullmatch(self, value):
-        return (
-            True
-            if value
-            in {
-                "123",
-                "456",
-                "POS-2026-1001",
-                "POS-2026-1002",
-            }
-            else False
-        )
+        return value in {
+            "123",
+            "456",
+            "POS-2026-1001",
+            "POS-2026-1002",
+        }
 
 
 # We use the identifiers also as names in the tests.
