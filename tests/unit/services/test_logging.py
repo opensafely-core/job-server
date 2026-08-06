@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 from django.template import Context, Template
@@ -9,11 +9,11 @@ from services.logging import timestamper
 def test_timestamper_with_debug(monkeypatch, freezer):
     monkeypatch.setattr("services.logging.DEBUG", True)
 
-    now = datetime.now()
+    now = datetime.now(tz=UTC)
     freezer.move_to(now)
 
     log = timestamper(None, None, {"event": "derp"})
-    assert log == {"event": "derp", "timestamp": now.isoformat() + "Z"}
+    assert log == {"event": "derp", "timestamp": now.isoformat().replace("+00:00", "Z")}
 
 
 def test_timestamper_without_debug(monkeypatch):

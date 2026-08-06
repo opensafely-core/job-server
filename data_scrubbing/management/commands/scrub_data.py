@@ -167,7 +167,7 @@ defined on the model.
 """
 
 import inspect
-from datetime import datetime
+from datetime import UTC, datetime
 
 from django.apps import apps
 from django.conf import settings
@@ -208,7 +208,7 @@ def get_fake_unique_email():
     hitting uniqueness constraints.
 
     Example fake e-mail generated: '260716073644_1@example.com'."""
-    start_time_str = datetime.now().strftime("%y%m%d%H%M%S")
+    start_time_str = datetime.now(tz=UTC).strftime("%y%m%d%H%M%S")
     count = 0
 
     while True:
