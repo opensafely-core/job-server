@@ -800,7 +800,7 @@ def test_jobrequestapilist_success(api_rf):
 
     # sort results based on the manually set identifiers because we don't care
     # about ordering here
-    results = list(sorted(results, key=lambda r: r["identifier"]))
+    results = sorted(results, key=lambda r: r["identifier"])
 
     assert results == [
         {

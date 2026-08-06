@@ -170,15 +170,13 @@ class Copiloting(TemplateView):
                     "workspace_count": project.workspace_count,
                 }
 
-        projects = list(
-            sorted(
-                iter_projects(
-                    projects,
-                    file_counts_by_project,
-                    repos_by_project,
-                ),
-                key=lambda p: p["name"].lower(),
-            )
+        projects = sorted(
+            iter_projects(
+                projects,
+                file_counts_by_project,
+                repos_by_project,
+            ),
+            key=lambda p: p["name"].lower(),
         )
 
         return super().get_context_data(**kwargs) | {

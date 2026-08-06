@@ -225,7 +225,7 @@ class User(AbstractBaseUser):
 
         def flatten_perms(roles):
             permissions = itertools.chain.from_iterable(r.permissions for r in roles)
-            return list(sorted(set(permissions)))
+            return sorted(set(permissions))
 
         projects = [
             {
@@ -249,7 +249,7 @@ class User(AbstractBaseUser):
         """
 
         def role_names(roles):
-            return list(sorted(r.__name__ for r in roles))
+            return sorted(r.__name__ for r in roles)
 
         projects = [
             {"slug": m.project.slug, "roles": role_names(m.roles)}

@@ -304,8 +304,8 @@ class WorkspaceReleaseList(View):
             project=workspace.project,
         )
 
-        latest_files = list(
-            sorted(workspace_files(workspace).values(), key=lambda rf: rf.name)
+        latest_files = sorted(
+            workspace_files(workspace).values(), key=lambda rf: rf.name
         )
         latest_release = {
             "can_view_files": can_view_files and bool(latest_files),
