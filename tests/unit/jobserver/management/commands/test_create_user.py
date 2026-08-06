@@ -34,7 +34,7 @@ def test_create_user_args(capsys):
 
     assert user.email == "foo@bar.com"
     assert user.fullname == "fullname"
-    assert set(user.roles) == set([OutputChecker, StaffAreaAdministrator])
+    assert set(user.roles) == {OutputChecker, StaffAreaAdministrator}
 
     # test idempotency
     call_command(
