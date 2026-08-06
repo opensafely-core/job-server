@@ -221,18 +221,18 @@ class JobRequestCreate(CreateView):
         )
 
         # Add tracing attributes to the parent span
-        tracing_attributes = dict(
-            rap_id=job_request.identifier,
-            requested_actions=job_request.requested_actions,
-        )
+        tracing_attributes = {
+            "rap_id": job_request.identifier,
+            "requested_actions": job_request.requested_actions,
+        }
         trace.get_current_span().set_attributes(tracing_attributes)
         # Trace the RAP API call
         with tracer.start_as_current_span(
             "create_rap",
-            attributes=dict(
-                rap_id=job_request.identifier,
-                requested_actions=job_request.requested_actions,
-            ),
+            attributes={
+                "rap_id": job_request.identifier,
+                "requested_actions": job_request.requested_actions,
+            },
         ):
             # Invoke the RAP API and handle RapAPIErrors.
             job_count = job_request.request_rap_creation()

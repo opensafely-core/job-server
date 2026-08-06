@@ -77,15 +77,15 @@ def build_outputs_zip(release_files, url_builder_func):
 def create_release(workspace, backend, created_by, requested_files, **kwargs):
     # If this release creation comes from Airlock, a release id will be specified in the kwargs
     release_id = kwargs.pop("id", None)
-    create_kwargs = dict(
-        workspace=workspace,
-        backend=backend,
-        defaults={
+    create_kwargs = {
+        "workspace": workspace,
+        "backend": backend,
+        "defaults": {
             "created_by": created_by,
             "requested_files": requested_files,
             **kwargs,
         },
-    )
+    }
 
     if release_id is not None:
         # We know the release id, check for an existing release

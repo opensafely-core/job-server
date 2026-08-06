@@ -48,7 +48,7 @@ project_identifier_test_cases = [
     # so the behaviour should be as the lists.
     # An empty dict is allowed.
     (
-        dict(),
+        {},
         [],
     ),
     (
