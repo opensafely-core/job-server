@@ -243,7 +243,6 @@ extend-ignore = [
   # Below rules were added by Ruff v0.16.
   # We can fix these gradually and remove these where we think sensible.
   "BLE001",
-  "FURB105",
   "PERF102",
   "PIE794",
   "PIE796",

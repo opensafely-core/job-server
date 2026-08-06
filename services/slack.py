@@ -20,11 +20,11 @@ def post(text, channel):
     # workspace, see dotenv-sample for required settings and where to get them
     # from.
     if settings.DEBUG:  # pragma: no cover
-        print("")
+        print()
         print(f"Channel: {channel}")
         print("Message:")
         print(text)
-        print("")
+        print()
         return
 
     try:
