@@ -24,7 +24,7 @@ class ReleaseFile(models.Model):
     serve them via nginx.
     """
 
-    id = models.CharField(  # noqa: A003
+    id = models.CharField(
         default=new_ulid_str, max_length=26, primary_key=True, editable=False
     )
 

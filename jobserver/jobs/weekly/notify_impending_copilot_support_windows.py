@@ -8,7 +8,7 @@ from services.sentry import monitor_config
 
 
 class Job(WeeklyJob):
-    help = "Notify slack of impending co-pilot support windows ending"  # noqa: A003
+    help = "Notify slack of impending co-pilot support windows ending"
 
     @monitor(
         monitor_slug="notify_impending_copilot_support_windows",

@@ -14,7 +14,7 @@ def delete_project(name):
 
 
 class Command(BaseCommand):
-    help = "Delete an empty project"  # noqa: A003
+    help = "Delete an empty project"
 
     def add_arguments(self, parser):
         parser.add_argument("project_name")

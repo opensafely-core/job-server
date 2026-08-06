@@ -29,7 +29,7 @@ class AuditableEvent(models.Model):
     # what is this record auditing?
     # we use this field to make it explicit what's being audited and to look up
     # related code, eg presenters
-    type = models.TextField(choices=Type.choices)  # noqa: A003
+    type = models.TextField(choices=Type.choices)
 
     target_model = models.TextField()
     target_field = models.TextField()

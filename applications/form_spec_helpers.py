@@ -136,7 +136,7 @@ class Field:
 
 @dataclass
 class Attributes:
-    type: str = "text"  # noqa: A003
+    type: str = "text"
     inputmode: str | None = None
     autocomplete: str | None = None
     autocapitalize: str | None = None

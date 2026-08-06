@@ -244,7 +244,6 @@ extend-ignore = [
   # We can fix these gradually and remove these where we think sensible.
   "BLE001",
   "RUF012",
-  "RUF100",
   "SIM103",
   "SIM114",
   "SIM117",

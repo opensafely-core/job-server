@@ -136,7 +136,7 @@ def test_previous_actions_link(freezer):
 
     workspace = WorkspaceFactory(name="my_test_workspace")
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg", workspace=workspace)
-    job = JobFactory(  # noqa: F841
+    job = JobFactory(
         job_request=job_request,
         completed_at=timezone.now(),
         status="succeeded",

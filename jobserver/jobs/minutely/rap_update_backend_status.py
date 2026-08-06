@@ -6,7 +6,7 @@ from services.sentry import monitor_config
 
 
 class Job(MinutelyJob):
-    help = "Run the rap_update_backend_status management command"  # noqa: A003
+    help = "Run the rap_update_backend_status management command"
 
     @monitor(
         monitor_slug="rap_update_backend_status",
