@@ -175,11 +175,11 @@ def _update_output_checking_issue(
         comment_url = data["html_url"]
 
     # if issue was not created in the first instance, try to create the issue again and stamina retries creating a comment
-    except IssueNotFound as issue_error:
+    except IssueNotFound:
         create_output_checking_issue(
             workspace_name, release_request_id, request_author, org, repo, github_api
         )
-        raise issue_error
+        raise
 
     if notify_slack:
         post_slack_update(
@@ -228,4 +228,4 @@ def update_output_checking_issue(
             updates,
             github_error_msg,
         )
-        raise error
+        raise
