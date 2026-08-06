@@ -693,7 +693,7 @@ def test_jobrequestapilist_filter_by_created_at_date(api_rf):
 
     assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 2
-    assert set([jr["identifier"] for jr in response.data["results"]]) == {
+    assert {jr["identifier"] for jr in response.data["results"]} == {
         included_job_request.identifier,
         old_job_request.identifier,
     }
