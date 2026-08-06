@@ -81,7 +81,7 @@ def test_remove_files_from_publish_request(n_to_remove=2):
         ReleaseFileFactory(
             workspace=snapshot.workspace, name=f"/release/test/file_to_remove-{n}.csv"
         )
-        for n in range(0, n_to_remove)
+        for n in range(n_to_remove)
     ]
 
     snapshot.files.add(release_file_to_keep)
