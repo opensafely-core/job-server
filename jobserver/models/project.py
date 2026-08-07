@@ -13,31 +13,6 @@ from furl import furl
 
 logger = structlog.get_logger(__name__)
 
-# Patterns, compiled regex, and validators for regex matching for different
-# possible kinds of Project.number.
-
-# Pattern for projects with an application managed in Job Server.
-# String of 0-9 ASCII digits, no leading 0. Convertible unambiguously to an int
-# and back. Using \d instead would match several other characters.
-DIGITS_PATTERN = r"[1-9][0-9]*"
-# Pattern for projects with an application managed outside of Job Server.
-# Like POS-2025-2001. 'POS-' followed by a string of digits representing the
-# year, '-', followed by a string of digits, usually starting with 2001. Year
-# part must start '20'. Third part has no leading zero.
-POS_FORMAT_PATTERN = r"POS-20[0-9]{2}-[1-9][0-9]{3}"
-POS_FORMAT_REGEX = re.compile(POS_FORMAT_PATTERN)
-# Pattern for either format. This covers all valid values.
-NUMBER_PATTERN = rf"{DIGITS_PATTERN}|{POS_FORMAT_PATTERN}"
-NUMBER_REGEX = re.compile(NUMBER_PATTERN)
-# Either format, wrapping each with ^$ anchors to require full match.
-NUMBER_PATTERN_FULLMATCH = rf"^{DIGITS_PATTERN}$|^{POS_FORMAT_PATTERN}$"
-NUMBER_REGEX_DESCRIPTION = (
-    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
-)
-NUMBER_REGEX_VALIDATOR = RegexValidator(
-    re.compile(NUMBER_PATTERN_FULLMATCH), NUMBER_REGEX_DESCRIPTION
-)
-
 
 class ProjectCategory(models.TextChoices):
     """The purpose and approval process of a Project."""
@@ -52,10 +27,56 @@ class ProjectCategory(models.TextChoices):
     LEGACY_APPROVED = "legacy_approved", "Legacy approved COVID research activity"
     """Legacy COVID research activity that went through the Job Server-managed
     approval process."""
-    APPROVED = "approved", "Approved non-COVID research activity"
-    """Research activity that went through the NHSE-managed approval process."""
+    APPROVED = (
+        "approved",
+        "Approved research activity under the 2025 or later Directions and the NHSE-managed approval process",
+    )
+    """Approved research activity under the 2025 or later Directions and the
+    NHSE-managed approval process"""
     UNKNOWN = "unknown", "(Unknown category)"
     """Unknown category, fallback option."""
+
+
+# Patterns and compiled regex for matching different possible kinds of
+# Project.number, also called identifiers.
+
+IDENTIFIER_PATTERNS = {
+    # Like INTERNAL-0123. 'INTERNAL-' followed by a string of 4 ASCII digits.
+    # INTERNAL-0000 is valid but not used by convention for simplicity. Using
+    # \d instead would match several other characters.
+    ProjectCategory.INTERNAL: r"INTERNAL-[0-9]{4}",
+    # String of ASCII digits, no leading 0. Convertible unambiguously to an int
+    # and back. Using \d instead would match several other characters.
+    ProjectCategory.LEGACY_APPROVED: r"[1-9][0-9]*",
+    # Like POS-2026-2001. 'POS-' followed by a string of digits representing the
+    # year, '-', followed by a string of digits, usually starting with 2001. Year
+    # part must start '20'. Third part has no leading zero.
+    ProjectCategory.APPROVED: r"POS-20[0-9]{2}-[1-9][0-9]{3}",
+}
+"""Dict mapping ProjectCategory to regex strings that match valid identifiers
+for that category."""
+
+IDENTIFIER_REGEXES = {
+    category: re.compile(pattern) for category, pattern in IDENTIFIER_PATTERNS.items()
+}
+"""Dict mapping ProjectCategory to compiled regex that match valid identifiers
+for that category."""
+
+ANY_IDENTIFIER_PATTERN = r"|".join(IDENTIFIER_PATTERNS.values())
+"""Regex string for any valid project identifier for some category."""
+ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
+"""Compiled regex for any valid project identifier for some category."""
+
+IDENTIFIER_PATTERN_DESCRIPTION = (
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
+    "or INTERNAL-NNNN (for example, INTERNAL-0003)."
+)
+"""String description of how a valid project identifier may be written. For use
+in forms and validation messages."""
+
+ANY_IDENTIFIER_PATTERN_FULLMATCH = rf"^({ANY_IDENTIFIER_PATTERN})$"
+"""Regex string for any valid project identifier for some category, wrapped
+with ^$ anchors to require a whole match."""
 
 
 class ProjectQuerySet(models.QuerySet):
@@ -76,15 +97,21 @@ class ProjectQuerySet(models.QuerySet):
             ),
             numeric_value=Case(
                 When(
-                    number__regex=rf"^{DIGITS_PATTERN}$",
+                    number__regex=rf"^{IDENTIFIER_PATTERNS[ProjectCategory.LEGACY_APPROVED]}$",
                     then=Cast("number", IntegerField()),
                 ),
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
             ),
+            internal_format_lex=Case(
+                When(number__startswith="INTERNAL-", then=F("number")),
+                default=Value("", output_field=CharField()),
+                output_field=CharField(),
+            ),
         ).order_by(
             "-pos_format_lex",
             F("numeric_value").desc(nulls_last=True),
+            "-internal_format_lex",
             Lower("name"),
         )
 
@@ -143,11 +170,16 @@ class Project(models.Model):
         max_length=20,
         null=True,
         blank=True,
-        validators=[NUMBER_REGEX_VALIDATOR],
+        validators=[
+            RegexValidator(
+                re.compile(ANY_IDENTIFIER_PATTERN_FULLMATCH),
+                IDENTIFIER_PATTERN_DESCRIPTION,
+            )
+        ],
         verbose_name="Project ID",
         help_text=(
             "Project ID can be found in the All Projects spreadsheet. "
-            + NUMBER_REGEX_DESCRIPTION
+            + IDENTIFIER_PATTERN_DESCRIPTION
         ),
     )
     category = models.TextField(
@@ -233,7 +265,8 @@ class Project(models.Model):
             models.CheckConstraint(
                 name="number_valid_format",
                 condition=(
-                    Q(number__isnull=True) | Q(number__regex=NUMBER_PATTERN_FULLMATCH)
+                    Q(number__isnull=True)
+                    | Q(number__regex=ANY_IDENTIFIER_PATTERN_FULLMATCH)
                 ),
             ),
         ]
@@ -309,17 +342,17 @@ class Project(models.Model):
         return collaboration.org if collaboration else None
 
     @classmethod
-    def next_project_identifier(cls):
-        """
-        Return the next numeric project number, or 1 if no numeric values exist.
-        """
-        numeric_values = [
-            int(number)
-            for number in cls.objects.values_list("number", flat=True)
-            if number is not None and number.isdigit()
-        ]
+    def category_from_identifier(cls, identifier: str) -> ProjectCategory | None:
+        """Return the ProjectCategory for which the string matches the identifier
+        format or None."""
+        if identifier == "":
+            return ProjectCategory.UNKNOWN
+        for category, pattern in IDENTIFIER_REGEXES.items():
+            if pattern.fullmatch(identifier):
+                return category
+        return None
 
-        if not numeric_values:
-            return 1
-
-        return max(numeric_values) + 1
+    @classmethod
+    def is_valid_identifier(cls, identifier: str) -> bool:
+        """Return True if a string matches any ProjectCategory identifier pattern."""
+        return bool(cls.category_from_identifier(identifier))

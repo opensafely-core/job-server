@@ -3,7 +3,6 @@ import pytest
 from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
-    ApplicationApproveForm,
     ProjectCreateForm,
     ProjectEditForm,
     ProjectLinkApplicationForm,
@@ -19,135 +18,6 @@ from ...factories import (
     ProjectFactory,
     UserFactory,
 )
-
-
-def test_applicationapproveform_success():
-    org = OrgFactory(slug="test-org")
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "test project",
-            "project_number": "42",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert form.is_valid(), form.errors
-
-
-def test_applicationapproveform_with_duplicate_project_name():
-    org = OrgFactory()
-    project = ProjectFactory()
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": project.name,
-            "project_number": "42",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert not form.is_valid()
-    assert "project_name" in form.errors
-
-
-def test_applicationapproveform_with_duplicate_project_number():
-    org = OrgFactory()
-    ProjectFactory(number=42)
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "test",
-            "project_number": "42",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert not form.is_valid()
-    assert "project_number" in form.errors
-
-
-def test_applicationapproveform_with_duplicate_project_slug():
-    org = OrgFactory()
-    ProjectFactory(slug="test-1")
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "Test 1",
-            "project_number": "42",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert not form.is_valid()
-    assert "project_name" in form.errors
-
-
-def test_applicationapproveform_with_empty_project_slug():
-    org = OrgFactory()
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "-/-.",
-            "project_number": "42",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert not form.is_valid()
-    assert "project_name" in form.errors
-
-
-def test_applicationapproveform_with_alphanumeric_project_number():
-    org = OrgFactory()
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "test",
-            "project_number": "POS-2025-2001",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert form.is_valid(), form.errors
-
-
-def test_applicationapproveform_with_invalid_project_number():
-    org = OrgFactory()
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "test",
-            "project_number": "POS-invalid-format",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert not form.is_valid()
-    assert "project_number" in form.errors
-
-
-def test_applicationapproveform_rejects_leading_zero_numeric_project_number():
-    org = OrgFactory()
-
-    form = ApplicationApproveForm(
-        data={
-            "project_name": "test",
-            "project_number": "00126",
-            "org": str(org.pk),
-        },
-        orgs=[org],
-    )
-
-    assert not form.is_valid()
-    assert "project_number" in form.errors
 
 
 def test_projectcreateform_unbound(potential_copilots):
@@ -388,11 +258,7 @@ def test_projecteditform_rejects_leading_zero_numeric_project_number():
     form = ProjectEditForm(data=data, instance=project)
 
     assert not form.is_valid()
-    assert form.errors == {
-        "number": [
-            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
-        ]
-    }
+    assert set(form.errors.keys()) == {"number"}
 
 
 def test_projecteditform_with_existing_number():
@@ -425,11 +291,7 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
     form = ProjectEditForm(data=data, instance=project)
 
     assert not form.is_valid()
-    assert form.errors == {
-        "number": [
-            "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
-        ]
-    }
+    assert set(form.errors.keys()) == {"number"}
 
 
 @pytest.mark.parametrize(

@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import Project
+from jobserver.models import Project, ProjectCategory
 
 from ....factories import (
     OrgFactory,
@@ -53,6 +53,11 @@ def test_project_constraints_updated_at_and_updated_by_only_one_set():
         pytest.param("POS-2000-1000", id="format-min-year"),
         pytest.param("POS-2026-3001", id="format-typical"),
         pytest.param("POS-2099-9999", id="format-max"),
+        pytest.param("INTERNAL-0000", id="internal-format-0digits"),
+        pytest.param("INTERNAL-0001", id="internal-format-1digits"),
+        pytest.param("INTERNAL-0023", id="internal-format-2digits"),
+        pytest.param("INTERNAL-0456", id="internal-format-3digits"),
+        pytest.param("INTERNAL-9870", id="internal-format-4digits"),
     ],
 )
 def test_project_constraints_number_valid(number):
@@ -90,6 +95,7 @@ def test_project_constraints_number_valid(number):
         pytest.param("project number", id="phrase"),
         pytest.param("bad-project-id", id="three-words-with-dashes"),
         pytest.param("!", id="punctuation-mark"),
+        pytest.param("１２３", id="just-digits-with-spaces"),
         # POS-Format Identifiers
         # Format errors - wrong structure
         pytest.param("PO-2026-2001", id="first-part-too-short"),
@@ -102,7 +108,16 @@ def test_project_constraints_number_valid(number):
         pytest.param("POS-9001", id="missing-third-part"),
         pytest.param("POS-2001-", id="empty-third-part"),
         pytest.param("POS-2026-3000-2001", id="four-parts"),
-        pytest.param("pos-2026-2001", id="lowercase"),
+        pytest.param("pos-2026-2001", id="pos-lowercase"),
+        pytest.param("Pos-2026-3001", id="pos-title-case"),
+        pytest.param("-POS-2026-3001", id="pos-leading-delimiter"),
+        pytest.param("POS-2026-3001-", id="pos-trailing-delimiter"),
+        pytest.param("POS–2026-3001", id="pos-en-dash-delimiter"),
+        pytest.param("POS—2026-3001", id="pos-em-dash-delimiter"),
+        pytest.param("POS−2026-3001", id="pos-minus-sign-delimiter"),
+        pytest.param("POS -2026-3001", id="pos-space-before-delimiter"),
+        pytest.param("POS- 2026-3001", id="pos-space-after-delimiter"),
+        pytest.param("POS - 2026-3001", id="pos-spaces-around-delimiter"),
         # Format errors - wrong delimiter
         pytest.param("POS_2026-2001", id="underscore-first"),
         pytest.param("POS-2026_2001", id="underscore-second"),
@@ -120,6 +135,36 @@ def test_project_constraints_number_valid(number):
         # Format errors - invalid values - third part
         pytest.param("POS-2001-0000", id="third-part-starts-with-0"),
         pytest.param("POS-2001-a000", id="third-part-starts-with-a"),
+        # INTERNAL-Format
+        # Format errors - wrong structure
+        pytest.param("INTERNAL0001", id="internal-no-delimiter"),
+        pytest.param("INTERNAL--0001", id="internal-two-delimiters"),
+        pytest.param("INTERNAL_0001", id="internal-underscore-delimiter"),
+        pytest.param("INTERNAL 0001", id="internal-space-delimiter"),
+        pytest.param("I-0001", id="internal-short-prefix"),
+        pytest.param("INT-0001", id="internal-short-prefix2"),
+        pytest.param("internal-0001", id="internal-lowercase"),
+        pytest.param("Internal-0001", id="internal-title-case"),
+        pytest.param("-INTERNAL-0001", id="internal-leading-delimiter"),
+        pytest.param("INTERNAL-0001-", id="internal-trailing-delimiter"),
+        pytest.param("INTERNAL–0001", id="internal-en-dash-delimiter"),
+        pytest.param("INTERNAL—0001", id="internal-em-dash-delimiter"),
+        pytest.param("INTERNAL−0001", id="internal-minus-sign-delimiter"),
+        pytest.param("INTERNAL -0001", id="internal-space-before-delimiter"),
+        pytest.param("INTERNAL- 0001", id="internal-space-after-delimiter"),
+        pytest.param("INTERNAL - 0001", id="internal-spaces-around-delimiter"),
+        # Format errors - wrong int part
+        pytest.param("INTERNAL-1.255", id="internal-decimal"),
+        pytest.param("INTERNAL-1.25", id="internal-decimal2"),
+        pytest.param("INTERNAL-6", id="internal-0-leading-zero"),
+        pytest.param("INTERNAL-09", id="internal-1-leading-zero"),
+        pytest.param("INTERNAL-005", id="internal-2-leading-zero"),
+        pytest.param("INTERNAL-00007", id="internal-4-leading-zero"),
+        pytest.param("INTERNAL-012", id="internal-1-leading-zero"),
+        pytest.param("INTERNAL-a", id="internal-letter"),
+        pytest.param("INTERNAL-project", id="internal-word"),
+        pytest.param("INTERNAL-PROJECT", id="internal-word2"),
+        pytest.param("INTERNAL-@", id="internal-punctuation"),
         # Leading or trailing whitespace of otherwise valid values
         pytest.param(" POS-2026-3001", id="identifier-leading-whitespace"),
         pytest.param("POS-2026-3001 ", id="identifier-trailing-whitespace"),
@@ -127,6 +172,9 @@ def test_project_constraints_number_valid(number):
         pytest.param(" 123", id="int-leading-whitespace"),
         pytest.param("123 ", id="int-trailing-whitespace"),
         pytest.param(" 123 ", id="int-both-whitespace"),
+        pytest.param(" INTERNAL-0123", id="internal-leading-whitespace"),
+        pytest.param("INTERNAL-0123 ", id="internal-trailing-whitespace"),
+        pytest.param(" INTERNAL-0123 ", id="internal-both-whitespace"),
     ],
 )
 def test_project_constraints_number_invalid(number):
@@ -263,41 +311,31 @@ def test_project_org_returns_first_org_when_no_lead():
     assert project.org == first_org
 
 
-def test_next_project_identifier():
-    ProjectFactory(number="100")
-    ProjectFactory(number="102")
-    ProjectFactory(number="103")
-
-    assert Project.next_project_identifier() == 104
-
-
-def test_next_project_identifier_returns_one_when_no_numeric_ids_exist():
-    ProjectFactory(number=None)
-
-    assert Project.next_project_identifier() == 1
-
-
 @pytest.mark.parametrize(
     "rows,expected",
     [
         (
             [
-                {"name": "first_project", "number": "POS-2024-2009"},
-                {"name": "second_project", "number": "POS-2025-2001"},
-                {"name": "third_project", "number": "POS-2025-2003"},
-                {"name": "fourth_project", "number": "7"},
-                {"name": "fifth_project", "number": "42"},
-                {"name": "sixth_project", "number": None},
-                {"name": "seventh_project", "number": "POS-2023-2009"},
+                {"name": "project_1", "number": "POS-2024-2009"},
+                {"name": "project_2", "number": "POS-2025-2001"},
+                {"name": "project_3", "number": "POS-2025-2003"},
+                {"name": "project_4", "number": "7"},
+                {"name": "project_5", "number": "42"},
+                {"name": "project_6", "number": None},
+                {"name": "project_9", "number": "INTERNAL-0001"},
+                {"name": "project_8", "number": "POS-2023-2009"},
+                {"name": "project_7", "number": "INTERNAL-0123"},
             ],
             [
-                "third_project",
-                "second_project",
-                "first_project",
-                "seventh_project",
-                "fifth_project",
-                "fourth_project",
-                "sixth_project",
+                "project_3",
+                "project_2",
+                "project_1",
+                "project_8",
+                "project_5",
+                "project_4",
+                "project_7",
+                "project_9",
+                "project_6",
             ],
         ),
         (
@@ -328,3 +366,22 @@ def test_order_by_project_identifier(rows, expected):
     )
 
     assert ordered_projects == expected
+
+
+@pytest.mark.parametrize(
+    "identifier,expected_category,expected_bool",
+    [
+        ("INTERNAL-0123", ProjectCategory.INTERNAL, True),
+        ("123", ProjectCategory.LEGACY_APPROVED, True),
+        ("POS-2026-2001", ProjectCategory.APPROVED, True),
+        ("", ProjectCategory.UNKNOWN, True),
+        ("bad identifier", None, False),
+    ],
+)
+def test_category_from_identifier_methods(identifier, expected_category, expected_bool):
+    """Test that Project classmethods category_from_identifier and
+    is_valid_identifier return expected values."""
+    # is_valid_identifier is a readability wrapper for category_from_identifier.
+    # They are so closely linked it makes more sense to test them in one test.
+    assert Project.category_from_identifier(identifier) == expected_category
+    assert Project.is_valid_identifier(identifier) == expected_bool

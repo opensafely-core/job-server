@@ -120,7 +120,6 @@ def test_url_permanent_redirects(client, url, redirect):
         ("/health-check/", health_check.HealthCheck),
         ("/staff/applications/", staff_applications.ApplicationList),
         ("/staff/applications/42/", staff_applications.ApplicationDetail),
-        ("/staff/applications/42/approve/", staff_applications.ApplicationApprove),
         ("/staff/applications/42/edit/", staff_applications.ApplicationEdit),
         ("/staff/applications/42/delete/", staff_applications.ApplicationRemove),
         (
