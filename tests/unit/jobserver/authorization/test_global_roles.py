@@ -19,42 +19,36 @@ from jobserver.authorization.roles import (
 
 
 def test_global_role_names():
-    assert set(GLOBAL_ROLE_NAMES) == set(
-        [
-            "StaffAreaAdministrator",
-            "TechSupport",
-            "ServiceAdministrator",
-            "OutputChecker",
-            "OutputPublisher",
-            "ProjectCollaborator",
-            "SignOffRepoWithOutputs",
-            "DeploymentAdministrator",
-        ]
-    )
+    assert set(GLOBAL_ROLE_NAMES) == {
+        "StaffAreaAdministrator",
+        "TechSupport",
+        "ServiceAdministrator",
+        "OutputChecker",
+        "OutputPublisher",
+        "ProjectCollaborator",
+        "SignOffRepoWithOutputs",
+        "DeploymentAdministrator",
+    }
 
 
 def test_global_roles():
-    assert set(GLOBAL_ROLES) == set(
-        [
-            StaffAreaAdministrator,
-            TechSupport,
-            ServiceAdministrator,
-            OutputChecker,
-            OutputPublisher,
-            ProjectCollaborator,
-            SignOffRepoWithOutputs,
-            DeploymentAdministrator,
-        ]
-    )
+    assert set(GLOBAL_ROLES) == {
+        StaffAreaAdministrator,
+        TechSupport,
+        ServiceAdministrator,
+        OutputChecker,
+        OutputPublisher,
+        ProjectCollaborator,
+        SignOffRepoWithOutputs,
+        DeploymentAdministrator,
+    }
 
 
 def test_project_roles():
-    assert set(PROJECT_ROLES) == set(
-        [
-            ProjectDeveloper,
-            ProjectCollaborator,
-        ]
-    )
+    assert set(PROJECT_ROLES) == {
+        ProjectDeveloper,
+        ProjectCollaborator,
+    }
 
 
 def test_all_roles():

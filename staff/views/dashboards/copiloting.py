@@ -44,9 +44,9 @@ def build_repos_by_project(projects, get_github_api=_get_github_api):
 
     try:
         github_repos = list(get_github_api().get_repos_with_status_and_url(repo_orgs))
-    except GitHubError as exc:
+    except GitHubError:
         logger.exception(
-            f"Failed to get repo status and URL from GitHub API due to: {exc}",
+            "Failed to get repo status and URL from GitHub API",
             repo_orgs=repo_orgs,
         )
         return {}
@@ -170,15 +170,13 @@ class Copiloting(TemplateView):
                     "workspace_count": project.workspace_count,
                 }
 
-        projects = list(
-            sorted(
-                iter_projects(
-                    projects,
-                    file_counts_by_project,
-                    repos_by_project,
-                ),
-                key=lambda p: p["name"].lower(),
-            )
+        projects = sorted(
+            iter_projects(
+                projects,
+                file_counts_by_project,
+                repos_by_project,
+            ),
+            key=lambda p: p["name"].lower(),
         )
 
         return super().get_context_data(**kwargs) | {

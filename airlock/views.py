@@ -36,7 +36,7 @@ class EventType(Enum):
     REQUEST_RETURNED = "request returned"
     REQUEST_RESUBMITTED = "request resubmitted"
     REQUEST_PARTIALLY_REVIEWED = "request reviewed"
-    REQUEST_REVIEWED = "request reviewed"
+    REQUEST_REVIEWED = "request reviewed"  # noqa: PIE796
 
     def status_label(self):
         """The GitHub Issue label that should be added for this request"""
@@ -92,8 +92,6 @@ class AirlockEvent:
                     lookup = org.slug
             org = ORG_OUTPUT_CHECKING_REPOS[lookup]["org"]
             repo = ORG_OUTPUT_CHECKING_REPOS[lookup]["repo"]
-
-        workspace.project
 
         return cls(
             event_type=event_type,

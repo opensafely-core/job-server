@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         counts = []
-        for _, app in apps.app_configs.items():
+        for app in apps.app_configs.values():
             for model in app.get_models():
                 counts.append(
                     {

@@ -28,7 +28,4 @@ def is_filter_selected(context, *, key, value, **kwargs):
     if not args:
         return False
 
-    if value not in args:
-        return False
-
-    return True
+    return value in args

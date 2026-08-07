@@ -112,7 +112,7 @@ class TestProjectCreation:
         assert AuditableEvent.objects.filter(target_id=new_project.pk).count() == 1
 
         assert len(slack_messages) == 1
-        message, channel = slack_messages[0]
+        _, channel = slack_messages[0]
         assert channel == "co-pilot-support"
 
     # parametrisation covers both empty and omitted values for each

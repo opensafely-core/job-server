@@ -1,7 +1,7 @@
+import datetime
 import itertools
 import secrets
 import unicodedata
-from datetime import date, timedelta
 
 import structlog
 from django.contrib.auth.hashers import make_password
@@ -225,7 +225,7 @@ class User(AbstractBaseUser):
 
         def flatten_perms(roles):
             permissions = itertools.chain.from_iterable(r.permissions for r in roles)
-            return list(sorted(set(permissions)))
+            return sorted(set(permissions))
 
         projects = [
             {
@@ -249,7 +249,7 @@ class User(AbstractBaseUser):
         """
 
         def role_names(roles):
-            return list(sorted(r.__name__ for r in roles))
+            return sorted(r.__name__ for r in roles)
 
         projects = [
             {"slug": m.project.slug, "roles": role_names(m.roles)}
@@ -288,7 +288,7 @@ class User(AbstractBaseUser):
         if not secrets.compare_digest(pat_token, self.pat_token):
             return False
 
-        if self.pat_expires_at.date() < date.today():
+        if self.pat_expires_at.date() < datetime.datetime.now(tz=datetime.UTC).date():
             capture_message(f"Expired token for {self.username}")
             return False
 
@@ -296,7 +296,7 @@ class User(AbstractBaseUser):
 
     def rotate_token(self):
         # Ticket to look at signing request.
-        expires_at = timezone.now() + timedelta(days=90)
+        expires_at = timezone.now() + datetime.timedelta(days=90)
 
         # Store as datetime in case we want to compare with a datetime or
         # increase resolution later.

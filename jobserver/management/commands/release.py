@@ -22,7 +22,7 @@ def get_or_maybe_create(create, model, lookup, **kwargs):
 
 
 class Command(BaseCommand):
-    help = "Release a directory of files to a workspace"  # noqa: A003
+    help = "Release a directory of files to a workspace"
 
     def add_arguments(self, parser):
         parser.add_argument(

@@ -10,7 +10,7 @@ logger = structlog.get_logger(__name__)
 
 
 def default_github_orgs():
-    return list(["opensafely"])
+    return ["opensafely"]
 
 
 class Org(models.Model):

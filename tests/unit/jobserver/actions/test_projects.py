@@ -151,10 +151,9 @@ def test_add_project_transaction_rollback(monkeypatch):
     # Force a rollback of the outer transaction after projects.add registers on_commit.
     # This seems simpler than patching to force the action transaction to raise
     # an error when rolling back.
-    with pytest.raises(RuntimeError):
-        with transaction.atomic():
-            projects.add(name="test", number=31337, orgs=[org0, org1], by=actor)
-            raise RuntimeError("force rollback")
+    with pytest.raises(RuntimeError), transaction.atomic():
+        projects.add(name="test", number=31337, orgs=[org0, org1], by=actor)
+        raise RuntimeError("force rollback")
 
     assert not mock_notify.called
     assert not AuditableEvent.objects.exists()

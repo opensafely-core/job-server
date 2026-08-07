@@ -15,7 +15,7 @@ def topics(data):
 
 
 class Job(DailyJob):
-    help = "Dump the database to storage for copying to local dev environments"  # noqa: A003
+    help = "Dump the database to storage for copying to local dev environments"
 
     @monitor(
         monitor_slug="update_repo_has_github_outputs",

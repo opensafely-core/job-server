@@ -45,7 +45,7 @@ def url_without_querystring(context, **kwargs):
     request = context["request"]
     f = furl(request.get_full_path())
 
-    for k in kwargs.keys():
+    for k in kwargs:
         del f.args[k]
 
     if "page" in f.args:

@@ -15,11 +15,11 @@ def find_icon_tag_names_used():
     # We use a sorted list so that the different xdist workers get a consistent ordering.
     # https://pytest-xdist.readthedocs.io/en/stable/known-limitations.html#order-and-amount-of-test-must-be-consistent
     return sorted(
-        set(
+        {
             icon_tag_name
             for path in template_paths
             for icon_tag_name in icon_pattern.findall(path.read_text())
-        )
+        }
     )
 
 

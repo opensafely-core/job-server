@@ -9,10 +9,7 @@ class Runtime:
     total_seconds: int = 0
 
     def __bool__(self):
-        if self.hours == 0 and self.minutes == 0 and self.seconds == 0:
-            return False
-
-        return True
+        return not (self.hours == 0 and self.minutes == 0 and self.seconds == 0)
 
     def __str__(self):
         if not self:

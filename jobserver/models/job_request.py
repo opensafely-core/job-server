@@ -519,7 +519,7 @@ class JobRequest(models.Model):
             job_request_status = self.update_status(status, message)
 
         # if any status is running then the JobRequest is running
-        elif "running" in statuses:
+        elif "running" in statuses:  # noqa: SIM114
             job_request_status = self.update_status(JobRequestStatus.RUNNING)
 
         # we've eliminated all statuses being the same so any pending statuses

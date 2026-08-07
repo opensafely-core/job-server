@@ -145,5 +145,5 @@ class Redirect(models.Model):
         ]
 
     @property
-    def type(self):  # noqa: A003
+    def type(self):
         return self.obj.__class__.__name__

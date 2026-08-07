@@ -77,7 +77,7 @@ class OpenCodelistsAPI:
         r.raise_for_status()
 
         data = self._iter_codelists(r.json()["codelists"])
-        return list(sorted(data, key=lambda c: c["name"].lower()))
+        return sorted(data, key=lambda c: c["name"].lower())
 
     def check_codelists(self, txt_content, json_content):
         path_segments = [

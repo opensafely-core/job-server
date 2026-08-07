@@ -430,7 +430,7 @@ def test_applicationdetail_post_with_incomplete_application(
 
     # Check that a page instance has not been created
     with pytest.raises(ObjectDoesNotExist):
-        application.researcherdetailspage
+        _ = application.researcherdetailspage
 
 
 def test_applicationedit_get_success(rf, staff_area_administrator):

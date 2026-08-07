@@ -693,7 +693,7 @@ def test_jobrequestapilist_filter_by_created_at_date(api_rf):
 
     assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 2
-    assert set([jr["identifier"] for jr in response.data["results"]]) == {
+    assert {jr["identifier"] for jr in response.data["results"]} == {
         included_job_request.identifier,
         old_job_request.identifier,
     }
@@ -784,7 +784,7 @@ def test_jobrequestapilist_success(api_rf):
 
     # Call jobs_status on each job request to ensure that its private _status field isn't stale
     for job_request in JobRequest.objects.all():
-        job_request.jobs_status
+        _ = job_request.jobs_status
 
     # Now we retrive the expected 3 actually active job requests
     response = JobRequestAPIList.as_view()(request)
@@ -800,7 +800,7 @@ def test_jobrequestapilist_success(api_rf):
 
     # sort results based on the manually set identifiers because we don't care
     # about ordering here
-    results = list(sorted(results, key=lambda r: r["identifier"]))
+    results = sorted(results, key=lambda r: r["identifier"])
 
     assert results == [
         {

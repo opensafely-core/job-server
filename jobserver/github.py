@@ -191,13 +191,13 @@ class GitHubAPI:
     def create_issue(self, org, repo, title, body, labels):
         if settings.DEBUG:  # pragma: no cover
             logger.info("Issue created", title=title, org=org, repo=repo, body=body)
-            print("")
+            print()
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title: {title}")
             print("Message:")
             print(body)
             print(f"Labels: {labels}")
-            print("")
+            print()
             return {"html_url": "http://example.com"}
         path_segments = [
             "repos",
@@ -276,13 +276,13 @@ class GitHubAPI:
                 repo=repo,
                 body=body,
             )
-            print("")
+            print()
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
             print("Comment:")
             print(body)
             print(f"Labels: {labels}")
-            print("")
+            print()
             return {"html_url": "http://example.com/issues/comment"}
 
         if issue_number is None:
@@ -345,11 +345,11 @@ class GitHubAPI:
                 org=org,
                 repo=repo,
             )
-            print("")
+            print()
             print(f"Repo: https://github.com/{org}/{repo}/")
             print(f"Title text: {title_text}")
             print(f"Labels: {labels}")
-            print("")
+            print()
             return {"html_url": "http://example.com/issues/closed"}
 
         if issue_number is None:

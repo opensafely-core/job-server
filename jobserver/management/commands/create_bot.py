@@ -7,7 +7,7 @@ from ...models import User
 
 
 class Command(BaseCommand):
-    help = "Create a bot user and print its token"  # noqa: A003
+    help = "Create a bot user and print its token"
 
     def add_arguments(self, parser):
         parser.add_argument("username")

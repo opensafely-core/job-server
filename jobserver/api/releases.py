@@ -204,24 +204,24 @@ def validate_snapshot_access(request, snapshot):
 def generate_index(files):
     """Generate a JSON list of files as expected by the SPA."""
 
-    output = dict(
-        files=[
-            dict(
-                name=name,
-                id=rfile.pk,
-                url=rfile.get_api_url(),
-                user=rfile.created_by.username,
-                date=rfile.created_at.isoformat(),
-                sha256=rfile.filehash,
-                size=rfile.size,
-                is_deleted=rfile.is_deleted,
-                backend=rfile.release.backend.name,
-                metadata=rfile.metadata,
-                review=None,
-            )
+    output = {
+        "files": [
+            {
+                "name": name,
+                "id": rfile.pk,
+                "url": rfile.get_api_url(),
+                "user": rfile.created_by.username,
+                "date": rfile.created_at.isoformat(),
+                "sha256": rfile.filehash,
+                "size": rfile.size,
+                "is_deleted": rfile.is_deleted,
+                "backend": rfile.release.backend.name,
+                "metadata": rfile.metadata,
+                "review": None,
+            }
             for name, rfile in files.items()
         ],
-    )
+    }
 
     # validate our output data with the serializer, without having to encode
     # all the source lookups into the serializer itself
@@ -548,21 +548,21 @@ def build_level4_user(user):
 
     # using a DRF serializer for now, so we've *some* schema definition
     level4_user = Level4AuthenticatedUser(
-        data=dict(
-            username=user.username,
-            fullname=user.fullname,
-            workspaces=workspaces,
-            copiloted_workspaces=copiloted_workspaces,
+        data={
+            "username": user.username,
+            "fullname": user.fullname,
+            "workspaces": workspaces,
+            "copiloted_workspaces": copiloted_workspaces,
             # note, we use a generic role check here rather than a permissions
             # as its currently a global role. In future, if output checking
             # permissions applies to different projects/orgs, we'll need to
             # list the explicit workspaces that the user has this permission
             # for.
-            output_checker=has_role(user, OutputChecker),
+            "output_checker": has_role(user, OutputChecker),
             # This permission allows a user readonly access to all workspaces in Airlock
             # (and consequently, all release requests related to any workspaces)
-            readonly_access=has_permission(user, Permission.AIRLOCK_READONLY_ACCESS),
-        )
+            "readonly_access": has_permission(user, Permission.AIRLOCK_READONLY_ACCESS),
+        }
     )
     assert level4_user.is_valid(), level4_user.errors
 

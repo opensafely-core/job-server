@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 from django.template import Context, Template
@@ -9,11 +9,11 @@ from services.logging import timestamper
 def test_timestamper_with_debug(monkeypatch, freezer):
     monkeypatch.setattr("services.logging.DEBUG", True)
 
-    now = datetime.now()
+    now = datetime.now(tz=UTC)
     freezer.move_to(now)
 
     log = timestamper(None, None, {"event": "derp"})
-    assert log == {"event": "derp", "timestamp": now.isoformat() + "Z"}
+    assert log == {"event": "derp", "timestamp": now.isoformat().replace("+00:00", "Z")}
 
 
 def test_timestamper_without_debug(monkeypatch):
@@ -34,11 +34,11 @@ def test_missing_variable_error_filter_with_ignored_prefix():
     template = Template("*{{ my_missing_variable }}*", name="admin/index.html")
     context = Context({"my_variable": "my_value"})
 
-    template.render(context) == "**"
+    assert template.render(context) == "**"
 
 
 def test_missing_variable_error_filter_with_ignored_variable_name():
     template = Template("*{{ csp_nonce }}*", name="index.html")
     context = Context({"csp_nonce": "csp_nonce_value"})
 
-    template.render(context) == "*csp_nonce_value*"
+    assert template.render(context) == "*csp_nonce_value*"

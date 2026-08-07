@@ -29,7 +29,7 @@ def assert_deep_type_equality(fake, real):
         assert key in real and isinstance(value, type(real[key]))
 
         if isinstance(value, dict):
-            assert_deep_type_equality(fake[key], real[key])
+            assert_deep_type_equality(value, real[key])
 
 
 def _get_public_method_signatures(cls, ignored_methods):
