@@ -28,8 +28,8 @@ charset-normalizer==3.4.9
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.15.2
-cryptography==49.0.0
+coverage==7.15.3
+cryptography==50.0.0
     # via
     #   pyjwt
     #   social-auth-core
@@ -58,7 +58,7 @@ django==5.2.16
     #   jobserver
     #   slippers
     #   social-auth-app-django
-django-anymail==15.0
+django-anymail==15.1
     # via jobserver
 django-csp==4.0
     # via jobserver
@@ -84,7 +84,7 @@ execnet==2.1.2
 factory-boy==3.3.3
 faker==40.36.0
     # via factory-boy
-filelock==3.32.0
+filelock==3.32.2
     # via
     #   python-discovery
     #   virtualenv
@@ -108,7 +108,7 @@ idna==3.18
     #   requests
 iniconfig==2.3.0
     # via pytest
-markdown==3.10.2
+markdown==3.10.3
     # via jobserver
 nh3==0.3.6
     # via jobserver
@@ -182,10 +182,8 @@ packaging==26.2
     #   opentelemetry-instrumentation
     #   pytest
 platformdirs==4.11.0
-    # via
-    #   python-discovery
-    #   virtualenv
-playwright==1.61.0
+    # via virtualenv
+playwright==1.62.0
     # via pytest-playwright
 pluggy==1.6.0
     # via pytest
@@ -235,7 +233,7 @@ pytest-socket==0.8.0
 pytest-xdist==3.8.0
 python-dateutil==2.9.0.post0
     # via freezegun
-python-discovery==1.5.0
+python-discovery==1.5.1
     # via virtualenv
 python-dotenv==1.2.2
     # via pytest-env
@@ -270,7 +268,7 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.16.0
+ruff==0.16.1
 ruyaml==0.91.0
     # via opensafely-pipeline
 sentry-sdk==2.66.1
@@ -330,11 +328,11 @@ urllib3==2.7.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.7.0
+virtualenv==21.7.1
     # via pre-commit
 whitenoise==6.12.0
     # via jobserver
-wrapt==2.2.2
+wrapt==2.3.0
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
