@@ -88,6 +88,7 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "POS-2026-3003",  # The effect of herpes zoster vaccines on incident dementia in England
     "POS-2026-3004",  # Harmonised assessment of risk groups for vaccine prioritisation
     "POS-2026-3005",  # Monitoring Prescribing Of Obesity Pharmacotherapy In Primary Care In England
+    "POS-2026-3006",  # Primary care data for medicines evaluation
 }
 
 
