@@ -92,7 +92,7 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
             .sort((a, b) => a[fileSort] - b[fileSort])
             .map((file) => (
               <React.Fragment key={file.id}>
-                {file.visible && (
+                {!!file.visible && (
                   <li
                     className={`leading-tight px-4 ${
                       `/${file.name}` === location.pathname

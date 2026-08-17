@@ -50,9 +50,9 @@ function App({
   return (
     <QueryClientProvider client={queryClient}>
       <div className="py-6">
-        {(prepareUrl || publishUrl) && (
+        {!!(prepareUrl || publishUrl) && (
           <div className="mb-3 -mt-3 px-1 md:px-6">
-            {prepareUrl && (
+            {!!prepareUrl && (
               <PrepareButton
                 authToken={authToken}
                 csrfToken={csrfToken}
@@ -60,7 +60,7 @@ function App({
                 prepareUrl={prepareUrl}
               />
             )}
-            {publishUrl && (
+            {!!publishUrl && (
               <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
             )}
           </div>
@@ -84,7 +84,7 @@ function App({
             />
           </div>
           <div className="md:col-span-2 lg:col-span-3">
-            {selectedFile && (
+            {!!selectedFile && (
               <Card
                 container
                 header={
