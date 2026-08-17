@@ -69,7 +69,10 @@ function App({
           <div className="flex flex-col gap-y-1 md:col-span-1">
             <Button
               className="block md:hidden mb-3"
-              onClick={() => setListVisible(!listVisible)}
+              onClick={
+                // biome-ignore lint/performance/noJsxPropsBind: existing handler retained temporarily
+                () => setListVisible(!listVisible)
+              }
               type="button"
               variant="secondary"
             >

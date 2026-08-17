@@ -45,10 +45,13 @@ function PublishButton({ csrfToken, publishUrl }) {
   return (
     <Button
       disabled={mutation.isPending}
-      onClick={(e) => {
-        e.preventDefault();
-        return mutation.mutate();
-      }}
+      onClick={
+        // biome-ignore lint/performance/noJsxPropsBind: existing handler retained temporarily
+        (e) => {
+          e.preventDefault();
+          return mutation.mutate();
+        }
+      }
       type="button"
       variant={mutation.isPending ? "secondary" : "primary"}
     >

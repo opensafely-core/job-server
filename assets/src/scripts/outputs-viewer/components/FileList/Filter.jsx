@@ -30,7 +30,10 @@ function Filter({ files, listRef, setFiles }) {
       hideLabel
       id="filterFiles"
       label="Find a file…"
-      onChange={(e) => filterOnChange(e)}
+      onChange={
+        // biome-ignore lint/performance/noJsxPropsBind: existing handler retained temporarily
+        (e) => filterOnChange(e)
+      }
       placeholder="Find a file…"
       type="search"
       value={filter}
