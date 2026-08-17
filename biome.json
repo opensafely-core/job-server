@@ -30,7 +30,7 @@
       "project": "all"
     },
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "a11y": "on",
       "correctness": {
         "useImportExtensions": "off",
@@ -62,7 +62,7 @@
       "includes": ["**/*.css"],
       "linter": {
         "rules": {
-          "recommended": true,
+          "preset": "recommended",
           "complexity": {
             "noImportantStyles": "off"
           },
