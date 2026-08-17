@@ -18,7 +18,7 @@ certifi==2026.7.22
     # via
     #   requests
     #   sentry-sdk
-cffi==2.1.0
+cffi==2.1.1
     # via
     #   argon2-cffi-bindings
     #   cryptography
@@ -28,7 +28,7 @@ charset-normalizer==3.4.9
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.15.3
+coverage==7.15.4
 cryptography==50.0.0
     # via
     #   pyjwt
@@ -43,7 +43,7 @@ distro==1.9.0
     # via ruyaml
 dj-database-url==3.1.2
     # via jobserver
-django==5.2.16
+django==5.2.17
     # via
     #   dj-database-url
     #   django-anymail
@@ -65,7 +65,7 @@ django-csp==4.0
 django-debug-toolbar==7.0.0
 django-extensions==4.1
     # via jobserver
-django-htmx==1.28.0
+django-htmx==1.29.0
     # via jobserver
 django-ipware==7.0.1
     # via django-structlog
@@ -76,7 +76,7 @@ django-structlog==10.1.0
 django-upgrade==1.31.1
 django-vite==3.1.0
     # via jobserver
-djangorestframework==3.17.1
+djangorestframework==3.18.0
     # via jobserver
 djhtml==3.0.11
 execnet==2.1.2
@@ -92,7 +92,7 @@ freezegun==1.5.5
     # via pytest-freezer
 furl==2.1.4
     # via jobserver
-googleapis-common-protos==1.75.0
+googleapis-common-protos==1.75.1
     # via opentelemetry-exporter-otlp-proto-http
 greenlet==3.5.4
     # via playwright
@@ -175,13 +175,13 @@ opentelemetry-util-http==0.65b0
     #   opentelemetry-instrumentation-wsgi
 orderedmultidict==1.0.2
     # via furl
-packaging==26.2
+packaging==26.3
     # via
     #   django-csp
     #   gunicorn
     #   opentelemetry-instrumentation
     #   pytest
-platformdirs==4.11.0
+platformdirs==4.11.1
     # via virtualenv
 playwright==1.62.0
     # via pytest-playwright
@@ -223,7 +223,7 @@ pytest==9.1.1
     #   pytest-xdist
 pytest-base-url==2.1.0
     # via pytest-playwright
-pytest-django==4.12.0
+pytest-django==4.13.0
 pytest-env==1.7.0
 pytest-freezer==0.4.9
 pytest-icdiff==0.9
@@ -268,12 +268,12 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.16.1
+ruff==0.16.2
 ruyaml==0.91.0
     # via opensafely-pipeline
 sentry-sdk==2.66.1
     # via jobserver
-setuptools==83.0.0
+setuptools==84.0.0
     # via ruyaml
 six==1.17.0
     # via
@@ -286,7 +286,7 @@ slippers==0.7.0
     # via jobserver
 social-auth-app-django==6.0.1
     # via jobserver
-social-auth-core==5.0.2
+social-auth-core==5.1.0
     # via
     #   jobserver
     #   social-auth-app-django
@@ -328,7 +328,7 @@ urllib3==2.7.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.7.1
+virtualenv==21.7.3
     # via pre-commit
 whitenoise==6.12.0
     # via jobserver
