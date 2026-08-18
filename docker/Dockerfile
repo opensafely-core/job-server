@@ -220,7 +220,7 @@ LABEL org.opencontainers.image.title="job-server" \
 # https://dokku.com/docs/networking/port-management/#applications-using-expose
 EXPOSE 8000
 
-# copy application code
+# copy application code except for things in .dockerignore
 COPY . /app
 
 # collect static files
@@ -231,6 +231,7 @@ RUN SECRET_KEY=dummy-key \
     RAP_API_TOKEN=dummy \
     python /app/manage.py collectstatic --no-input
 
+# set the entrypoint to ensure some basic tasks are performed before the cli command
 ENTRYPOINT ["/app/docker/entrypoints/prod.sh"]
 
 # We set command rather than entrypoint, to make it easier to run different
@@ -256,7 +257,7 @@ USER ${USERID}:${GROUPID}
 # installing dev dependencies and changing the entrypoint
 FROM job-server-base as job-server-dev
 
-# Pull in the binaries from the uv-cli stage to install dev requirements
+# Pull in the binaries from our pinned uv-cli stage to install dev requirements
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
 # install dev dependencies
