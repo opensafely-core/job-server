@@ -52,10 +52,13 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
   return (
     <Button
       disabled={mutation.isPending}
-      onClick={(e) => {
-        e.preventDefault();
-        return mutation.mutate(fileIds);
-      }}
+      onClick={
+        // biome-ignore lint/performance/noJsxPropsBind: existing handler retained temporarily
+        (e) => {
+          e.preventDefault();
+          return mutation.mutate(fileIds);
+        }
+      }
       type="button"
       variant={mutation.isPending ? "secondary" : "primary"}
     >

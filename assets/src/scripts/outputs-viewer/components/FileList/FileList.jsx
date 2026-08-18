@@ -75,7 +75,10 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
           "
           id="fileSort"
           name="file-sort"
-          onChange={(e) => setFileSort(e.target.value)}
+          onChange={
+            // biome-ignore lint/performance/noJsxPropsBind: existing handler retained temporarily
+            (e) => setFileSort(e.target.value)
+          }
           value={fileSort}
         >
           <option value="nameOrder">File name</option>
@@ -92,7 +95,7 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
             .sort((a, b) => a[fileSort] - b[fileSort])
             .map((file) => (
               <React.Fragment key={file.id}>
-                {file.visible && (
+                {!!file.visible && (
                   <li
                     className={`leading-tight px-4 ${
                       `/${file.name}` === location.pathname
@@ -106,7 +109,10 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
                       <a
                         disabled={`/${file.name}` === location.pathname}
                         href={file.url}
-                        onClick={(e) => selectFile({ e, item: file })}
+                        onClick={
+                          // biome-ignore lint/performance/noJsxPropsBind: existing handler retained temporarily
+                          (e) => selectFile({ e, item: file })
+                        }
                         title={`File size: ${prettyFileSize(file.size)}`}
                       >
                         {file.shortName}
