@@ -1,0 +1,10 @@
+{% url "staff:user-logout-all-sessions" username=user.username as logout_all_sessions_url %}
+{% #card title="Sessions" subtitle="End all active OpenSAFELY browser sessions for this user" container=True container_class="flex flex-col items-start gap-4" %}
+  <p>
+    This will log the user out on every browser and device. It does not revoke GitHub access or personal access tokens.
+  </p>
+  <form method="POST" action="{{ logout_all_sessions_url }}">
+    {% csrf_token %}
+    {% #button type="submit" variant="danger" %}Log out everywhere{% /button %}
+  </form>
+{% /card %}

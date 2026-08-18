@@ -57,6 +57,7 @@ from .views.users import (
     UserClearRoles,
     UserDetail,
     UserList,
+    UserLogoutAllSessions,
     UserRoleList,
     UserSetOrgs,
 )
@@ -189,6 +190,11 @@ user_urls = [
     path("", UserList.as_view(), name="user-list"),
     path("<username>/", UserDetail.as_view(), name="user-detail"),
     path("<username>/audit-log/", UserAuditLog.as_view(), name="user-audit-log"),
+    path(
+        "<username>/logout-all-sessions/",
+        UserLogoutAllSessions.as_view(),
+        name="user-logout-all-sessions",
+    ),
     path("<username>/roles/", UserRoleList.as_view(), name="user-role-list"),
     path("<username>/roles/clear/", UserClearRoles.as_view(), name="user-clear-roles"),
     path("<username>/set-orgs/", UserSetOrgs.as_view(), name="user-set-orgs"),

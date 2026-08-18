@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.sessions.backends.db import SessionStore
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404
 
@@ -16,6 +17,7 @@ from staff.views.users import (
     UserDetailWithEmail,
     UserDetailWithOAuth,
     UserList,
+    UserLogoutAllSessions,
     UserRoleList,
     UserSetOrgs,
 )
@@ -175,6 +177,66 @@ def test_userclearroles_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         UserClearRoles.as_view()(request, username=user.username)
+
+
+def test_userlogoutallsessions_success(rf_messages, staff_area_administrator):
+    user = UserFactory()
+    other_user = UserFactory()
+
+    session_keys = []
+    for session_user in [user, user, other_user]:
+        session = SessionStore()
+        session["_auth_user_id"] = str(session_user.pk)
+        session["_auth_user_backend"] = "django.contrib.auth.backends.ModelBackend"
+        session["_auth_user_hash"] = session_user.get_session_auth_hash()
+        session.create()
+        session_keys.append((session_user, session.session_key))
+
+    request = rf_messages.post("/")
+    request.user = staff_area_administrator
+
+    response = UserLogoutAllSessions.as_view()(request, username=user.username)
+
+    assert response.status_code == 302
+    assert response.url == user.get_staff_url()
+    assert not SessionStore(session_key=session_keys[0][1]).exists()
+    assert not SessionStore(session_key=session_keys[1][1]).exists()
+    assert SessionStore(session_key=session_keys[2][1]).exists()
+    assert str(next(iter(request._messages))) == (
+        f"Logged {user.username} out of all OpenSAFELY browser sessions."
+    )
+
+
+def test_userlogoutallsessions_for_current_user_redirects_home(
+    rf_messages, staff_area_administrator
+):
+    request = rf_messages.post("/")
+    request.user = staff_area_administrator
+
+    response = UserLogoutAllSessions.as_view()(
+        request, username=staff_area_administrator.username
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/"
+    assert not request.user.is_authenticated
+
+
+def test_userlogoutallsessions_unknown_user(rf, staff_area_administrator):
+    request = rf.post("/")
+    request.user = staff_area_administrator
+
+    with pytest.raises(Http404):
+        UserLogoutAllSessions.as_view()(request, username="test")
+
+
+def test_userlogoutallsessions_unauthorized(rf):
+    user = UserFactory()
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        UserLogoutAllSessions.as_view()(request, username=user.username)
 
 
 def test_userdetail_with_email_user_invokes_userdetailwithemail(

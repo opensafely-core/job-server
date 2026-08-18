@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.sessions.models import Session
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
@@ -94,6 +95,21 @@ def validate_login_token(username, token):
     send_token_login_used_email(user)
 
     return user
+
+
+def logout_all_sessions(user):
+    """Delete all active browser sessions belonging to ``user``."""
+    session_keys = []
+
+    for session in Session.objects.filter(expire_date__gt=timezone.now()).iterator():
+        session_data = session.get_decoded()
+        if session_data.get("_auth_user_id") == str(user.pk):
+            session_keys.append(session.session_key)
+
+    if session_keys:
+        Session.objects.filter(session_key__in=session_keys).delete()
+
+    return len(session_keys)
 
 
 @transaction.atomic()

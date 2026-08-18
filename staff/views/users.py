@@ -1,4 +1,6 @@
 import structlog
+from django.contrib import messages
+from django.contrib.auth import logout
 from django.core.exceptions import FieldError
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Prefetch, Q, Sum
@@ -90,6 +92,29 @@ class UserClearRoles(View):
         users.clear_all_roles(user=user, by=request.user)
 
         return redirect(get_next_url(request.GET, user.get_staff_roles_url()))
+
+
+@method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")
+class UserLogoutAllSessions(View):
+    def post(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs["username"])
+        session_count = users.logout_all_sessions(user)
+
+        logger.info(
+            f"Staff user {request.user.username} logged out all sessions for "
+            f"{user.username} ({session_count} sessions)"
+        )
+
+        is_current_user = request.user == user
+        if is_current_user:
+            logout(request)
+        else:
+            messages.success(
+                request,
+                f"Logged {user.username} out of all OpenSAFELY browser sessions.",
+            )
+
+        return redirect("home" if is_current_user else user.get_staff_url())
 
 
 @method_decorator(require_permission(Permission.USER_MANAGE), name="dispatch")

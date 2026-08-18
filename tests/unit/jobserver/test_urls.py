@@ -142,6 +142,10 @@ def test_url_permanent_redirects(client, url, redirect):
         ("/staff/redirects/42/", staff_redirects.RedirectDetail),
         ("/staff/users/", staff_users.UserList),
         ("/staff/users/<username>/", staff_users.UserDetail),
+        (
+            "/staff/users/<username>/logout-all-sessions/",
+            staff_users.UserLogoutAllSessions,
+        ),
         ("/staff/workspaces/", staff_workspaces.WorkspaceList),
         ("/staff/workspaces/w/", staff_workspaces.WorkspaceDetail),
         ("/job-requests/42/", job_requests.JobRequestDetailRedirect),

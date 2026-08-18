@@ -71,6 +71,8 @@
       {% /description_list %}
     {% /card %}
 
+    {% include "staff/user/_logout_all_sessions.html" %}
+
     <form method="POST" class="flex flex-col gap-4">
       {% csrf_token %}
 
