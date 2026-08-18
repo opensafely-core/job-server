@@ -128,10 +128,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 # install prod dependencies
 # --frozen for deterministic installs, uv.lock is source-of-truth
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
-# --no-dev so we only install prod dependencies
+# --no-dev only install prod dependencies
 #  (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-dev)
-# --no-install-project so we only install the dependencies, not the
-# project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+# --no-install-project only install the dependencies, not the project
+# (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
 # --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
     --mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
@@ -263,8 +263,8 @@ COPY --from=uv-cli /uv /uvx /usr/local/bin/
 # install dev dependencies
 # --frozen for deterministic installs, uv.lock is source-of-truth
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
-# --no-install-project so we only install the dependencies, not the
-# project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+# --no-install-project only install the dependencies, not the project
+# (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
 # --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
     --mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
