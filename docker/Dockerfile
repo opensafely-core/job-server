@@ -64,9 +64,8 @@ ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 #
 # Reusable uv CLI layer
 #
-# This allows us to specify the version in one place, and also works
-# around a limitation that you cannot use build args directly in `COPY
-# --from`.
+# This allows us to specify the version in one place, and also works around
+# a limitation that you cannot use build args directly in `COPY --from`.
 #
 # See: https://github.com/moby/buildkit/issues/2412 for more information
 #
@@ -112,7 +111,7 @@ COPY docker/build-dependencies.txt /tmp/build-dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
 
-# Pull in the binaries from the uv-cli stage
+# Pull in the binaries from our pinned uv-cli stage
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
 # Create a venv with uv
