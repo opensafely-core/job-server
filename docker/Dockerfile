@@ -126,7 +126,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 # The cache mount means a) /root/.cache is not in the image, and b) it's
 # preserved between docker builds locally, for faster dev rebuild.
 # install prod dependencies
-# --frozen for deterministic installs
+# --frozen for deterministic installs, uv.lock is source-of-truth
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
 # --no-dev so we only install prod dependencies
 #  (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-dev)
@@ -261,7 +261,7 @@ FROM job-server-base as job-server-dev
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
 # install dev dependencies
-# --frozen for deterministic installs
+# --frozen for deterministic installs, uv.lock is source-of-truth
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
 # --no-install-project so we only install the dependencies, not the
 # project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
