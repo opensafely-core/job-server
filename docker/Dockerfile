@@ -114,6 +114,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 # Pull in the binaries from our pinned uv-cli stage
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
+# Install everything in venv for isolation from system python libraries
 # Create a venv with uv
 # (https://docs.astral.sh/uv/guides/integration/docker/#using-the-pip-interface)
 RUN uv venv /opt/venv
