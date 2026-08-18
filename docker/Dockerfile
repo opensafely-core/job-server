@@ -1,16 +1,37 @@
 # syntax=docker/dockerfile:1.2
-
-## These build args are used in FROM lines, so need to be declared globally and have defaults set.
-ARG NODE_VERSION
-ARG UV_VERSION=0.11
-
+#################################################
+#
+# Images are structured as shown in this diagram:
+# ┌──────────────────┐            ┌──────────────────┐
+# │   base-python    ├────────────►     builder      │
+# └────────┬─────────┘            └──────────┬───────┘
+#          │                                 │
+#          │                                 │COPY FROM
+#          │     ┌──────────────────┐        │
+#          └─────► job-server-base  ◄────────┘
+#                └────────┬─┬───────┘
+#                         │ │
+#                         │ │
+# ┌──────────────────┐    │ │     ┌──────────────────┐
+# │ job-server-prod  ◄────┘ └─────► job-server-dev   │
+# └──────────────────┘            └──────────────────┘
+# The goal of this stages structure is to a) minimise the size of the *prod* image by
+# not including build dependencies and b) to make rebuilding the *dev* fast in local
+# development, by avoiding invalidating the layer cache every time we change python
+# code.
+#
 #################################################
 #
 # Create base image with python installed.
 #
+# These build args have defaults, but are usually set from docker/.env. They
+# are used in FROM lines, so need to be declared globally and have defaults
+# set.
+ARG NODE_VERSION
+ARG UV_VERSION=0.11
+
 # DL3007 ignored because base-docker we specifically always want to build on
 # the latest base image, by design.
-#
 # hadolint ignore=DL3007
 FROM ghcr.io/opensafely-core/base-docker:24.04 as base-python
 
