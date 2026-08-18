@@ -126,11 +126,11 @@ ENV PATH="/opt/venv/bin:$PATH"
 # The cache mount means a) /root/.cache is not in the image, and b) it's
 # preserved between docker builds locally, for faster dev rebuild.
 # install prod dependencies
-# --frozen for deterministic installs, uv.lock is source-of-truth
+# --frozen: for deterministic installs, uv.lock is source-of-truth.
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
-# --no-dev only install prod dependencies
+# --no-dev: only install prod dependencies.
 #  (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-dev)
-# --no-install-project only install the dependencies, not the project
+# --no-install-project: only install the dependencies, not the project.
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
 # --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
@@ -261,11 +261,11 @@ FROM job-server-base as job-server-dev
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
 # install dev dependencies
-# --frozen for deterministic installs, uv.lock is source-of-truth
+# --frozen: for deterministic installs, uv.lock is source-of-truth.
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
-# --no-install-project only install the dependencies, not the project
+# --no-install-project: only install the dependencies, not the project.
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
-# --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
+# --directory: /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
     --mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
     --mount=type=bind,source=uv.lock,target=/root/uv.lock \
