@@ -12,7 +12,10 @@ works.
 
 You may also be reading this because you are adding a new model or model field.
 In that case you need to add or update the DataScrubbing nested class on your
-model, as explained below.
+model, as explained below. Also note that there is a read-only replica of the
+database used for metrics/Grafana downstream, with access to a limited number
+of tables and restricted views on some of them. If you add fields with
+sensitive data, consider if we should do something there.
 
 Data Scrubbing Configuration
 ============================
