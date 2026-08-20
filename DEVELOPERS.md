@@ -23,6 +23,7 @@
   - [Manually bumping the cutoff date](#manually-bumping-the-cutoff-date)
   - [Adding a package-specific timestamp cutoff](#adding-a-package-specific-timestamp-cutoff)
 - [Deployment](#deployment)
+- [Adding sensitive fields to the database](#adding-sensitive-fields-to-the-database)
 - [Modifying the production database](#modifying-the-production-database)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
@@ -342,6 +343,14 @@ It is currently configured to be deployed Heroku-style, and requires the environ
 
 The Bennett Institute job server is deployed to our `dokku4` instance, instructions are are in [INSTALL.md](INSTALL.md).
 
+## Adding sensitive fields to the database
+
+Adding database model fields that will contain sensitive data (Personal Data or
+secrets) requires special care.
+
+See the documentation of the `data_scrubbing` package for detail on what
+sensitive data is and what you need to do when you add it.
+
 ## Modifying the production database
 
 Examples of legitimate reasons to modify the production database outside of the
@@ -444,7 +453,6 @@ To add a new icon:
   * the class is configurable: `class="{{ class }}"`
   * `fill` should be `currentColor` unless it's an outline icon then it should be `none` and `stroke` should be `currentColor`
 1. Map the icon file path to a name in `templates/components.yaml`
-
 
 ## Backends
 
