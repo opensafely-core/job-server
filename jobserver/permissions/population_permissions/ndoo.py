@@ -89,6 +89,7 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "POS-2026-3004",  # Harmonised assessment of risk groups for vaccine prioritisation
     "POS-2026-3005",  # Monitoring Prescribing Of Obesity Pharmacotherapy In Primary Care In England
     "POS-2026-3006",  # Primary care data for medicines evaluation
+    "POS-2026-3007",  # Evaluation of the potential causal effect of shingles vaccine eligibility on the incidence of dementia in the United Kingdom
 }
 
 
