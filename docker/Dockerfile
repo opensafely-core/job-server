@@ -1,16 +1,37 @@
 # syntax=docker/dockerfile:1.2
-
-## These build args are used in FROM lines, so need to be declared globally and have defaults set.
-ARG NODE_VERSION
-ARG UV_VERSION=0.11
-
+#################################################
+#
+# Images are structured as shown in this diagram:
+# ┌──────────────────┐            ┌──────────────────┐
+# │   base-python    ├────────────►     builder      │
+# └────────┬─────────┘            └──────────┬───────┘
+#          │                                 │
+#          │                                 │COPY FROM
+#          │     ┌──────────────────┐        │
+#          └─────► job-server-base  ◄────────┘
+#                └────────┬─┬───────┘
+#                         │ │
+#                         │ │
+# ┌──────────────────┐    │ │     ┌──────────────────┐
+# │ job-server-prod  ◄────┘ └─────► job-server-dev   │
+# └──────────────────┘            └──────────────────┘
+# The goal of this stages structure is to a) minimise the size of the *prod* image by
+# not including build dependencies and b) to make rebuilding the *dev* fast in local
+# development, by avoiding invalidating the layer cache every time we change python
+# code.
+#
 #################################################
 #
 # Create base image with python installed.
 #
+# These build args have defaults, but are usually set from docker/.env. They
+# are used in FROM lines, so need to be declared globally and have defaults
+# set.
+ARG NODE_VERSION
+ARG UV_VERSION=0.11
+
 # DL3007 ignored because base-docker we specifically always want to build on
 # the latest base image, by design.
-#
 # hadolint ignore=DL3007
 FROM ghcr.io/opensafely-core/base-docker:24.04 as base-python
 
@@ -43,9 +64,8 @@ ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 #
 # Reusable uv CLI layer
 #
-# This allows us to specify the version in one place, and also works
-# around a limitation that you cannot use build args directly in `COPY
-# --from`.
+# This allows us to specify the version in one place, and also works around
+# a limitation that you cannot use build args directly in `COPY --from`.
 #
 # See: https://github.com/moby/buildkit/issues/2412 for more information
 #
@@ -91,9 +111,10 @@ COPY docker/build-dependencies.txt /tmp/build-dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
 
-# Pull in the binaries from the uv-cli stage
+# Pull in the binaries from our pinned uv-cli stage
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
+# Install everything in venv for isolation from system python libraries
 # Create a venv with uv
 # (https://docs.astral.sh/uv/guides/integration/docker/#using-the-pip-interface)
 RUN uv venv /opt/venv
@@ -105,12 +126,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 # The cache mount means a) /root/.cache is not in the image, and b) it's
 # preserved between docker builds locally, for faster dev rebuild.
 # install prod dependencies
-# --frozen for deterministic installs
+# --frozen: for deterministic installs, uv.lock is source-of-truth.
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
-# --no-dev so we only install prod dependencies
+# --no-dev: only install prod dependencies.
 #  (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-dev)
-# --no-install-project so we only install the dependencies, not the
-# project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+# --no-install-project: only install the dependencies, not the project.
+# (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
 # --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
     --mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
@@ -199,7 +220,7 @@ LABEL org.opencontainers.image.title="job-server" \
 # https://dokku.com/docs/networking/port-management/#applications-using-expose
 EXPOSE 8000
 
-# copy application code
+# copy application code except for things in .dockerignore
 COPY . /app
 
 # collect static files
@@ -210,6 +231,7 @@ RUN SECRET_KEY=dummy-key \
     RAP_API_TOKEN=dummy \
     python /app/manage.py collectstatic --no-input
 
+# set the entrypoint to ensure some basic tasks are performed before the cli command
 ENTRYPOINT ["/app/docker/entrypoints/prod.sh"]
 
 # We set command rather than entrypoint, to make it easier to run different
@@ -235,15 +257,15 @@ USER ${USERID}:${GROUPID}
 # installing dev dependencies and changing the entrypoint
 FROM job-server-base as job-server-dev
 
-# Pull in the binaries from the uv-cli stage to install dev requirements
+# Pull in the binaries from our pinned uv-cli stage to install dev requirements
 COPY --from=uv-cli /uv /uvx /usr/local/bin/
 
 # install dev dependencies
-# --frozen for deterministic installs
+# --frozen: for deterministic installs, uv.lock is source-of-truth.
 # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
-# --no-install-project so we only install the dependencies, not the
-# project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
-# --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
+# --no-install-project: only install the dependencies, not the project.
+# (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+# --directory: /root lets `uv` detect the pyproject.toml, uv.lock etc.
 RUN --mount=type=cache,target=/root/.cache \
     --mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
     --mount=type=bind,source=uv.lock,target=/root/uv.lock \
