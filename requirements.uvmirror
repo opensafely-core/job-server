@@ -24,7 +24,7 @@ cffi==2.1.1
     #   cryptography
 cfgv==3.5.0
     # via pre-commit
-charset-normalizer==3.4.9
+charset-normalizer==3.5.1
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
@@ -62,14 +62,14 @@ django-anymail==15.1
     # via jobserver
 django-csp==4.0
     # via jobserver
-django-debug-toolbar==7.0.0
+django-debug-toolbar==7.1.1
 django-extensions==4.1
     # via jobserver
 django-htmx==1.29.0
     # via jobserver
 django-ipware==7.0.1
     # via django-structlog
-django-permissions-policy==4.32.0
+django-permissions-policy==4.33.0
     # via jobserver
 django-structlog==10.1.0
     # via jobserver
@@ -84,7 +84,7 @@ execnet==2.1.2
 factory-boy==3.3.3
 faker==40.36.0
     # via factory-boy
-filelock==3.32.2
+filelock==3.32.3
     # via
     #   python-discovery
     #   virtualenv
@@ -94,7 +94,7 @@ furl==2.1.4
     # via jobserver
 googleapis-common-protos==1.75.1
     # via opentelemetry-exporter-otlp-proto-http
-greenlet==3.5.4
+greenlet==3.5.5
     # via playwright
 gunicorn==26.0.0
     # via jobserver
@@ -181,7 +181,7 @@ packaging==26.3
     #   gunicorn
     #   opentelemetry-instrumentation
     #   pytest
-platformdirs==4.11.1
+platformdirs==4.11.3
     # via virtualenv
 playwright==1.62.0
     # via pytest-playwright
@@ -189,7 +189,7 @@ pluggy==1.6.0
     # via pytest
 pprintpp==0.4.0
     # via pytest-icdiff
-pre-commit==4.6.1
+pre-commit==4.6.2
 protobuf==7.35.1
     # via
     #   googleapis-common-protos
@@ -223,19 +223,19 @@ pytest==9.1.1
     #   pytest-xdist
 pytest-base-url==2.1.0
     # via pytest-playwright
-pytest-django==4.13.0
+pytest-django==4.14.0
 pytest-env==1.7.0
 pytest-freezer==0.4.9
 pytest-icdiff==0.9
 pytest-mock==3.15.1
-pytest-playwright==0.8.0
+pytest-playwright==0.9.0
 pytest-socket==0.8.0
 pytest-xdist==3.8.0
 python-dateutil==2.9.0.post0
     # via freezegun
-python-discovery==1.5.1
+python-discovery==1.5.2
     # via virtualenv
-python-dotenv==1.2.2
+python-dotenv==1.2.3
     # via pytest-env
 python-ipware==3.0.0
     # via django-ipware
@@ -268,10 +268,10 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.16.2
+ruff==0.16.3
 ruyaml==0.91.0
     # via opensafely-pipeline
-sentry-sdk==2.66.1
+sentry-sdk==2.68.0
     # via jobserver
 setuptools==84.0.0
     # via ruyaml
@@ -282,7 +282,7 @@ six==1.17.0
     #   python-dateutil
 slack-sdk==3.43.0
     # via jobserver
-slippers==0.7.0
+slippers==0.7.1
     # via jobserver
 social-auth-app-django==6.0.1
     # via jobserver
@@ -290,7 +290,7 @@ social-auth-core==5.1.0
     # via
     #   jobserver
     #   social-auth-app-django
-sqlparse==0.5.5
+sqlparse==0.6.0
     # via
     #   django
     #   django-debug-toolbar
@@ -328,7 +328,7 @@ urllib3==2.7.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.7.3
+virtualenv==21.7.4
     # via pre-commit
 whitenoise==6.12.0
     # via jobserver
