@@ -79,6 +79,7 @@ def test_project_constraints_number_valid(number):
         pytest.param("\n", id="new-line"),
         pytest.param("!@#^%$&*;,.'`|~", id="punctuation"),
         pytest.param("\u2728 hello \U0001f338 world \U0001f40d", id="unicode"),
+        #############################################################
         # Integer identifiers
         # Leading zeroes
         pytest.param("0", id="single-0"),
@@ -96,6 +97,7 @@ def test_project_constraints_number_valid(number):
         pytest.param("bad-project-id", id="three-words-with-dashes"),
         pytest.param("!", id="punctuation-mark"),
         pytest.param("１２３", id="just-digits-with-spaces"),
+        #############################################################
         # POS-Format Identifiers
         # Format errors - wrong structure
         pytest.param("PO-2026-2001", id="first-part-too-short"),
@@ -135,6 +137,7 @@ def test_project_constraints_number_valid(number):
         # Format errors - invalid values - third part
         pytest.param("POS-2001-0000", id="third-part-starts-with-0"),
         pytest.param("POS-2001-a000", id="third-part-starts-with-a"),
+        #############################################################
         # INTERNAL-Format
         # Format errors - wrong structure
         pytest.param("INTERNAL0001", id="internal-no-delimiter"),
@@ -165,6 +168,38 @@ def test_project_constraints_number_valid(number):
         pytest.param("INTERNAL-project", id="internal-word"),
         pytest.param("INTERNAL-PROJECT", id="internal-word2"),
         pytest.param("INTERNAL-@", id="internal-punctuation"),
+        #############################################################
+        # LEGACY-Format
+        # Format errors - wrong structure
+        pytest.param("LEGACY0001", id="legacy-no-delimiter"),
+        pytest.param("LEGACY--0001", id="legacy-two-delimiters"),
+        pytest.param("LEGACY_0001", id="legacy-underscore-delimiter"),
+        pytest.param("LEGACY 0001", id="legacy-space-delimiter"),
+        pytest.param("L-0001", id="legacy-short-prefix"),
+        pytest.param("LEG-0001", id="legacy-short-prefix2"),
+        pytest.param("legacy-0001", id="legacy-lowercase"),
+        pytest.param("Legacy-0001", id="legacy-title-case"),
+        pytest.param("-LEGACY-0001", id="legacy-leading-delimiter"),
+        pytest.param("LEGACY-0001-", id="legacy-trailing-delimiter"),
+        pytest.param("LEGACY–0001", id="legacy-en-dash-delimiter"),
+        pytest.param("LEGACY—0001", id="legacy-em-dash-delimiter"),
+        pytest.param("LEGACY−0001", id="legacy-minus-sign-delimiter"),
+        pytest.param("LEGACY -0001", id="legacy-space-before-delimiter"),
+        pytest.param("LEGACY- 0001", id="legacy-space-after-delimiter"),
+        pytest.param("LEGACY - 0001", id="legacy-spaces-around-delimiter"),
+        # Format errors - wrong int part
+        pytest.param("LEGACY-1.255", id="legacy-decimal"),
+        pytest.param("LEGACY-1.25", id="legacy-decimal2"),
+        pytest.param("LEGACY-6", id="legacy-0-leading-zero"),
+        pytest.param("LEGACY-09", id="legacy-1-leading-zero"),
+        pytest.param("LEGACY-005", id="legacy-2-leading-zero"),
+        pytest.param("LEGACY-00007", id="legacy-4-leading-zero"),
+        pytest.param("LEGACY-012", id="legacy-1-leading-zero"),
+        pytest.param("LEGACY-a", id="legacy-letter"),
+        pytest.param("LEGACY-project", id="legacy-word"),
+        pytest.param("LEGACY-PROJECT", id="legacy-word2"),
+        pytest.param("LEGACY-@", id="legacy-punctuation"),
+        #############################################################
         # Leading or trailing whitespace of otherwise valid values
         pytest.param(" POS-2026-3001", id="identifier-leading-whitespace"),
         pytest.param("POS-2026-3001 ", id="identifier-trailing-whitespace"),
@@ -175,6 +210,9 @@ def test_project_constraints_number_valid(number):
         pytest.param(" INTERNAL-0123", id="internal-leading-whitespace"),
         pytest.param("INTERNAL-0123 ", id="internal-trailing-whitespace"),
         pytest.param(" INTERNAL-0123 ", id="internal-both-whitespace"),
+        pytest.param(" LEGACY-0123", id="legacy-leading-whitespace"),
+        pytest.param("LEGACY-0123 ", id="legacy-trailing-whitespace"),
+        pytest.param(" LEGACY-0123 ", id="legacy-both-whitespace"),
     ],
 )
 def test_project_constraints_number_invalid(number):
@@ -320,22 +358,26 @@ def test_project_org_returns_first_org_when_no_lead():
                 {"name": "project_2", "number": "POS-2025-2001"},
                 {"name": "project_3", "number": "POS-2025-2003"},
                 {"name": "project_4", "number": "7"},
-                {"name": "project_5", "number": "42"},
-                {"name": "project_6", "number": None},
-                {"name": "project_9", "number": "INTERNAL-0001"},
-                {"name": "project_8", "number": "POS-2023-2009"},
-                {"name": "project_7", "number": "INTERNAL-0123"},
+                {"name": "project_5", "number": "LEGACY-0001"},
+                {"name": "project_6", "number": "42"},
+                {"name": "project_7", "number": None},
+                {"name": "project_8", "number": "INTERNAL-0001"},
+                {"name": "project_9", "number": "POS-2023-2009"},
+                {"name": "project_10", "number": "INTERNAL-0123"},
+                {"name": "project_11", "number": "LEGACY-0123"},
             ],
             [
                 "project_3",
                 "project_2",
                 "project_1",
-                "project_8",
-                "project_5",
-                "project_4",
-                "project_7",
                 "project_9",
                 "project_6",
+                "project_4",
+                "project_11",
+                "project_5",
+                "project_10",
+                "project_8",
+                "project_7",
             ],
         ),
         (
@@ -372,6 +414,7 @@ def test_order_by_project_identifier(rows, expected):
     "identifier,expected_category,expected_bool",
     [
         ("INTERNAL-0123", ProjectCategory.INTERNAL, True),
+        ("LEGACY-0123", ProjectCategory.LEGACY, True),
         ("123", ProjectCategory.LEGACY_APPROVED, True),
         ("POS-2026-2001", ProjectCategory.APPROVED, True),
         ("", ProjectCategory.UNKNOWN, True),

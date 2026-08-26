@@ -45,6 +45,10 @@ IDENTIFIER_PATTERNS = {
     # INTERNAL-0000 is valid but not used by convention for simplicity. Using
     # \d instead would match several other characters.
     ProjectCategory.INTERNAL: r"INTERNAL-[0-9]{4}",
+    # Like LEGACY-0123. 'LEGACY-' followed by a string of 4 ASCII digits.
+    # LEGACY-0000 is valid but not used by convention for simplicity. Using
+    # \d instead would match several other characters.
+    ProjectCategory.LEGACY: r"LEGACY-[0-9]{4}",
     # String of ASCII digits, no leading 0. Convertible unambiguously to an int
     # and back. Using \d instead would match several other characters.
     ProjectCategory.LEGACY_APPROVED: r"[1-9][0-9]*",
@@ -68,8 +72,9 @@ ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
 """Compiled regex for any valid project identifier for some category."""
 
 IDENTIFIER_PATTERN_DESCRIPTION = (
-    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
-    "or INTERNAL-NNNN (for example, INTERNAL-0003)."
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001), "
+    "INTERNAL-NNNN (for example, INTERNAL-0003), or"
+    "LEGACY-NNNN (for example, LEGACY-0003)."
 )
 """String description of how a valid project identifier may be written. For use
 in forms and validation messages."""
@@ -85,9 +90,11 @@ class ProjectQuerySet(models.QuerySet):
         Return projects ordered by project identifier.
         Ordering rules:
         1. POS-format identifiers sort first, in reverse lexical order.
-        2. Numeric identifiers sort next, by numeric value descending.
-        3. Blank or null identifiers sort last.
-        4. Project name is used as a case-insensitive tie-breaker.
+        2. Numeric (legacy approved) identifiers sort next, by numeric value descending.
+        3. LEGACY identifiers sort next, in reverse lexical order.
+        4. INTERNAL identifiers sort next, in reverse lexical order.
+        5. Blank or null identifiers sort last.
+        6. Project name is used as a case-insensitive tie-breaker.
         """
         return self.annotate(
             pos_format_lex=Case(
@@ -103,6 +110,11 @@ class ProjectQuerySet(models.QuerySet):
                 default=Value(None, output_field=IntegerField()),
                 output_field=IntegerField(),
             ),
+            legacy_format_lex=Case(
+                When(number__startswith="LEGACY-", then=F("number")),
+                default=Value("", output_field=CharField()),
+                output_field=CharField(),
+            ),
             internal_format_lex=Case(
                 When(number__startswith="INTERNAL-", then=F("number")),
                 default=Value("", output_field=CharField()),
@@ -111,6 +123,7 @@ class ProjectQuerySet(models.QuerySet):
         ).order_by(
             "-pos_format_lex",
             F("numeric_value").desc(nulls_last=True),
+            "-legacy_format_lex",
             "-internal_format_lex",
             Lower("name"),
         )
