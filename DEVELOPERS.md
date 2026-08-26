@@ -181,7 +181,23 @@ Once agreed, create the raw dump manually on Dokku4 server using the management 
 dokku run job-server python manage.py dump_raw_data
 ```
 
-The command writes the dump to the location configured by `JOBSERVER_RAW_DUMP_PATH`, currently `/storage/jobserver.dump`.
+The command writes the dump to the location configured by
+`JOBSERVER_RAW_DUMP_PATH`, currently `/storage/jobserver.dump. Note that the
+dump will be automatically deleted in 15-30 minutes, by the
+[delete_raw_dump](jobserver/jobs/quarter_hourly/delete_raw_dump.py) cron.
+
+There will be an automated Slack message in #team-rex-alerts. Respond to the
+message noting that you triggered the dump and linking to the agreement to do
+this.
+
+You can copy the raw dump to your local machine with a command like:
+
+```sh
+scp USERNAME@dokku4.ebmdatalab.net:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
+```
+
+You can restore the dump to your local development database with the commands
+in the above section.
 
 Only download, restore, or retain the raw dump as agreed. Delete the dump and either scrub the restored local database or remove it entirely as soon as the approved work is complete.
 
