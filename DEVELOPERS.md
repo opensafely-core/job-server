@@ -144,7 +144,7 @@ If you do not have access to pull production backups, follow the [setting up a f
 Copy the scrubbed dump from the server:
 
 ```sh
-scp dokku4:/var/lib/dokku/data/storage/job-server/jobserver_scrubbed.dump jobserver_scrubbed.dump
+scp USERNAME@dokku4.ebmdatalab.net:/var/lib/dokku/data/storage/job-server/jobserver_scrubbed.dump jobserver_scrubbed.dump
 ```
 
 If using the provided docker db you just need to do (note this will wipe your current
