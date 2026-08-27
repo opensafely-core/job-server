@@ -58,7 +58,7 @@ smoke-test host="http://localhost:8000": _dotenv
 
 # manually run the docker db. Useful if you want to use it but with venv based dev env
 db: build
-    docker compose up -d db
+    docker compose up -d --wait db
 
 # if the database container exists and is running, stop it from running
 stop-db:
