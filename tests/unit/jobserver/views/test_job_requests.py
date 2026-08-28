@@ -939,7 +939,9 @@ def test_jobrequestcreate_post_with_notifications_override(
     assert not job_request.jobs.exists()
 
 
-def test_jobrequestcreate_post_rejects_cohortextractor_usage(
+# Note: this test will fail until the pipeline library deprecates v3
+@pytest.mark.xfail
+def test_jobrequestcreate_post_rejects_deprecated_project_file_version(
     rf, mocker, user, project_membership, role_factory
 ):
     backend = BackendFactory()
@@ -984,7 +986,7 @@ def test_jobrequestcreate_post_rejects_cohortextractor_usage(
 
     assert response.status_code == 200
     assert (
-        "Cohort-extractor is no longer supported"
+        "Your project file is using a deprecated version"
         in response.context_data["actions_error"]
     )
 
