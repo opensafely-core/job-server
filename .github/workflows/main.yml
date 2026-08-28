@@ -81,7 +81,6 @@ jobs:
           sudo apt-get install --yes postgresql-common
           sudo env YES=1 /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
           sudo apt-get install --yes postgresql-client-17
-          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
 
       - name: Install node_modules
         run: just assets-install --ignore-scripts
