@@ -312,12 +312,10 @@ def test_jobrequestcreate_get_success(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -389,12 +387,10 @@ def test_jobrequestcreate_get_with_permission(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -518,12 +514,10 @@ def test_jobrequestcreate_get_with_out_of_date_codelist(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -575,12 +569,10 @@ def test_jobrequestcreate_post_success(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -652,12 +644,10 @@ def test_jobrequestcreate_post_success_nothing_to_do(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -732,12 +722,10 @@ def test_jobrequestcreate_post_rapapierror(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -850,12 +838,10 @@ def test_jobrequestcreate_post_with_notifications_default(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -909,12 +895,10 @@ def test_jobrequestcreate_post_with_notifications_override(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -1019,12 +1003,10 @@ def test_jobrequestcreate_post_sqlrunner_without_permission(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       twiddle:
-        run: sqlrunner:latest
+        run: sqlrunner:v1
         outputs:
           moderately_sensitive:
             output: path/to/output.csv
@@ -1083,22 +1065,20 @@ def test_jobrequestcreate_post_with_codelists_error(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 5
     actions:
       generate_dataset:
-        run: ehrql:v0 generate-dataset --output path/to/output.csv
+        run: ehrql:v1 generate-dataset args --output path/to/output.csv
         outputs:
           highly_sensitive:
             cohort: path/to/output.csv
       generate_measures:
-        run: ehrql:v0 generate-measures --output path/to/output2.csv
+        run: ehrql:v1 generate-measures args --output path/to/output2.csv
         outputs:
           moderately_sensitive:
             cohort: path/to/output2.csv
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output3.csv
