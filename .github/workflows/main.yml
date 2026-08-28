@@ -75,6 +75,13 @@ jobs:
           cache: "npm"
           cache-dependency-path: package-lock.json
 
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-common
+          sudo env YES=1 /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+          sudo apt-get install --yes postgresql-client-17
+
       - name: Install node_modules
         run: just assets-install --ignore-scripts
 
