@@ -3,7 +3,7 @@
 -e .
 argon2-cffi==25.1.0
     # via jobserver
-argon2-cffi-bindings==25.1.0
+argon2-cffi-bindings==26.1.0
     # via argon2-cffi
 asgiref==3.12.1
     # via
@@ -73,7 +73,7 @@ django-permissions-policy==4.33.0
     # via jobserver
 django-structlog==10.1.0
     # via jobserver
-django-upgrade==1.31.1
+django-upgrade==1.32.0
 django-vite==3.1.0
     # via jobserver
 djangorestframework==3.18.0
@@ -82,9 +82,9 @@ djhtml==3.0.11
 execnet==2.1.2
     # via pytest-xdist
 factory-boy==3.3.3
-faker==40.36.0
+faker==40.37.0
     # via factory-boy
-filelock==3.32.3
+filelock==3.32.4
     # via
     #   python-discovery
     #   virtualenv
@@ -96,13 +96,13 @@ googleapis-common-protos==1.75.1
     # via opentelemetry-exporter-otlp-proto-http
 greenlet==3.5.5
     # via playwright
-gunicorn==26.0.0
+gunicorn==26.1.0
     # via jobserver
 icdiff==2.0.10
     # via pytest-icdiff
 identify==2.6.19
     # via pre-commit
-idna==3.18
+idna==3.19
     # via
     #   django-anymail
     #   requests
@@ -110,7 +110,7 @@ iniconfig==2.3.0
     # via pytest
 markdown==3.10.3
     # via jobserver
-nh3==0.3.6
+nh3==0.3.7
     # via jobserver
 nodeenv==1.10.0
     # via pre-commit
@@ -178,7 +178,6 @@ orderedmultidict==1.0.2
 packaging==26.3
     # via
     #   django-csp
-    #   gunicorn
     #   opentelemetry-instrumentation
     #   pytest
 platformdirs==4.11.3
@@ -190,7 +189,7 @@ pluggy==1.6.0
 pprintpp==0.4.0
     # via pytest-icdiff
 pre-commit==4.6.2
-protobuf==7.35.1
+protobuf==7.36.0
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
@@ -204,7 +203,7 @@ pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
 pyee==13.0.1
     # via playwright
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   jobserver
     #   pytest
@@ -229,7 +228,7 @@ pytest-freezer==0.4.9
 pytest-icdiff==0.9
 pytest-mock==3.15.1
 pytest-playwright==0.9.0
-pytest-socket==0.8.0
+pytest-socket==0.8.1
 pytest-xdist==3.8.0
 python-dateutil==2.9.0.post0
     # via freezegun
@@ -268,7 +267,7 @@ ruamel-yaml-clib==0.2.8
     # via
     #   opensafely-pipeline
     #   ruamel-yaml
-ruff==0.16.3
+ruff==0.16.4
 ruyaml==0.91.0
     # via opensafely-pipeline
 sentry-sdk==2.68.0
