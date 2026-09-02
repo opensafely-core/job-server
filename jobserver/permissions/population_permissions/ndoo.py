@@ -93,6 +93,7 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "POS-2026-3008",  # Impact and Safety Evaluation of Pharmacy First
     "POS-2026-3009",  # OpenPREGnosis-Longitudinal: Expanding and Validating Pregnancy Identification Algorithms
     "POS-2026-3010",  # A profile of migrants' health using OpenSAFELY
+    "POS-2026-3011",  # Trends and variation in vitamin D testing and prescribing
 }
 
 
