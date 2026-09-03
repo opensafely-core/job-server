@@ -13,12 +13,6 @@ class ActionConfigError(Exception):
     """
 
 
-def check_cohortextractor_usage(config):
-    run_commands = [v.run.raw for v in config.actions.values()]
-    if any("cohortextractor" in command for command in run_commands):
-        raise ActionConfigError("Cohort-extractor is no longer supported")
-
-
 def check_sqlrunner_permission(project, config):
     run_commands = [v.run.raw for v in config.actions.values()]
     if not any("sqlrunner" in command for command in run_commands):

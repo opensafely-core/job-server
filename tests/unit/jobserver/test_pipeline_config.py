@@ -6,7 +6,6 @@ from pipeline.models import Pipeline
 
 from jobserver.pipeline_config import (
     ActionConfigError,
-    check_cohortextractor_usage,
     check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
@@ -22,15 +21,14 @@ from ...fakes import FakeGitHubAPI, FakeOpenCodelistsAPI
 
 
 dummy_project = {
-    "version": "3.0",
-    "expectations": {"population_size": 1000},
+    "version": "5.0",
     "actions": {
         "generate_study_population": {
             "run": "ehrql:v1 generate-dataset --output output/input.csv",
             "outputs": {"highly_sensitive": {"cohort": "output/input.csv"}},
         },
         "run_model": {
-            "run": "stata-mp:latest analysis/model.do",
+            "run": "stata-mp:v1 analysis/model.do",
             "needs": ["generate_study_population"],
             "outputs": {"moderately_sensitive": {"log": "logs/model.log"}},
         },
@@ -44,44 +42,12 @@ def link_func(path):
     return f.url
 
 
-def test_check_cohortextractor_usage():
-    config = Pipeline.build(
-        version=3,
-        expectations={"population_size": 1000},
-        actions={
-            "generate_study_population": {
-                "run": "cohortextractor:latest generate_cohort",
-                "outputs": {"highly_sensitive": {"cohort": "some/path.csv"}},
-            },
-        },
-    )
-
-    with pytest.raises(ActionConfigError):
-        check_cohortextractor_usage(config)
-
-
-def test_check_cohortextractor_usage_no_cohort_extractor_actions():
-    config = Pipeline.build(
-        version=3,
-        expectations={"population_size": 1000},
-        actions={
-            "generate_study_population": {
-                "run": "ehrql:v1 generate-dataset --output some/path.csv",
-                "outputs": {"highly_sensitive": {"dataset": "some/path.csv"}},
-            },
-        },
-    )
-
-    check_cohortextractor_usage(config)
-
-
 def test_check_sqlrunner_permission():
     config = Pipeline.build(
-        version=3,
-        expectations={"population_size": 1000},
+        version=5,
         actions={
             "query": {
-                "run": "sqlrunner:latest",
+                "run": "sqlrunner:v1",
                 "outputs": {"highly_sensitive": {"output": "some/path.csv"}},
             },
         },
@@ -97,8 +63,7 @@ def test_check_sqlrunner_permission():
 
 def test_check_sqlrunner_permission_no_sqlrunner_actions():
     config = Pipeline.build(
-        version=3,
-        expectations={"population_size": 1000},
+        version=5,
         actions={
             "generate_study_population": {
                 "run": "ehrql:v1 generate-dataset --output some/path.csv",
@@ -114,11 +79,10 @@ def test_check_sqlrunner_permission_no_sqlrunner_actions():
 
 def test_get_actions_missing_needs():
     dummy = Pipeline.build(
-        version=3,
-        expectations={"population_size": 1000},
+        version=5,
         actions={
             "frobnicate": {
-                "run": "test:latest",
+                "run": "test:v1",
                 "outputs": {"highly_sensitive": {"cohort": "some/path.csv"}},
             },
         },
@@ -134,16 +98,15 @@ def test_get_actions_missing_needs():
 
 def test_get_actions_no_run_all():
     dummy = Pipeline.build(
-        version=3,
-        expectations={"population_size": 1000},
+        version=4,  # Note: v5 errors if there are run_all actions in a project.yaml
         actions={
             "frobnicate": {
-                "run": "test1:latest",
+                "run": "test1:v1",
                 "outputs": {"highly_sensitive": {"cohort": "some/path1.csv"}},
             },
             "run_all": {
                 "needs": ["frobnicate"],
-                "run": "test2:latest",
+                "run": "test2:v1",
                 "outputs": {"highly_sensitive": {"cohort": "some/path2.csv"}},
             },
         },
@@ -160,11 +123,10 @@ def test_get_actions_no_run_all():
 
 def test_get_actions_success():
     content = Pipeline.build(
-        version=3,
-        expectations={"population_size": 1000},
+        version=5,
         actions={
             "frobnicate": {
-                "run": "test:latest",
+                "run": "test:v1",
                 "outputs": {"highly_sensitive": {"cohort": "some/path.csv"}},
             },
         },
@@ -361,10 +323,7 @@ def test_link_run_scripts():
 
 def test_map_run_scripts_to_links():
     content = """
-    version: "3.0"
-
-    expectations:
-      population_size: 100000
+    version: "5.0"
 
     actions:
       generate_dataset:
@@ -378,14 +337,14 @@ def test_map_run_scripts_to_links():
 
       # Flowchart for AF population
       flowchart_af:
-        run: stata-mp:latest analysis/flow_chart_af_population.do af_population_flowchart
+        run: stata-mp:v1 analysis/flow_chart_af_population.do af_population_flowchart
     """
 
     output = map_run_scripts_to_links(content, link_func)
 
     expected = {
         "ehrql:v1 generate-dataset --output output/input_af.csv": "ehrql:v1 generate-dataset --output output/input_af.csv",
-        "stata-mp:latest analysis/flow_chart_af_population.do af_population_flowchart": 'stata-mp:latest <a href="example.com/analysis/flow_chart_af_population.do">analysis/flow_chart_af_population.do</a> af_population_flowchart',
+        "stata-mp:v1 analysis/flow_chart_af_population.do af_population_flowchart": 'stata-mp:v1 <a href="example.com/analysis/flow_chart_af_population.do">analysis/flow_chart_af_population.do</a> af_population_flowchart',
     }
 
     assert output == expected
@@ -393,10 +352,7 @@ def test_map_run_scripts_to_links():
 
 def test_render_definition():
     dummy_yaml = """
-    version: "3.0"
-
-    expectations:
-      population_size: 100000
+    version: "5.0"
 
     actions:
       generate_dataset:
@@ -406,24 +362,21 @@ def test_render_definition():
             cohort: output/input.csv
 
       run_model:
-        run: stata-mp:latest analysis/model.do
+        run: stata-mp:v1 analysis/model.do
         needs: [generate_datasetMAIN]
         outputs:
           moderately_sensitive:
             log: logs/model.log
 
       draw_graphs:
-        run: python:latest python analysis/time_series_plots.py
+        run: python:v2 python analysis/time_series_plots.py
         needs: [run_model]
         outputs:
           moderately_sensitive:
             log: logs/analysis.log
     """
 
-    expected = """<div class="card-body my-0 rounded-0 highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.0&quot;</span>
-
-<span class="w">    </span><span class="nt">expectations</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">population_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100000</span>
+    expected = """<div class="card-body my-0 rounded-0 highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5.0&quot;</span>
 
 <span class="w">    </span><span class="nt">actions</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">generate_dataset</span><span class="p">:</span>
@@ -433,14 +386,14 @@ def test_render_definition():
 <span class="w">            </span><span class="nt">cohort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output/input.csv</span>
 
 <span class="w">      </span><span class="nt">run_model</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stata-mp:latest <a href="example.com/analysis/model.do">analysis/model.do</a></span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stata-mp:v1 <a href="example.com/analysis/model.do">analysis/model.do</a></span>
 <span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">generate_datasetMAIN</span><span class="p p-Indicator">]</span>
 <span class="w">        </span><span class="nt">outputs</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">moderately_sensitive</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs/model.log</span>
 
 <span class="w">      </span><span class="nt">draw_graphs</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python:latest python <a href="example.com/analysis/time_series_plots.py">analysis/time_series_plots.py</a></span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python:v2 python <a href="example.com/analysis/time_series_plots.py">analysis/time_series_plots.py</a></span>
 <span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">run_model</span><span class="p p-Indicator">]</span>
 <span class="w">        </span><span class="nt">outputs</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">moderately_sensitive</span><span class="p">:</span>
@@ -491,7 +444,7 @@ def test_render_definition():
                     },
                 },
                 "make_chart": {
-                    "run": "python:latest make-chart.py",
+                    "run": ":v2 make-chart.py",
                     "outputs": {
                         "moderately_sensitive": {"chart": "some/chart/path.png"}
                     },
@@ -522,7 +475,5 @@ def test_render_definition():
     ],
 )
 def test_get_database_actions(actions, expected_db_actions):
-    content = Pipeline.build(
-        version=3, expectations={"population_size": 1000}, actions=actions
-    )
+    content = Pipeline.build(version=5, actions=actions)
     assert list(get_database_actions(content)) == expected_db_actions
