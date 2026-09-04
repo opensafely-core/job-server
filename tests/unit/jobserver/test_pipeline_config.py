@@ -420,7 +420,7 @@ def test_render_definition():
             log: logs/analysis.log
     """
 
-    expected = """<div class="card-body my-0 rounded-0 highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.0&quot;</span>
+    expected = """<div class="card-body my-0 rounded-0 highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.0"</span>
 
 <span class="w">    </span><span class="nt">expectations</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">population_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100000</span>
