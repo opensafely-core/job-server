@@ -62,7 +62,8 @@ class ServiceAdministrator:
 class OutputChecker:
     display_name = "Output Checker"
     description = """View, upload, and delete any outputs that have been released to Job Server.
-    View unreleased outputs on Level 4 and release them to Job Server."""
+    View unreleased outputs on Level 4 and release them to Job Server.
+    Required for all Output Checkers."""
     models = [
         "jobserver.models.user.User",
     ]
@@ -76,7 +77,8 @@ class OutputChecker:
 
 class OutputPublisher:
     display_name = "Output Publisher"
-    description = """Publish released outputs (i.e make visible to the public) as a result of a request by a Project Developer."""
+    description = """Publish released outputs (i.e make visible to the public) as a result of a request by a Project Developer.
+    Not required for Output Checkers."""
     models = [
         "jobserver.models.user.User",
     ]
