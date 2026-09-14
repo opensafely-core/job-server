@@ -94,6 +94,8 @@ PROJECTS_WITH_PERMISSION = {
     "203": ["appointments"],
     # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
     "209": ["sgss_covid_all_tests"],
+    # https://jobs.opensafely.org/impact-and-safety-evaluation-of-pharmacy-first/
+    "POS-2026-3008": ["appointments"],
 }
 
 
