@@ -95,6 +95,7 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "POS-2026-3010",  # A profile of migrants' health using OpenSAFELY
     "POS-2026-3011",  # Trends and variation in vitamin D testing and prescribing,
     "POS-2026-3012",  # Surgical site infection monitoring in English routinely collected primary and secondary care data
+    "POS-2026-3013",  # INTEGRATE: Using routinely-collected healthcare data to inform clinical guidance and improve population health
 }
 
 
