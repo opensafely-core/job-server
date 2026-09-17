@@ -390,7 +390,7 @@ def test_category_from_identifier_methods(identifier, expected_category, expecte
 @pytest.mark.parametrize(
     "identifier,expected_str",
     [
-        ("INTERNAL-0123", "INTERNAL-0123"),
+        ("INTERNAL-0123", ""),
         ("123", "123"),
         ("POS-2026-2001", "POS-2026-2001"),
         (None, ""),

@@ -331,10 +331,16 @@ class Project(models.Model):
     def full_identifier(self):
         """Return a string representing project identifier for public display.
 
-        TODO: Extending this will allow us to control which categories of
-        identifier are displayed on the public parts of the site.
+        For now, only approved categories' identifiers are displayed. See
+        Slack and https://github.com/opensafely-core/job-server/issues/6037.
+
+        https://bennettoxford.slack.com/archives/C068NDYALSF/p1785771263091209?thread_ts=1785152219.125399&cid=C068NDYALSF
         """
-        if self.number:
+        allowed_categories = {ProjectCategory.LEGACY_APPROVED, ProjectCategory.APPROVED}
+        if (
+            self.number
+            and self.category_from_identifier(self.number) in allowed_categories
+        ):
             return f"{self.number}"
         return ""
 
