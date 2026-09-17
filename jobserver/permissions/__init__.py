@@ -1,4 +1,4 @@
-from . import sqlrunner, validator
+from . import sqlrunner
 
 
-__all__ = ["sqlrunner", "validator"]
+__all__ = ["sqlrunner"]

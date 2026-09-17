@@ -6,11 +6,18 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, SiteAlert, User, Workspace
+from jobserver.models import (
+    Backend,
+    Org,
+    Project,
+    ProjectCategory,
+    SiteAlert,
+    User,
+    Workspace,
+)
 from jobserver.models.project import (
-    NUMBER_REGEX,
-    NUMBER_REGEX_DESCRIPTION,
-    POS_FORMAT_REGEX,
+    ANY_IDENTIFIER_REGEX,
+    IDENTIFIER_PATTERN_DESCRIPTION,
 )
 
 
@@ -84,8 +91,8 @@ class ApplicationApproveForm(forms.Form):
 
     def clean_project_number(self):
         project_number = self.cleaned_data["project_number"]
-        if not NUMBER_REGEX.fullmatch(project_number):
-            raise forms.ValidationError(NUMBER_REGEX_DESCRIPTION)
+        if not ANY_IDENTIFIER_REGEX.fullmatch(project_number):
+            raise forms.ValidationError(IDENTIFIER_PATTERN_DESCRIPTION)
         if Project.objects.filter(number=project_number).exists():
             raise forms.ValidationError(
                 f'Project with number "{project_number}" already exists.'
@@ -157,7 +164,11 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
         # condition could use that.
         number = self.cleaned_data.get("number")
         copilot = self.cleaned_data.get("copilot")
-        if not copilot and number and POS_FORMAT_REGEX.fullmatch(number):
+        if (
+            not copilot
+            and number
+            and Project.category_from_identifier(number) == ProjectCategory.APPROVED
+        ):
             self.add_error(
                 "copilot",
                 forms.ValidationError(
