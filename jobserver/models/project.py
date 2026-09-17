@@ -328,6 +328,17 @@ class Project(models.Model):
         return super().save(*args, **kwargs)
 
     @property
+    def full_identifier(self):
+        """Return a string representing project identifier for public display.
+
+        TODO: Extending this will allow us to control which categories of
+        identifier are displayed on the public parts of the site.
+        """
+        if self.number:
+            return f"{self.number}"
+        return ""
+
+    @property
     def title(self):
         if self.number is None:
             return self.name

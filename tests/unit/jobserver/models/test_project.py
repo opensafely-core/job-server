@@ -385,3 +385,18 @@ def test_category_from_identifier_methods(identifier, expected_category, expecte
     # They are so closely linked it makes more sense to test them in one test.
     assert Project.category_from_identifier(identifier) == expected_category
     assert Project.is_valid_identifier(identifier) == expected_bool
+
+
+@pytest.mark.parametrize(
+    "identifier,expected_str",
+    [
+        ("INTERNAL-0123", "INTERNAL-0123"),
+        ("123", "123"),
+        ("POS-2026-2001", "POS-2026-2001"),
+        (None, ""),
+    ],
+)
+def test_full_identifier(identifier, expected_str):
+    """Test that the Project.full_identifier property returns expected
+    values."""
+    assert ProjectFactory(number=identifier).full_identifier == expected_str
