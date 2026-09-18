@@ -939,8 +939,6 @@ def test_jobrequestcreate_post_with_notifications_override(
     assert not job_request.jobs.exists()
 
 
-# Note: this test will fail until the pipeline library deprecates v3
-@pytest.mark.xfail
 def test_jobrequestcreate_post_rejects_deprecated_project_file_version(
     rf, mocker, user, project_membership, role_factory
 ):
