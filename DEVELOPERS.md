@@ -57,6 +57,13 @@ _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/articl
 - When logged in to Bitwarden, run `scripts/dev-env.sh .env` to retrieve and write the credentials to the target environment file specified.
   - `.env` is already in `.gitignore` to help prevent an accidental
     commit of credentials.
+  - You should create a PAT in your own GitHub account for `JOBSERVER_GITHUB_TOKEN`.
+    You can do this in [the GitHub settings
+    pages](https://github.com/settings/personal-access-tokens/new). Preferably,
+    create a fine-grained one that has read-only repo contents permission on
+    the `opensafely` org. That is sufficient for most of the site.  Do not give
+    write access to the real `opensafely` organisation. To exercise writes,
+    the `opensafely-testing` GitHub organisation could be suitable.
 
 ### Native
 
