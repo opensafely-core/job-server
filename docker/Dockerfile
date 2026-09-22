@@ -231,9 +231,6 @@ RUN SECRET_KEY=dummy-key \
     RAP_API_TOKEN=dummy \
     python /app/manage.py collectstatic --no-input
 
-# set the entrypoint to ensure some basic tasks are performed before the cli command
-ENTRYPOINT ["/app/docker/entrypoints/prod.sh"]
-
 # We set command rather than entrypoint, to make it easier to run different
 # things from the cli
 CMD ["gunicorn", "--config", "gunicorn.conf.py", "jobserver.wsgi"]
