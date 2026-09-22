@@ -31,6 +31,6 @@ jobs:
       id: update
       with:
         token: ${{ steps.generate-token.outputs.token }}
-      update_command: |
-        just upgrade-pipeline
-        just update-dependencies
+        update_command: |
+          just upgrade-pipeline
+          just update-dependencies
