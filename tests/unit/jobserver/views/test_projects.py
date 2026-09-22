@@ -30,12 +30,15 @@ from ....factories import (
 
 
 @pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
-def test_projectdetail_success(rf, user):
-    project = ProjectFactory()
+def test_projectdetail_success(rf, user, mocker):
+    org = OrgFactory(logo_file=None)
+    project = ProjectFactory(org=org)
     repo = RepoFactory(url="https://github.com/opensafely/some-research")
     workspace = WorkspaceFactory(project=project, repo=repo)
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request, started_at=timezone.now())
+
+    mocker.patch("jobserver.views.projects.Project.full_identifier", new="123")
 
     request = rf.get("/")
 
@@ -61,6 +64,30 @@ def test_projectdetail_success(rf, user):
 
     # check the staff-only edit link doesn't show for normal users
     assert "Edit" not in response.context_data
+
+    # Check that the project identifier appears as bool(full_identifier) is
+    # True.
+    assert "test-marker-project-identifier" in response.rendered_content
+
+
+def test_projectdetail_no_identifier(rf, user, mocker):
+    """Test that when Project.full_identifier is an empty string, the project
+    identifier HTML tags are not shown on the Project Detail page."""
+    org = OrgFactory(logo_file=None)
+    project = ProjectFactory(org=org)
+
+    mocker.patch("jobserver.views.projects.Project.full_identifier", new="")
+
+    request = rf.get("/")
+    request.user = user
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    # This class exists on the tag just for testing.
+    # It should not appear as bool(full_identifier) is False.
+    assert not "test-marker-project-identifier" in response.rendered_content
 
 
 def test_projectdetail_with_multiple_releases(rf, freezer):
