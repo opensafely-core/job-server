@@ -231,8 +231,10 @@ RUN SECRET_KEY=dummy-key \
     RAP_API_TOKEN=dummy \
     python /app/manage.py collectstatic --no-input
 
-# We set command rather than entrypoint, to make it easier to run different
-# things from the cli
+# We set CMD rather than ENTRYPOINT, as different processes want to run
+# different commands. The CMD command can be overridden when running a
+# container from the CLI. In production, Dokku arranges for the
+# container-specific Procfile command to override the CMD.
 CMD ["gunicorn", "--config", "gunicorn.conf.py", "jobserver.wsgi"]
 
 # finally, tag with build information. These will change regularly, therefore
