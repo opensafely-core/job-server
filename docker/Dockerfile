@@ -235,7 +235,7 @@ RUN SECRET_KEY=dummy-key \
 # different commands. The CMD command can be overridden when running a
 # container from the CLI. In production, Dokku arranges for the
 # container-specific Procfile command to override the CMD.
-CMD ["gunicorn", "--config", "gunicorn.conf.py", "jobserver.wsgi"]
+CMD ["gunicorn", "--no-control-socket", "--config", "gunicorn.conf.py", "jobserver.wsgi"]
 
 # finally, tag with build information. These will change regularly, therefore
 # we do them as the last action.
