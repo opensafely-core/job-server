@@ -28,7 +28,7 @@ charset-normalizer==3.5.1
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.16.0
+coverage==7.16.1
 cryptography==50.0.1
     # via
     #   pyjwt
@@ -74,17 +74,17 @@ django-permissions-policy==4.33.0
 django-structlog==10.1.0
     # via jobserver
 django-upgrade==1.32.0
-django-vite==3.1.0
+django-vite==3.2.0
     # via jobserver
-djangorestframework==3.18.0
+djangorestframework==3.18.1
     # via jobserver
 djhtml==3.0.11
 execnet==2.1.2
     # via pytest-xdist
 factory-boy==3.3.3
-faker==40.38.0
+faker==40.39.0
     # via factory-boy
-filelock==3.32.5
+filelock==3.32.6
     # via
     #   python-discovery
     #   virtualenv
@@ -94,7 +94,7 @@ furl==2.1.4
     # via jobserver
 googleapis-common-protos==1.75.3
     # via opentelemetry-exporter-otlp-proto-http
-greenlet==3.5.5
+greenlet==3.5.6
     # via playwright
 gunicorn==26.2.0
     # via jobserver
@@ -180,7 +180,7 @@ packaging==26.3
     #   django-csp
     #   opentelemetry-instrumentation
     #   pytest
-platformdirs==4.11.7
+platformdirs==4.11.8
     # via virtualenv
 playwright==1.62.0
     # via pytest-playwright
@@ -207,7 +207,7 @@ pygments==2.21.0
     # via
     #   jobserver
     #   pytest
-pyjwt==2.13.0
+pyjwt==2.14.0
     # via social-auth-core
 pytest==9.1.1
     # via
@@ -223,7 +223,7 @@ pytest==9.1.1
 pytest-base-url==2.1.0
     # via pytest-playwright
 pytest-django==4.14.0
-pytest-env==1.7.0
+pytest-env==1.7.1
 pytest-freezer==0.4.9
 pytest-icdiff==0.9
 pytest-mock==3.15.1
@@ -265,10 +265,10 @@ ruamel-yaml==0.19.1
     # via opensafely-pipeline
 ruamel-yaml-clib==0.2.15
     # via opensafely-pipeline
-ruff==0.16.6
+ruff==0.16.7
 ruyaml==0.91.0
     # via opensafely-pipeline
-sentry-sdk==2.68.1
+sentry-sdk==2.69.1
     # via jobserver
 setuptools==84.0.0
     # via ruyaml
@@ -314,7 +314,7 @@ typing-extensions==4.16.0
     #   psycopg
     #   pyee
     #   slippers
-tzdata==2026.3 ; sys_platform == 'win32'
+tzdata==2026.4 ; sys_platform == 'win32'
     # via
     #   django
     #   faker
@@ -325,11 +325,11 @@ urllib3==2.7.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.7.8
+virtualenv==21.7.9
     # via pre-commit
 whitenoise==6.12.0
     # via jobserver
-wrapt==2.4.0
+wrapt==2.4.1
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
