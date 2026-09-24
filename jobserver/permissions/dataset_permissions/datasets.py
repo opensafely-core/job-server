@@ -96,6 +96,8 @@ PROJECTS_WITH_PERMISSION = {
     "209": ["sgss_covid_all_tests"],
     # https://jobs.opensafely.org/impact-and-safety-evaluation-of-pharmacy-first/
     "POS-2026-3008": ["appointments"],
+    # https://jobs.opensafely.org/disparities-in-incidence-and-management-of-peripheral-arterial-disease-before-during-and-after-the-covid-19-pandemic/
+    "210": ["sgss_covid_all_tests"],
 }
 
 
