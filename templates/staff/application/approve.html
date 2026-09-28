@@ -57,7 +57,7 @@
 {% block extra_js %}
   <script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
   <script nonce="{{ request.csp_nonce }}">
-    htmx.on("htmx:afterSwap", (e) => {
+    htmx.on("htmx:after:swap", (e) => {
       const modal = e.target;
       modal.showModal();
 
