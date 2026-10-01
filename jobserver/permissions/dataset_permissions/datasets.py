@@ -28,9 +28,8 @@
 
 
 PROJECTS_WITH_PERMISSION = {
-    # Projects identified by slug (no project number)
-    # OpenSAFELY Internal project for curation: https://jobs.opensafely.org/opensafely-internal
-    "opensafely-internal": ["icnarc", "appointments"],
+    # https://jobs.opensafely.org/opensafely-internal
+    "INTERNAL-0001": ["icnarc", "appointments"],
     # https://jobs.opensafely.org/impact-of-covid-19-on-long-term-healthcare-use-and-costs-in-children-and-young-people/
     "9": ["isaric"],
     # https://jobs.opensafely.org/deaths-at-home-during-covid-19/
