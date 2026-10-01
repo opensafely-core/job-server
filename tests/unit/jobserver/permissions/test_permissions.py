@@ -38,13 +38,9 @@ def test_project_permission_vars(project_identifiers, variable_name):
     Existence of the project in production is not tested. In the datasets test,
     only the keys are examined, not the permission values."""
     for project_identifier in project_identifiers:
-        assert (
-            Project.is_valid_identifier(project_identifier)
-            # This is a specific exemption for the one case where a project slug is used.
-            # We should remove this in future and use a standard identifier.
-            or project_identifier == "opensafely-internal"
-        ), (
-            f"Invalid project identifier {project_identifier} used in {variable_name} variable"
+        assert Project.is_valid_identifier(project_identifier), (
+            f"Invalid project identifier {project_identifier} used "
+            f"in {variable_name} variable"
         )
 
 
