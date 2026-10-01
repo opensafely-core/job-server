@@ -101,6 +101,4 @@ PROJECTS_WITH_PERMISSION = {
 
 
 def analysis_scope_for_project(project):
-    if not project.number:
-        return PROJECTS_WITH_PERMISSION.get(project.slug, [])
     return PROJECTS_WITH_PERMISSION.get(project.number, [])
