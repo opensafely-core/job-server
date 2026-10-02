@@ -40,10 +40,10 @@ def setup_backend_workspace_user(mocker, project_membership, role_factory, user)
     )
 
     dummy_yaml = """
-    version: 4
+    version: 5
     actions:
       action1:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             dataset: path/to/output.csv
