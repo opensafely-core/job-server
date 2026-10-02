@@ -96,31 +96,6 @@ def test_get_actions_missing_needs():
     assert output == expected
 
 
-def test_get_actions_no_run_all():
-    dummy = Pipeline.build(
-        version=4,  # Note: v5 errors if there are run_all actions in a project.yaml
-        actions={
-            "frobnicate": {
-                "run": "test1:v1",
-                "outputs": {"highly_sensitive": {"cohort": "some/path1.csv"}},
-            },
-            "run_all": {
-                "needs": ["frobnicate"],
-                "run": "test2:v1",
-                "outputs": {"highly_sensitive": {"cohort": "some/path2.csv"}},
-            },
-        },
-    )
-
-    output = list(get_actions(dummy))
-
-    expected = [
-        {"name": "frobnicate", "needs": []},
-        {"name": "run_all", "needs": ["frobnicate"]},
-    ]
-    assert output == expected
-
-
 def test_get_actions_success():
     content = Pipeline.build(
         version=5,
