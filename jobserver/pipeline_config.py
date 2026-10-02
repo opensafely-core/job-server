@@ -30,10 +30,11 @@ def get_actions(config):
 
         yield {"name": action, "needs": needs}
 
-    # ensure there's always a run_all action
-    if "run_all" not in config.actions:
-        all_actions = list(config.actions.keys())
-        yield {"name": "run_all", "needs": all_actions}
+    # add a run_all action; note that from pipeline v2026.10.02.122250,
+    # this is a reserved name and will raise a validation error if a
+    # project file includes an action named run_all
+    all_actions = list(config.actions.keys())
+    yield {"name": "run_all", "needs": all_actions}
 
 
 def get_database_actions(config):
