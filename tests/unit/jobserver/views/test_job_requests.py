@@ -953,12 +953,10 @@ def test_jobrequestcreate_post_rejects_deprecated_project_file_version(
     )
 
     dummy_yaml = """
-    version: 3
-    expectations:
-      population_size: 1000
+    version: 4
     actions:
       twiddle:
-        run: cohortextractor:latest
+        run: python:v2
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv
@@ -984,7 +982,7 @@ def test_jobrequestcreate_post_rejects_deprecated_project_file_version(
 
     assert response.status_code == 200
     assert (
-        "Your project file is using a deprecated version"
+        "Project file is using a deprecated version (4.0)"
         in response.context_data["actions_error"]
     )
 

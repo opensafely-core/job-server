@@ -7,7 +7,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer = "2026-09-25T13:49:01.892627483Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -977,7 +977,7 @@ requires-dist = [
     { name = "gunicorn" },
     { name = "markdown" },
     { name = "nh3" },
-    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.09.14.135127.zip" },
+    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "opentelemetry-instrumentation-django" },
     { name = "opentelemetry-instrumentation-psycopg2" },
@@ -1073,21 +1073,21 @@ wheels = [
 
 [[package]]
 name = "oauthlib"
-version = "4.0.0"
+version = "3.3.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7a/d8/a1bcc8ba112a627f8ffbdc212a78ce18d3ac07e91a5ca65d27918eee25a1/oauthlib-4.0.0.tar.gz", hash = "sha256:efb274799819440f95b4ab3b818869f1ce9ae26c5beacba0201d1a1b76b54f86", size = 187232, upload-time = "2026-09-28T06:01:18.77Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0b/5f/19930f824ffeb0ad4372da4812c50edbd1434f678c90c2733e1188edfc63/oauthlib-3.3.1.tar.gz", hash = "sha256:0f0f8aa759826a193cf66c12ea1af1637f87b9b4622d46e866952bb022e538c9", size = 185918, upload-time = "2025-06-19T22:48:08.269Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/f4/78229a1066068ca14fc60fb26cf7381cabe4382261392b90e5f9552722d4/oauthlib-4.0.0-py3-none-any.whl", hash = "sha256:624c28c13a0a59cabf9747dfa52af63be3e512a7f2714df16e91b5b3a145e6cd", size = 159715, upload-time = "2026-09-28T06:01:17.008Z" },
+    { url = "https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl", hash = "sha256:88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1", size = 160065, upload-time = "2025-06-19T22:48:06.508Z" },
 ]
 
 [[package]]
 name = "opensafely-pipeline"
-version = "2026.9.14.135127"
-source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.09.14.135127.zip" }
+version = "2026.10.2.122250"
+source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip" }
 dependencies = [
     { name = "ruyaml" },
 ]
-sdist = { hash = "sha256:a8577198cb9e3507a8b5f8788b4d2a15059302a7d73d441b3f0ea8932b1d5b5f" }
+sdist = { hash = "sha256:d6659f3276f06487a5f9d1de3519a535ac8818c8692e660f3795e78dbcd31f1c" }
 
 [package.optional-dependencies]
 fastparser = [
