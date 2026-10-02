@@ -207,7 +207,7 @@ pygments==2.21.0
     # via
     #   jobserver
     #   pytest
-pyjwt==2.14.0
+pyjwt==2.15.0
     # via social-auth-core
 pytest==9.1.1
     # via
