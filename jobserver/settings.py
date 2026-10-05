@@ -380,6 +380,13 @@ CONTENT_SECURITY_POLICY = {
 }
 
 
+# Throttle the number of CSP reports to Sentry
+# A float between 0.0 and 100.0
+# 0.0 = no reports at all, 100.0 = always report
+# https://django-csp.readthedocs.io/en/latest/reports.html#throttling-the-number-of-reports
+REPORT_PERCENTAGE = 10.0
+
+
 # CSRF error view
 # https://docs.djangoproject.com/en/5.2/ref/settings/#csrf-failure-view
 CSRF_FAILURE_VIEW = "jobserver.views.errors.csrf_failure"
