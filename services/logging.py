@@ -81,7 +81,7 @@ class MissingVariableErrorFilter(logging.Filter):
     ignored_variable_names = {
         # Some template variables are added by middleware, and so
         # are missing when pages are requested by a `RequestFactory` instance.
-        "csp_nonce",  # csp.middleware.CSPMiddleware
+        "csp_nonce",  # csp.contrib.rate_limiting.RateLimitedCSPMiddleware
         "template_name",  # jobserver.middleware.TemplateNameMiddleware
         # And some template variables are just a pain, because of how we use them.
         "name",  # jobserver.context_processors.nav

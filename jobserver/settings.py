@@ -119,7 +119,7 @@ MIDDLEWARE = [
     "django_structlog.middlewares.RequestMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
-    "csp.middleware.CSPMiddleware",
+    "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
     "jobserver.middleware.XSSFilteringMiddleware",
     "jobserver.middleware.ClientAddressIdentification",
     "jobserver.middleware.TemplateNameMiddleware",
