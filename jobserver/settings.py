@@ -119,7 +119,7 @@ MIDDLEWARE = [
     "django_structlog.middlewares.RequestMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
-    "csp.middleware.CSPMiddleware",
+    "csp.contrib.rate_limiting.RateLimitedCSPMiddleware",
     "jobserver.middleware.XSSFilteringMiddleware",
     "jobserver.middleware.ClientAddressIdentification",
     "jobserver.middleware.TemplateNameMiddleware",
@@ -378,6 +378,13 @@ CONTENT_SECURITY_POLICY = {
         "style-src-elem": STYLE_SRC,
     },
 }
+
+
+# Throttle the number of CSP reports to Sentry
+# A float between 0.0 and 100.0
+# 0.0 = no reports at all, 100.0 = always report
+# https://django-csp.readthedocs.io/en/latest/reports.html#throttling-the-number-of-reports
+REPORT_PERCENTAGE = 10.0
 
 
 # CSRF error view
