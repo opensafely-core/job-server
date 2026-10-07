@@ -7,7 +7,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
+exclude-newer = "2026-09-30T08:10:08.741114571Z"
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -977,7 +977,7 @@ requires-dist = [
     { name = "gunicorn" },
     { name = "markdown" },
     { name = "nh3" },
-    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.09.14.135127.zip" },
+    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "opentelemetry-instrumentation-django" },
     { name = "opentelemetry-instrumentation-psycopg2" },
@@ -1082,12 +1082,12 @@ wheels = [
 
 [[package]]
 name = "opensafely-pipeline"
-version = "2026.9.14.135127"
-source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.09.14.135127.zip" }
+version = "2026.10.2.122250"
+source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip" }
 dependencies = [
     { name = "ruyaml" },
 ]
-sdist = { hash = "sha256:a8577198cb9e3507a8b5f8788b4d2a15059302a7d73d441b3f0ea8932b1d5b5f" }
+sdist = { hash = "sha256:d6659f3276f06487a5f9d1de3519a535ac8818c8692e660f3795e78dbcd31f1c" }
 
 [package.optional-dependencies]
 fastparser = [
