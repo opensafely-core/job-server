@@ -25,8 +25,7 @@
 ANALYSIS_SCOPE_KEY = "include_gp_unactivated"
 
 PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION = {
-    # Projects identified by slug (no project number)
-    "opensafely-internal",  # https://jobs.opensafely.org/opensafely-internal
+    "INTERNAL-0001",  # https://jobs.opensafely.org/opensafely-internal
     "156",  # https://jobs.opensafely.org/investigating-events-following-sars-cov-2-infection-project-continuation-of-approved-project-no-12/
     "157",  # https://jobs.opensafely.org/investigating-the-effectiveness-of-the-covid-19-vaccination-programme-in-the-uk-project-continuation-of-approved-project-no-22/
     "158",  # https://jobs.opensafely.org/the-effect-of-covid-19-on-pancreatic-cancer-diagnosis-and-care-project-continuation-of-approved-project-no-27/
@@ -85,8 +84,6 @@ PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION = {
 
 
 def project_has_permission(project):
-    if not project.number:
-        return project.slug in PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION
     return project.number in PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION
 
 
