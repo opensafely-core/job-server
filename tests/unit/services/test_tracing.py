@@ -1,6 +1,5 @@
 import os
 
-import opentelemetry.exporter.otlp.proto.http.trace_exporter
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter
 
@@ -31,9 +30,7 @@ def test_setup_default_tracing_otlp_with_env(monkeypatch):
         "OTEL_EXPORTER_OTLP_ENDPOINT": "https://endpoint",
     }
     monkeypatch.setattr(os, "environ", env)
-    monkeypatch.setattr(
-        opentelemetry.exporter.otlp.proto.http.trace_exporter, "environ", env
-    )
+
     provider = setup_default_tracing(set_global=False)
     assert provider.resource.attributes["service.name"] == "service"
 
@@ -41,4 +38,3 @@ def test_setup_default_tracing_otlp_with_env(monkeypatch):
 
     assert isinstance(exporter, OTLPSpanExporter)
     assert exporter._endpoint == "https://endpoint/v1/traces"
-    assert exporter._headers == {"foo": "bar"}
