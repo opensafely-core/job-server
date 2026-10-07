@@ -31,10 +31,10 @@ def test_jobrequestcreate_post_telemetry(
     )
 
     dummy_yaml = """
-    version: 4
+    version: 5
     actions:
       twiddle:
-        run: test:latest
+        run: test:v1
         outputs:
           moderately_sensitive:
             cohort: path/to/output.csv

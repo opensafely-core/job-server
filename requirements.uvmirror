@@ -118,7 +118,7 @@ oauthlib==4.0.0
     # via
     #   requests-oauthlib
     #   social-auth-core
-opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.09.14.135127.zip
+opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip
     # via jobserver
 opentelemetry-api==1.44.0
     # via
