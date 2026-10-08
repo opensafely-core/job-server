@@ -197,7 +197,7 @@ def test_project_get_absolute_url():
 
 
 def test_project_get_approved_url_with_number():
-    project = ProjectFactory(number=42)
+    project = ProjectFactory(number="42")
 
     assert str(project.get_approved_url()) == "https://www.opensafely.org/project/42/"
 
@@ -281,7 +281,7 @@ def test_project_str():
     project = ProjectFactory(name="Very Good Project")
     assert str(project) == "Very Good Project"
 
-    project = ProjectFactory(name="Another Very Good Project", number=42)
+    project = ProjectFactory(name="Another Very Good Project", number="42")
     assert str(project) == "42 - Another Very Good Project"
 
 
@@ -289,7 +289,7 @@ def test_project_title():
     project = ProjectFactory(number=None)
     assert project.title == project.name
 
-    project = ProjectFactory(name="test", number=123)
+    project = ProjectFactory(name="test", number="123")
     assert project.title == "123 - test"
 
 
@@ -385,3 +385,18 @@ def test_category_from_identifier_methods(identifier, expected_category, expecte
     # They are so closely linked it makes more sense to test them in one test.
     assert Project.category_from_identifier(identifier) == expected_category
     assert Project.is_valid_identifier(identifier) == expected_bool
+
+
+@pytest.mark.parametrize(
+    "identifier,expected_str",
+    [
+        ("INTERNAL-0123", ""),
+        ("123", "123"),
+        ("POS-2026-2001", "POS-2026-2001"),
+        (None, ""),
+    ],
+)
+def test_full_identifier(identifier, expected_str):
+    """Test that the Project.full_identifier property returns expected
+    values."""
+    assert ProjectFactory(number=identifier).full_identifier == expected_str

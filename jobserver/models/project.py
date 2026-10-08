@@ -67,9 +67,11 @@ ANY_IDENTIFIER_PATTERN = r"|".join(IDENTIFIER_PATTERNS.values())
 ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
 """Compiled regex for any valid project identifier for some category."""
 
+# For now, only approved categories' identifier formats are displayed. See
+# Slack and https://github.com/opensafely-core/job-server/issues/6037.
+# https://bennettoxford.slack.com/archives/C068NDYALSF/p1785771263091209?thread_ts=1785152219.125399&cid=C068NDYALSF
 IDENTIFIER_PATTERN_DESCRIPTION = (
-    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001) "
-    "or INTERNAL-NNNN (for example, INTERNAL-0003)."
+    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
 )
 """String description of how a valid project identifier may be written. For use
 in forms and validation messages."""
@@ -328,11 +330,27 @@ class Project(models.Model):
         return super().save(*args, **kwargs)
 
     @property
-    def title(self):
-        if self.number is None:
-            return self.name
+    def full_identifier(self):
+        """Return a string representing project identifier for public display.
 
-        return f"{self.number} - {self.name}"
+        For now, only approved categories' identifiers are displayed. See
+        Slack and https://github.com/opensafely-core/job-server/issues/6037.
+
+        https://bennettoxford.slack.com/archives/C068NDYALSF/p1785771263091209?thread_ts=1785152219.125399&cid=C068NDYALSF
+        """
+        allowed_categories = {ProjectCategory.LEGACY_APPROVED, ProjectCategory.APPROVED}
+        if (
+            self.number
+            and self.category_from_identifier(self.number) in allowed_categories
+        ):
+            return f"{self.number}"
+        return ""
+
+    @property
+    def title(self):
+        if self.full_identifier:
+            return f"{self.full_identifier} - {self.name}"
+        return self.name
 
     @functional.cached_property
     def org(self):
