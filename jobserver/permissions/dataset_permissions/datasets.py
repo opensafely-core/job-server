@@ -13,25 +13,25 @@
 # https://bennett.wiki/tech-group/tech-support/playbook/#adding-project-permission-for-restricted-tables-in-ehrql
 # https://bennett.wiki/tech-group/tech-support/playbook/#requests-about-accessing-the-appointments-tables-in-ehrql
 # https://bennett.wiki/tech-group/tech-support/playbook/#creating-a-new-opensafely-data-development-project
-#
+
 # Note also that this file is linked to in the documentation. If you move or
 # restructure this file you should ensure the documentation is updated
 # appropriately.
 # https://github.com/opensafely/documentation/blob/b070dd45d109314fa1bf119237937b9cadfc79df/docs/data-sources/index.md
-#
+
 # Historically (prior to Non-COVID opening), most table permissions were
 # governed by IG, and can be found in the project spreadsheet:
 # https://docs.google.com/spreadsheets/d/1odgWEwFrkmCr3-7leE2amwVA3b55UCOzbXQOiNgyb1w/edit
 
 # `appointments` table permissions are restricted for non_IG reasons, in that
-# their data need handling with due attention. Appointments is access managed by Alex Walker.
-# If Alex has approved access to the `appointments` dataset, that permission can be added to that
-# project in this file without requesting permission from the OS service team.
+# their data need handling with due attention. Appointments is access managed
+# by Alex Walker.  If Alex has approved access to the `appointments` dataset,
+# that permission can be added to that project in this file without requesting
+# permission from the OS service team.
 #
-# `wl_*` (waiting_list) datasets are restricted for non-COVID projects. For COVID projects, they are
-# ALSO restricted for data handling reasons, similarly to appointments. In both cases, contact the
-# OS service team for permission.
-
+# `wl_*` (waiting_list) datasets are restricted for non-COVID projects. For
+# COVID projects, they are ALSO restricted for data handling reasons, similarly
+# to appointments. In both cases, contact the OS service team for permission.
 
 PROJECTS_WITH_PERMISSION = {
     # Projects identified by slug (no project number)
