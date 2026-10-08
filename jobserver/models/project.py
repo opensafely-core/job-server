@@ -348,10 +348,9 @@ class Project(models.Model):
 
     @property
     def title(self):
-        if self.number is None:
-            return self.name
-
-        return f"{self.number} - {self.name}"
+        if self.full_identifier:
+            return f"{self.full_identifier} - {self.name}"
+        return self.name
 
     @functional.cached_property
     def org(self):
