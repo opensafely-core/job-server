@@ -4,8 +4,13 @@
 #
 # This file lists project numbers for projects permitted to access National Data Opt-Out data.
 #
-# Permission must be requested from the OS service team in order to change the file
-# TODO: Document the process required, when confirmed.
+# Changes to the permissions specified in this file must have approval from the
+# OS Service team (#nhse-opensafely-service). Nonfunctional changes do not
+# require any special approval.
+# Refer to tech support documentation for tech process around how research
+# projects and data development (INTERNAL) projects request these permissions.
+# https://bennett.wiki/tech-group/tech-support/playbook/#requests-for-national-data-opt-out-ndoo-permissions
+# https://bennett.wiki/tech-group/tech-support/playbook/#creating-a-new-opensafely-data-development-project
 #
 # Note also that this file is linked to in the documentation. If you move or restructure
 # this file you should ensure the documentation is updated appropriately.
