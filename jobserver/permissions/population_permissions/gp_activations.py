@@ -5,8 +5,13 @@
 # This file lists project numbers for projects permitted to access data without filtering by
 # GP practices that have acknowledged the new non-COVID directions ("GP activation filtering").
 #
-# Permission must be requested from the OS service team in order to change the file
-# TODO: Document the process required, when confirmed.
+# Changes to the permissions specified in this file must have approval from the
+# OS Service team (#nhse-opensafely-service). Nonfunctional changes do not
+# require any special approval.
+# Refer to tech support documentation for tech process around how research
+# projects and data development (INTERNAL) projects request these permissions.
+# TODO: Add link to specific tech support documentation when it exists.
+# https://bennett.wiki/tech-group/tech-support/playbook/#creating-a-new-opensafely-data-development-project
 #
 # TODO: Add link to GP Activations documentation, when available.
 
