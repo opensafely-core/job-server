@@ -24,8 +24,8 @@
 # https://docs.google.com/spreadsheets/d/1odgWEwFrkmCr3-7leE2amwVA3b55UCOzbXQOiNgyb1w/edit
 
 # `appointments` table permissions are restricted for non_IG reasons, in that
-# their data need handling with due attention. Appointments is access managed
-# by Alex Walker.  If Alex has approved access to the `appointments` dataset,
+# their data need handling with due attention. This permission is managed
+# by Alex Walker. If Alex has approved access to the `appointments` dataset,
 # that permission can be added to that project in this file without requesting
 # permission from the OS service team.
 #
