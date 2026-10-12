@@ -49,9 +49,9 @@
           </span>
         {% endif %}
 
-        {% if project.number %}
-          {% #pill sr_only="Project number:" class="mt-2" variant="info" %}
-            {{ project.number }}
+        {% if project.full_identifier %}
+          {% #pill sr_only="Project identifier:" class="mt-2 test-marker-project-identifier" variant="info" %}
+            {{ project.full_identifier }}
           {% /pill %}
         {% endif %}
       </div>
