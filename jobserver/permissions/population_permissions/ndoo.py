@@ -4,8 +4,13 @@
 #
 # This file lists project numbers for projects permitted to access National Data Opt-Out data.
 #
-# Permission must be requested from the OS service team in order to change the file
-# TODO: Document the process required, when confirmed.
+# Changes to the permissions specified in this file must have approval from the
+# OS Service team (#nhse-opensafely-service). Nonfunctional changes do not
+# require any special approval.
+# Refer to tech support documentation for tech process around how research
+# projects and data development (INTERNAL) projects request these permissions.
+# https://bennett.wiki/tech-group/tech-support/playbook/#requests-for-national-data-opt-out-ndoo-permissions
+# https://bennett.wiki/tech-group/tech-support/playbook/#creating-a-new-opensafely-data-development-project
 #
 # Note also that this file is linked to in the documentation. If you move or restructure
 # this file you should ensure the documentation is updated appropriately.
@@ -14,15 +19,21 @@
 # See DPIA document for OpenSAFELY Data Analytics Service (non-COVID) linked here:
 # https://digital.nhs.uk/about-nhs-digital/corporate-information-and-documents/directions-and-data-provision-notices/data-provision-notices-dpns/opensafely-data-analytics-service
 
-# Projects operating under the OpenSAFELY COVID service are out of scope for National Data Opt-Outs
+# Projects operating under the OpenSAFELY COVID service are out of scope for
+# National Data Opt-Outs
 # https://digital.nhs.uk/about-nhs-digital/corporate-information-and-documents/directions-and-data-provision-notices/data-provision-notices-dpns/opensafely-covid-19-service-data-provision-notice
-# Note: projects before 156 cannot be re-run, so they are not included here (several projects from 156 onwards are
-# approved continuations of previous projects)
-# See https://www.opensafely.org/approved-projects/ for the full list of approved projects.
+# Note: projects before 156 cannot be re-run, so they are not included here
+# (several projects from 156 onwards are approved continuations of previous
+# projects). See https://www.opensafely.org/approved-projects/ for the full list
+# of approved projects.
 
-# 2025-12-05: This list consists of approved projects from #156 onwards, as of 2025-12-05 (#156-200). All of these projects are COVID projects, out of scope for NDOO.
-# 2026-01-13: Projects #201-205 added to the list; these projects have been confirmed as also approved under the COVID-19 Direction
-# 2026-02-24: Projects #206-209 added to the list; these projects have been confirmed as also approved under the COVID-19 Direction
+# 2025-12-05: This list consists of approved projects from #156 onwards, as of
+#             2025-12-05 (#156-200). All of these projects are COVID projects,
+#             out of scope for NDOO.
+# 2026-01-13: Projects #201-205 added to the list; these projects have been
+#             confirmed as also approved under the COVID-19 Direction.
+# 2026-02-24: Projects #206-209 added to the list; these projects have been
+#             confirmed as also approved under the COVID-19 Direction.
 
 ANALYSIS_SCOPE_KEY = "include_ndoo"
 
