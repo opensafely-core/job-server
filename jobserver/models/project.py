@@ -328,6 +328,8 @@ class Project(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        self.category = self.category_from_identifier(self.number)
+
         return super().save(*args, **kwargs)
 
     @property
@@ -361,7 +363,7 @@ class Project(models.Model):
     def category_from_identifier(cls, identifier: str) -> ProjectCategory | None:
         """Return the ProjectCategory for which the string matches the identifier
         format or None."""
-        if identifier == "":
+        if not identifier:
             return ProjectCategory.UNKNOWN
         for category, pattern in IDENTIFIER_REGEXES.items():
             if pattern.fullmatch(identifier):
