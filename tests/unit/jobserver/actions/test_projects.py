@@ -47,7 +47,7 @@ def test_add_project_with_copilot(monkeypatch):
 
     assert project.name == "test"
     assert project.number == "31337"
-    assert project.category == ProjectCategory.UNKNOWN
+    assert project.category == ProjectCategory.LEGACY_APPROVED
     assert project.copilot == copilot
     assert project.created_at
     assert project.created_by == actor
@@ -100,7 +100,7 @@ def test_add_project_without_copilot(monkeypatch):
 
     assert project.name == "test"
     assert project.number == "31337"
-    assert project.category == ProjectCategory.UNKNOWN
+    assert project.category == ProjectCategory.LEGACY_APPROVED
     assert project.copilot is None
     assert project.created_at
     assert project.created_by == actor
@@ -319,4 +319,4 @@ def test_edit_category_unchanged():
 
     projects.edit(project=project, fields=data, by=actor)
 
-    assert project.category == ProjectCategory.UNKNOWN
+    assert project.category == ProjectCategory.LEGACY_APPROVED

@@ -339,6 +339,8 @@ class Project(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        self.category = self.category_from_identifier(self.number or "")
+
         return super().save(*args, **kwargs)
 
     @property

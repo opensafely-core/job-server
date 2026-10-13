@@ -84,7 +84,8 @@ class TestProjectCreation:
             * A new project is saved to the db with:
                 * created_by and updated_by = current user.
                 * copilot, orgs, name, and number fields have the values from the form data.
-                * created_by, updated_by and status are populated by Project model default values
+                * project category is derived automatically from the number field.
+                * created_by, updated_by and status are populated by Project model default values.
             * An AuditableEvent is created for the new project instance.
             * A Slack message is sent to the copilot support channel.
         """
@@ -105,7 +106,7 @@ class TestProjectCreation:
         assert new_project.created_by == user
         assert new_project.name == data["name"]
         assert new_project.number == data["number"]
-        assert new_project.category == ProjectCategory.UNKNOWN
+        assert new_project.category == ProjectCategory.LEGACY_APPROVED
         assert set_from_qs(new_project.orgs.all()) == {int(data["orgs"])}
         assert new_project.updated_by == user
 
@@ -177,7 +178,7 @@ class TestProjectCreation:
             assert new_project.created_by == user
             assert new_project.name == data["name"]
             assert new_project.number == data["number"]
-            assert new_project.category == ProjectCategory.UNKNOWN
+            assert new_project.category == ProjectCategory.LEGACY_APPROVED
             assert set_from_qs(new_project.orgs.all()) == {int(data["orgs"])}
             assert new_project.updated_by == user
 
