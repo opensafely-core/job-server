@@ -106,7 +106,7 @@ class TestProjectCreation:
         assert new_project.created_by == user
         assert new_project.name == data["name"]
         assert new_project.number == data["number"]
-        assert new_project.category == ProjectCategory.LEGACY_APPROVED
+        assert new_project.category == ProjectCategory.INTERNAL
         assert set_from_qs(new_project.orgs.all()) == {int(data["orgs"])}
         assert new_project.updated_by == user
 
@@ -120,7 +120,7 @@ class TestProjectCreation:
     # required field when POSTing to the ProjectCreateForm.
     @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
     @pytest.mark.parametrize("missing_data", ["empty", "omitted"])
-    @pytest.mark.parametrize("project_number", ["123", "POS-2026-3001"])
+    @pytest.mark.parametrize("project_number", ["INTERNAL-0001", "POS-2026-3001"])
     @pytest.mark.slow_test
     def test_projectcreate_post_with_missing_data(
         self,
@@ -167,7 +167,7 @@ class TestProjectCreation:
         response = client.post(reverse("staff:project-create"), data)
 
         # Copilot is only required for POS- projects.
-        if project_number == "123" and field == "copilot":
+        if project_number == "INTERNAL-0001" and field == "copilot":
             assert response.status_code == 302
 
             # This is actually a success case, so do similar checks as in
@@ -178,7 +178,7 @@ class TestProjectCreation:
             assert new_project.created_by == user
             assert new_project.name == data["name"]
             assert new_project.number == data["number"]
-            assert new_project.category == ProjectCategory.LEGACY_APPROVED
+            assert new_project.category == ProjectCategory.INTERNAL
             assert set_from_qs(new_project.orgs.all()) == {int(data["orgs"])}
             assert new_project.updated_by == user
 

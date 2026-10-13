@@ -15,6 +15,7 @@ from jobserver.models import (
     User,
     Workspace,
 )
+from jobserver.models.project import IDENTIFIER_PATTERN_DESCRIPTION
 
 
 def user_label_from_instance(obj):
@@ -119,6 +120,15 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
     def clean_name(self):
         _validate_slug(self.cleaned_data["name"])
         return self.cleaned_data["name"]
+
+    def clean_number(self):
+        number = super().clean_number()
+        if number and Project.category_from_identifier(number) not in {
+            ProjectCategory.APPROVED,
+            ProjectCategory.INTERNAL,
+        }:
+            raise forms.ValidationError(IDENTIFIER_PATTERN_DESCRIPTION)
+        return number
 
     def clean(self):
         # Only require copilot be set for projects with a POS-format project number.

@@ -115,6 +115,7 @@ def test_projectcreateform_empty_slug():
 @pytest.mark.parametrize(
     "invalid_data_type,invalid_data,field",
     [
+        ("invalid_project_number", {"number": "123"}, "number"),
         ("duplicate_name", {}, "name"),
         ("unknown_org", {"orgs": ["99999"]}, "orgs"),
         ("unknown_copilot", {"copilot": "99999"}, "copilot"),
@@ -126,7 +127,7 @@ def test_projectcreateform_invalid_data(
     """
     Test invalid data submission to ProjectCreateForm
 
-    Parametrised invalid data: duplicate project name, an unknown organisation, and an unknown copilot user.
+    Parametrised invalid data: invalid project number, duplicate project name, an unknown organisation, and an unknown copilot user.
 
     When invalid data are submitted:
     - is_valid() fails
@@ -148,7 +149,7 @@ def test_projectcreateform_invalid_data(
 
 @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
 @pytest.mark.parametrize("missing_type", ["empty", "omitted"])
-@pytest.mark.parametrize("project_number", ["123", "POS-2026-3001"])
+@pytest.mark.parametrize("project_number", ["INTERNAL-0123", "POS-2026-3001"])
 def test_projectcreateform_without_required_data(
     field, missing_type, project_number, potential_copilots
 ):
@@ -177,7 +178,7 @@ def test_projectcreateform_without_required_data(
     form = ProjectCreateForm(data=data)
 
     # Copilot is only required for POS- projects.
-    if project_number == "123" and field == "copilot":
+    if project_number == "INTERNAL-0123" and field == "copilot":
         assert form.is_valid()
     else:
         assert not form.is_valid()
