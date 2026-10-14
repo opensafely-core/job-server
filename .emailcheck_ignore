@@ -1,6 +1,5 @@
 # INSTALL.md
 xxx@xxx.ingest.sentry.io
-me@myemail.org
 
 # Applications content
 queries@hra.nhs.uk
@@ -12,9 +11,5 @@ secure.training@ukdataservice.ac.uk
 @opensafely.org
 bennett@phc.ox.ac.uk
 
-# Emails used in tests
-foo@bar.com
-george@ghickman.co.uk
-ghp_testing@github.com
-tEsT@TeSt.tEST
-test@test.test
+# Ignore example domain
+@example.com

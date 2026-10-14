@@ -24,7 +24,7 @@ def test_create_user_args(capsys):
     call_command(
         "create_user",
         "username",
-        "--email=foo@bar.com",
+        "--email=foo@example.com",
         "--name=fullname",
         "--staff-area-administrator",
         "--output-checker",
@@ -32,7 +32,7 @@ def test_create_user_args(capsys):
 
     user = User.objects.get(username="username")
 
-    assert user.email == "foo@bar.com"
+    assert user.email == "foo@example.com"
     assert user.fullname == "fullname"
     assert set(user.roles) == {OutputChecker, StaffAreaAdministrator}
 
@@ -40,7 +40,7 @@ def test_create_user_args(capsys):
     call_command(
         "create_user",
         "username",
-        "--email=foo@bar.com",
+        "--email=foo@example.com",
         "--name=fullname",
         "--output-checker",
         "--staff-area-administrator",

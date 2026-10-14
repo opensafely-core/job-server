@@ -279,7 +279,7 @@ def test_user_ordering():
 def test_create_user():
     """Test the UserManager.create manager method."""
     username = "Ⅳan"  # Note initial unicode character.
-    email = "tEsT@TeSt.tEST"  # Note uppercase characters.
+    email = "tEsT@example.com"  # Note uppercase characters.
     password = "hunter2"
     fullname = "Test user"
     user = User.objects.create(
@@ -292,7 +292,7 @@ def test_create_user():
     # Username unicode gets normalized.
     assert user.username == "IVan"
     # E-mail gets normalized by lower-casing.
-    assert user.email == "test@test.test"
+    assert user.email == "test@example.com"
     # Password is not stored in plaintext.
     assert user.password != password
 
@@ -300,7 +300,7 @@ def test_create_user():
 def test_user_fullname_non_blank():
     """Test the non-blank constraint on User.fullname"""
     with pytest.raises(IntegrityError):
-        u = User(username="foo", email="foo@bar.com", fullname="")
+        u = User(username="foo", email="foo@example.com", fullname="")
         u.save()
 
 
