@@ -1,0 +1,20 @@
+# INSTALL.md
+xxx@xxx.ingest.sentry.io
+me@myemail.org
+
+# Applications content
+queries@hra.nhs.uk
+secure.training@ukdataservice.ac.uk
+
+# Ignore Bennett owned domains and emails
+@dokku4.ebmdatalab.net
+@jobs.opensafely.org
+@opensafely.org
+bennett@phc.ox.ac.uk
+
+# Emails used in tests
+foo@bar.com
+george@ghickman.co.uk
+ghp_testing@github.com
+tEsT@TeSt.tEST
+test@test.test
