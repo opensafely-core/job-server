@@ -129,6 +129,17 @@ class JobRequestStatus(models.TextChoices):
     UNKNOWN_ERROR_CREATING_JOBS = "unknown_error_creating_jobs"
 
 
+class JobRequestNotifications(models.TextChoices):
+    """
+    The notification setting for this JobRequest, representing which emails will be sent to
+    the requesting researcher.
+    """
+
+    NONE = "none"
+    PER_JOB = "per_job"
+    PER_REQUEST = "per_request"
+
+
 class JobRequest(models.Model):
     """
     A request to run a Job
@@ -151,6 +162,9 @@ class JobRequest(models.Model):
     sha = models.TextField()
     identifier = models.TextField(default=new_id, unique=True)
     will_notify = models.BooleanField(default=False)
+    notification = models.TextField(
+        default=JobRequestNotifications.NONE, choices=JobRequestNotifications
+    )
     project_definition = models.TextField(default="")
     codelists_ok = models.BooleanField(default=True)
 
@@ -193,6 +207,7 @@ class JobRequest(models.Model):
                 "created_by",
                 "force_run_dependencies",
                 "identifier",
+                "notification",
                 "project_definition",
                 "requested_actions",
                 "sha",
