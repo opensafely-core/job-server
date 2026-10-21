@@ -64,7 +64,7 @@ dependencies = [
 
     # A specific version of the OpenSAFELY Pipeline for health data analysis.
     # Search 'pipeline' in jobserver/
-    "opensafely-pipeline[fastparser]@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip",
+    "opensafely-pipeline[fastparser]@https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.12.113621.zip",
 
     # OpenTelemetry exporter for sending traces/metrics via OTLP over HTTP.
     "opentelemetry-exporter-otlp-proto-http",
@@ -181,6 +181,8 @@ env = [
 filterwarnings = [
     # Turn warnings into errors.
     "error",
+    # python3-openid imports the deprecated defusedxml compatibility module
+    "ignore:defusedxml.cElementTree is deprecated, import from defusedxml.ElementTree instead.:DeprecationWarning",
     # See issue #5540 for the test fixes required to remove
     # PytestUnraisableExceptionWarning from filtering.
     "ignore::pytest.PytestUnraisableExceptionWarning:",
@@ -260,6 +262,7 @@ extend-ignore = [
 [tool.uv]
 required-version = ">=0.9"
 exclude-newer = "7 days"
+exclude-newer-package = { certifi = false }
 no-build = true
 no-binary-package = [
     "jobserver",
