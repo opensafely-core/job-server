@@ -28,7 +28,7 @@
 # are used in FROM lines, so need to be declared globally and have defaults
 # set.
 ARG NODE_VERSION
-ARG UV_VERSION=0.11
+ARG UV_VERSION=0.13
 
 # DL3007 ignored because base-docker we specifically always want to build on
 # the latest base image, by design.
