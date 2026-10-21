@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -7,7 +7,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-09-30T08:10:08.741114571Z"
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -977,7 +977,7 @@ requires-dist = [
     { name = "gunicorn" },
     { name = "markdown" },
     { name = "nh3" },
-    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip" },
+    { name = "opensafely-pipeline", extras = ["fastparser"], url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.12.113621.zip" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "opentelemetry-instrumentation-django" },
     { name = "opentelemetry-instrumentation-psycopg2" },
@@ -1082,12 +1082,12 @@ wheels = [
 
 [[package]]
 name = "opensafely-pipeline"
-version = "2026.10.2.122250"
-source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.02.122250.zip" }
+version = "2026.10.12.113621"
+source = { url = "https://github.com/opensafely-core/pipeline/archive/refs/tags/v2026.10.12.113621.zip" }
 dependencies = [
     { name = "ruyaml" },
 ]
-sdist = { hash = "sha256:d6659f3276f06487a5f9d1de3519a535ac8818c8692e660f3795e78dbcd31f1c" }
+sdist = { hash = "sha256:367343aead46fc17759da5c8366b2526ff1d9e29b261d2a2060235ccbb575f62" }
 
 [package.optional-dependencies]
 fastparser = [
