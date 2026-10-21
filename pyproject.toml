@@ -181,6 +181,8 @@ env = [
 filterwarnings = [
     # Turn warnings into errors.
     "error",
+    # python3-openid imports the deprecated defusedxml compatibility module
+    "ignore:defusedxml.cElementTree is deprecated, import from defusedxml.ElementTree instead.:DeprecationWarning",
     # See issue #5540 for the test fixes required to remove
     # PytestUnraisableExceptionWarning from filtering.
     "ignore::pytest.PytestUnraisableExceptionWarning:",
