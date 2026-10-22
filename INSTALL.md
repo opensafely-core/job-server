@@ -92,7 +92,7 @@ sudo journalctl -t job-server
 
 ```bash
 dokku$ dokku enter job-server
-container$ python manage.py sendtestemail me@myemail.org
+container$ python manage.py sendtestemail me@example.com
 ```
 
 ## Rotating the Django secret key
