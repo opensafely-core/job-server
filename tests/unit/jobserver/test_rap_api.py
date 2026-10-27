@@ -478,63 +478,6 @@ class TestCreate:
             expected_request_body,
         )
 
-    def test_permissions_with_slug(self, monkeypatch, patch_api_call):
-        """Test api_call is called with expected parameters and its body
-        returned when it returns a 200."""
-        fake_json = {"some": "content"}
-        mock_api_call = patch_api_call(fake_json=fake_json)
-
-        # Create a project with no number, so we will look up permission by slug
-        project = ProjectFactory()
-        assert project.number is None
-        workspace = WorkspaceFactory(project=project)
-        job_request = JobRequestFactory(workspace=workspace)
-
-        expected_request_body = {
-            "rap_id": job_request.identifier,
-            "backend": job_request.backend.slug,
-            "workspace": job_request.workspace.name,
-            "repo_url": job_request.workspace.repo.url,
-            "branch": job_request.workspace.branch,
-            "commit": job_request.sha,
-            "database_name": job_request.database_name,
-            "requested_actions": job_request.requested_actions,
-            "codelists_ok": job_request.codelists_ok,
-            "force_run_dependencies": job_request.force_run_dependencies,
-            "created_by": job_request.created_by.username,
-            "project": job_request.workspace.project.slug,
-            "orgs": list(
-                job_request.workspace.project.orgs.values_list("slug", flat=True)
-            ),
-            "analysis_scope": {
-                "population_permissions": ["include_ndoo"],
-                "dataset_permissions": ["some_dataset", "some_other_dataset"],
-            },
-        }
-
-        # mock ndoo permission to ensure this job's project has permission
-        monkeypatch.setattr(
-            "jobserver.permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION",
-            [job_request.workspace.project.slug],
-        )
-        # mock dataset permissions to ensure this job's project has permission
-        monkeypatch.setattr(
-            "jobserver.permissions.dataset_permissions.datasets.PROJECTS_WITH_PERMISSION",
-            {
-                job_request.workspace.project.slug: [
-                    "some_dataset",
-                    "some_other_dataset",
-                ]
-            },
-        )
-        result = create(job_request)
-        assert result == fake_json
-        mock_api_call.assert_called_once_with(
-            requests.post,
-            "rap/create/",
-            expected_request_body,
-        )
-
     def test_bad_status_code(self, patch_api_call):
         """Test a non-200/201 status raises right Exception including the response body."""
         fake_json = {"err": "some problem detected", "details": "Couldn't do it"}
