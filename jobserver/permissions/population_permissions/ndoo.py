@@ -109,6 +109,7 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "POS-2026-3014",  # Detecting the Impact of Nice Guidance On Primary Care Prescribing
     "POS-2026-3015",  # OptiFIT: Optimising faecal immunochemical testing in early diagnosis of colorectal cancer
     "POS-2026-3016",  # DEPILL-CKD_ DEPrescribing In people Living with advanced Chronic Kidney Disease – understanding patterns and outcomes
+    "POS-2026-3017",  # Descriptive evaluation of palliative care identification in general practice in England using routinely recorded SNOMED CT–coded data from GP practices linked to secondary care data
 }
 
 
