@@ -385,8 +385,8 @@ def test_project_org_returns_first_org_when_no_lead():
         ),
         (
             [
-                {"name": "second_project", "number": 1},
-                {"name": "first_project", "number": 2},
+                {"name": "second_project", "number": "1"},
+                {"name": "first_project", "number": "2"},
             ],
             ["first_project", "second_project"],
         ),

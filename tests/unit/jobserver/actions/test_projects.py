@@ -37,7 +37,7 @@ def test_add_project_with_copilot(monkeypatch):
 
     project = projects.add(
         name="test",
-        number=31337,
+        number="31337",
         orgs=[org0, org1],
         copilot=copilot,
         by=actor,
@@ -46,7 +46,7 @@ def test_add_project_with_copilot(monkeypatch):
     event = AuditableEvent.objects.get(type=AuditableEvent.Type.PROJECT_CREATED)
 
     assert project.name == "test"
-    assert project.number == 31337
+    assert project.number == "31337"
     assert project.category == ProjectCategory.UNKNOWN
     assert project.copilot == copilot
     assert project.created_at
@@ -94,12 +94,12 @@ def test_add_project_without_copilot(monkeypatch):
         "jobserver.actions.projects.notify_copilots_project_added", mock_notify
     )
 
-    project = projects.add(name="test", number=31337, orgs=[org0, org1], by=actor)
+    project = projects.add(name="test", number="31337", orgs=[org0, org1], by=actor)
 
     event = AuditableEvent.objects.get(type=AuditableEvent.Type.PROJECT_CREATED)
 
     assert project.name == "test"
-    assert project.number == 31337
+    assert project.number == "31337"
     assert project.category == ProjectCategory.UNKNOWN
     assert project.copilot is None
     assert project.created_at
@@ -152,7 +152,7 @@ def test_add_project_transaction_rollback(monkeypatch):
     # This seems simpler than patching to force the action transaction to raise
     # an error when rolling back.
     with pytest.raises(RuntimeError), transaction.atomic():
-        projects.add(name="test", number=31337, orgs=[org0, org1], by=actor)
+        projects.add(name="test", number="31337", orgs=[org0, org1], by=actor)
         raise RuntimeError("force rollback")
 
     assert not mock_notify.called
@@ -312,7 +312,7 @@ def test_edit_category_unchanged():
     actor = UserFactory()
     data = {
         "name": "new name",
-        "number": 123456,
+        "number": "123456",
     }
 
     assert project.category == ProjectCategory.UNKNOWN
