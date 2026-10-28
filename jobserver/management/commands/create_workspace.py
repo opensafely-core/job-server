@@ -28,7 +28,7 @@ class Command(BaseCommand):
             default=None,
             help="project slug (defaults to workspace name)",
         )
-        parser.add_argument("--project-number", default=9999, help="project number")
+        parser.add_argument("--project-number", default="9999", help="project number")
         parser.add_argument(
             "--repo", default=None, help="repo url (defaults to /org/$workspace)"
         )
