@@ -228,7 +228,7 @@ def test_projecteditform_with_duplicate_number():
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
 
-    other_project = ProjectFactory(number=42)
+    other_project = ProjectFactory(number="42")
 
     data = {
         "name": project.name,
@@ -263,7 +263,7 @@ def test_projecteditform_rejects_leading_zero_numeric_project_number():
 
 def test_projecteditform_with_existing_number():
     org = OrgFactory()
-    project = ProjectFactory(number=42, orgs=[org])
+    project = ProjectFactory(number="42", orgs=[org])
 
     data = {
         "name": project.name,
@@ -279,7 +279,7 @@ def test_projecteditform_with_existing_number():
 
 def test_projecteditform_rejects_invalid_alphanumeric_number():
     org = OrgFactory()
-    project = ProjectFactory(number=42, orgs=[org])
+    project = ProjectFactory(number="42", orgs=[org])
 
     data = {
         "name": project.name,
