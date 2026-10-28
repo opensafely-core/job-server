@@ -15,7 +15,7 @@ from jobserver.models import (
     User,
     Workspace,
 )
-from jobserver.models.project import IDENTIFIER_PATTERN_DESCRIPTION
+from jobserver.models.project import CREATABLE_IDENTIFIER_PATTERN_DESCRIPTION
 
 
 def user_label_from_instance(obj):
@@ -113,6 +113,7 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["number"].help_text = CREATABLE_IDENTIFIER_PATTERN_DESCRIPTION
         self.fields["orgs"].queryset = Org.objects.order_by(Lower("name"))
         self.fields["copilot"].required = False
         self.fields["copilot"].queryset = User.objects.potential_copilots()
@@ -127,7 +128,7 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
             ProjectCategory.APPROVED,
             ProjectCategory.INTERNAL,
         }:
-            raise forms.ValidationError(IDENTIFIER_PATTERN_DESCRIPTION)
+            raise forms.ValidationError(CREATABLE_IDENTIFIER_PATTERN_DESCRIPTION)
         return number
 
     def clean(self):
