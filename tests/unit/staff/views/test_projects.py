@@ -269,7 +269,7 @@ def test_projectedit_get_unauthorized(rf):
 
 
 def test_projectedit_post_success(rf, staff_area_administrator, potential_copilots):
-    project = ProjectFactory(name="test", number=123, orgs=[OrgFactory()])
+    project = ProjectFactory(name="test", number="123", orgs=[OrgFactory()])
     old_project_url = project.get_absolute_url()
     new_copilot = potential_copilots.first()
 
@@ -278,7 +278,7 @@ def test_projectedit_post_success(rf, staff_area_administrator, potential_copilo
     data = {
         "name": "New Name",
         "slug": "new-name",
-        "number": 456,
+        "number": "456",
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
         "orgs": [str(new_org.pk)],
@@ -308,14 +308,14 @@ def test_projectedit_post_success_when_not_changing_slug(
     rf, staff_area_administrator, potential_copilots
 ):
     org = OrgFactory()
-    project = ProjectFactory(name="Test", slug="test", number=123, orgs=[org])
+    project = ProjectFactory(name="Test", slug="test", number="123", orgs=[org])
 
     new_copilot = potential_copilots.first()
 
     data = {
         "name": "Test",
         "slug": "test",
-        "number": 456,
+        "number": "456",
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
         "orgs": str(org.pk),
@@ -364,7 +364,7 @@ def test_projectedit_post_updates_number_from_numeric_to_alphanumeric(
     project = ProjectFactory(
         name="Test",
         slug="test",
-        number=123,
+        number="123",
         orgs=[org],
         status=Project.Statuses.COMPLETED_AWAITING,
     )
