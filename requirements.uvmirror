@@ -286,9 +286,9 @@ slack-sdk==3.45.0
     # via jobserver
 slippers==0.7.1
     # via jobserver
-social-auth-app-django==7.2.0
+social-auth-app-django==7.1.0
     # via jobserver
-social-auth-core==6.2.0
+social-auth-core==6.1.1
     # via
     #   jobserver
     #   social-auth-app-django
