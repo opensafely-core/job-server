@@ -5,7 +5,6 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
-from django.db import transaction
 from django.db.models import Max, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -198,7 +197,6 @@ class JobRequestCreate(CreateView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    @transaction.atomic
     def form_valid(self, form):
         if (sha := self.kwargs.get("ref")) is None:
             # if a ref wasn't passed in the URL convert the branch to a sha
