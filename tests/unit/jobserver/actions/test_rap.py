@@ -819,6 +819,52 @@ def test_rap_status_update_unrecognised_rap_ids_job_request_with_unknown_created
 
 
 @patch("jobserver.rap_api.status")
+def test_rap_status_update_job_request_with_unknown_status(mock_rap_api_status, now):
+    # Create a job request that encountered an uncaught error while trying to create
+    # jobs on the controller leaving it in UNKOWN status because it is not known whether
+    # the creation succeeded. Confirm that it correctly transitions into PENDING status
+    # once the controller confirms that it was successful.
+
+    job_request = JobRequestFactory(_status=JobRequestStatus.UNKNOWN)
+    job_identifier = "abcdef01234"
+
+    # Assume the status check runs after the job request has been saved but before the
+    # controller has processed it (unlikely but not impossible) so that the job request
+    # is included inthe `unrecognised_rap_ids` list.
+    mock_rap_api_status.return_value = rap_status_response_factory(
+        [],
+        [job_request.identifier],
+        now,
+    )
+    rap.rap_status_update([job_request.identifier])
+
+    # In this case the job reqeust should still have status UNKNOWN
+    check_job_request_status(job_request.identifier, JobRequestStatus.UNKNOWN)
+
+    # Now the controller has finished creating the jobs and responds with them
+    mock_rap_api_status.return_value = rap_status_response_factory(
+        [
+            {
+                "identifier": job_identifier,
+                "rap_id": job_request.identifier,
+                "status": "pending",
+                "created_at": minutes_ago(now, 1),
+                "started_at": None,
+                "completed_at": None,
+            }
+        ],
+        [],
+        now,
+    )
+    rap.rap_status_update([job_request.identifier])
+
+    # Check that the JobRequest now has the expected status and the job is created
+    check_job_request_status(job_request.identifier, JobRequestStatus.PENDING)
+    job = Job.objects.first()
+    assert job.identifier == job_identifier
+
+
+@patch("jobserver.rap_api.status")
 def test_rap_status_update_unknown_job_request(
     mock_rap_api_status, log_output, django_assert_num_queries, now
 ):
