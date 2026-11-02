@@ -5,7 +5,7 @@ argon2-cffi==25.1.0
     # via jobserver
 argon2-cffi-bindings==26.1.0
     # via argon2-cffi
-asgiref==3.12.1
+asgiref==3.13.0
     # via
     #   django
     #   django-htmx
@@ -28,7 +28,7 @@ charset-normalizer==3.5.2
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.16.2
+coverage==7.17.0
 cryptography==50.0.2
     # via
     #   pyjwt
@@ -72,7 +72,7 @@ django-ipware==8.0.0
     # via django-structlog
 django-permissions-policy==4.34.0
     # via jobserver
-django-structlog==10.1.0
+django-structlog==11.0.0
     # via jobserver
 django-upgrade==1.33.0
 django-vite==3.2.0
@@ -93,7 +93,7 @@ freezegun==1.5.5
     # via pytest-freezer
 furl==2.1.4
     # via jobserver
-googleapis-common-protos==1.75.5
+googleapis-common-protos==1.76.0
     # via opentelemetry-exporter-otlp-proto-http
 greenlet==3.5.6
     # via playwright
@@ -190,7 +190,7 @@ packaging==26.3
     #   virtualenv
 platformdirs==4.13.5
     # via virtualenv
-playwright==1.64.0
+playwright==1.64.1
     # via pytest-playwright
 pluggy==1.7.0
     # via pytest
@@ -207,7 +207,7 @@ psycopg==3.3.6
     # via jobserver
 psycopg-binary==3.3.6 ; implementation_name != 'pypy'
     # via psycopg
-pycparser==3.11 ; implementation_name != 'PyPy'
+pycparser==3.12 ; implementation_name != 'PyPy'
     # via cffi
 pyee==14.0.0
     # via playwright
@@ -270,7 +270,7 @@ ruamel-yaml==0.19.1
     # via opensafely-pipeline
 ruamel-yaml-clib==0.2.15
     # via opensafely-pipeline
-ruff==0.17.1
+ruff==0.17.2
 ruyaml==0.91.0
     # via opensafely-pipeline
 sentry-sdk==2.73.0
@@ -331,7 +331,7 @@ urllib3==2.8.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.14.12
+virtualenv==21.14.13
     # via pre-commit
 whitenoise==6.12.0
     # via jobserver
