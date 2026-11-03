@@ -6,7 +6,6 @@ from django.core.management import call_command
 from ..factories import UserFactory
 
 
-@pytest.mark.docker_test
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.slow_test
 def test_dump_raw_data_command_creates_valid_dump(tmp_path, slack_messages):
