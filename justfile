@@ -71,7 +71,7 @@ install-precommit:
 
 
 # Upgrade a single package to the latest version per pyproject.toml
-upgrade-package package: && devenv
+upgrade-package package: && uvmirror devenv
     uv lock --upgrade-package {{ package }}
 
 # The upgrade-all recipe is used for doing lockfile
