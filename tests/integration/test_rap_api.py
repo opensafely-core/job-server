@@ -168,6 +168,32 @@ def test_jobrequestcreate_post_unexpected_error(client, setup_backend_workspace_
     assert job_request.jobs_status == JobRequestStatus.UNKNOWN_ERROR_CREATING_JOBS
 
 
+def test_jobrequestcreate_post_timeout_error(
+    client, setup_backend_workspace_user, mocker
+):
+    # Simulate the current request handler hitting the worker timeout and being
+    # killed by gunicorn
+    mocker.patch("jobserver.rap_api._api_call", autospec=True, side_effect=SystemExit)
+
+    backend, workspace, user = setup_backend_workspace_user
+
+    client.force_login(user)
+    url = reverse("job-request-create", args=(workspace.project.slug, workspace.name))
+
+    with pytest.raises(SystemExit):
+        client.post(
+            url,
+            {
+                "backend": backend.slug,
+                "requested_actions": ["action1"],
+                "callback_url": "test",
+            },
+        )
+
+    job_request = JobRequest.objects.get()
+    assert job_request.jobs_status == JobRequestStatus.UNKNOWN
+
+
 @responses.activate
 def test_jobrequestcancel_post_success(client, setup_backend_workspace_user):
     """
