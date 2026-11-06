@@ -48,22 +48,16 @@ def test_login_pipeline(client, slack_messages):
         ]
         rsps.add(responses.GET, emails_url, json=emails_data, status=200)
 
-        # set a dummy state value in the test Client's session to match the
-        # value in redirect_url below
-        session = client.session
-        session["github_state"] = "test-state"
-        session.save()
+        # Start the login flow so social-auth can store the state transaction
+        # in the test Client's session.
+        login_url = reverse("auth-login", kwargs={"backend": "github"})
+        login_response = client.post(login_url, secure=True)
+        state = furl(login_response.url).args["state"]
 
-        # construct the URL path we've configured our GitHub OAuth application
-        # with, and set the expected query args.  Code is unused in this case
-        # (it would be constructed on our side from the Client ID/Secret when
-        # we redirected out to GitHub).  State would be sent by GitHub (also
-        # built using the known Client ID/Secret & Code we sent) and then
-        # matched against the state value we had constructed in the same way
-        # locally and stored in the session.
+        # Construct the callback URL using the state from the login request.
         redirect_url = (
             reverse("social:complete", kwargs={"backend": "github"})
-            + "?code=test-code&state=test-state"
+            + f"?code=test-code&state={state}"
         )
 
         response = client.get(redirect_url, follow=False, secure=True)
@@ -128,22 +122,16 @@ def test_login_pipeline_without_gitub_token(client, slack_messages):
         ]
         rsps.add(responses.GET, emails_url, json=emails_data, status=200)
 
-        # set a dummy state value in the test Client's session to match the
-        # value in redirect_url below
-        session = client.session
-        session["github_state"] = "test-state"
-        session.save()
+        # Start the login flow so social-auth can store the state transaction
+        # in the test Client's session.
+        login_url = reverse("auth-login", kwargs={"backend": "github"})
+        login_response = client.post(login_url, secure=True)
+        state = furl(login_response.url).args["state"]
 
-        # construct the URL path we've configured our GitHub OAuth application
-        # with, and set the expected query args.  Code is unused in this case
-        # (it would be constructed on our side from the Client ID/Secret when
-        # we redirected out to GitHub).  State would be sent by GitHub (also
-        # built using the known Client ID/Secret & Code we sent) and then
-        # matched against the state value we had constructed in the same way
-        # locally and stored in the session.
+        # Construct the callback URL using the state from the login request.
         redirect_url = (
             reverse("social:complete", kwargs={"backend": "github"})
-            + "?code=test-code&state=test-state"
+            + f"?code=test-code&state={state}"
         )
 
         response = client.get(redirect_url, follow=False, secure=True)
