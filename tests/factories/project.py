@@ -53,7 +53,7 @@ class CreateProjectFormDataFactory(factory.Factory):
         model = dict
 
     name = factory.Sequence(lambda n: f"Test Project {n}")
-    number = factory.Sequence(lambda n: str(1000000 + n))
+    number = factory.Sequence(lambda n: f"INTERNAL-{n:04}")
 
     @factory.lazy_attribute
     def orgs(self):

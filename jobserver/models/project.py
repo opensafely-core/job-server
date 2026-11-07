@@ -74,11 +74,14 @@ ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
 # For now, only approved categories' identifier formats are displayed. See
 # Slack and https://github.com/opensafely-core/job-server/issues/6037.
 # https://bennettoxford.slack.com/archives/C068NDYALSF/p1785771263091209?thread_ts=1785152219.125399&cid=C068NDYALSF
+CREATABLE_IDENTIFIER_PATTERN_DESCRIPTION = (
+    "Enter a number using the format POS-20YY-NNNN (for example, POS-2026-3001)."
+)
+"""String description of how a valid new project identifier may be written."""
 IDENTIFIER_PATTERN_DESCRIPTION = (
     "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
 )
-"""String description of how a valid project identifier may be written. For use
-in forms and validation messages."""
+"""String description of how a valid project identifier may be written."""
 
 ANY_IDENTIFIER_PATTERN_FULLMATCH = rf"^({ANY_IDENTIFIER_PATTERN})$"
 """Regex string for any valid project identifier for some category, wrapped
@@ -338,6 +341,8 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+
+        self.category = self.category_from_identifier(self.number or "")
 
         return super().save(*args, **kwargs)
 

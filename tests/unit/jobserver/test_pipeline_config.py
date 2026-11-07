@@ -58,7 +58,7 @@ def test_check_sqlrunner_permission():
 
     with pytest.raises(ActionConfigError):
         # Project 1 doesn't have permission
-        check_sqlrunner_permission(ProjectFactory(id=102, number=1), config)
+        check_sqlrunner_permission(ProjectFactory(id=102, number="1"), config)
 
 
 def test_check_sqlrunner_permission_no_sqlrunner_actions():
@@ -74,7 +74,7 @@ def test_check_sqlrunner_permission_no_sqlrunner_actions():
 
     # Project 1 doesn't have permission to run SQL Runner, but there are no SQL Runner,
     # so no error will be raised
-    check_sqlrunner_permission(ProjectFactory(id=101, number=1), config)
+    check_sqlrunner_permission(ProjectFactory(id=101, number="1"), config)
 
 
 def test_get_actions_missing_needs():

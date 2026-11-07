@@ -436,6 +436,21 @@ def test_category_from_identifier_methods(identifier, expected_category, expecte
 
 
 @pytest.mark.parametrize(
+    "number,expected_category",
+    [
+        ("INTERNAL-0123", ProjectCategory.INTERNAL),
+        ("LEGACY-0123", ProjectCategory.LEGACY),
+        ("123", ProjectCategory.LEGACY_APPROVED),
+        ("POS-2026-2001", ProjectCategory.APPROVED),
+        (None, ProjectCategory.UNKNOWN),
+    ],
+)
+def test_project_populates_category(number, expected_category):
+    """Test that Project.save sets the correct category on save."""
+    assert ProjectFactory(number=number).category == expected_category
+
+
+@pytest.mark.parametrize(
     "identifier,expected_str",
     [
         ("INTERNAL-0123", ""),

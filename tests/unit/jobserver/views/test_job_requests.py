@@ -943,7 +943,7 @@ def test_jobrequestcreate_post_rejects_deprecated_project_file_version(
     rf, mocker, user, project_membership, role_factory
 ):
     backend = BackendFactory()
-    workspace = WorkspaceFactory(project=ProjectFactory(number=1))
+    workspace = WorkspaceFactory(project=ProjectFactory(number="1"))
 
     BackendMembershipFactory(backend=backend, user=user)
     project_membership(
@@ -991,7 +991,7 @@ def test_jobrequestcreate_post_sqlrunner_without_permission(
     rf, mocker, user, project_membership, role_factory
 ):
     backend = BackendFactory()
-    workspace = WorkspaceFactory(project=ProjectFactory(number=1))
+    workspace = WorkspaceFactory(project=ProjectFactory(number="1"))
 
     BackendMembershipFactory(backend=backend, user=user)
     project_membership(

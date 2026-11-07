@@ -76,8 +76,9 @@ def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
 
 
 def test_send_repo_signed_off_notification_to_staff(mailoutbox):
-    project1 = ProjectFactory(number=7)
-    project2 = ProjectFactory(number=42)
+    project1 = ProjectFactory(number="7")
+    project2 = ProjectFactory(number="42")
+
     repo = RepoFactory(
         researcher_signed_off_at=timezone.now(),
         researcher_signed_off_by=UserFactory(),
