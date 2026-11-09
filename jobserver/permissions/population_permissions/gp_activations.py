@@ -91,6 +91,8 @@ PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION = {
     "207",  # https://jobs.opensafely.org/recording-of-additional-prescription-information-in-opensafely/
     "208",  #     https://jobs.opensafely.org/diagnostics-demand-optimisation/
     "209",  # https://jobs.opensafely.org/sars-covid-19-vaccination-and-risk-of-major-adverse-cardiac-events-after-hip-fracture/
+    "INTERNAL-0005",  # https://jobs.opensafely.org/opensafely-internal-5-no-ndoo-patients-no-t1oo-patients-non-activated-practices/
+    "INTERNAL-0006",  # https://jobs.opensafely.org/opensafely-internal-6-ndoo-patients-no-t1oo-patients-non-activated-practices/
 }
 
 

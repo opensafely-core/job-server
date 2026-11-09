@@ -112,6 +112,8 @@ PROJECTS_WITH_NDOO_PERMISSION = {
     "POS-2026-3017",  # Descriptive evaluation of palliative care identification in general practice in England using routinely recorded SNOMED CT–coded data from GP practices linked to secondary care data
     "POS-2026-3018",  # REDUCE-HF, an electronic health records study of inequalities in heart failure diagnosis in England
     "POS-2026-3019",  # Optimising vaccine evaluation in real time using health records (OVERTURE)
+    "INTERNAL-0004",  # OpenSAFELY Internal 4: NDOO patients; no T1OO patients; no non-activated practices
+    "INTERNAL-0006",  # OpenSAFELY Internal 6: NDOO patients; no T1OO patients; non-activated practices
 }
 
 
