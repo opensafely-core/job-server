@@ -59,6 +59,10 @@ class JobRequestCreateForm(forms.ModelForm):
                     f"({', '.join(requested_db_actions)}). "
                     "To fix this re-run `opensafely codelists update` and commit the changes.",
                 )
+        if self.fields["will_notify"]:
+            self.fields["notification_options"] = JobRequest.NotificationOptions.PER_JOB
+        else:
+            self.fields["notification_options"] = JobRequest.NotificationOptions.NONE
 
 
 class RequireNameForm(forms.Form):
