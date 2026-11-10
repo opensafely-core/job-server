@@ -28,6 +28,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     updated_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"Project {n}")
+    number = factory.Sequence(lambda n: f"INTERNAL-{n:04}")
     slug = factory.Sequence(lambda n: f"project-{n}")
 
     org = factory.PostGeneration(_project_collaboration_factory)
