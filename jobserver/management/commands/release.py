@@ -94,7 +94,7 @@ class Command(BaseCommand):
                 project = get_or_maybe_create(
                     create,
                     Project,
-                    {"name": "test-project"},
+                    {"name": "test-project", "number": "INTERNAL-9999"},
                     slug="test-project",
                     created_by=user,
                     updated_by=user,
