@@ -94,7 +94,6 @@ class ProjectQuerySet(models.QuerySet):
         2. Numeric (legacy approved) identifiers sort next, by numeric value descending.
         3. LEGACY identifiers sort next, in reverse lexical order.
         4. INTERNAL identifiers sort next, in reverse lexical order.
-        5. Blank or null identifiers sort last.
         6. Project name is used as a case-insensitive tie-breaker.
         """
         return self.annotate(
@@ -182,8 +181,6 @@ class Project(models.Model):
     slug = models.SlugField(max_length=255, unique=True, verbose_name="URL slug")
     number = models.CharField(
         max_length=20,
-        null=True,
-        blank=True,
         validators=[
             RegexValidator(
                 re.compile(ANY_IDENTIFIER_PATTERN_FULLMATCH),
@@ -297,10 +294,7 @@ class Project(models.Model):
         )
 
     def get_approved_url(self):
-        if self.number:
-            return furl(f"https://www.opensafely.org/project/{self.number}/")
-
-        return "https://www.opensafely.org/projects/not-found/"
+        return furl(f"https://www.opensafely.org/project/{self.number}/")
 
     def get_edit_url(self):
         return reverse(

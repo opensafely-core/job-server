@@ -46,7 +46,6 @@ def test_project_constraints_updated_at_and_updated_by_only_one_set():
 @pytest.mark.parametrize(
     "number",
     [
-        pytest.param(None, id="null"),
         pytest.param("1", id="digit-1"),
         pytest.param("123", id="multi-digit"),
         pytest.param("99999999", id="long-digit"),
@@ -75,7 +74,8 @@ def test_project_constraints_number_valid(number):
 @pytest.mark.parametrize(
     "number",
     [
-        # Null is allowed, the empty string is not
+        # Empty values are not allowed
+        pytest.param(None, id="empty-string"),
         pytest.param("", id="empty-string"),
         # Problematic characters
         pytest.param(" ", id="space-character"),
@@ -239,18 +239,10 @@ def test_project_get_absolute_url():
     )
 
 
-def test_project_get_approved_url_with_number():
+def test_project_get_approved_url():
     project = ProjectFactory(number="42")
 
     assert str(project.get_approved_url()) == "https://www.opensafely.org/project/42/"
-
-
-def test_project_get_approved_url_without_number():
-    project = ProjectFactory()
-
-    assert (
-        project.get_approved_url() == "https://www.opensafely.org/projects/not-found/"
-    )
 
 
 def test_project_get_edit_url():
@@ -329,7 +321,7 @@ def test_project_str():
 
 
 def test_project_title():
-    project = ProjectFactory(number=None)
+    project = ProjectFactory(number="LEGACY-0123")
     assert project.title == project.name
 
     project = ProjectFactory(name="test", number="123")
@@ -365,23 +357,21 @@ def test_project_org_returns_first_org_when_no_lead():
                 {"name": "project_4", "number": "7"},
                 {"name": "project_5", "number": "LEGACY-0001"},
                 {"name": "project_6", "number": "42"},
-                {"name": "project_7", "number": None},
-                {"name": "project_8", "number": "INTERNAL-0001"},
-                {"name": "project_9", "number": "POS-2023-2009"},
-                {"name": "project_10", "number": "INTERNAL-0123"},
-                {"name": "project_11", "number": "LEGACY-0123"},
+                {"name": "project_7", "number": "INTERNAL-0001"},
+                {"name": "project_8", "number": "POS-2023-2009"},
+                {"name": "project_9", "number": "INTERNAL-0123"},
+                {"name": "project_10", "number": "LEGACY-0123"},
             ],
             [
                 "project_3",
                 "project_2",
                 "project_1",
-                "project_9",
+                "project_8",
                 "project_6",
                 "project_4",
-                "project_11",
-                "project_5",
                 "project_10",
-                "project_8",
+                "project_5",
+                "project_9",
                 "project_7",
             ],
         ),
@@ -395,8 +385,8 @@ def test_project_org_returns_first_org_when_no_lead():
         ),
         (
             [
-                {"name": "second_project", "number": None},
-                {"name": "first_project", "number": None},
+                {"name": "second_project", "number": 1},
+                {"name": "first_project", "number": 2},
             ],
             ["first_project", "second_project"],
         ),
@@ -442,7 +432,6 @@ def test_category_from_identifier_methods(identifier, expected_category, expecte
         ("LEGACY-0123", ""),
         ("123", "123"),
         ("POS-2026-2001", "POS-2026-2001"),
-        (None, ""),
     ],
 )
 def test_full_identifier(identifier, expected_str):
