@@ -262,11 +262,9 @@ class Project(models.Model):
                 ),
                 name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
-            # only consider uniqueness of number when it's not null
             models.UniqueConstraint(
                 fields=["number"],
-                name="unique_number_ignore_null",
-                condition=Q(number__isnull=False),
+                name="unique_number",
                 violation_error_message="Project with this Project ID already exists.",
             ),
             models.CheckConstraint(
@@ -275,10 +273,7 @@ class Project(models.Model):
             ),
             models.CheckConstraint(
                 name="number_valid_format",
-                condition=(
-                    Q(number__isnull=True)
-                    | Q(number__regex=ANY_IDENTIFIER_PATTERN_FULLMATCH)
-                ),
+                condition=(Q(number__regex=ANY_IDENTIFIER_PATTERN_FULLMATCH)),
             ),
         ]
 
@@ -345,10 +340,7 @@ class Project(models.Model):
         https://bennettoxford.slack.com/archives/C068NDYALSF/p1785771263091209?thread_ts=1785152219.125399&cid=C068NDYALSF
         """
         allowed_categories = {ProjectCategory.LEGACY_APPROVED, ProjectCategory.APPROVED}
-        if (
-            self.number
-            and self.category_from_identifier(self.number) in allowed_categories
-        ):
+        if self.category_from_identifier(self.number) in allowed_categories:
             return f"{self.number}"
         return ""
 
