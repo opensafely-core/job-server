@@ -83,8 +83,6 @@ class UniqueProjectNumberMixin:
         # the resulting error is not attached to the form field. Raise a
         # ValidationError here instead, attaching it and improving the UI.
         number = self.cleaned_data["number"]
-        if number in (None, ""):
-            return number
 
         if Project.objects.exclude(pk=self.instance.pk).filter(number=number).exists():
             raise forms.ValidationError("Project with this Project ID already exists.")
