@@ -194,6 +194,11 @@ filterwarnings = [
     # Ignore project.yaml end-user warnings from the opensafely-pipeline library
     "ignore:ProjectWarning:UserWarning:pipeline.*:",
     "ignore:ProjectWarning:UserWarning:tests.*:",
+    # This is a warning for changed pytest behaviour in the upcoming v10.
+    # It is fixed in playwright-pytest, but not yet released:
+    # https://github.com/microsoft/playwright-pytest/commit/e1163fd0a9ed9a85f9b9d6e8a25f0c4b973c4e10
+    # We can remove this when playwright-pytest has a new release.
+    "ignore:Session-scoped fixtures defined as instance methods are deprecated:pytest.PytestRemovedIn10Warning",
 ]
 markers = [
   "slow_test: mark test as being slow running",
