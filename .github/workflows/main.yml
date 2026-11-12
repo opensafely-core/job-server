@@ -50,43 +50,46 @@ jobs:
           install-uv: true
           cache: uv
 
-      - name: Start database
-        run: just -f docker/justfile db
+      - parallel:
+        - name: Start database
+          run: just -f docker/justfile db
 
-      - name: Install Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: ".node-version"
-          cache: "npm"
-          cache-dependency-path: package-lock.json
+        - name: Install Node.js
+          uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+          with:
+            node-version-file: ".node-version"
+            cache: "npm"
+            cache-dependency-path: package-lock.json
+
+        - name: Install venv
+          run: just devenv
 
       - name: Install node_modules
         run: just assets-install --ignore-scripts
 
-      - name: Lint assets
-        run: npm run lint:ci
-
-      - name: Run JS tests
-        run: just assets-test
-
       - name: Build assets
         run: just assets-build
 
-      - name: Install venv
-        run: just devenv
+      - name: Lint assets
+        run: npm run lint:ci
 
-      - name: Run tests
-        env:
-          DATABASE_URL: postgres://user:pass@localhost:6543/jobserver
-          GITHUB_TOKEN: empty
-          GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
-          SECRET_KEY: 12345
-          SOCIAL_AUTH_GITHUB_KEY: test
-          SOCIAL_AUTH_GITHUB_SECRET: test
-        run: |
-          just check-migrations
-          # hardcode n because auto=2 in CI for some reason
-          just test-ci -n 4
+      - parallel:
+        - name: Run JS tests
+          run: just assets-test
+
+        - name: Run tests
+          id: python-tests
+          env:
+            DATABASE_URL: postgres://user:pass@localhost:6543/jobserver
+            GITHUB_TOKEN: empty
+            GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
+            SECRET_KEY: 12345
+            SOCIAL_AUTH_GITHUB_KEY: test
+            SOCIAL_AUTH_GITHUB_SECRET: test
+          run: |
+            just check-migrations
+            # hardcode n because auto=2 in CI for some reason
+            just test-ci -n 4
 
       - name: Upload HTML coverage report if tests failed
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -97,7 +100,7 @@ jobs:
           #  * the tests passed with 100% coverage
           #  * a test failed and coverage didn't run
           if-no-files-found: ignore
-        if: ${{ failure() }}  # only upload when the previous step, run tests, fails
+        if: ${{ failure() && steps.python-tests.outcome == 'failure' }} # only upload when the Python tests fail
 
   test-functional:
     name: Docker functional tests
