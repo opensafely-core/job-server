@@ -24,7 +24,8 @@ def test_create_workspace_args(capsys):
         "create_workspace",
         "workspace",
         user.username,
-        "--project=project",
+        "--project-slug=project",
+        "--project-number=123",
         "--repo=/other/url",
     )
 

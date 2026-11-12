@@ -780,7 +780,7 @@ def test_jobrequest_database_name(build_job_request):
     # project had permission to access t1oo; that permission has now moved to
     # the new permissions system and is passed via the rap_api module, so
     # the databse_name is now always "default"
-    job_request = build_job_request(project_number=None)
+    job_request = build_job_request(project_number=9999999)
     assert job_request.database_name == "default"
 
 
