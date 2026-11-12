@@ -90,6 +90,7 @@ def parse(data):
         "JOBSERVER_SCRUBBING_DATABASE_URL",
         "JOBSERVER_READONLY_DATABASE_URL",
         "MAILGUN_API_KEY",
+        "OLD_SECRET_KEY",
         "PASSWORD",
         "PGPASSWORD",
         "RAP_API_TOKEN",
