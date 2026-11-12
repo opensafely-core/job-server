@@ -21,11 +21,14 @@ class Command(BaseCommand):
         parser.add_argument("workspace", help="Workspace name")
         parser.add_argument(
             "username",
-            help="User to create workspaced with and add to workspace permissions",
+            help="User to create workspace with and add to workspace permissions",
         )
         parser.add_argument(
-            "--project", default=None, help="project name (defaults to workspace name)"
+            "--project-slug",
+            default=None,
+            help="project slug (defaults to workspace name)",
         )
+        parser.add_argument("--project-number", default="9999", help="project number")
         parser.add_argument(
             "--repo", default=None, help="repo url (defaults to /org/$workspace)"
         )
@@ -39,10 +42,11 @@ class Command(BaseCommand):
                 f"Cannot find user {options['username']}. Maybe you need to run create_user first?"
             )
 
-        project_slug = options["project"] or options["workspace"]
+        project_slug = options["project_slug"] or options["workspace"]
 
         project_values = {
             "name": project_slug,
+            "number": options["project_number"],
             "created_by": user,
             "updated_by": user,
         }

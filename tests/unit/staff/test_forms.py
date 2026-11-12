@@ -1,6 +1,6 @@
 import pytest
 
-from jobserver.models import Backend, Project
+from jobserver.models import Backend
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ProjectCreateForm,
@@ -201,34 +201,11 @@ def test_projecteditform_unbound(potential_copilots):
     assert set(form.fields["copilot"].queryset) == set(potential_copilots)
 
 
-def test_projecteditform_number_is_not_required():
-    """
-    Ensure Project.number isn't required by ProjectEditForm
-
-    Project.number is nullable while we get all project data ported into this
-    project.
-    """
-    org = OrgFactory()
-
-    data = {
-        "name": "Test",
-        "slug": "test",
-        "orgs": [str(org.pk)],
-        "status": Project.Statuses.RETIRED,
-    }
-
-    form = ProjectEditForm(data=data)
-    assert form.is_valid(), form.errors
-
-    form = ProjectEditForm(data=data | {"number": 123})
-    assert form.is_valid(), form.errors
-
-
 def test_projecteditform_with_duplicate_number():
     org = OrgFactory()
     project = ProjectFactory(orgs=[org])
 
-    other_project = ProjectFactory(number=42)
+    other_project = ProjectFactory(number="42")
 
     data = {
         "name": project.name,
@@ -263,7 +240,7 @@ def test_projecteditform_rejects_leading_zero_numeric_project_number():
 
 def test_projecteditform_with_existing_number():
     org = OrgFactory()
-    project = ProjectFactory(number=42, orgs=[org])
+    project = ProjectFactory(number="42", orgs=[org])
 
     data = {
         "name": project.name,
@@ -279,7 +256,7 @@ def test_projecteditform_with_existing_number():
 
 def test_projecteditform_rejects_invalid_alphanumeric_number():
     org = OrgFactory()
-    project = ProjectFactory(number=42, orgs=[org])
+    project = ProjectFactory(number="42", orgs=[org])
 
     data = {
         "name": project.name,
@@ -297,11 +274,7 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
 @pytest.mark.parametrize(
     "existing_number, new_number",
     [
-        (None, "42"),
-        (None, "POS-2025-2001"),
-        ("42", None),
         ("42", "POS-2025-2001"),
-        ("POS-2025-2001", None),
         ("POS-2025-2001", "42"),
     ],
 )
