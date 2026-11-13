@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from sentry_sdk import capture_message
+from social_django.models import UserSocialAuth
 
 from data_scrubbing.management.commands.scrub_data import fake_unique_email
 from jobserver.authorization.permissions import Permission
@@ -330,3 +331,21 @@ class User(AbstractBaseUser):
         instance here.
         """
         return self.social_auth.exists()
+
+    @cached_property
+    def github_id(self):
+        """
+        Return a social auth user's github id, prefixed with gh_
+        We will provide this to other services such as the RAP controller and
+        Airlock.
+        """
+        if not self.uses_social_auth:
+            return
+
+        # We only use GitHub as a social auth provider, so we should always
+        # be able to retrieve a github uid for a social auth user. Just in case,
+        # we catch the DoesNotExists exception and log it as an error.
+        try:
+            return f"gh_{self.social_auth.get(provider='github').uid}"
+        except UserSocialAuth.DoesNotExist:
+            logger.error("GitHub ID not found for user %s", self.username)
