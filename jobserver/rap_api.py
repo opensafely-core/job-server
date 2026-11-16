@@ -235,6 +235,7 @@ def create(job_request):
         "codelists_ok": job_request.codelists_ok,
         "force_run_dependencies": job_request.force_run_dependencies,
         "created_by": job_request.created_by.username,
+        "created_by_id": job_request.created_by.github_id,
         # Note that the RAP controller hardcodes specific project slugs for
         # special permissions treatment. So even though the API accepts
         # arbitrary opaque strings, there is a specific dependency on it being

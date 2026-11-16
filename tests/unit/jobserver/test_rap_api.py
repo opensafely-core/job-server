@@ -346,6 +346,7 @@ def job_request_for_create():
         "codelists_ok": job_request.codelists_ok,
         "force_run_dependencies": job_request.force_run_dependencies,
         "created_by": job_request.created_by.username,
+        "created_by_id": job_request.created_by.github_id,
         "project": job_request.workspace.project.slug,
         "orgs": list(job_request.workspace.project.orgs.values_list("slug", flat=True)),
         "analysis_scope": {},
