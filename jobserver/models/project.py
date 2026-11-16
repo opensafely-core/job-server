@@ -36,6 +36,14 @@ class ProjectCategory(models.TextChoices):
     UNKNOWN = "unknown", "(Unknown category)"
     """Unknown category, fallback option."""
 
+    def may_be_created(self):
+        """True if the project category may be created in the future, else False.
+
+        We have several historical categories of project that exist in the
+        database but should not be created in future, because the Directions
+        and approval process that they were created under no longer exists."""
+        return self in {self.INTERNAL, self.APPROVED}
+
 
 # Patterns and compiled regex for matching different possible kinds of
 # Project.number, also called identifiers.
