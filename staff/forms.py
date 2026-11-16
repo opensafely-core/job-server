@@ -149,7 +149,6 @@ class ProjectCreateForm(
         copilot = self.cleaned_data.get("copilot")
         if (
             not copilot
-            and number
             and Project.category_from_identifier(number) == ProjectCategory.APPROVED
         ):
             self.add_error(
