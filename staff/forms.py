@@ -172,6 +172,22 @@ class ProjectEditForm(forms.ModelForm, UniqueProjectNumberMixin):
         self.fields["copilot"].required = False
         self.fields["copilot"].queryset = User.objects.potential_copilots()
 
+    def clean_number(self):
+        """Disallow entry of project data for project categories that may not
+        be created anymore."""
+        number = super().clean_number()
+        category = Project.category_from_identifier(number)
+        if (
+            # It's okay if editing an existing non-createable number
+            self.instance.number != number
+            # But if we changed the number, it needs to fall in a valid
+            # category and that category needs to be createable
+            and category
+            and not category.may_be_created()
+        ):
+            raise forms.ValidationError(IDENTIFIER_PATTERN_DESCRIPTION)
+        return number
+
 
 class ProjectLinkApplicationForm(forms.Form):
     application = forms.CharField()
