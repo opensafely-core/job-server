@@ -142,9 +142,7 @@ class ProjectCreateForm(
         return self.cleaned_data["name"]
 
     def clean(self):
-        # Only require copilot be set for projects with a POS-format project number.
-        # TODO: When we implement project category, the second part of the
-        # condition could use that.
+        """Require that copilot be set for approved projects."""
         number = self.cleaned_data.get("number")
         copilot = self.cleaned_data.get("copilot")
         if (
