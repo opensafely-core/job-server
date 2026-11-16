@@ -879,6 +879,7 @@ def test_jobrequestcreate_post_with_notifications_default(
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert job_request.will_notify
+    assert JobRequest.NotificationOptions.PER_JOB in job_request.notification_settings
 
 
 def test_jobrequestcreate_post_with_notifications_override(
@@ -937,6 +938,7 @@ def test_jobrequestcreate_post_with_notifications_override(
     assert job_request.sha == "abc123"
     assert not job_request.will_notify
     assert not job_request.jobs.exists()
+    assert JobRequest.NotificationOptions.NONE in job_request.notification_settings
 
 
 def test_jobrequestcreate_post_rejects_deprecated_project_file_version(
