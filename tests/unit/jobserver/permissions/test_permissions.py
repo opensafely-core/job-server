@@ -23,12 +23,12 @@ from tests.factories import ProjectFactory
         ),
         pytest.param(
             permissions.population_permissions.ndoo.PROJECTS_WITH_NDOO_PERMISSION,
-            "PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION",
+            "PROJECTS_WITH_NDOO_PERMISSION",
             id="ndoo",
         ),
         pytest.param(
             permissions.population_permissions.t1oo.PROJECTS_WITH_T1OO_PERMISSION,
-            "PROJECTS_WITH_GP_ACTIVATIONS_PERMISSION",
+            "PROJECTS_WITH_T1OO_PERMISSION",
             id="t1oo",
         ),
     ],
