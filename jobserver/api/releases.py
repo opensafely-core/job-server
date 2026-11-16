@@ -499,6 +499,7 @@ class WorkspaceStatusAPI(RetrieveAPIView):
 
 class Level4AuthenticatedUser(serializers.Serializer):
     username = serializers.CharField()
+    user_id = serializers.CharField()
     fullname = serializers.CharField(default=None, allow_blank=True)
     workspaces = serializers.DictField(default={})
     copiloted_workspaces = serializers.DictField(default={})
@@ -550,6 +551,7 @@ def build_level4_user(user):
     level4_user = Level4AuthenticatedUser(
         data={
             "username": user.username,
+            "user_id": user.github_id,
             "fullname": user.fullname,
             "workspaces": workspaces,
             "copiloted_workspaces": copiloted_workspaces,
