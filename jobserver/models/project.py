@@ -81,8 +81,10 @@ ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
 
 # Only describe identifiers for Project categories that may_be_created.
 IDENTIFIER_PATTERN_DESCRIPTION = (
-    "Enter an INTERNAL-NNNN identifier for an internal project or for approved "
-    "projects use the the format POS-20YY-NNNN (for example, POS-2026-3001)."
+    # \u2011 == non-breaking hyphen
+    "Enter an INTERNAL\u2011NNNN identifier for an internal project or for approved "
+    "projects use the the format POS\u201120YY\u2011NNNN (for example, "
+    "POS\u20112026\u20113001)."
 )
 """String description of how a valid project identifier may be written. For use
 in forms and validation messages."""
