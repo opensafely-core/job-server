@@ -202,11 +202,22 @@ def test_projecteditform_unbound(potential_copilots):
     assert set(form.fields["copilot"].queryset) == set(potential_copilots)
 
 
-def test_projecteditform_with_duplicate_number():
+@pytest.mark.parametrize(
+    "old_number, other_number",
+    [
+        ("INTERNAL-0042", "POS-2025-2001"),
+        ("INTERNAL-0042", "INTERNAL-9999"),
+        ("POS-2025-2001", "INTERNAL-0042"),
+        ("POS-2025-2001", "POS-2055-2099"),
+    ],
+)
+def test_projecteditform_with_duplicate_number(old_number, other_number):
+    """Test that the project edit form fails validation when trying to change a
+    project number to an an existing project number."""
     org = OrgFactory()
-    project = ProjectFactory(orgs=[org])
+    project = ProjectFactory(number=old_number, orgs=[org])
 
-    other_project = ProjectFactory(number="42")
+    other_project = ProjectFactory(number=other_number)
 
     data = {
         "name": project.name,
@@ -220,22 +231,6 @@ def test_projecteditform_with_duplicate_number():
     assert not form.is_valid()
 
     assert form.errors == {"number": ["Project with this Project ID already exists."]}
-
-
-def test_projecteditform_with_existing_number():
-    org = OrgFactory()
-    project = ProjectFactory(number="INTERNAL-0042", orgs=[org])
-
-    data = {
-        "name": project.name,
-        "slug": project.slug,
-        "number": project.number,
-        "orgs": [str(org.pk)],
-        "status": project.status,
-    }
-    form = ProjectEditForm(data=data, instance=project)
-
-    assert form.is_valid(), form.errors
 
 
 @pytest.mark.parametrize(
