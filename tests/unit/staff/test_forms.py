@@ -1,6 +1,6 @@
 import pytest
 
-from jobserver.models import Backend, Project
+from jobserver.models import Backend
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ProjectCreateForm,
@@ -115,6 +115,7 @@ def test_projectcreateform_empty_slug():
 @pytest.mark.parametrize(
     "invalid_data_type,invalid_data,field",
     [
+        ("invalid_project_number", {"number": "123"}, "number"),
         ("duplicate_name", {}, "name"),
         ("unknown_org", {"orgs": ["99999"]}, "orgs"),
         ("unknown_copilot", {"copilot": "99999"}, "copilot"),
@@ -126,7 +127,7 @@ def test_projectcreateform_invalid_data(
     """
     Test invalid data submission to ProjectCreateForm
 
-    Parametrised invalid data: duplicate project name, an unknown organisation, and an unknown copilot user.
+    Parametrised invalid data: invalid project number, duplicate project name, an unknown organisation, and an unknown copilot user.
 
     When invalid data are submitted:
     - is_valid() fails
@@ -148,7 +149,7 @@ def test_projectcreateform_invalid_data(
 
 @pytest.mark.parametrize("field", ["name", "orgs", "copilot"])
 @pytest.mark.parametrize("missing_type", ["empty", "omitted"])
-@pytest.mark.parametrize("project_number", ["123", "POS-2026-3001"])
+@pytest.mark.parametrize("project_number", ["INTERNAL-0123", "POS-2026-3001"])
 def test_projectcreateform_without_required_data(
     field, missing_type, project_number, potential_copilots
 ):
@@ -177,7 +178,7 @@ def test_projectcreateform_without_required_data(
     form = ProjectCreateForm(data=data)
 
     # Copilot is only required for POS- projects.
-    if project_number == "123" and field == "copilot":
+    if project_number == "INTERNAL-0123" and field == "copilot":
         assert form.is_valid()
     else:
         assert not form.is_valid()
@@ -201,34 +202,22 @@ def test_projecteditform_unbound(potential_copilots):
     assert set(form.fields["copilot"].queryset) == set(potential_copilots)
 
 
-def test_projecteditform_number_is_not_required():
-    """
-    Ensure Project.number isn't required by ProjectEditForm
-
-    Project.number is nullable while we get all project data ported into this
-    project.
-    """
+@pytest.mark.parametrize(
+    "old_number, other_number",
+    [
+        ("INTERNAL-0042", "POS-2025-2001"),
+        ("INTERNAL-0042", "INTERNAL-9999"),
+        ("POS-2025-2001", "INTERNAL-0042"),
+        ("POS-2025-2001", "POS-2055-2099"),
+    ],
+)
+def test_projecteditform_with_duplicate_number(old_number, other_number):
+    """Test that the project edit form fails validation when trying to change a
+    project number to an an existing project number."""
     org = OrgFactory()
+    project = ProjectFactory(number=old_number, orgs=[org])
 
-    data = {
-        "name": "Test",
-        "slug": "test",
-        "orgs": [str(org.pk)],
-        "status": Project.Statuses.RETIRED,
-    }
-
-    form = ProjectEditForm(data=data)
-    assert form.is_valid(), form.errors
-
-    form = ProjectEditForm(data=data | {"number": 123})
-    assert form.is_valid(), form.errors
-
-
-def test_projecteditform_with_duplicate_number():
-    org = OrgFactory()
-    project = ProjectFactory(orgs=[org])
-
-    other_project = ProjectFactory(number=42)
+    other_project = ProjectFactory(number=other_number)
 
     data = {
         "name": project.name,
@@ -244,47 +233,24 @@ def test_projecteditform_with_duplicate_number():
     assert form.errors == {"number": ["Project with this Project ID already exists."]}
 
 
-def test_projecteditform_rejects_leading_zero_numeric_project_number():
+@pytest.mark.parametrize(
+    "new_number",
+    [
+        "LEGACY-0042",  # not in ProjectCategory.may_be_created
+        "42 ",  # not in ProjectCategory.may_be_created
+        "invalid",  # matches no pattern
+    ],
+)
+def test_projecteditform_rejects_invalid_numbers(new_number):
+    """Test that project edit form editing the number field to an invalid value
+    fails validation."""
     org = OrgFactory()
-    project = ProjectFactory(orgs=[org])
+    project = ProjectFactory(number="INTERNAL-0042", orgs=[org])
 
     data = {
         "name": project.name,
         "slug": project.slug,
-        "number": "0042",
-        "orgs": [str(org.pk)],
-        "status": project.status,
-    }
-    form = ProjectEditForm(data=data, instance=project)
-
-    assert not form.is_valid()
-    assert set(form.errors.keys()) == {"number"}
-
-
-def test_projecteditform_with_existing_number():
-    org = OrgFactory()
-    project = ProjectFactory(number=42, orgs=[org])
-
-    data = {
-        "name": project.name,
-        "slug": project.slug,
-        "number": project.number,
-        "orgs": [str(org.pk)],
-        "status": project.status,
-    }
-    form = ProjectEditForm(data=data, instance=project)
-
-    assert form.is_valid(), form.errors
-
-
-def test_projecteditform_rejects_invalid_alphanumeric_number():
-    org = OrgFactory()
-    project = ProjectFactory(number=42, orgs=[org])
-
-    data = {
-        "name": project.name,
-        "slug": project.slug,
-        "number": "POS-invalid-format",
+        "number": new_number,
         "orgs": [str(org.pk)],
         "status": project.status,
     }
@@ -297,22 +263,31 @@ def test_projecteditform_rejects_invalid_alphanumeric_number():
 @pytest.mark.parametrize(
     "existing_number, new_number",
     [
-        (None, "42"),
-        (None, "POS-2025-2001"),
-        ("42", None),
-        ("42", "POS-2025-2001"),
-        ("POS-2025-2001", None),
-        ("POS-2025-2001", "42"),
+        # Valid number transitions.
+        ("INTERNAL-0042", "POS-2025-2001"),
+        ("INTERNAL-0042", "INTERNAL-9999"),
+        ("POS-2025-2001", "INTERNAL-0042"),
+        ("POS-2025-2001", "POS-2055-2099"),
+        # Also test form with unchanged number.
+        ("POS-2025-2001", "POS-2025-2001"),
+        ("INTERNAL-0042", "INTERNAL-0042"),
+        # Even numbers not in ProjectCategory.may_be_created should allow other
+        # fields to be edited (name in this case)
+        ("42", "42"),
+        ("LEGACY-0042", "LEGACY-0042"),
     ],
 )
-def test_projecteditform_cleans_number_transitions(existing_number, new_number):
+def test_projecteditform_valid_numbers(existing_number, new_number):
+    """Test that project edit form editing the number field with a valid number
+    successfully validates."""
     org = OrgFactory()
-    project = ProjectFactory(number=existing_number, orgs=[org])
+    # Let's change the name, too, so that something is always changed.
+    project = ProjectFactory(name="old name", number=existing_number, orgs=[org])
 
     data = {
-        "name": project.name,
+        "name": "new name",  # changed
         "slug": project.slug,
-        "number": new_number,
+        "number": new_number,  # maybe changed
         "orgs": [str(org.pk)],
         "status": project.status,
     }
@@ -321,6 +296,7 @@ def test_projecteditform_cleans_number_transitions(existing_number, new_number):
     print("new_number:", new_number)
     assert form.is_valid(), form.errors
     assert form.cleaned_data["number"] == new_number
+    assert form.cleaned_data["name"] == "new name"
 
 
 def test_projectlinkapplicationform_success():

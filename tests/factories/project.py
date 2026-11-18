@@ -28,6 +28,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     updated_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"Project {n}")
+    number = factory.Sequence(lambda n: f"INTERNAL-{n:04}")
     slug = factory.Sequence(lambda n: f"project-{n}")
 
     org = factory.PostGeneration(_project_collaboration_factory)
@@ -53,7 +54,7 @@ class CreateProjectFormDataFactory(factory.Factory):
         model = dict
 
     name = factory.Sequence(lambda n: f"Test Project {n}")
-    number = factory.Sequence(lambda n: str(1000000 + n))
+    number = factory.Sequence(lambda n: f"INTERNAL-{n:04}")
 
     @factory.lazy_attribute
     def orgs(self):

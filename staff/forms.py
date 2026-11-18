@@ -15,6 +15,7 @@ from jobserver.models import (
     User,
     Workspace,
 )
+from jobserver.models.project import IDENTIFIER_PATTERN_DESCRIPTION
 
 
 def user_label_from_instance(obj):
@@ -83,15 +84,35 @@ class UniqueProjectNumberMixin:
         # the resulting error is not attached to the form field. Raise a
         # ValidationError here instead, attaching it and improving the UI.
         number = self.cleaned_data["number"]
-        if number in (None, ""):
-            return number
 
         if Project.objects.exclude(pk=self.instance.pk).filter(number=number).exists():
             raise forms.ValidationError("Project with this Project ID already exists.")
         return number
 
 
-class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
+class AllowedNewCategoriesMixin:
+    """Mixin to validate Project.number comes from an allowed category."""
+
+    def clean_number(self):
+        """Disallow entry of project data for project categories that may not
+        be created anymore."""
+        number = super().clean_number()
+        category = Project.category_from_identifier(number)
+        if (
+            # It's okay if editing an existing non-createable number
+            self.instance.number != number
+            # But if we changed the number, it needs to fall in a valid
+            # category and that category needs to be createable
+            and category
+            and not category.may_be_created()
+        ):
+            raise forms.ValidationError(IDENTIFIER_PATTERN_DESCRIPTION)
+        return number
+
+
+class ProjectCreateForm(
+    AllowedNewCategoriesMixin, UniqueProjectNumberMixin, forms.ModelForm
+):
     """Form to create a Project."""
 
     class Meta:
@@ -121,14 +142,11 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
         return self.cleaned_data["name"]
 
     def clean(self):
-        # Only require copilot be set for projects with a POS-format project number.
-        # TODO: When we implement project category, the second part of the
-        # condition could use that.
+        """Require that copilot be set for approved projects."""
         number = self.cleaned_data.get("number")
         copilot = self.cleaned_data.get("copilot")
         if (
             not copilot
-            and number
             and Project.category_from_identifier(number) == ProjectCategory.APPROVED
         ):
             self.add_error(
@@ -140,7 +158,9 @@ class ProjectCreateForm(forms.ModelForm, UniqueProjectNumberMixin):
             )
 
 
-class ProjectEditForm(forms.ModelForm, UniqueProjectNumberMixin):
+class ProjectEditForm(
+    AllowedNewCategoriesMixin, UniqueProjectNumberMixin, forms.ModelForm
+):
     class Meta:
         fields = [
             "copilot",

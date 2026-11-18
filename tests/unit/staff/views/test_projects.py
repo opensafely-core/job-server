@@ -269,7 +269,7 @@ def test_projectedit_get_unauthorized(rf):
 
 
 def test_projectedit_post_success(rf, staff_area_administrator, potential_copilots):
-    project = ProjectFactory(name="test", number=123, orgs=[OrgFactory()])
+    project = ProjectFactory(name="test", number="INTERNAL-0123", orgs=[OrgFactory()])
     old_project_url = project.get_absolute_url()
     new_copilot = potential_copilots.first()
 
@@ -278,7 +278,7 @@ def test_projectedit_post_success(rf, staff_area_administrator, potential_copilo
     data = {
         "name": "New Name",
         "slug": "new-name",
-        "number": 456,
+        "number": "INTERNAL-0456",
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
         "orgs": [str(new_org.pk)],
@@ -296,7 +296,7 @@ def test_projectedit_post_success(rf, staff_area_administrator, potential_copilo
     assert response.url == project.get_staff_url()
     assert project.name == "New Name"
     assert project.slug == "new-name"
-    assert project.number == "456"
+    assert project.number == "INTERNAL-0456"
     assert project.copilot == new_copilot
     assert set_from_qs(project.orgs.all()) == {new_org.pk}
     assert project.updated_by == staff_area_administrator
@@ -308,14 +308,16 @@ def test_projectedit_post_success_when_not_changing_slug(
     rf, staff_area_administrator, potential_copilots
 ):
     org = OrgFactory()
-    project = ProjectFactory(name="Test", slug="test", number=123, orgs=[org])
+    project = ProjectFactory(
+        name="Test", slug="test", number="INTERNAL-0123", orgs=[org]
+    )
 
     new_copilot = potential_copilots.first()
 
     data = {
         "name": "Test",
         "slug": "test",
-        "number": 456,
+        "number": "INTERNAL-0456",
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
         "orgs": str(org.pk),
@@ -333,7 +335,7 @@ def test_projectedit_post_success_when_not_changing_slug(
     assert response.url == project.get_staff_url()
     assert project.name == "Test"
     assert project.slug == "test"
-    assert project.number == "456"
+    assert project.number == "INTERNAL-0456"
     assert project.copilot == new_copilot
     assert project.redirects.count() == 0
 
@@ -364,7 +366,7 @@ def test_projectedit_post_updates_number_from_numeric_to_alphanumeric(
     project = ProjectFactory(
         name="Test",
         slug="test",
-        number=123,
+        number="123",
         orgs=[org],
         status=Project.Statuses.COMPLETED_AWAITING,
     )

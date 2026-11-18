@@ -36,6 +36,14 @@ class ProjectCategory(models.TextChoices):
     UNKNOWN = "unknown", "(Unknown category)"
     """Unknown category, fallback option."""
 
+    def may_be_created(self):
+        """True if the project category may be created in the future, else False.
+
+        We have several historical categories of project that exist in the
+        database but should not be created in future, because the Directions
+        and approval process that they were created under no longer exists."""
+        return self in {self.INTERNAL, self.APPROVED}
+
 
 # Patterns and compiled regex for matching different possible kinds of
 # Project.number, also called identifiers.
@@ -71,11 +79,12 @@ ANY_IDENTIFIER_PATTERN = r"|".join(IDENTIFIER_PATTERNS.values())
 ANY_IDENTIFIER_REGEX = re.compile(ANY_IDENTIFIER_PATTERN)
 """Compiled regex for any valid project identifier for some category."""
 
-# For now, only approved categories' identifier formats are displayed. See
-# Slack and https://github.com/opensafely-core/job-server/issues/6037.
-# https://bennettoxford.slack.com/archives/C068NDYALSF/p1785771263091209?thread_ts=1785152219.125399&cid=C068NDYALSF
+# Only describe identifiers for Project categories that may_be_created.
 IDENTIFIER_PATTERN_DESCRIPTION = (
-    "Enter a whole number or use the format POS-20YY-NNNN (for example, POS-2026-3001)."
+    # \u2011 == non-breaking hyphen
+    "Enter an INTERNAL\u2011NNNN identifier for an internal project or for approved "
+    "projects use the the format POS\u201120YY\u2011NNNN (for example, "
+    "POS\u20112026\u20113001)."
 )
 """String description of how a valid project identifier may be written. For use
 in forms and validation messages."""
@@ -94,7 +103,6 @@ class ProjectQuerySet(models.QuerySet):
         2. Numeric (legacy approved) identifiers sort next, by numeric value descending.
         3. LEGACY identifiers sort next, in reverse lexical order.
         4. INTERNAL identifiers sort next, in reverse lexical order.
-        5. Blank or null identifiers sort last.
         6. Project name is used as a case-insensitive tie-breaker.
         """
         return self.annotate(
@@ -182,8 +190,6 @@ class Project(models.Model):
     slug = models.SlugField(max_length=255, unique=True, verbose_name="URL slug")
     number = models.CharField(
         max_length=20,
-        null=True,
-        blank=True,
         validators=[
             RegexValidator(
                 re.compile(ANY_IDENTIFIER_PATTERN_FULLMATCH),
@@ -265,11 +271,9 @@ class Project(models.Model):
                 ),
                 name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
-            # only consider uniqueness of number when it's not null
             models.UniqueConstraint(
                 fields=["number"],
-                name="unique_number_ignore_null",
-                condition=Q(number__isnull=False),
+                name="unique_number",
                 violation_error_message="Project with this Project ID already exists.",
             ),
             models.CheckConstraint(
@@ -278,10 +282,7 @@ class Project(models.Model):
             ),
             models.CheckConstraint(
                 name="number_valid_format",
-                condition=(
-                    Q(number__isnull=True)
-                    | Q(number__regex=ANY_IDENTIFIER_PATTERN_FULLMATCH)
-                ),
+                condition=(Q(number__regex=ANY_IDENTIFIER_PATTERN_FULLMATCH)),
             ),
         ]
 
@@ -297,10 +298,7 @@ class Project(models.Model):
         )
 
     def get_approved_url(self):
-        if self.number:
-            return furl(f"https://www.opensafely.org/project/{self.number}/")
-
-        return "https://www.opensafely.org/projects/not-found/"
+        return furl(f"https://www.opensafely.org/project/{self.number}/")
 
     def get_edit_url(self):
         return reverse(
@@ -339,6 +337,8 @@ class Project(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
 
+        self.category = self.category_from_identifier(self.number)
+
         return super().save(*args, **kwargs)
 
     @property
@@ -351,10 +351,7 @@ class Project(models.Model):
         https://bennettoxford.slack.com/archives/C068NDYALSF/p1785771263091209?thread_ts=1785152219.125399&cid=C068NDYALSF
         """
         allowed_categories = {ProjectCategory.LEGACY_APPROVED, ProjectCategory.APPROVED}
-        if (
-            self.number
-            and self.category_from_identifier(self.number) in allowed_categories
-        ):
+        if self.category_from_identifier(self.number) in allowed_categories:
             return f"{self.number}"
         return ""
 
@@ -375,7 +372,7 @@ class Project(models.Model):
     def category_from_identifier(cls, identifier: str) -> ProjectCategory | None:
         """Return the ProjectCategory for which the string matches the identifier
         format or None."""
-        if identifier == "":
+        if not identifier:
             return ProjectCategory.UNKNOWN
         for category, pattern in IDENTIFIER_REGEXES.items():
             if pattern.fullmatch(identifier):
