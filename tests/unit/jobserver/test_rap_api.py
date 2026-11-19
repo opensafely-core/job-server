@@ -326,13 +326,15 @@ class TestStatus:
 
 
 @pytest.fixture
-def job_request_for_create():
+def job_request_for_create(user):
     # Ensure this job_request has a project with a number (by default it will be None)
     # so that it can be looked up in the project-specific permissions files that
     # determine the value of the analysis_scope request parameter
+    # Use the user fixture as the job_request's created_by to ensure the user has
+    # a valid github user id.
     project = ProjectFactory(number="111")
     workspace = WorkspaceFactory(project=project)
-    job_request = JobRequestFactory(workspace=workspace)
+    job_request = JobRequestFactory(workspace=workspace, created_by=user)
 
     request_body = {
         "rap_id": job_request.identifier,
@@ -479,23 +481,23 @@ class TestCreate:
             expected_request_body,
         )
 
-    def test_bad_status_code(self, patch_api_call):
+    def test_bad_status_code(self, patch_api_call, user):
         """Test a non-200/201 status raises right Exception including the response body."""
         fake_json = {"err": "some problem detected", "details": "Couldn't do it"}
         patch_api_call(fake_json=fake_json, status_code=400)
 
-        job_request = JobRequestFactory()
+        job_request = JobRequestFactory(created_by=user)
 
         with pytest.raises(RapAPIResponseError) as exc:
             create(job_request)
         assert exc.value.body == fake_json
 
-    def test_bad_status_code_500(self, patch_api_call):
+    def test_bad_status_code_500(self, patch_api_call, user):
         """Test a non-200 status raises right Exception including the response body."""
         fake_body = b"<html>Gateway Error 500</html>"
         patch_api_call(fake_body=fake_body, status_code=500)
 
-        job_request = JobRequestFactory()
+        job_request = JobRequestFactory(created_by=user)
 
         with pytest.raises(RapAPIRequestError):
             create(job_request)

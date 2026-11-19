@@ -104,7 +104,7 @@ def user():
     Org tied to a GitHub Organisation.
     """
     org = OrgFactory(name="OpenSAFELY", slug="opensafely")
-    user = UserFactory()
+    user = UserSocialAuthFactory().user
 
     # Make the User part of the Org
     OrgMembershipFactory(org=org, user=user)
