@@ -1562,6 +1562,7 @@ def test_level4tokenauthenticationapi_success(
     assert response.status_code == 200
     assert response.data == {
         "username": token_login_user.username,
+        "user_id": token_login_user.github_id,
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
@@ -1626,6 +1627,7 @@ def test_level4tokenauthenticationapi_success_privileged(
     assert response.status_code == 200
     assert response.data == {
         "username": token_login_user.username,
+        "user_id": token_login_user.github_id,
         "fullname": token_login_user.fullname,
         "workspaces": {
             workspace1.name: {
@@ -1674,6 +1676,7 @@ def test_level4tokenauthenticationapi_success_readonly_permissions(
     assert response.status_code == 200
     assert response.data == {
         "username": token_login_user.username,
+        "user_id": token_login_user.github_id,
         "fullname": token_login_user.fullname,
         "workspaces": {},
         "copiloted_workspaces": {},
@@ -1811,6 +1814,7 @@ def test_level4authorisationapi_success(
     assert response.data == {
         "username": token_login_user.username,
         "fullname": token_login_user.fullname,
+        "user_id": token_login_user.github_id,
         "workspaces": {
             workspace1.name: {
                 "project_details": {"name": project1.name, "ongoing": True, "orgs": []},

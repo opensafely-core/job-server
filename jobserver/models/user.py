@@ -330,3 +330,14 @@ class User(AbstractBaseUser):
         instance here.
         """
         return self.social_auth.exists()
+
+    @cached_property
+    def github_id(self):
+        """
+        Return a social auth user's github id, prefixed with gh_
+        We will provide this to other services such as the RAP controller and
+        Airlock.
+        """
+        # We only use GitHub as a social auth provider, so we should always
+        # be able to retrieve a github uid for a social auth user.
+        return f"gh_{self.social_auth.get(provider='github').uid}"

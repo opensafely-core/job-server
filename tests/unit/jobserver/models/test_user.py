@@ -4,6 +4,7 @@ import pytest
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
+from social_django.models import UserSocialAuth
 
 from jobserver.authorization.roles import (
     OutputChecker,
@@ -11,11 +12,7 @@ from jobserver.authorization.roles import (
 )
 from jobserver.models.user import User
 
-from ....factories import (
-    OrgFactory,
-    ProjectFactory,
-    UserFactory,
-)
+from ....factories import OrgFactory, ProjectFactory, UserFactory, UserSocialAuthFactory
 
 
 def test_user_has_any_roles_with_a_global_role():
@@ -329,3 +326,24 @@ def test_potential_copilots(user_with_fake_role_factory):
 def test_user_display_name():
     user = UserFactory(fullname="first last", username="test")
     assert user.display_name == "first last (test)"
+
+
+def test_github_id_no_social_auth():
+    user = UserFactory(fullname="first last", username="test")
+    assert not user.uses_social_auth
+    with pytest.raises(UserSocialAuth.DoesNotExist):
+        _user = user.github_id
+
+
+def test_github_id():
+    user_social_auth = UserSocialAuthFactory()
+    user = user_social_auth.user
+    assert user.github_id == f"gh_{user_social_auth.uid}"
+
+
+def test_github_id_no_github_provider():
+    user_social_auth = UserSocialAuthFactory(provider="other")
+    user = user_social_auth.user
+    assert user.uses_social_auth
+    with pytest.raises(UserSocialAuth.DoesNotExist):
+        _user = user.github_id
