@@ -115,8 +115,6 @@ PROJECTS_WITH_T1OO_PERMISSION = {
 
 
 def project_has_permission(project):
-    if not project.number:
-        return False
     return project.number in PROJECTS_WITH_T1OO_PERMISSION
 
 
