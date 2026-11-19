@@ -2,7 +2,8 @@
 #   IMPORTANT NOTE  *
 # *******************
 #
-# Only the IG team are authorised to make modifications to the list of projects below.
+# In consultation and agreement with NHS England (the data controllers) only
+# the IG team are authorised to make modifications to the list of projects below.
 # Any PRs which update this list should be reviewed and approved by a member of the IG
 # team so as to create the appropriate audit trail.
 #
