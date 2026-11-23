@@ -3,7 +3,7 @@
 -e .
 argon2-cffi==25.1.0
     # via jobserver
-argon2-cffi-bindings==26.1.0
+argon2-cffi-bindings==26.2.0
     # via argon2-cffi
 asgiref==3.13.0
     # via
@@ -14,7 +14,7 @@ asgiref==3.13.0
     #   social-auth-app-django
 brotli==1.2.1
     # via whitenoise
-certifi==2026.10.23
+certifi==2026.11.20
     # via
     #   requests
     #   sentry-sdk
@@ -28,7 +28,7 @@ charset-normalizer==3.5.2
     # via requests
 colorama==0.4.6 ; sys_platform == 'win32'
     # via pytest
-coverage==7.17.2
+coverage==7.17.3
 cryptography==50.0.2
     # via
     #   pyjwt
@@ -83,9 +83,9 @@ djhtml==3.0.11
 execnet==2.1.2
     # via pytest-xdist
 factory-boy==3.3.3
-faker==40.44.0
+faker==40.54.0
     # via factory-boy
-filelock==4.2.9
+filelock==4.2.10
     # via
     #   python-discovery
     #   virtualenv
@@ -97,7 +97,7 @@ googleapis-common-protos==1.76.0
     # via opentelemetry-exporter-otlp-proto-http
 greenlet==3.5.6
     # via playwright
-gunicorn==26.2.0
+gunicorn==27.0.1
     # via jobserver
 icdiff==2.0.10
     # via pytest-icdiff
@@ -190,7 +190,7 @@ packaging==26.3
     #   virtualenv
 platformdirs==4.14.5
     # via virtualenv
-playwright==1.64.1
+playwright==1.65.2
     # via pytest-playwright
 pluggy==1.7.0
     # via pytest
@@ -203,14 +203,12 @@ protobuf==7.36.2
     #   opentelemetry-proto
 psutil==7.2.2
     # via pytest-xdist
-psycopg==3.3.8
+psycopg==3.3.9
     # via jobserver
-psycopg-binary==3.3.8 ; implementation_name != 'pypy'
+psycopg-binary==3.3.9 ; implementation_name != 'pypy'
     # via psycopg
 pycparser==3.12 ; implementation_name != 'PyPy'
     # via cffi
-pyee==14.0.0
-    # via playwright
 pygments==2.21.0
     # via
     #   jobserver
@@ -270,10 +268,10 @@ ruamel-yaml==0.19.1
     # via opensafely-pipeline
 ruamel-yaml-clib==0.2.15
     # via opensafely-pipeline
-ruff==0.17.4
+ruff==0.17.5
 ruyaml==0.91.0
     # via opensafely-pipeline
-sentry-sdk==2.74.0
+sentry-sdk==2.75.0
     # via jobserver
 setuptools==84.2.1
     # via ruyaml
@@ -281,13 +279,13 @@ six==1.17.0
     # via
     #   furl
     #   orderedmultidict
-slack-sdk==3.46.0
+slack-sdk==3.47.0
     # via jobserver
 slippers==0.7.1
     # via jobserver
-social-auth-app-django==8.0.0
+social-auth-app-django==8.1.0
     # via jobserver
-social-auth-core==7.0.0
+social-auth-core==7.2.0
     # via
     #   jobserver
     #   social-auth-app-django
@@ -295,7 +293,7 @@ sqlparse==0.6.1
     # via
     #   django
     #   django-debug-toolbar
-stamina==26.1.0
+stamina==26.2.0
     # via jobserver
 structlog==26.1.0
     # via
@@ -316,7 +314,6 @@ typing-extensions==4.16.0
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
     #   psycopg
-    #   pyee
     #   slippers
 tzdata==2026.6
     # via
