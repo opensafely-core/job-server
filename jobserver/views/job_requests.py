@@ -207,12 +207,18 @@ class JobRequestCreate(CreateView):
             )
 
         backend = Backend.objects.get(slug=form.cleaned_data.pop("backend"))
+        if form.cleaned_data["will_notify"]:
+            notification_settings = [JobRequest.NotificationOptions.PER_JOB]
+        else:
+            notification_settings = [JobRequest.NotificationOptions.NONE]
+
         job_request = backend.job_requests.create(
             workspace=self.workspace,
             created_by=self.request.user,
             sha=sha,
             project_definition=self.project,
             codelists_ok=self.codelists_status == "ok",
+            notification_settings=notification_settings,
             **form.cleaned_data,
         )
 

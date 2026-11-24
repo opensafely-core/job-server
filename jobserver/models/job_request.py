@@ -154,6 +154,20 @@ class JobRequest(models.Model):
     project_definition = models.TextField(default="")
     codelists_ok = models.BooleanField(default=True)
 
+    class NotificationOptions(models.TextChoices):
+        """
+        The notification setting for this JobRequest, representing which emails will be sent to
+        the requesting researcher.
+        """
+
+        NONE = "none"
+        PER_JOB = "per_job"
+        PER_REQUEST = "per_request"
+
+    notification_settings = ArrayField(
+        models.TextField(choices=NotificationOptions), default=list
+    )
+
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "User",
@@ -193,6 +207,7 @@ class JobRequest(models.Model):
                 "created_by",
                 "force_run_dependencies",
                 "identifier",
+                "notification_settings",
                 "project_definition",
                 "requested_actions",
                 "sha",
